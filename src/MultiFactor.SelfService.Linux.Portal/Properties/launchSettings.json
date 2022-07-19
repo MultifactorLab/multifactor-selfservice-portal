@@ -1,21 +1,22 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:16519",
-      "sslPort": 44323
+      "sslPort": 0
     }
   },
   "profiles": {
     "MultiFactor.SelfService.Linux.Portal": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7072;http://localhost:5072",
+      "launchUrl": "http://localhost:16519",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "localhost"
+      },
+      "applicationUrl": "http://localhost:16519",
+      "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",
