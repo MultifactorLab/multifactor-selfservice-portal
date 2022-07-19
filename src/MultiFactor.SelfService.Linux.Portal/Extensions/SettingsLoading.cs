@@ -1,8 +1,10 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Extensions
+﻿using System.Linq.Expressions;
+
+namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     internal static class SettingsLoading
     {
-        public static void LoadSettings(this WebApplicationBuilder applicationBuilder, string[] args)
+        public static void AddSettings(this WebApplicationBuilder applicationBuilder, string[] args)
         {
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, config) =>
             {
@@ -17,12 +19,39 @@
                     config.AddCommandLine(args);
                 }
             });
+        }
 
+        public static void LoadPortalSettings(this WebApplicationBuilder applicationBuilder)
+        {
             var settings = GetSettings(applicationBuilder) ?? throw new Exception("Can't find PortalSettings section in appsettings");
 
             ValidateSettings(settings);
 
             applicationBuilder.Services.AddSingleton(settings);
+        }
+
+        public static string GetSettingsValue<TProperty>(this WebApplication application, Expression<Func<PortalSettings, TProperty>> action)
+        {
+            var key = GetPropertyName(action) ?? throw new Exception($"Settings key was not found");
+            return application.Configuration.GetValue<string>($"{nameof(PortalSettings)}:{key}") ?? throw new Exception($"Settings value was not found");
+        }
+
+        public static string GetSettingsValue<TProperty>(this WebApplicationBuilder applicationBuilder, Expression<Func<PortalSettings, TProperty>> action)
+        {
+            var key = GetPropertyName(action) ?? throw new Exception($"Settings key was not found");
+            return applicationBuilder.Configuration.GetValue<string>($"{nameof(PortalSettings)}:{key}") ?? throw new Exception($"Settings value was not found");
+        }
+
+        public static string? GetSettingsValue<TProperty>(this WebApplicationBuilder applicationBuilder, Expression<Func<PortalSettings, TProperty>> action, string defaultValue)
+        {
+            var key = GetPropertyName(action) ?? throw new Exception($"Settings key was not found");
+            return applicationBuilder.Configuration.GetValue<string>($"{nameof(PortalSettings)}:{key}") ?? defaultValue;
+        }
+
+        private static string? GetPropertyName<T, P>(Expression<Func<T, P>> action) where T : class
+        {
+            var expression = action.Body as MemberExpression;
+            return expression?.Member.Name;
         }
 
         private static PortalSettings GetSettings(WebApplicationBuilder applicationBuilder)

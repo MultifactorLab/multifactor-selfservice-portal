@@ -4,9 +4,11 @@ using MultiFactor.SelfService.Linux.Portal.Services.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.LoadSettings(args);
+builder.AddSettings(args);
+builder.ConfigureLogging();
+builder.LoadPortalSettings();
 builder.Services.AddControllersWithViews();
-builder.ConfigureLocalization();
+builder.AddLocalization();
 
 ////////////////////////////////////////////////////////////////////////////////
 // <system.web. authentication mode="Forms">
@@ -35,6 +37,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Shared/Error");
 }
+
+app.UseLocalization();
 
 app.UseStaticFiles();
 

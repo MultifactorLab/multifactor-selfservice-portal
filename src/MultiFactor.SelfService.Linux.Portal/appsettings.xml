@@ -48,13 +48,13 @@
 		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
 
 		<!--Syslog server-->
-		<!--<SyslogServer>udp://SyslogServer:514</syslog-server>-->
+		<!--<SyslogServer>tcp://192.168.56.1:514</SyslogServer>-->
 		<!--Syslog format: RFC3164 or RFC5424-->
 		<!--<SyslogFormat>RFC5424</SyslogFormat>-->
 		<!--<SyslogFacility>Auth</SyslogFacility>-->
 		<!--<SyslogAppName>multifactor-portal</SyslogAppName>-->
 
-		<DefaultCulture>ru</DefaultCulture>
+		<DefaultCulture>en</DefaultCulture>
 	</PortalSettings>
 
 </configuration>

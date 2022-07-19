@@ -67,6 +67,16 @@
         /// </summary>
         public string LoggingLevel { get; private set; }
 
+        public string LoggingFormat { get; private set; }
+
+        public string SyslogServer { get; private set; }
+
+        public string SyslogFormat { get; private set; }
+
+        public string SyslogFacility { get; private set; }
+
+        public string SyslogAppName { get; private set; }
+
         public bool EnablePasswordManagement { get; private set; }
 
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
