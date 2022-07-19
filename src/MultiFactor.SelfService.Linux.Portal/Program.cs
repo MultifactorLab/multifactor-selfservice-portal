@@ -1,19 +1,41 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Services.Api;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.LoadSettings(args);
 builder.Services.AddControllersWithViews();
+builder.ConfigureLocalization();
+
+////////////////////////////////////////////////////////////////////////////////
+// <system.web. authentication mode="Forms">
+// <forms loginUrl="~/account/login" timeout="2880" requireSSL="true"/>
+// </authentication>
+// <httpCookies requireSSL="true"/>
+
+//builder.Services.AddAuthentication().AddCookie(o =>
+//{
+//    o.LoginPath = "~/account/login";
+//    o.aut
+//});
+//////////////////////////////////////////////////////////////////////////////////
+
+
+// Adds the X-Frame-Options header with the value SAMEORIGIN.
+builder.Services.AddAntiforgery();
+
+builder.Services.AddScoped<MultiFactorSelfServiceApiClient>();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseExceptionHandler("/Shared/Error");
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

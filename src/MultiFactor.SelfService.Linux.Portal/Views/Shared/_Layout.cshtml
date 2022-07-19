@@ -1,20 +1,24 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewData["Title"] = string.Format(Localizer.GetString("SiteName"), Settings.CompanyName);
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width" />
-    @Styles.Render("~/content/css")
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jqueryval")
+
     @RenderSection("head", false)
-    <title>@ViewBag.Title</title>
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/style/site.css" />
 </head>
 <body>
     <div id="wrapper">
         <header id="header">
             <strong class="logo">
-                <img src="@Configuration.Current.LogoUrl" style="max-height:100px" />
+                <img src="@Settings.CompanyLogoUrl" style="max-height:100px" />
             </strong>
             <h1>@ViewBag.Title</h1>
         </header>
@@ -22,8 +26,12 @@
             @RenderBody()
         </main>
         <footer id="footer">
-            <em class="copyright">&copy; @Configuration.Current.CompanyName @DateTime.Now.Year</em>
+            <em class="copyright">&copy; @Settings.CompanyName @DateTime.Now.Year</em>
         </footer>
     </div>
+    <script src="~/js/jquery-{version}.min.js"></script>
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/jquery.validate-vsdoc.js"></script>
 </body>
 </html>

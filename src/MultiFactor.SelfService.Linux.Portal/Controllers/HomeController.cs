@@ -1,32 +1,55 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MultiFactor.SelfService.Linux.Portal.Models;
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Services.Api;
+using MultiFactor.SelfService.Linux.Portal.Services.Api.Dto;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly MultiFactorSelfServiceApiClient _apiClient;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(MultiFactorSelfServiceApiClient apiClient)
         {
-            _logger = logger;
+            _apiClient = apiClient;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
-            return View();
-        }
+            return View(_apiClient.LoadProfile());
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            //if (Request.QueryString[MultiFactorClaims.SamlSessionId] != null)
+            //{
+            //    //re-login for saml authentication
+            //    return SignOut();
+            //}
+            //if (Request.QueryString[MultiFactorClaims.OidcSessionId] != null)
+            //{
+            //    //re-login for oidc authentication
+            //    return SignOut();
+            //}
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            //var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];
+            //if (tokenCookie == null)
+            //{
+            //    return SignOut();
+            //}
+
+            //try
+            //{
+            //    var api = new MultiFactorSelfServiceApiClient(tokenCookie.Value);
+            //    var userProfile = api.LoadProfile();
+            //    userProfile.EnablePasswordManagement = Configuration.Current.EnablePasswordManagement;
+            //    userProfile.EnableExchangeActiveSyncDevicesManagement = Configuration.Current.EnableExchangeActiveSyncDevicesManagement;
+
+            //    return View(userProfile);
+            //}
+            //catch (UnauthorizedException)
+            //{
+            //    return SignOut();
+            //}
         }
     }
 }
