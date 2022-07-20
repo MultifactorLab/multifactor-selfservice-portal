@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static CultureInfo[] GetCultures(IConfiguration config)
         {
-            var culture = config.GetSettingsValue(x => x.UICulture);
+            var culture = config.GetPortalSettingsValue(x => x.UICulture);
             if (culture == null) return _supportedCultures;
 
             var ci = new CultureInfo(culture);

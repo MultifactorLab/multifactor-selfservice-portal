@@ -39,14 +39,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
         }
 
-        public static TProperty? GetSettingsValue<TProperty>(this IConfiguration config, Expression<Func<PortalSettings, TProperty>> propertySelector, 
+        public static TProperty? GetPortalSettingsValue<TProperty>(this IConfiguration config, Expression<Func<PortalSettings, TProperty>> propertySelector,
             TProperty? defaultValue = default)
         {
-            if (config is null) throw new ArgumentNullException(nameof(config));
             if (propertySelector is null) throw new ArgumentNullException(nameof(propertySelector));
 
             var key = GetSettingPath(propertySelector);
-            return config.GetValue($"{PortalSettings.SectionName}:{key}", defaultValue);
+            return GetConfigValue(config, $"{PortalSettings.SectionName}:{key}", defaultValue);
+        }
+
+        public static TProperty? GetConfigValue<TProperty>(this IConfiguration config, string path, 
+            TProperty? defaultValue = default)
+        {
+            if (config is null) throw new ArgumentNullException(nameof(config));
+            if (path is null) throw new ArgumentNullException(nameof(path));
+            
+            return config.GetValue(path, defaultValue);
         }
 
         private static string GetSettingPath<T, P>(Expression<Func<T, P>> action)

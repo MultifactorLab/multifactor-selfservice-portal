@@ -32,7 +32,7 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsEnvironment("production"))
 {
     app.UseExceptionHandler("/Shared/Error");
 }
