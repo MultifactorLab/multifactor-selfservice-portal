@@ -1,32 +1,37 @@
-﻿using Microsoft.AspNetCore.Localization;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     internal static class LocalizationConfiguration
     {
-        public static void AddLocalization(this WebApplicationBuilder applicationBuilder)
+        private static readonly CultureInfo[] _supportedCultures = new[] { new CultureInfo("ru"), new CultureInfo("en") };
+
+        public static void AddControllersWithViewsAndLocalization(this WebApplicationBuilder applicationBuilder)
         {
             applicationBuilder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            applicationBuilder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var cultures = GetCultures(applicationBuilder.Configuration);
+                options.SupportedCultures = cultures;
+                options.SupportedUICultures = cultures;
+            });
             applicationBuilder.Services.AddControllersWithViews()
                 .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization();
         }
 
-        public static void UseLocalization(this WebApplication app)
+        private static CultureInfo[] GetCultures(IConfiguration config)
         {
-            app.UseRequestLocalization(o =>
-            {
-                var cultures = new[] {
-                    new CultureInfo("ru"),
-                    new CultureInfo("en")
-                };
-                o.SupportedCultures = cultures;
-                o.SupportedUICultures = cultures;
+            var culture = config.GetSettingsValue(x => x.UICulture);
+            if (culture == null) return _supportedCultures;
 
-                var defCulture = app.GetSettingsValue(x => x.DefaultCulture);
-                o.DefaultRequestCulture = new RequestCulture(defCulture);
-            });
+            var ci = new CultureInfo(culture);
+            if (!_supportedCultures.Any(x => x.LCID == ci.LCID))
+            {
+                return new[] { _supportedCultures[0] };
+            }
+
+            return new[] { ci };
         }
     }
 }

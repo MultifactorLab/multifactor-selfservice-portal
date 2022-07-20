@@ -2,6 +2,8 @@
 {
     public class PortalSettings
     {
+        public const string SectionName = "PortalSettings";
+
         /// <summary>
         /// Company name.
         /// </summary>
@@ -81,6 +83,6 @@
 
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
 
-        public string DefaultCulture { get; private set; }
+        public string UICulture { get; private set; }
     }
 }

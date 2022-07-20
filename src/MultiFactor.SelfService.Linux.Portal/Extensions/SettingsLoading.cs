@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Serilog;
+using System.Linq.Expressions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -8,13 +9,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.Sources.Clear();
-
                 config.AddXmlFile("appsettings.xml", optional: true, reloadOnChange: true)
                       .AddXmlFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml", optional: true, reloadOnChange: true)
                       .AddEnvironmentVariables();
 
-                if (args != null)
+                if (args.Any())
                 {
                     config.AddCommandLine(args);
                 }
@@ -23,35 +22,40 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         public static void LoadPortalSettings(this WebApplicationBuilder applicationBuilder)
         {
-            var settings = GetSettings(applicationBuilder) ?? throw new Exception("Can't find PortalSettings section in appsettings");
-
-            ValidateSettings(settings);
-
-            applicationBuilder.Services.AddSingleton(settings);
+            try
+            {
+                var settings = GetSettings(applicationBuilder) ?? throw new Exception("Can't find PortalSettings section in appsettings");
+                ValidateSettings(settings);
+                applicationBuilder.Services.AddSingleton(settings);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Unable to start");
+                throw;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
-        public static string GetSettingsValue<TProperty>(this WebApplication application, Expression<Func<PortalSettings, TProperty>> action)
+        public static TProperty? GetSettingsValue<TProperty>(this IConfiguration config, Expression<Func<PortalSettings, TProperty>> propertySelector, 
+            TProperty? defaultValue = default)
         {
-            var key = GetPropertyName(action) ?? throw new Exception($"Settings key was not found");
-            return application.Configuration.GetValue<string>($"{nameof(PortalSettings)}:{key}") ?? throw new Exception($"Settings value was not found");
+            if (config is null) throw new ArgumentNullException(nameof(config));
+            if (propertySelector is null) throw new ArgumentNullException(nameof(propertySelector));
+
+            var key = GetSettingPath(propertySelector);
+            return config.GetValue($"{PortalSettings.SectionName}:{key}", defaultValue);
         }
 
-        public static string GetSettingsValue<TProperty>(this WebApplicationBuilder applicationBuilder, Expression<Func<PortalSettings, TProperty>> action)
+        private static string GetSettingPath<T, P>(Expression<Func<T, P>> action)
         {
-            var key = GetPropertyName(action) ?? throw new Exception($"Settings key was not found");
-            return applicationBuilder.Configuration.GetValue<string>($"{nameof(PortalSettings)}:{key}") ?? throw new Exception($"Settings value was not found");
-        }
+            if (action is null) throw new ArgumentNullException(nameof(action));
+            if (action.Body.NodeType != ExpressionType.MemberAccess) throw new Exception("Invalid property name");
 
-        public static string? GetSettingsValue<TProperty>(this WebApplicationBuilder applicationBuilder, Expression<Func<PortalSettings, TProperty>> action, string defaultValue)
-        {
-            var key = GetPropertyName(action) ?? throw new Exception($"Settings key was not found");
-            return applicationBuilder.Configuration.GetValue<string>($"{nameof(PortalSettings)}:{key}") ?? defaultValue;
-        }
-
-        private static string? GetPropertyName<T, P>(Expression<Func<T, P>> action) where T : class
-        {
-            var expression = action.Body as MemberExpression;
-            return expression?.Member.Name;
+            var path = action.ToString().Split('.').Skip(1) ?? Array.Empty<string>();
+            return string.Join(":", path);
         }
 
         private static PortalSettings GetSettings(WebApplicationBuilder applicationBuilder)
@@ -71,7 +75,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             if (string.IsNullOrEmpty(settings.MultiFactorApiUrl)) ThrowConfigError(nameof(PortalSettings.MultiFactorApiUrl));
             if (string.IsNullOrEmpty(settings.MultiFactorApiKey)) ThrowConfigError(nameof(PortalSettings.MultiFactorApiKey));
             if (string.IsNullOrEmpty(settings.MultiFactorApiSecret)) ThrowConfigError(nameof(PortalSettings.MultiFactorApiSecret));
-            if (string.IsNullOrEmpty(settings.LoggingLevel)) ThrowConfigError(nameof(PortalSettings.LoggingLevel));
         }
 
         private static void ThrowConfigError(string propertyName)

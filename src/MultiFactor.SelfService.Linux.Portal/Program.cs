@@ -7,8 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddSettings(args);
 builder.ConfigureLogging();
 builder.LoadPortalSettings();
-builder.Services.AddControllersWithViews();
-builder.AddLocalization();
+builder.AddControllersWithViewsAndLocalization();
 
 ////////////////////////////////////////////////////////////////////////////////
 // <system.web. authentication mode="Forms">
@@ -38,16 +37,10 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Shared/Error");
 }
 
-app.UseLocalization();
-
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseRequestLocalization();
 app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
