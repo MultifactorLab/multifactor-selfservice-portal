@@ -10,18 +10,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     {
         public static void ConfigureLogging(this WebApplicationBuilder applicationBuilder)
         {
-            var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetSettingsValue(x => x.LoggingLevel));
+            var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingLevel));
             var levelSwitch = new LoggingLevelSwitch(logLevel);
             var loggerConfiguration = new LoggerConfiguration().MinimumLevel.ControlledBy(levelSwitch);
 
-            ConfigureConsoleLog(loggerConfiguration);
+            var isLocalhost = applicationBuilder.Environment.IsEnvironment("localhost");
+            loggerConfiguration.WriteTo.Console(isLocalhost ? LogEventLevel.Information : LogEventLevel.Warning);
+
             ConfigureFileLog(loggerConfiguration, applicationBuilder);
 
             var logger = loggerConfiguration.CreateLogger();
             applicationBuilder.Logging.ClearProviders();
             applicationBuilder.Logging.AddSerilog(logger);
+
             Log.Logger = logger;
-            Log.Logger.Information("Logging subsystem has been configured");
+            if (isLocalhost)
+            {
+                Log.Logger.Information($"Environment: {applicationBuilder.Configuration.GetConfigValue<string>("Environment")}. Logging subsystem has been configured");
+            }
         }
 
         private static LogEventLevel GetLogMinimalLevel(string? level)
@@ -34,11 +40,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 case "Error": return LogEventLevel.Error;
                 default: return LogEventLevel.Information;
             }
-        }
-
-        private static void ConfigureConsoleLog(LoggerConfiguration loggerConfiguration)
-        {
-            loggerConfiguration.WriteTo.Console(LogEventLevel.Warning);
         }
 
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
@@ -58,7 +59,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static ITextFormatter? GetLogFormatter(WebApplicationBuilder applicationBuilder)
         {
-            var loggingFormat = applicationBuilder.Configuration.GetSettingsValue(x => x.LoggingFormat);
+            var loggingFormat = applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingFormat);
             switch (loggingFormat?.ToLower())
             {
                 case "json":

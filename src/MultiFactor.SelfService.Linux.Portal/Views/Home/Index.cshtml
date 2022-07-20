@@ -81,25 +81,32 @@
         <input type="hidden" name="id" id="remove-authenticator-form-id" />
     }
 </div>
-<script type="text/javascript">
-    $(function () {
-        $("table.authenticators a").each(function () {
-            @if (Model.Count > 1)
-            {
-                <text>
-                $(this).on("click", function () {
-                    if (confirm('@Localizer["ConfirmRemoving"]')) {
-                        $('#remove-authenticator-form-authenticator').val($(this).attr('data-type'));
-                        $('#remove-authenticator-form-id').val($(this).attr('data-id'));
-                        $('#remove-authenticator-form').submit();
-                    }
-                });
-                </text>
-            }
-            else
-            {
-                <text>$(this).attr('disabled', 'disabled');</text>
-            }
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+        $(function () {
+            $("table.authenticators a").each(function () {
+                @if (Model.Count > 1)
+                {
+                    <text>
+                    $(this).on("click", function () {
+                        if (confirm('@Localizer["ConfirmRemoving"]')) {
+                            $('#remove-authenticator-form-authenticator').val($(this).attr('data-type'));
+                            $('#remove-authenticator-form-id').val($(this).attr('data-id'));
+                            $('#remove-authenticator-form').submit();
+                        }
+                    });
+                    </text>
+                }
+                else
+                {
+                    <text>$(this).attr('disabled', 'disabled');</text>
+                }
+            });
         });
-    });
-</script>
+    </script>
+
+}
