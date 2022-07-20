@@ -1,17 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Models;
-using MultiFactor.SelfService.Linux.Portal.Services.Api;
-using MultiFactor.SelfService.Linux.Portal.Stories;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(ILogger<AccountController> logger)
+        public AccountController()
         {
-            _logger = logger;
         }
 
         public IActionResult Login()
