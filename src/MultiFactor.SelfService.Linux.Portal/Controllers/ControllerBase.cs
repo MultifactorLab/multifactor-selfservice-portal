@@ -2,7 +2,7 @@
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    //[OutputCache(NoStore = true, Duration = 0)]
+    [ResponseCache(NoStore = true, Duration = 0)]
     public abstract class ControllerBase : Controller
     {
         //protected ActionResult SignOut()

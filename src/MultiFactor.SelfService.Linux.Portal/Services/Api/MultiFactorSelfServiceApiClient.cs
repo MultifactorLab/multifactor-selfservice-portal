@@ -31,7 +31,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Services.Api
                     new List<UserProfileAuthenticatorDto>(),
                     new List<UserProfileAuthenticatorDto>(),
                     new List<UserProfileAuthenticatorDto>(),
-                    new UserProfilePolicyDto(false, false, false, false),
+                    new UserProfilePolicyDto(true, true, true, true),
                     true,
                     true);
             }
