@@ -28,6 +28,8 @@
 			
 		<!--Use ActiveDirectory User Telephones properties mobile number (optional)-->
 		<!--<UseActiveDirectoryMobileUserPhone>true<UseActiveDirectoryMobileUserPhone/>-->
+		
+		<!--<RequiresUserPrincipalName>true<RequiresUserPrincipalName/>-->
 
 		<!--Multifactor API -->
 		<MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>
@@ -39,7 +41,7 @@
 		<!--<MultifactorApiProxy>http://proxy:3128</MultifactorApiProxy>-->
 
 		<!-- minimal log level: 'Debug', 'Info', 'Warn', 'Error' -->
-		<LoggingLevel>Info</LoggingLevel>
+		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
 		<!--enable user password change-->
@@ -47,14 +49,12 @@
 		<!--enable user Exchange AciveSync devices provisioning-->
 		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
 
-		<!--Syslog server-->
-		<!--<SyslogServer>tcp://192.168.56.1:514</SyslogServer>-->
 		<!--Syslog format: RFC3164 or RFC5424-->
 		<!--<SyslogFormat>RFC5424</SyslogFormat>-->
 		<!--<SyslogFacility>Auth</SyslogFacility>-->
 		<!--<SyslogAppName>multifactor-portal</SyslogAppName>-->
 
-		<DefaultCulture>en</DefaultCulture>
+		<UICulture>ru</UICulture>
 	</PortalSettings>
 
 </configuration>

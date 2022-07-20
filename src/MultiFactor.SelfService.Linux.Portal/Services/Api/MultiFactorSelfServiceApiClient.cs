@@ -17,6 +17,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Services.Api
 
         public UserProfileDto LoadProfile()
         {
+            _logger.LogInformation("Inside MultiFactorSelfServiceApiClient !");
+
             try
             {
                 //var result = SendRequest<ApiResponse<UserProfile>>("/self-service", "GET");
