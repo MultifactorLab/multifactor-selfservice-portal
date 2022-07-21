@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Services.Api;
 using MultiFactor.SelfService.Linux.Portal.Services.Api.Dto;
 
@@ -16,20 +17,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult Index(MultiFactorClaimsDto claims)
         {
-            return View(_apiClient.LoadProfile());
+            if (claims.SamlSession != null)
+            {
+                //re-login for saml authentication
+                //return SignOut();
+            }
 
-            //if (Request.QueryString[MultiFactorClaims.SamlSessionId] != null)
-            //{
-            //    //re-login for saml authentication
-            //    return SignOut();
-            //}
-            //if (Request.QueryString[MultiFactorClaims.OidcSessionId] != null)
-            //{
-            //    //re-login for oidc authentication
-            //    return SignOut();
-            //}
+            if (claims.OidcSession != null)
+            {
+                  //re-login for oidc authentication
+                  //return SignOut();
+            }
 
             //var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];
             //if (tokenCookie == null)
@@ -40,11 +40,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             //try
             //{
             //    var api = new MultiFactorSelfServiceApiClient(tokenCookie.Value);
-            //    var userProfile = api.LoadProfile();
-            //    userProfile.EnablePasswordManagement = Configuration.Current.EnablePasswordManagement;
-            //    userProfile.EnableExchangeActiveSyncDevicesManagement = Configuration.Current.EnableExchangeActiveSyncDevicesManagement;
+            var userProfile = _apiClient.LoadProfile();
 
-            //    return View(userProfile);
+            return View(userProfile);
             //}
             //catch (UnauthorizedException)
             //{

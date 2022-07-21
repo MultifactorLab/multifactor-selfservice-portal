@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -8,6 +9,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         public static void AddControllersWithViewsAndLocalization(this WebApplicationBuilder applicationBuilder)
         {
+            AddControllersWithViewsAndLocalization(applicationBuilder, null);
+        }
+
+        public static void AddControllersWithViewsAndLocalization(this WebApplicationBuilder applicationBuilder, Action<MvcOptions>? configure)
+        {
             applicationBuilder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
             applicationBuilder.Services.Configure<RequestLocalizationOptions>(options =>
             {
@@ -15,7 +21,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 options.SupportedCultures = cultures;
                 options.SupportedUICultures = cultures;
             });
-            applicationBuilder.Services.AddControllersWithViews()
+
+            applicationBuilder.Services.AddControllersWithViews(configure)
                 .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization();
         }

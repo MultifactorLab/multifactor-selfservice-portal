@@ -17,10 +17,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Services.Api
 
         public UserProfileDto LoadProfile()
         {
-            _logger.LogInformation("Inside MultiFactorSelfServiceApiClient !");
-
             try
             {
+                // TODO
                 //var result = SendRequest<ApiResponse<UserProfile>>("/self-service", "GET");
                 return new UserProfileDto(
                     Guid.NewGuid().ToString(), 
@@ -32,8 +31,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Services.Api
                     new List<UserProfileAuthenticatorDto>(),
                     new List<UserProfileAuthenticatorDto>(),
                     new UserProfilePolicyDto(true, true, true, true),
-                    true,
-                    true);
+                    _settings.EnablePasswordManagement,
+                    _settings.EnableExchangeActiveSyncDevicesManagement);
             }
             catch (WebException webEx)
             {

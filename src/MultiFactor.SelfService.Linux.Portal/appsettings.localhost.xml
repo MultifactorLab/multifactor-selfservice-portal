@@ -49,7 +49,7 @@
 		<!--enable user password change-->
 		<EnablePasswordManagement>true</EnablePasswordManagement>
 		<!--enable user Exchange AciveSync devices provisioning-->
-		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
+		<EnableExchangeActiveSyncDevicesManagement>true</EnableExchangeActiveSyncDevicesManagement>
 
 		<!--Syslog format: RFC3164 or RFC5424-->
 		<!--<SyslogFormat>RFC5424</SyslogFormat>-->
