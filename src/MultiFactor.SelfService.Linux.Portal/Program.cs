@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.ModelBinding;
 using MultiFactor.SelfService.Linux.Portal.Services.Api;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddSettings(args);
 builder.ConfigureLogging();
 builder.LoadPortalSettings();
-builder.AddControllersWithViewsAndLocalization();
+builder.AddControllersWithViewsAndLocalization(o =>
+{
+    o.ModelBinderProviders.Insert(0, ModelBindingConfiguration.GetModelBinderProvider());
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 // <system.web. authentication mode="Forms">
