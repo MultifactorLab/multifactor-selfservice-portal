@@ -42,7 +42,7 @@
         /// <summary>
         /// Only UPN user name format permitted
         /// </summary>
-        public bool RequiresUpn { get; private set; }
+        public bool RequiresUserPrincipalName { get; private set; }
 
         /// <summary>
         /// Multifactor API URL
