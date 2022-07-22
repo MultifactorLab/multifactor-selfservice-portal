@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Services.Api;
-using MultiFactor.SelfService.Linux.Portal.Services.Api.Dto;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : ControllerBase
     {
         private readonly MultiFactorSelfServiceApiClient _apiClient;
 
@@ -22,13 +21,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             if (claims.SamlSession != null)
             {
                 //re-login for saml authentication
-                //return SignOut();
+                return SignOut();
             }
 
             if (claims.OidcSession != null)
             {
                   //re-login for oidc authentication
-                  //return SignOut();
+                  return SignOut();
             }
 
             //var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];

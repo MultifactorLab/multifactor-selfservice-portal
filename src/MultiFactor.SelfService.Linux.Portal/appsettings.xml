@@ -27,9 +27,9 @@
 		<!--<UseActiveDirectoryUserPhone>true</UseActiveDirectoryUserPhone>-->
 			
 		<!--Use ActiveDirectory User Telephones properties mobile number (optional)-->
-		<!--<UseActiveDirectoryMobileUserPhone>true<UseActiveDirectoryMobileUserPhone/>-->
+		<!--<UseActiveDirectoryMobileUserPhone>true</UseActiveDirectoryMobileUserPhone>-->
 		
-		<!--<RequiresUserPrincipalName>true<RequiresUserPrincipalName/>-->
+		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
 
 		<!--Multifactor API -->
 		<MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>

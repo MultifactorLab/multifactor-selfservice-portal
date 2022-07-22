@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LdapForNet" Version="2.7.15" />
     <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
   </ItemGroup>
 
@@ -46,6 +47,10 @@
     <EmbeddedResource Update="Resources\Global.ru.resx">
       <Generator></Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\Ldap\" />
   </ItemGroup>
 
 </Project>

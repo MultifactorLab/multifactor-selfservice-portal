@@ -1,13 +1,46 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Models;
+using MultiFactor.SelfService.Linux.Portal.Services.Api;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
+    public class ModelStateErrorExceptionFilterAttribute : IExceptionFilter, IActionFilter
+    {
+        private IDictionary<string, object?> _actionAttributes = new Dictionary<string, object?>();
+
+        public void OnActionExecuted(ActionExecutedContext context)
+        {
+
+        }
+
+        public void OnActionExecuting(ActionExecutingContext context)
+        {
+            _actionAttributes = context.ActionArguments;
+        }
+
+        public void OnException(ExceptionContext context)
+        {
+            if (context.Exception is not ModelStateErrorException) return;
+
+            //context.ModelState.AddModelError(string.Empty, context.Exception.Message);
+            //context.ExceptionHandled = true;
+            //context.Result = new ViewResult
+            //{
+
+            //};
+        }
+    }
+
     public class AccountController : Controller
     {
+        private readonly PortalSettings _settings;
 
-        public AccountController()
+        public AccountController(PortalSettings settings)
         {
+            _settings = settings;
         }
 
         public IActionResult Login()
@@ -35,64 +68,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             return View(new LoginModel());
         }
 
-        //private string GetMultifactorClaimFromRedirectUrl(string login, string claim)
-        //{
-        //    var redirectUrl = FormsAuthentication.GetRedirectUrl(login, false);
-        //    if (!string.IsNullOrEmpty(redirectUrl))
-        //    {
-        //        var queryIndex = redirectUrl.IndexOf("?");
-        //        if (queryIndex >= 0)
-        //        {
-        //            var query = HttpUtility.ParseQueryString(redirectUrl.Substring(queryIndex));
-        //            return query[claim];
-        //        }
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginModel model, [FromServices] LoginStory loginStory)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-        //private ActionResult RedirectToMfa(string login, string displayName, string email, 
-        //    string phone, string documentUrl, string samlSessionId, 
-        //    string oidcSessionId, bool mustResetPassword = false)
-        //{
-        //    //public url from browser if we behind nginx or other proxy
-        //    var currentUri = new Uri(documentUrl);
-        //    var noLastSegment = $"{currentUri.Scheme}://{currentUri.Authority}";
+            try
+            {
+                await loginStory.ExecuteAsync(model);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                // TODO: move this handling logic to the some custom FILTER and register GLOBALLY.
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
 
-        //    for (int i = 0; i < currentUri.Segments.Length - 1; i++)
-        //    {
-        //        noLastSegment += currentUri.Segments[i];
-        //    }
-
-        //    noLastSegment = noLastSegment.Trim("/".ToCharArray()); // remove trailing /
-
-        //    var postbackUrl = noLastSegment + "/PostbackFromMfa";
-
-        //    //exra params
-        //    var claims = new Dictionary<string, string>
-        //    {
-        //        { MultiFactorClaims.RawUserName, login }    //as specifyed by user
-        //    };
-
-        //    if (mustResetPassword)
-        //    {
-        //        claims.Add(MultiFactorClaims.ChangePassword, "true");
-        //    }
-        //    else
-        //    {
-        //        if (samlSessionId != null)
-        //        {
-        //            claims.Add(MultiFactorClaims.SamlSessionId, samlSessionId);
-        //        }
-        //        if (oidcSessionId != null)
-        //        {
-        //            claims.Add(MultiFactorClaims.OidcSessionId, oidcSessionId);
-        //        }
-        //    }
-
-
-        //    var client = new MultiFactorApiClient();
-        //    var accessPage = client.CreateAccessRequest(login, displayName, email, phone, postbackUrl, claims);
-
-        //    return RedirectPermanent(accessPage.Url);
-        //}
+            return View(model);
+        }
+       
     }
 }

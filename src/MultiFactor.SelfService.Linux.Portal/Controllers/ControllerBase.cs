@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Dto;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
     [ResponseCache(NoStore = true, Duration = 0)]
     public abstract class ControllerBase : Controller
     {
-        //protected ActionResult SignOut()
-        //{
+        protected IActionResult SignOut(MultiFactorClaimsDto claims)
+        {
         //    FormsAuthentication.SignOut();
 
         //    //remove mfa cookie
@@ -28,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         //        returnUrl += $"?{MultiFactorClaims.OidcSessionId}={oidcSessionId}";
         //    }
 
-        //    return Redirect(returnUrl);
-        //}
+            return Redirect("returnUrl");
+        }
     }
 }

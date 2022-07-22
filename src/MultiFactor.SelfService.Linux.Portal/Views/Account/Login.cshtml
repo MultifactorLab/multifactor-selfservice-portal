@@ -16,7 +16,7 @@
                 <p>@Localizer["Invitation"]</p>
                 <div class="form-row">
                     <div class="input">
-                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUpn ? Localizer["UserNameUpn"] : Localizer["UserName"] })
+                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName ? Localizer["UserNameUpn"] : Localizer["UserName"] })
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input">
