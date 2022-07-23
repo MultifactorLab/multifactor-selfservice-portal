@@ -45,26 +45,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         public IActionResult Login()
         {
-            if (User.Identity != null && !User.Identity.IsAuthenticated)
-            {
-                // TODO:
-                //if (Configuration.AuthenticationMode == AuthenticationMode.Windows && User.Identity != null)
-                //{
-                //    // Integrated windows authentication.
-                //    if (!string.IsNullOrEmpty(User.Identity.Name) && User.Identity.AuthenticationType == "Negotiate")
-                //    {
-                //        var userName = User.Identity.Name;
-
-                //        _logger.LogInformation("User '{user:l}' authenticated by NTLM/Kerberos", userName);
-
-                //        var samlSessionId = GetMultifactorClaimFromRedirectUrl(userName, MultiFactorClaims.SamlSessionId);
-                //        var oidcSessionId = GetMultifactorClaimFromRedirectUrl(userName, MultiFactorClaims.OidcSessionId);
-
-                //        return RedirectToMfa(userName, null, null, null, Request.Url.ToString(), samlSessionId, oidcSessionId);
-                //    }
-                //}
-            }
-
             return View(new LoginModel());
         }
 

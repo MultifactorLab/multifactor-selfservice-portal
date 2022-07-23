@@ -111,5 +111,10 @@
 
             return new LdapIdentity(identity, isUser ? IdentityType.Uid : IdentityType.Cn);
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

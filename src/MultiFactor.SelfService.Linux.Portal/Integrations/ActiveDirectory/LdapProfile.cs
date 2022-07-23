@@ -1,6 +1,6 @@
 ﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
 {
-    public class ActiveDirectoryProfile
+    public class LdapProfile
     {
         public LdapIdentity BaseDn { get; }
         public string DistinguishedName { get; }
@@ -15,7 +15,7 @@
 
         public IReadOnlyDictionary<string, object> LdapAttrs { get; } = new Dictionary<string, object>();
 
-        private ActiveDirectoryProfile(LdapIdentity baseDn, string distinguishedName)
+        private LdapProfile(LdapIdentity baseDn, string distinguishedName)
         {
             if (baseDn is null) throw new ArgumentNullException(nameof(baseDn));
             if (distinguishedName is null) throw new ArgumentNullException(nameof(distinguishedName));
@@ -25,14 +25,14 @@
 
         public static ActiveDirectoryProfileBuilder CreateBuilder(LdapIdentity baseDn, string distinguishedName)
         {
-            return new ActiveDirectoryProfileBuilder(new ActiveDirectoryProfile(baseDn, distinguishedName));
+            return new ActiveDirectoryProfileBuilder(new LdapProfile(baseDn, distinguishedName));
         }
 
         public class ActiveDirectoryProfileBuilder
         {
-            private readonly ActiveDirectoryProfile _profile;
+            private readonly LdapProfile _profile;
 
-            public ActiveDirectoryProfileBuilder(ActiveDirectoryProfile profile)
+            public ActiveDirectoryProfileBuilder(LdapProfile profile)
             {
                 _profile = profile ?? throw new ArgumentNullException(nameof(profile));
             }
@@ -67,7 +67,7 @@
                 return this;
             }
 
-            public ActiveDirectoryProfile Build()
+            public LdapProfile Build()
             {
                 return _profile;
             }

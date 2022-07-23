@@ -4,34 +4,36 @@ using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
 {
-    public class ActiveDirectoryProfileLoader
+    public class LdapProfileLoader
     {
-        private readonly ActiveDirectoryConnection _connection;
+        private readonly LdapConnectionAdapter _connection;
+        private readonly LdapNames _names;
+        private readonly ILogger _logger;
         private readonly string[] _queryAttributes = new[] { "DistinguishedName", "displayName", "mail", "telephoneNumber", "mobile" };
-        private readonly LdapNames _names = new LdapNames(LdapServerType.ActiveDirectory);
 
-        public ActiveDirectoryProfileLoader(ActiveDirectoryConnection connection)
+        public LdapProfileLoader(LdapConnectionAdapter connection, LdapNames names, ILogger logger)
         {
-            _connection = connection;
+            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            _names = names ?? throw new ArgumentNullException(nameof(names));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<ActiveDirectoryProfile?> LoadProfileAsync(LdapIdentity domain, LdapIdentity user)
+        public async Task<LdapProfile?> LoadProfileAsync(LdapIdentity domain, LdapIdentity user)
         {
             var searchFilter = $"(&(objectClass={_names.UserClass})({_names.Identity(user)}={user.Name}))";
 
-            // _logger.Debug($"Querying user '{{user:l}}' in {domain.Name}", user.Name);
-
+            _logger.LogDebug("Querying user '{user:l}' in {domain:l}", user, domain);
             var response = await _connection.QueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, _queryAttributes);
 
             var entry = response.SingleOrDefault();
             if (entry == null)
             {
-                //_logger.Error($"Unable to find user '{{user:l}}' in {domain.Name}", user.Name);
+                _logger.LogError("Unable to find user '{user:l}' in {domain:l}", user, domain);
                 return null;
             }
 
             // base profile
-            var builder = ActiveDirectoryProfile.CreateBuilder(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
+            var builder = LdapProfile.CreateBuilder(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
             var attributes = entry.DirectoryAttributes;
 
             if (attributes.TryGetValue("displayName", out var displayNameAttr))
@@ -57,7 +59,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
             var allGroups = await GetAllUserGroups(domain, entry.Dn);
             builder.AddMemberOfValues(allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray());
 
-            //_logger.Debug($"User '{{user:l}}' profile loaded: {profile.DistinguishedName}", user.Name);
+            _logger.LogDebug("User '{user:l}' profile loaded: {DN:l}", user, entry.Dn);
 
             return builder.Build();
         }

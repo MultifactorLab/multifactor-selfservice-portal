@@ -17,7 +17,7 @@
 		<CompanyName>ACME</CompanyName>
 
 		<!--Active Directory Domain -->
-		<CompanyDomain>domain.local</CompanyDomain>
+		<CompanyDomain>dc1.multifactor.dev</CompanyDomain>
 			
 		<!--Company Logo URL: absolute or relative -->
 		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>			
