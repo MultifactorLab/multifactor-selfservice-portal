@@ -3,12 +3,12 @@ using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
 {
-    public class ActiveDirectoryConnection : IDisposable
+    public class LdapConnectionAdapter : IDisposable
     {
         private readonly LdapConnection _connection;
         private readonly string _uri;
 
-        private ActiveDirectoryConnection(string uri)
+        private LdapConnectionAdapter(string uri)
         {
             _connection = new LdapConnection();
             _uri = uri;
@@ -28,13 +28,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
             return _connection.SearchAsync(baseDn, filter, attributes, scope);
         }
 
-        public static async Task<ActiveDirectoryConnection> CreateAsync(string uri, LdapIdentity user, string password)
+        public static async Task<LdapConnectionAdapter> CreateAsync(string uri, LdapIdentity user, string password)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (password is null) throw new ArgumentNullException(nameof(password));
 
-            var instance = new ActiveDirectoryConnection(uri);
+            var instance = new LdapConnectionAdapter(uri);
 
             // TODO: trust self-signed certificates on ldap server
             //connection.TrustAllCertificates();
@@ -52,7 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
             var ldapVersion = (int)LdapVersion.LDAP_VERSION3;
             instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, ldapVersion);
 
-            //do not follow chase referrals
+            // do not follow chase referrals
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
 
             var bindDn = FormatBindDn(uri, user);
