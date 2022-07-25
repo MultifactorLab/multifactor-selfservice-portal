@@ -41,17 +41,12 @@
   <ItemGroup>
     <PackageReference Include="LdapForNet" Version="2.7.15" />
     <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="Resources\Global.ru.resx">
       <Generator></Generator>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Ldap\" />
   </ItemGroup>
 
 </Project>

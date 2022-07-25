@@ -4,6 +4,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Models;
 using MultiFactor.SelfService.Linux.Portal.Services.Api;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
@@ -34,16 +35,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
     }
 
-    public class AccountController : Controller
+    public class AccountController : ControllerBase
     {
-        private readonly PortalSettings _settings;
-
-        public AccountController(PortalSettings settings)
+        public AccountController(SignOutStory signOutStory) : base(signOutStory)
         {
-            _settings = settings;
         }
 
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl)
         {
             return View(new LoginModel());
         }
@@ -59,7 +57,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                await loginStory.ExecuteAsync(model);
+                var result = await loginStory.ExecuteAsync(model, null, HttpContext);
+                return result;
             }
             catch (ModelStateErrorException ex)
             {
@@ -67,9 +66,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
             }
-
-            return View(model);
-        }
-       
+        }   
     }
 }

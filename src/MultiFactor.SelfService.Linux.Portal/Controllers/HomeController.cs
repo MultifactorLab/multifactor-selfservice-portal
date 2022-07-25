@@ -1,52 +1,48 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Dto;
-using MultiFactor.SelfService.Linux.Portal.Services.Api;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
     [Authorize]
     public class HomeController : ControllerBase
     {
-        private readonly MultiFactorSelfServiceApiClient _apiClient;
+        private readonly LoadProfileStory _loadProfile;
 
-        public HomeController(MultiFactorSelfServiceApiClient apiClient)
+        public HomeController(LoadProfileStory loadProfile, SignOutStory signOut) : base(signOut)
         {
-            _apiClient = apiClient;
+            _loadProfile = loadProfile;
         }
 
         [AllowAnonymous]
-        public IActionResult Index(MultiFactorClaimsDto claims)
+        public async Task<IActionResult> Index(MultiFactorClaimsDto claims)
         {
-            if (claims.SamlSession != null)
+            if (claims.HasSamlSession() || claims.HasOidcSession())
             {
-                //re-login for saml authentication
-                return SignOut();
+                //re-login for saml or oidc authentication
+                return await SignOutAsync(claims);
             }
 
-            if (claims.OidcSession != null)
+            var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];
+            if (tokenCookie == null)
             {
-                  //re-login for oidc authentication
-                  return SignOut();
+                return await SignOutAsync(claims);
             }
 
-            //var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];
-            //if (tokenCookie == null)
-            //{
-            //    return SignOut();
-            //}
-
-            //try
-            //{
+            try
+            {
             //    var api = new MultiFactorSelfServiceApiClient(tokenCookie.Value);
-            var userProfile = _apiClient.LoadProfile();
+            var userProfile = await _loadProfile.ExecuteAsync("token");
 
             return View(userProfile);
-            //}
-            //catch (UnauthorizedException)
-            //{
-            //    return SignOut();
-            //}
+            }
+            catch (UnauthorizedException)
+            {
+                return await SignOutAsync(claims);
+            }
         }
     }
 }

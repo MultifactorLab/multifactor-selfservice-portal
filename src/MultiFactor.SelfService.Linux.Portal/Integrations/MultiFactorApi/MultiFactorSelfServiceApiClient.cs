@@ -1,8 +1,8 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Services.Api.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using System.Net;
 
-namespace MultiFactor.SelfService.Linux.Portal.Services.Api
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
     public class MultiFactorSelfServiceApiClient
     {
@@ -22,9 +22,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Services.Api
                 // TODO
                 //var result = SendRequest<ApiResponse<UserProfile>>("/self-service", "GET");
                 return new UserProfileDto(
-                    Guid.NewGuid().ToString(), 
-                    "AlekseyIdentity", 
-                    "Aleksey", 
+                    Guid.NewGuid().ToString(),
+                    "AlekseyIdentity",
+                    "Aleksey",
                     "a.pashkov@multifactor.ru",
                     new List<UserProfileAuthenticatorDto>(),
                     new List<UserProfileAuthenticatorDto>(),
