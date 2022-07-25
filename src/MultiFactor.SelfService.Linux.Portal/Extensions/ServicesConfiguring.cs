@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
@@ -10,11 +11,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         public static void ConfigureApplicationServices(this WebApplicationBuilder builder)
         {
             builder.Services.AddSingleton<DataProtection>()
-                .AddScoped<MultiFactorSelfServiceApiClient>()
-                .AddScoped<ActiveDirectoryCredentialVerifier>()
-                .AddScoped<SignOutStory>()
-                .AddScoped<LoginStory>()
-                .AddScoped<LoadProfileStory>();
+                .AddTransient<MultiFactorSelfServiceApiClient>()
+                .AddTransient<ActiveDirectoryCredentialVerifier>()
+                .AddTransient<SignOutStory>()
+                .AddTransient<LoginStory>()
+                .AddTransient<LoadProfileStory>()
+                .AddTransient<SafeHttpContextAccessor>();
 
             builder.Services.AddHttpClient<ApplicationHttpClient>(o =>
             {

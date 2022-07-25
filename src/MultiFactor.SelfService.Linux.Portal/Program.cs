@@ -38,7 +38,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(@"/var/sspl-key-storage"))
     .SetApplicationName("MultiFactorSSP");
 
-builder.Services.ConfigureApplicationServices();
+builder.ConfigureApplicationServices();
 
 var app = builder.Build();
 

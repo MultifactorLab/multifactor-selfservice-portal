@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MultiFactor.SelfService.Linux.Portal.Dto;
-using MultiFactor.SelfService.Linux.Portal.Services.Api;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 
 namespace MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders
 {
@@ -13,11 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders
             var saml = bindingContext.ValueProvider.GetValue(MultiFactorClaims.SamlSessionId);
             var oidc = bindingContext.ValueProvider.GetValue(MultiFactorClaims.OidcSessionId);
 
-            var model = new MultiFactorClaimsDto(
-                saml != ValueProviderResult.None ? saml.FirstValue : null,
-                oidc != ValueProviderResult.None ? oidc.FirstValue : null
-                );
-
+            var model = new MultiFactorClaimsDto(saml.FirstValue ?? string.Empty, oidc.FirstValue ?? string.Empty);
             bindingContext.Result = ModelBindingResult.Success(model);
 
             return Task.CompletedTask;
