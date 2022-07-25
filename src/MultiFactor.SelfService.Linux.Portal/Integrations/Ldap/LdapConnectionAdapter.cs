@@ -1,7 +1,7 @@
 ﻿using LdapForNet;
 using static LdapForNet.Native.Native;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 {
     public class LdapConnectionAdapter : IDisposable
     {

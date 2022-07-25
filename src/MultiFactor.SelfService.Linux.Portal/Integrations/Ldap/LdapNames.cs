@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
+﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 {
     /// <summary>
     /// LDAP catalog objects and attributes names

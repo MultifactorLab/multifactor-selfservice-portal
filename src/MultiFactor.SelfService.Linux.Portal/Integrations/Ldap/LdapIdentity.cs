@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
+﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 {
     public class LdapIdentity
     {

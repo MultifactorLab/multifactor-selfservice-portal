@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using MultiFactor.SelfService.Linux.Portal;
 using MultiFactor.SelfService.Linux.Portal.Controllers;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding;
-using MultiFactor.SelfService.Linux.Portal.Services.Api;
-using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,15 +11,15 @@ builder.AddSettings(args);
 builder.ConfigureLogging();
 builder.LoadPortalSettings();
 
-
-// <system.web. authentication mode="Forms">
-// <forms loginUrl="~/account/login" timeout="2880" requireSSL="true"/>
-// </authentication>
-// <httpCookies requireSSL="true"/>
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o =>
-{
-    o.LoginPath = "/account/login";
-});
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(o =>
+    {
+        o.LoginPath = "/account/login";
+        o.LogoutPath = "/account/login";
+        o.ExpireTimeSpan = TimeSpan.FromHours(48);
+        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        o.Cookie.Name = Constants.COOKIE_NAME;
+    });
 
 // Adds the X-Frame-Options header with the value SAMEORIGIN.
 builder.Services.AddAntiforgery();
@@ -30,17 +30,18 @@ builder.AddControllersWithViewsAndLocalization(o =>
     o.Filters.Add<ModelStateErrorExceptionFilterAttribute>();
 });
 
+// "If data protection isn't configured, the keys are held in memory and discarded when the app restarts."
+Console.WriteLine($"OS: {Environment.OSVersion}");
+Console.WriteLine($"LocalApplicationData: {Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
+builder.Services.AddDataProtection()
+    // TODO: test!
+    .PersistKeysToFileSystem(new DirectoryInfo(@"/var/sspl-key-storage"))
+    .SetApplicationName("MultiFactorSSP");
 
-
-
-
-builder.Services.AddScoped<MultiFactorSelfServiceApiClient>();
-builder.Services.AddScoped<LoginStory>();
+builder.Services.ConfigureApplicationServices();
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsEnvironment("production"))
 {
     app.UseExceptionHandler("/Shared/Error");

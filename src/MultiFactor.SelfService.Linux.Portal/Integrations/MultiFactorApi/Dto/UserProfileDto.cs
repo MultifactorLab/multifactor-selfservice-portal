@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Services.Api.Dto
+﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto
 {
     /// <summary>
     /// User profile
@@ -19,7 +19,7 @@
         bool EnablePasswordManagement,
         bool EnableExchangeActiveSyncDevicesManagement)
     {
-        public int Count => 
+        public int Count =>
             TotpAuthenticators.Count +
             TelegramAuthenticators.Count +
             MobileAppAuthenticators.Count +

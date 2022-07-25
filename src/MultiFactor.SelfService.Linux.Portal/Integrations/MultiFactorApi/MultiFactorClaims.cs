@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Services.Api
+﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
     public static class MultiFactorClaims
     {

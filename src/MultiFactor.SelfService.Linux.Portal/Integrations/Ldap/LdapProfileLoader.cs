@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 {
     public class LdapProfileLoader
     {
