@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using System.Text;
@@ -10,20 +11,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
 {
     public class SignOutStory
     {
+        private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly IOptions<CookieAuthenticationOptions> _cookieOptions;
 
-        public SignOutStory(IOptions<CookieAuthenticationOptions> cookieOptions)
+        public SignOutStory(SafeHttpContextAccessor contextAccessor, IOptions<CookieAuthenticationOptions> cookieOptions)
         {
-            _cookieOptions = cookieOptions;
+            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+            _cookieOptions = cookieOptions ?? throw new ArgumentNullException(nameof(cookieOptions));
         }
 
-        public async Task<IActionResult> ExecuteAsync(HttpContext context, MultiFactorClaimsDto claimsDto)
+        public async Task<IActionResult> ExecuteAsync(MultiFactorClaimsDto claimsDto)
         {
-            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _contextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             // remove mfa cookie
-            if (context.Request.Cookies[Constants.COOKIE_NAME] != null)
+            if (_contextAccessor.HttpContext.Request.Cookies[Constants.COOKIE_NAME] != null)
             {
-                context.Response.Cookies.Delete(Constants.COOKIE_NAME);
+                _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
             }
 
             var redirectUrl = new StringBuilder(_cookieOptions.Value.LoginPath);

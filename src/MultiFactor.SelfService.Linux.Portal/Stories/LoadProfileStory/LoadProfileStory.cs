@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
+﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using System.Net;
@@ -57,10 +58,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory
         private readonly HttpClient _client;
         private readonly ILogger<ApplicationHttpClient> _logger;
 
-        public ApplicationHttpClient(HttpClient client, ILogger<ApplicationHttpClient> logger)
+        public ApplicationHttpClient(HttpClient client, HttpClientTokenProvider tokenProvider, ILogger<ApplicationHttpClient> logger)
         {
-            _client = client;
-            _logger = logger;
+            if (tokenProvider is null) throw new ArgumentNullException(nameof(tokenProvider));
+            
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenProvider.GetToken()}");
         }
 
         public async Task<T?> GetAsync<T>(string uri)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
@@ -12,18 +13,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
     {
         private readonly ActiveDirectoryCredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
+        private readonly ISession _session;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer<Login> _localizer;
 
-        public LoginStory(ActiveDirectoryCredentialVerifier credentialVerifier, DataProtection dataProtection, PortalSettings settings, IStringLocalizer<Login> localizer)
+        public LoginStory(ActiveDirectoryCredentialVerifier credentialVerifier, DataProtection dataProtection, ISession session, PortalSettings settings, IStringLocalizer<Login> localizer)
         {
-            _credentialVerifier = credentialVerifier;
-            _dataProtection = dataProtection;
-            _settings = settings;
-            _localizer = localizer;
+            _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
+            _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
+            _session = session ?? throw new ArgumentNullException(nameof(session));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
-        public async Task<IActionResult> ExecuteAsync(LoginModel model, MultiFactorClaimsDto claims, HttpContext context)
+        public async Task<IActionResult> ExecuteAsync(LoginModel model, MultiFactorClaimsDto claims)
         {
             if (_settings.RequiresUserPrincipalName)
             {
@@ -53,8 +56,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             if (adValidationResult.UserMustChangePassword && _settings.EnablePasswordManagement)
             {
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
-                context.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
-                context.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
+
+                _session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
+                _session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
 
                 return new RedirectToActionResult("Change", "ExpiredPassword", new { });
             }
@@ -96,11 +100,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             }
             else
             {
-                if (mfClaims.HasSamlSession != null)
+                if (mfClaims.HasSamlSession())
                 {
                     claims.Add(MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
                 }
-                if (mfClaims.HasOidcSession != null)
+                if (mfClaims.HasOidcSession())
                 {
                     claims.Add(MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
                 }
