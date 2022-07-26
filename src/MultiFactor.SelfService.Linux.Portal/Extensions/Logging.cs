@@ -8,7 +8,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     internal static class Logging
     {
-        public static void ConfigureLogging(this WebApplicationBuilder applicationBuilder)
+        public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder applicationBuilder)
         {
             var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingLevel));
             var levelSwitch = new LoggingLevelSwitch(logLevel);
@@ -28,6 +28,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             {
                 Log.Logger.Information($"Environment: {applicationBuilder.Configuration.GetConfigValue<string>("Environment")}. Logging subsystem has been configured");
             }
+
+            return applicationBuilder;
         }
 
         private static LogEventLevel GetLogMinimalLevel(string? level)

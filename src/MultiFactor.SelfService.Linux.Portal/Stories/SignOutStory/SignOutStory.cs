@@ -12,12 +12,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
     public class SignOutStory
     {
         private readonly SafeHttpContextAccessor _contextAccessor;
-        private readonly IOptions<CookieAuthenticationOptions> _cookieOptions;
+        private readonly CookieAuthenticationOptions _cookieOptions;
 
         public SignOutStory(SafeHttpContextAccessor contextAccessor, IOptions<CookieAuthenticationOptions> cookieOptions)
         {
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
-            _cookieOptions = cookieOptions ?? throw new ArgumentNullException(nameof(cookieOptions));
+            _cookieOptions = cookieOptions?.Value ?? throw new ArgumentNullException(nameof(cookieOptions));
         }
 
         public async Task<IActionResult> ExecuteAsync(MultiFactorClaimsDto claimsDto)
@@ -29,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
                 _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
             }
 
-            var redirectUrl = new StringBuilder(_cookieOptions.Value.LoginPath);
+            var redirectUrl = new StringBuilder(_cookieOptions.LoginPath);
             if (claimsDto.HasSamlSession())
             {
                 redirectUrl.Append($"?{MultiFactorClaims.SamlSessionId}={claimsDto.SamlSession}");
@@ -40,7 +40,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
                 redirectUrl.Append($"?{MultiFactorClaims.OidcSessionId}={claimsDto.OidcSession}");
             }
 
-            return new RedirectResult(redirectUrl.ToString(), true);
+            return new RedirectResult(redirectUrl.ToString(), false);
         }
     }
 }

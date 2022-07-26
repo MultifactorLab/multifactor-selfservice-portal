@@ -7,8 +7,7 @@
     <div class="form-column">
         <h2>@Localizer["Title"]</h2>
         @using (Html.BeginForm("Login", "Account", new { 
-            ReturnUrl = "/"
-            //ReturnUrl = Request.QueryString["ReturnUrl"]
+            ReturnUrl = Context.Request.Query["ReturnUrl"]
         }, FormMethod.Post))
         {
             <fieldset>
@@ -16,11 +15,13 @@
                 <p>@Localizer["Invitation"]</p>
                 <div class="form-row">
                     <div class="input">
-                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName ? Localizer["UserNameUpn"] : Localizer["UserName"] })
+                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName 
+                            ? Localizer.GetString("UserNameUpn") 
+                            : Localizer.GetString("UserName") })
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input">
-                        @Html.PasswordFor(m => m.Password, new { placeholder = Localizer["Password"], autocomplete = "off" })
+                        @Html.PasswordFor(m => m.Password, new { placeholder = Localizer.GetString("Password"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @Html.ValidationSummary(true)

@@ -1,40 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Models;
-using MultiFactor.SelfService.Linux.Portal.Services.Api;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    public class ModelStateErrorExceptionFilterAttribute : IExceptionFilter, IActionFilter
-    {
-        private IDictionary<string, object?> _actionAttributes = new Dictionary<string, object?>();
-
-        public void OnActionExecuted(ActionExecutedContext context)
-        {
-
-        }
-
-        public void OnActionExecuting(ActionExecutingContext context)
-        {
-            _actionAttributes = context.ActionArguments;
-        }
-
-        public void OnException(ExceptionContext context)
-        {
-            if (context.Exception is not ModelStateErrorException) return;
-
-            //context.ModelState.AddModelError(string.Empty, context.Exception.Message);
-            //context.ExceptionHandled = true;
-            //context.Result = new ViewResult
-            //{
-
-            //};
-        }
-    }
-
     public class AccountController : ControllerBase
     {
         public AccountController(SignOutStory signOutStory) : base(signOutStory)
@@ -43,12 +14,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         public IActionResult Login(string returnUrl)
         {
+            var referer = Request.Headers["Referer"];
             return View(new LoginModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginModel model, [FromServices] LoginStory loginStory)
+        public async Task<IActionResult> Login(LoginModel model, string returnUrl, [FromServices] LoginStory loginStory)
         {
             if (!ModelState.IsValid)
             {
@@ -57,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                var result = await loginStory.ExecuteAsync(model, null, HttpContext);
+                var result = await loginStory.ExecuteAsync(model, new Dto.MultiFactorClaimsDto("", ""));
                 return result;
             }
             catch (ModelStateErrorException ex)

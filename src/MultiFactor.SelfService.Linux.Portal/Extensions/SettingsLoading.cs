@@ -1,11 +1,10 @@
 ﻿using Serilog;
-using System.Linq.Expressions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     internal static class SettingsLoading
     {
-        public static void AddSettings(this WebApplicationBuilder applicationBuilder, string[] args)
+        public static WebApplicationBuilder LoadSettings(this WebApplicationBuilder applicationBuilder, string[] args)
         {
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, config) =>
             {
@@ -18,9 +17,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     config.AddCommandLine(args);
                 }
             });
+
+            LoadPortalSettings(applicationBuilder);
+
+            return applicationBuilder;
         }
 
-        public static void LoadPortalSettings(this WebApplicationBuilder applicationBuilder)
+        private static void LoadPortalSettings(WebApplicationBuilder applicationBuilder)
         {
             try
             {
@@ -37,33 +40,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             {
                 Log.CloseAndFlush();
             }
-        }
-
-        public static TProperty? GetPortalSettingsValue<TProperty>(this IConfiguration config, Expression<Func<PortalSettings, TProperty>> propertySelector,
-            TProperty? defaultValue = default)
-        {
-            if (propertySelector is null) throw new ArgumentNullException(nameof(propertySelector));
-
-            var key = GetSettingPath(propertySelector);
-            return GetConfigValue(config, $"{PortalSettings.SectionName}:{key}", defaultValue);
-        }
-
-        public static TProperty? GetConfigValue<TProperty>(this IConfiguration config, string path, 
-            TProperty? defaultValue = default)
-        {
-            if (config is null) throw new ArgumentNullException(nameof(config));
-            if (path is null) throw new ArgumentNullException(nameof(path));
-            
-            return config.GetValue(path, defaultValue);
-        }
-
-        private static string GetSettingPath<T, P>(Expression<Func<T, P>> action)
-        {
-            if (action is null) throw new ArgumentNullException(nameof(action));
-            if (action.Body.NodeType != ExpressionType.MemberAccess) throw new Exception("Invalid property name");
-
-            var path = action.ToString().Split('.').Skip(1) ?? Array.Empty<string>();
-            return string.Join(":", path);
         }
 
         private static PortalSettings GetSettings(WebApplicationBuilder applicationBuilder)

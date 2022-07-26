@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations
+namespace MultiFactor.SelfService.Linux.Portal.Core
 {
     public static class SerializerOptions
     {

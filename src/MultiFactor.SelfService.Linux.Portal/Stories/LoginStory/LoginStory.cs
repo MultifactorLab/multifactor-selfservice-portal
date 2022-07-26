@@ -13,15 +13,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
     {
         private readonly ActiveDirectoryCredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
-        private readonly ISession _session;
+        private readonly MultiFactorApi _api;
+        private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer<Login> _localizer;
 
-        public LoginStory(ActiveDirectoryCredentialVerifier credentialVerifier, DataProtection dataProtection, ISession session, PortalSettings settings, IStringLocalizer<Login> localizer)
+        public LoginStory(ActiveDirectoryCredentialVerifier credentialVerifier, 
+            DataProtection dataProtection, 
+            MultiFactorApi api,
+            SafeHttpContextAccessor contextAccessor, 
+            PortalSettings settings, 
+            IStringLocalizer<Login> localizer)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
-            _session = session ?? throw new ArgumentNullException(nameof(session));
+            _api = api ?? throw new ArgumentNullException(nameof(api));
+            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
@@ -42,23 +49,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
             if (adValidationResult.IsAuthenticated)
             {
-                if (!string.IsNullOrEmpty(claims.SamlSession) && adValidationResult.IsBypass)
+                if (claims.HasSamlSession() && adValidationResult.IsBypass)
                 {
                     //return ByPassSamlSession(model.UserName, claims.SamlSession);
                 }
 
-                return RedirectToMfa(model.UserName, 
-                    adValidationResult, 
-                    model.MyUrl, 
-                    claims);
+                return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, claims);
             }
 
             if (adValidationResult.UserMustChangePassword && _settings.EnablePasswordManagement)
             {
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
 
-                _session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
-                _session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
+                _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
+                _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
 
                 return new RedirectToActionResult("Change", "ExpiredPassword", new { });
             }
@@ -71,11 +75,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private IActionResult RedirectToMfa(string username, CredentialVerificationResult verificationResult, string documentUrl, 
+        private async Task<IActionResult> RedirectToMfa(string username, 
+            CredentialVerificationResult verificationResult, 
+            string documentUrl, 
             MultiFactorClaimsDto mfClaims, 
             bool mustResetPassword = false)
         {
-            //public url from browser if we behind nginx or other proxy
+            // public url from browser if we behind nginx or other proxy
             var currentUri = new Uri(documentUrl);
             var noLastSegment = string.Format("{0}://{1}", currentUri.Scheme, currentUri.Authority);
 
@@ -84,39 +90,49 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
                 noLastSegment += currentUri.Segments[i];
             }
 
-            noLastSegment = noLastSegment.Trim("/".ToCharArray()); // remove trailing /
+            // remove trailing /
+            noLastSegment = noLastSegment.Trim("/".ToCharArray());
 
             var postbackUrl = noLastSegment + "/PostbackFromMfa";
 
-            //exra params
+            // exra params
+            var claims = GetClaims(username, mustResetPassword, mfClaims);
+
+            var accessPage = await _api.CreateAccessRequestAsync(username, 
+                verificationResult.DisplayName, 
+                verificationResult.Email, 
+                verificationResult.Phone, 
+                postbackUrl, 
+                claims);
+
+            return new RedirectResult(accessPage.Url, true);
+        }
+
+        private static IReadOnlyDictionary<string, string> GetClaims(string username, bool mustResetPassword, MultiFactorClaimsDto mfClaims)
+        {
             var claims = new Dictionary<string, string>
             {
-                { MultiFactorClaims.RawUserName, username }    //as specifyed by user
+                // as specifyed by user
+                { MultiFactorClaims.RawUserName, username }
             };
 
             if (mustResetPassword)
             {
                 claims.Add(MultiFactorClaims.ChangePassword, "true");
+                return claims;
             }
-            else
+            
+            if (mfClaims.HasSamlSession())
             {
-                if (mfClaims.HasSamlSession())
-                {
-                    claims.Add(MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
-                }
-                if (mfClaims.HasOidcSession())
-                {
-                    claims.Add(MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
-                }
+                claims.Add(MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
             }
 
-            throw new NotImplementedException();
-
-
-            //var client = new MultiFactorApiClient();
-            //var accessPage = client.CreateAccessRequest(username, verificationResult.DisplayName, verificationResult.Email, verificationResult.Phone, postbackUrl, claims);
-
-            //return RedirectPermanent(accessPage.Url);
+            if (mfClaims.HasOidcSession())
+            {
+                claims.Add(MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
+            }
+            
+            return claims;
         }
     }
 }

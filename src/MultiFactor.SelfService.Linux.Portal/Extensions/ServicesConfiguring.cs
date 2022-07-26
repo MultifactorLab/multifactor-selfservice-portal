@@ -3,25 +3,63 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
+using System.Net;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
-    public static class ServicesConfiguring
+    internal static class ServicesConfiguring
     {
-        public static void ConfigureApplicationServices(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder ConfigureApplicationServices(this WebApplicationBuilder builder)
         {
             builder.Services.AddSingleton<DataProtection>()
-                .AddTransient<MultiFactorSelfServiceApiClient>()
-                .AddTransient<ActiveDirectoryCredentialVerifier>()
-                .AddTransient<SignOutStory>()
-                .AddTransient<LoginStory>()
-                .AddTransient<LoadProfileStory>()
-                .AddTransient<SafeHttpContextAccessor>();
+                .AddHttpContextAccessor()
+                .AddSingleton<SafeHttpContextAccessor>()
 
-            builder.Services.AddHttpClient<ApplicationHttpClient>(o =>
+                .AddTransient<ActiveDirectoryCredentialVerifier>()
+                .AddTransient<HttpClientTokenProvider>()
+                .AddTransient<HttpMessageInterceptor>()
+                .AddTransient<ApplicationHttpClient>()
+                .AddTransient<MultiFactorApi>()
+                .AddTransient<LoginStory>()
+                .AddTransient<SignOutStory>()
+                .AddTransient<LoadProfileStory>();
+
+            ConfigureHttpClient(builder);
+
+            return builder;
+        }
+
+        private static void ConfigureHttpClient(WebApplicationBuilder builder)
+        {
+            builder.Services.AddHttpClient<ApplicationHttpClient>((services, client) =>
             {
-                o.BaseAddress = new Uri(builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiUrl));
-            });
+                var settings = services.GetRequiredService<PortalSettings>();
+                client.BaseAddress = new Uri(settings.MultiFactorApiUrl);
+            }).ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var handler = new HttpClientHandler();
+
+                var proxySetting = builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiProxy);
+                if (!string.IsNullOrEmpty(proxySetting))
+                {
+                    handler.Proxy = BuildProxy(proxySetting);
+                }
+
+                return handler;
+            }).AddHttpMessageHandler<HttpMessageInterceptor>();
+        }
+
+        private static WebProxy BuildProxy(string proxyUri)
+        {
+            var uri = new Uri(proxyUri);
+            var proxy = new WebProxy(uri);
+            if (!string.IsNullOrEmpty(uri.UserInfo))
+            {
+                var credentials = uri.UserInfo.Split(new[] { ':' }, 2);
+                proxy.Credentials = new NetworkCredential(credentials[0], credentials[1]);
+            }
+
+            return proxy;
         }
     }
 }
