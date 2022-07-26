@@ -13,12 +13,13 @@
     <title>@ViewData["Title"]</title>
 
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
 </head>
 <body>
     <div id="wrapper">
         <header id="header">
             <strong class="logo">
-                <img src="@Settings.CompanyLogoUrl" style="max-height:100px" />
+                <img src="~/@Settings.CompanyLogoUrl" style="max-height:100px" />
             </strong>
             <h1>@ViewBag.Title</h1>
         </header>

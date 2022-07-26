@@ -3,4 +3,4 @@
 /// <summary>
 /// Access token for user within non-mfa group
 /// </summary>
-public record BypassPage(string CallbackUrl, string AccessToken);
+public record BypassPageDto(string CallbackUrl, string AccessToken);
