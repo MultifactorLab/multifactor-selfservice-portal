@@ -60,6 +60,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _client.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
         }
 
+        public Task<string> FetchJsonWebKeySetAsync()
+        {
+            return ExecuteAsync(() => _client.GetAsync<string>(".well-known/jwks.json"));
+        }
+
+        private static async Task<T> ExecuteAsync<T>(Func<Task<T?>> method)
+        {
+            var response = await method();
+            return response ?? throw new Exception("Response is null");
+        }
+
         private static async Task<T> ExecuteAsync<T>(Func<Task<ApiResponse<T>?>> method)
         {
             var response = await method();
@@ -73,7 +84,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 throw new Exception($"Unsuccessful response: {response}");
             }
 
-            return response.Data;
+            return response.Model;
         }
 
         private IReadOnlyDictionary<string, string> GetBearerAuthHeaders()
