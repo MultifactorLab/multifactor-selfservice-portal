@@ -41,6 +41,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
                 var userName = LdapIdentity.ParseUser(model.UserName);
                 if (userName.Type != IdentityType.UserPrincipalName)
                 {
+                    // TODO
                     throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
                 }
             }

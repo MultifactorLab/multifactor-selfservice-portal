@@ -36,9 +36,9 @@
 		<!--Multifactor API -->
 		<MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>
 		<!-- get it from multifactor management panel -->
-		<MultifactorApiKey>key</MultifactorApiKey>
+		<MultifactorApiKey>rs_c3569f4fe2ffa1dccfb0469efe072</MultifactorApiKey>
 		<!-- get it from multifactor management panel -->
-		<MultifactorApiSecret>secret</MultifactorApiSecret>
+		<MultifactorApiSecret>834b7629816209b60414ac3af8250ab1</MultifactorApiSecret>
 		<!--HTTP proxy for API (optional)-->
 		<!--<MultifactorApiProxy>http://proxy:3128</MultifactorApiProxy>-->
 

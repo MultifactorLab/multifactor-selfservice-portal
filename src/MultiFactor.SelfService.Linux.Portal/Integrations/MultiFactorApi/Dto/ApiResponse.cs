@@ -14,5 +14,5 @@
     /// <summary>
     /// Api response with data
     /// </summary>
-    public record ApiResponse<TModel>(TModel Data, bool Success, string Message) : ApiResponse(Success, Message);
+    public record ApiResponse<TModel>(TModel Model, bool Success, string Message) : ApiResponse(Success, Message);
 }

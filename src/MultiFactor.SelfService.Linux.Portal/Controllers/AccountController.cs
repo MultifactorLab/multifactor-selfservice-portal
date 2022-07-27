@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Models;
+using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
@@ -12,6 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
         }
 
+        [AllowAnonymous]
         public IActionResult Login(string returnUrl)
         {
             var referer = Request.Headers["Referer"];
@@ -19,6 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model, string returnUrl, [FromServices] LoginStory loginStory)
         {
@@ -38,6 +42,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
             }
-        }   
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateStory)
+        {
+            var result = await authenticateStory.ExecuteAsync(accessToken);
+            return result;
+        }
     }
 }

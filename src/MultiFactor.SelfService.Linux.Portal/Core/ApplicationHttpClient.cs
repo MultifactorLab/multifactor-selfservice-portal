@@ -27,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
 
         public async Task<T?> PostAsync<T>(string uri, object data, IReadOnlyDictionary<string, string>? headers = null)
         {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
+            var message = new HttpRequestMessage(HttpMethod.Post, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
             message.Content = HttpClientUtils.ToJsonContent(data);
 
