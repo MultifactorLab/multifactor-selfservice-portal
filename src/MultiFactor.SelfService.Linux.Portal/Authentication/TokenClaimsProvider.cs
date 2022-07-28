@@ -1,4 +1,5 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Authentication
 {
@@ -15,7 +16,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
 
         public TokenClaims GetTokenClaims()
         {
-            return _tokenVerifier.Verify(_contextAccessor.HttpContext.Request.Headers["Authorization"]);
+            var token = ExtractBearerToken(_contextAccessor.HttpContext.Request.Headers["Authorization"]);
+            return _tokenVerifier.Verify(token);
+        }
+
+        private static string ExtractBearerToken(string headerValue)
+        {
+            if (headerValue is null) throw new UnauthorizedException("Empty token");
+
+            const string bearer = "Bearer";
+            if (!headerValue.StartsWith(bearer)) throw new UnauthorizedException("Invalid token");
+
+            return headerValue.Replace(bearer, "").Trim();
         }
     }
 }
