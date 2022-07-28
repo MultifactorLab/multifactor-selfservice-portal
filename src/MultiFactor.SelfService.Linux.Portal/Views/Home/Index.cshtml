@@ -1,5 +1,4 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
-
 @{ 
     var indexer = 1;
 }
@@ -77,12 +76,20 @@
     @using (Html.BeginForm("RemoveAuthenticator", "Home", FormMethod.Post, new { Id = "remove-authenticator-form" }))
     {
         @Html.AntiForgeryToken()
-        <input type="hidden" name="authenticator" id="remove-authenticator-form-authenticator" />
-        <input type="hidden" name="id" id="remove-authenticator-form-id" />
+        <input type="hidden" name="Authenticator" id="remove-authenticator-form-authenticator" />
+        <input type="hidden" name="Id" id="remove-authenticator-form-id" />
     }
 </div>
 
+@section head {
+
+    <link rel="stylesheet" href="~/css/jquery-confirm.min.css" />
+
+}
+
 @section Scripts {
+
+    <script src="~/js/jquery-confirm.min.js"></script>
 
     <script type="text/javascript">
         $(function () {
@@ -90,12 +97,36 @@
                 @if (Model.Count > 1)
                 {
                     <text>
-                    $(this).on("click", function () {
-                        if (confirm('@Localizer["ConfirmRemoving"]')) {
-                            $('#remove-authenticator-form-authenticator').val($(this).attr('data-type'));
-                            $('#remove-authenticator-form-id').val($(this).attr('data-id'));
-                            $('#remove-authenticator-form').submit();
-                        }
+                    const target = $(this);
+                    target.on("click", function () {                      
+                        $.confirm({
+                            title: '@SharedLocalizer.GetString("Confirm")',
+                            content: '',
+                            buttons: {
+                                confirm: {
+                                    text: '@SharedLocalizer.GetString("Ok")',
+                                    btnClass: 'btn-blue',
+                                    action: function() {
+                                        $('#remove-authenticator-form-authenticator').val(target.attr('data-type'));
+                                        console.log(target.attr('data-type'));
+                                        $('#remove-authenticator-form-id').val(target.attr('data-id'));
+                                        $('#remove-authenticator-form').submit();
+                                    }
+                                },
+                                cancel: {
+                                    text: '@SharedLocalizer.GetString("Cancel")',
+                                    action: function() {
+
+                                    }
+                                }
+                            }
+                        });
+
+                        //if (confirm('@Localizer["ConfirmRemoving"]')) {
+                        //    $('#remove-authenticator-form-authenticator').val($(this).attr('data-type'));
+                        //    $('#remove-authenticator-form-id').val($(this).attr('data-id'));
+                        //    $('#remove-authenticator-form').submit();
+                        //}
                     });
                     </text>
                 }

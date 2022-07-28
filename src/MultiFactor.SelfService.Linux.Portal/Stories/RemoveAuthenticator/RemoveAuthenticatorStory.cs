@@ -13,21 +13,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator
             _api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public Task<IActionResult> ExecuteAsync(RemoveAuthenticatorDto dto)
+        public async Task<IActionResult> ExecuteAsync(RemoveAuthenticatorDto dto)
         {
-            throw new NotImplementedException();
+            var userProfile = await _api.GetUserProfileAsync();
+            // do not remove last
+            if (userProfile.Count > 1)
+            {
+                await _api.RemoveAuthenticatorAsync(dto.Authenticator, dto.Id);
+            }
 
-            //var api = new MultiFactorSelfServiceApiClient(tokenCookie.Value);
-
-
-            //    var userProfile = api.LoadProfile();
-            //    if (userProfile.Count > 1) //do not remove last
-            //    {
-            //        api.RemoveAuthenticator(authenticator, id);
-            //    }
-
-            //    return RedirectToAction("Index");
-
+            return new LocalRedirectResult("/");
         }
     }
 }

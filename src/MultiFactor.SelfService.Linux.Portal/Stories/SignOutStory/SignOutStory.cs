@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MultiFactor.SelfService.Linux.Portal.Authentication;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using System.Text;
@@ -8,16 +8,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
 {
     public class SignOutStory
     {
-        private readonly ApplicationAuthenticationState _authenticationState;
+        private readonly SafeHttpContextAccessor _contextAccessor;
 
-        public SignOutStory(ApplicationAuthenticationState authenticationState)
+        public SignOutStory(SafeHttpContextAccessor contextAccessor)
         {
-            _authenticationState = authenticationState ?? throw new ArgumentNullException(nameof(authenticationState));
+            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
         }
 
         public IActionResult Execute(MultiFactorClaimsDto claimsDto)
         {
-            _authenticationState.SignOut();
+            // remove mfa cookie
+            if (_contextAccessor.HttpContext.Request.Cookies[Constants.COOKIE_NAME] != null)
+            {
+                _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
+            }
 
             var redirectUrl = new StringBuilder("/account/login");
             if (claimsDto.HasSamlSession())

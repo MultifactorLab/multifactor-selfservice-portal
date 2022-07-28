@@ -12,6 +12,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory
             _api = api ?? throw new ArgumentNullException(nameof(api));
         }
 
-        public Task<UserProfileDto> ExecuteAsync() => _api.GetUserProfileAsync<UserProfileApiDto>();
+        public Task<UserProfileDto> ExecuteAsync() => _api.GetUserProfileAsync();
     }
 }
