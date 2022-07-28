@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
+using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
@@ -22,25 +24,32 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             if (claims.HasSamlSession() || claims.HasOidcSession())
             {
                 //re-login for saml or oidc authentication
-                return await SignOutAsync(claims);
+                return SignOut(claims);
             }
 
+            // TODO: зачем это здесь?
             var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];
             if (tokenCookie == null)
             {
-                return await SignOutAsync(claims);
+                return SignOut(claims);
             }
 
             try
             {
-            var userProfile = await _loadProfile.ExecuteAsync();
-
-            return View(userProfile);
+                var userProfile = await _loadProfile.ExecuteAsync();
+                return View(userProfile);
             }
-            catch (UnauthorizedException ex)
+            catch (UnauthorizedException)
             {
-                return await SignOutAsync(claims);
+                return SignOut(claims);
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> RemoveAuthenticator(RemoveAuthenticatorDto dto, [FromServices] RemoveAuthenticatorStory removeAuthenticator)
+        {
+            return removeAuthenticator.ExecuteAsync(dto);
         }
     }
 }

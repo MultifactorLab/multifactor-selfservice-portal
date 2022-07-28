@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
+namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
     /// <summary>
     /// Protect sensitive data.
@@ -22,7 +22,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
         {
             var protector = _dataProtectionProvider.CreateProtector(_protectorName);
             return protector.Protect(data);
-            //_ = ProtectedData.Protect(new byte[] { }, new byte[] { }, DataProtectionScope.LocalMachine);
         }
 
         public string Unprotect(string data)
@@ -30,5 +29,5 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             var protector = _dataProtectionProvider.CreateProtector(_protectorName);
             return protector.Unprotect(data);
         }
-    } 
+    }
 }

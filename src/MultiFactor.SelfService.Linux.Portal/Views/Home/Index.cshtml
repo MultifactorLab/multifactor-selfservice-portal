@@ -25,7 +25,7 @@
                         <td>@(indexer++)</td>
                         <td>Telegram</td>
                         <td>@tlg.Label</td>
-                        <td><a href="#" data-type="telegram" data-id="@tlg.Id">@Localizer["Remove"]"</a></td>
+                        <td><a href="#" data-type="telegram" data-id="@tlg.Id">@Localizer["Remove"]</a></td>
                     </tr>
                 }
                 @foreach (var totp in Model.TotpAuthenticators)
@@ -34,7 +34,7 @@
                         <td>@(indexer++)</td>
                         <td>Authenticator</td>
                         <td>&nbsp;</td>
-                        <td><a href="#" data-type="totp" data-id="@totp.Id">@Localizer["Remove"]"</a></td>
+                        <td><a href="#" data-type="totp" data-id="@totp.Id">@Localizer["Remove"]</a></td>
                     </tr>
                 }
                 @foreach (var phone in Model.PhoneAuthenticators)

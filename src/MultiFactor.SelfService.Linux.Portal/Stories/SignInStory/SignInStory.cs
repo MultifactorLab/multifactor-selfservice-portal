@@ -3,13 +3,14 @@ using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Models;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
+namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
-    public class LoginStory
+    public class SignInStory
     {
         private readonly ActiveDirectoryCredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
@@ -18,11 +19,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer<Login> _localizer;
 
-        public LoginStory(ActiveDirectoryCredentialVerifier credentialVerifier, 
-            DataProtection dataProtection, 
+        public SignInStory(ActiveDirectoryCredentialVerifier credentialVerifier,
+            DataProtection dataProtection,
             MultiFactorApi api,
-            SafeHttpContextAccessor contextAccessor, 
-            PortalSettings settings, 
+            SafeHttpContextAccessor contextAccessor,
+            PortalSettings settings,
             IStringLocalizer<Login> localizer)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
@@ -76,10 +77,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private async Task<IActionResult> RedirectToMfa(string username, 
-            CredentialVerificationResult verificationResult, 
-            string documentUrl, 
-            MultiFactorClaimsDto mfClaims, 
+        private async Task<IActionResult> RedirectToMfa(string username,
+            CredentialVerificationResult verificationResult,
+            string documentUrl,
+            MultiFactorClaimsDto mfClaims,
             bool mustResetPassword = false)
         {
             // public url from browser if we behind nginx or other proxy
@@ -99,11 +100,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             // exra params
             var claims = GetClaims(username, mustResetPassword, mfClaims);
 
-            var accessPage = await _api.CreateAccessRequestAsync(username, 
-                verificationResult.DisplayName, 
-                verificationResult.Email, 
-                verificationResult.Phone, 
-                postbackUrl, 
+            var accessPage = await _api.CreateAccessRequestAsync(username,
+                verificationResult.DisplayName,
+                verificationResult.Email,
+                verificationResult.Phone,
+                postbackUrl,
                 claims);
 
             return new RedirectResult(accessPage.Url, true);
@@ -122,7 +123,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
                 claims.Add(MultiFactorClaims.ChangePassword, "true");
                 return claims;
             }
-            
+
             if (mfClaims.HasSamlSession())
             {
                 claims.Add(MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
@@ -132,7 +133,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
             {
                 claims.Add(MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
             }
-            
+
             return claims;
         }
     }
