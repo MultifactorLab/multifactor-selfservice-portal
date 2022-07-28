@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
 {
     public class CredentialVerificationResult
     {

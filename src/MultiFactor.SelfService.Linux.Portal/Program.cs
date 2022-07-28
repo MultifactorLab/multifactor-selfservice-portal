@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpOverrides;
 using MultiFactor.SelfService.Linux.Portal;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Filters;
@@ -70,7 +69,7 @@ app.UseStatusCodePages(async context =>
     var response = context.HttpContext.Response;
     if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
     {
-        response.Redirect("/account/login");
+        response.Redirect("/account/logout");
     }
 });
 

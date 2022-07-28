@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using System.Text;
@@ -11,23 +8,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
 {
     public class SignOutStory
     {
-        private readonly SafeHttpContextAccessor _contextAccessor;
-        private readonly CookieAuthenticationOptions _cookieOptions;
+        private readonly ApplicationAuthenticationState _authenticationState;
 
-        public SignOutStory(SafeHttpContextAccessor contextAccessor, IOptions<CookieAuthenticationOptions> cookieOptions)
+        public SignOutStory(ApplicationAuthenticationState authenticationState)
         {
-            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
-            _cookieOptions = cookieOptions?.Value ?? throw new ArgumentNullException(nameof(cookieOptions));
+            _authenticationState = authenticationState ?? throw new ArgumentNullException(nameof(authenticationState));
         }
 
-        public async Task<IActionResult> ExecuteAsync(MultiFactorClaimsDto claimsDto)
+        public IActionResult Execute(MultiFactorClaimsDto claimsDto)
         {
-            //await _contextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            // remove mfa cookie
-            if (_contextAccessor.HttpContext.Request.Cookies[Constants.COOKIE_NAME] != null)
-            {
-                _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
-            }
+            _authenticationState.SignOut();
 
             var redirectUrl = new StringBuilder("/account/login");
             if (claimsDto.HasSamlSession())

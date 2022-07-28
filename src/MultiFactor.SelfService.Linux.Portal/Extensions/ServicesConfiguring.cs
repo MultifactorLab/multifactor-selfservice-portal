@@ -1,10 +1,12 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using System.Net;
 
@@ -14,20 +16,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     {
         public static WebApplicationBuilder ConfigureApplicationServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddSingleton<DataProtection>()
+            builder.Services
                 .AddHttpContextAccessor()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
+                .AddSingleton<ApplicationAuthenticationState>()
+                .AddSingleton<DataProtection>()
 
                 .AddTransient<ActiveDirectoryCredentialVerifier>()
                 .AddTransient<HttpClientTokenProvider>()
                 .AddTransient<HttpMessageInterceptor>()
                 .AddTransient<ApplicationHttpClient>()
                 .AddTransient<MultiFactorApi>()
-                .AddTransient<LoginStory>()
+
+                .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
-                .AddTransient<AuthenticateSessionStory>();
+                .AddTransient<AuthenticateSessionStory>()
+                .AddTransient<RemoveAuthenticatorStory>();
 
             ConfigureHttpClient(builder);
 

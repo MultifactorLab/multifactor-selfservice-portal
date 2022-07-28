@@ -1,14 +1,14 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
 {
     public class ActiveDirectoryCredentialVerifier
     {
         private readonly PortalSettings _settings;
         private readonly ILogger<ActiveDirectoryCredentialVerifier> _logger;
 
-        public ActiveDirectoryCredentialVerifier(PortalSettings settings, 
+        public ActiveDirectoryCredentialVerifier(PortalSettings settings,
             ILogger<ActiveDirectoryCredentialVerifier> logger)
         {
             _settings = settings;
@@ -71,7 +71,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoginStory
                 if (ex.Message != null)
                 {
                     var result = CredentialVerificationResult.FromKnownError(ex.Message);
-                    _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {.Reason:}", 
+                    _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {.Reason:}",
                         user.Name, _settings.CompanyDomain, result.Reason);
                     return result;
                 }

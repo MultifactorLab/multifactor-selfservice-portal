@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Token Verify(string accessToken)
+        public TokenClaims Verify(string accessToken)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                 var rawUserName = claimsPrincipal.Claims.SingleOrDefault(claim => claim.Type == MultiFactorClaims.RawUserName)?.Value;
 
                 // use raw user name when possible couse multifactor may transform identity depend by settings
-                return new Token(jwtSecurityToken.Id,
+                return new TokenClaims(jwtSecurityToken.Id,
                     rawUserName ?? identity,
                     claimsPrincipal.Claims.Any(claim => claim.Type == MultiFactorClaims.ChangePassword),
                     jwtSecurityToken.ValidTo);

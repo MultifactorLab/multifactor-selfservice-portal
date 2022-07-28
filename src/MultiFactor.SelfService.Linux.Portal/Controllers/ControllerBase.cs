@@ -9,7 +9,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     {
         private readonly SignOutStory _signOutStory;
 
-        protected ControllerBase(SignOutStory signOutStory) => _signOutStory = signOutStory;
-        protected Task<IActionResult> SignOutAsync(MultiFactorClaimsDto claims) => _signOutStory.ExecuteAsync(claims);      
+        protected ControllerBase(SignOutStory signOutStory)
+        {
+            _signOutStory = signOutStory;
+        }
+
+        protected IActionResult SignOut(MultiFactorClaimsDto claims) => _signOutStory.Execute(claims);      
     }
 }
