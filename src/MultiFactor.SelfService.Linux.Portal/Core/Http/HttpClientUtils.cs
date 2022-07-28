@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace MultiFactor.SelfService.Linux.Portal.Core
+namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 {
     public static class HttpClientUtils
     {

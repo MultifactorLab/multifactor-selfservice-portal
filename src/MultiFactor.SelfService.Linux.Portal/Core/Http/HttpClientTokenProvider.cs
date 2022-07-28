@@ -1,6 +1,6 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
 
-namespace MultiFactor.SelfService.Linux.Portal.Core
+namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 {
     public class HttpClientTokenProvider
     {
@@ -13,7 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
 
         public string GetToken()
         {
-            return _contextAccessor.HttpContext.Request.Cookies[Constants.TOKEN_NAME] ?? throw new UnauthorizedException("HttpClient token not found");
+            return _contextAccessor.HttpContext.Request.Cookies[Constants.COOKIE_NAME] ?? throw new UnauthorizedException("HttpClient token not found");
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using System.Net;
 
-namespace MultiFactor.SelfService.Linux.Portal.Core
+namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 {
     public class ApplicationHttpClient
     {
@@ -12,6 +12,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public async Task<string?> GetAsync(string uri, IReadOnlyDictionary<string, string>? headers = null)
+        {
+            var message = new HttpRequestMessage(HttpMethod.Get, uri);
+            HttpClientUtils.AddHeadersIfExist(message, headers);
+
+            var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
+            if (resp.Content == null) return default;
+
+            return await resp.Content.ReadAsStringAsync();
         }
 
         public async Task<T?> GetAsync<T>(string uri, IReadOnlyDictionary<string, string>? headers = null)
@@ -32,7 +43,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
             message.Content = HttpClientUtils.ToJsonContent(data);
 
             var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
-            if (resp.Content == null) return default;      
+            if (resp.Content == null) return default;
 
             return await HttpClientUtils.FromJsonContent<T>(resp.Content);
         }

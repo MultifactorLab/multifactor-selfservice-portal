@@ -1,5 +1,8 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using MultiFactor.SelfService.Linux.Portal.Authentication;
+using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoginStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
@@ -14,6 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             builder.Services.AddSingleton<DataProtection>()
                 .AddHttpContextAccessor()
                 .AddSingleton<SafeHttpContextAccessor>()
+                .AddSingleton<TokenVerifier>()
 
                 .AddTransient<ActiveDirectoryCredentialVerifier>()
                 .AddTransient<HttpClientTokenProvider>()
@@ -22,7 +26,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<MultiFactorApi>()
                 .AddTransient<LoginStory>()
                 .AddTransient<SignOutStory>()
-                .AddTransient<LoadProfileStory>();
+                .AddTransient<LoadProfileStory>()
+                .AddTransient<AuthenticateSessionStory>();
 
             ConfigureHttpClient(builder);
 

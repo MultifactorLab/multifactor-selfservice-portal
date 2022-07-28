@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Core
+﻿namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 {
     internal class HttpMessageInterceptor : DelegatingHandler
     {

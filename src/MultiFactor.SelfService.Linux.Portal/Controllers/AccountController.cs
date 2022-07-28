@@ -17,14 +17,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [AllowAnonymous]
         public IActionResult Login(string returnUrl)
         {
-            var referer = Request.Headers["Referer"];
             return View(new LoginModel());
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginModel model, string returnUrl, [FromServices] LoginStory loginStory)
+        public async Task<IActionResult> Login(LoginModel model, [FromServices] LoginStory loginStory)
         {
             if (!ModelState.IsValid)
             {
@@ -45,10 +44,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateStory)
-        {
-            var result = await authenticateStory.ExecuteAsync(accessToken);
-            return result;
-        }
+        public IActionResult PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateStory) => authenticateStory.Execute(accessToken); 
     }
 }
