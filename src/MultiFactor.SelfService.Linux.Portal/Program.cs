@@ -1,12 +1,17 @@
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
+using MultiFactor.SelfService.Linux.Portal;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Filters;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.LoadSettings(args)
+builder.AddConfiguration(args)
     .ConfigureLogging()
+    .RegisterConfiguration()
+    .ConfigureApplicationServices()
     .ConfigureAuthentication()
     .AddControllersWithViewsAndLocalization(o =>
     {
@@ -25,10 +30,8 @@ builder.Services.AddDataProtection()
 //
 //
 
-
-builder.ConfigureApplicationServices();
-
 var app = builder.Build();
+
 
 if (app.Environment.IsEnvironment("production"))
 {
@@ -40,17 +43,40 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseStaticFiles();
-app.UseRouting();
+//app.UseForwardedHeaders(new ForwardedHeadersOptions
+//{
+//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+//});
+
 app.UseRequestLocalization();
 app.UseCookiePolicy();
-app.UseAuthentication();
-app.UseAuthorization();
 
-app.Use((context, next) =>
+app.UseStaticFiles();
+app.Use(async (context, next) =>
 {
-    return next();
+    var token = context.Request.Cookies[Constants.COOKIE_NAME];
+    if (!string.IsNullOrEmpty(token))
+    {
+        context.Request.Headers.Add("Authorization", $"Bearer {token}");
+    }
+
+    await next();
 });
+app.UseStatusCodePages(async context =>
+{
+    var request = context.HttpContext.Request;
+    if (request.IsAjaxCall()) return;
+
+    var response = context.HttpContext.Response;
+    if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+    {
+        response.Redirect("/account/login");
+    }
+});
+
+app.UseAuthentication();
+app.UseRouting();
+app.UseAuthorization();
 
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 

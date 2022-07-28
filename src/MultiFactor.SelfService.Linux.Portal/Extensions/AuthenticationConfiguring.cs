@@ -1,33 +1,37 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.CookiePolicy;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication;
+using MultiFactor.SelfService.Linux.Portal.Core.Configuration;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     internal static class AuthenticationConfiguring
     {
+        /// <summary>
+        /// Configures authentication services and rules using ServiceProvider.
+        /// Must be called after the applicaton services are configured (ConfigureApplicationServices());
+        /// </summary>
+        /// <param name="applicationBuilder">A builder for web a pplication and services.</param>
         public static WebApplicationBuilder ConfigureAuthentication(this WebApplicationBuilder applicationBuilder)
         {
-            applicationBuilder.Services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(o =>
-                {
-                    o.LoginPath = "/account/login";
-                    o.LogoutPath = "/account/login";
-                    o.ExpireTimeSpan = TimeSpan.FromHours(48);
-                    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    o.Cookie.Name = Constants.COOKIE_NAME;
-                });
+            applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>
+            {
+                var provider = applicationBuilder.Services.BuildServiceProvider();
+                configBuilder.Add(new TokenValidationConfigurationSource(provider.GetRequiredService<ApplicationHttpClient>()));
+            });
 
             applicationBuilder.Services
-                .Configure<CookiePolicyOptions>(options =>
+                .AddAntiforgery()
+                .AddAuthentication(x =>
                 {
-                    // Prevent access from javascript 
-                    options.HttpOnly = HttpOnlyPolicy.Always;
-                    options.Secure = CookieSecurePolicy.Always;
-                    options.MinimumSameSitePolicy = SameSiteMode.Strict;
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                // Adds the X-Frame-Options header with the value SAMEORIGIN.
-                .AddAntiforgery();
+                .AddJwtBearer(x =>
+                {
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = TokenValidationParametersFactory.GetParameters(applicationBuilder.Configuration);
+                });
 
             return applicationBuilder;
         }

@@ -22,14 +22,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
 
         public async Task<IActionResult> ExecuteAsync(MultiFactorClaimsDto claimsDto)
         {
-            await _contextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            //await _contextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             // remove mfa cookie
             if (_contextAccessor.HttpContext.Request.Cookies[Constants.COOKIE_NAME] != null)
             {
                 _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
             }
 
-            var redirectUrl = new StringBuilder(_cookieOptions.LoginPath);
+            var redirectUrl = new StringBuilder("/account/login");
             if (claimsDto.HasSamlSession())
             {
                 redirectUrl.Append($"?{MultiFactorClaims.SamlSessionId}={claimsDto.SamlSession}");

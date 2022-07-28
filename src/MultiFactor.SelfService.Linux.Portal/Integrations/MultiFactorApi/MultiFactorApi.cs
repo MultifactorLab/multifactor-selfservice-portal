@@ -1,4 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using System.Text;
 
@@ -60,17 +60,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _client.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
         }
 
-        public Task<string> FetchJsonWebKeySetAsync()
-        {
-            return ExecuteAsync(() => _client.GetAsync<string>(".well-known/jwks.json"));
-        }
-
-        private static async Task<T> ExecuteAsync<T>(Func<Task<T?>> method)
-        {
-            var response = await method();
-            return response ?? throw new Exception("Response is null");
-        }
-
         private static async Task<T> ExecuteAsync<T>(Func<Task<ApiResponse<T>?>> method)
         {
             var response = await method();
@@ -103,6 +92,5 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 { "Authorization", $"Basic {auth}" }
             };
         }
-
     }
 }

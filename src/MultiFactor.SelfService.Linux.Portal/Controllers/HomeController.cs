@@ -7,7 +7,7 @@ using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class HomeController : ControllerBase
     {
         private readonly LoadProfileStory _loadProfile;
@@ -17,7 +17,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             _loadProfile = loadProfile;
         }
 
-        //[AllowAnonymous]
         public async Task<IActionResult> Index(MultiFactorClaimsDto claims)
         {
             if (claims.HasSamlSession() || claims.HasOidcSession())
@@ -38,7 +37,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             return View(userProfile);
             }
-            catch (UnauthorizedException)
+            catch (UnauthorizedException ex)
             {
                 return await SignOutAsync(claims);
             }
