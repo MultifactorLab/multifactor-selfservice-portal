@@ -27,13 +27,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return SignOut(claims);
             }
 
-            // TODO: зачем это здесь?
-            var tokenCookie = Request.Cookies[Constants.COOKIE_NAME];
-            if (tokenCookie == null)
-            {
-                return SignOut(claims);
-            }
-
             try
             {
                 var userProfile = await _loadProfile.ExecuteAsync();

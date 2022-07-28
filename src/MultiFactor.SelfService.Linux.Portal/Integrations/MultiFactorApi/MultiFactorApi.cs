@@ -1,5 +1,4 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using System.Text;
 
@@ -18,7 +17,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public async Task<UserProfileDto> GetUserProfileAsync<T>()
+        public Task RemoveAuthenticatorAsync(string authenticator, string id)
+        {
+            if (authenticator is null)  throw new ArgumentNullException(nameof(authenticator));
+            if (id is null) throw new ArgumentNullException(nameof(id));
+
+            return ExecuteAsync(() => _client.DeleteAsync<ApiResponse>($"/self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
+        }
+
+        public async Task<UserProfileDto> GetUserProfileAsync()
         {
             var response = await ExecuteAsync(() => _client.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
             return new UserProfileDto
@@ -43,6 +50,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
             string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
+            if (username is null) throw new ArgumentNullException(nameof(username));
+            if (claims is null) throw new ArgumentNullException(nameof(claims));        
+
             var payload = new
             {
                 Identity = string.IsNullOrEmpty(_settings.NetBiosName) ? username : $"{_settings.NetBiosName}\\{username}",
@@ -61,6 +71,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _client.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
         }
 
+        private static async Task ExecuteAsync(Func<Task<ApiResponse?>> method)
+        {
+            var response = await method();
+
+            if (response == null)
+            {
+                throw new Exception("Response is null");
+            }
+            if (!response.Success)
+            {
+                throw new Exception($"Unsuccessful response: {response}");
+            }
+        }
+
         private static async Task<T> ExecuteAsync<T>(Func<Task<ApiResponse<T>?>> method)
         {
             var response = await method();
@@ -72,6 +96,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             if (!response.Success)
             {
                 throw new Exception($"Unsuccessful response: {response}");
+            }
+            if (response.Model == null)
+            {
+                throw new Exception("Response payload is null");
             }
 
             return response.Model;

@@ -6,11 +6,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
     public class ApplicationHttpClient
     {
         private readonly HttpClient _client;
+        private readonly JsonDataSerializer _jsonDataSerializer;
         private readonly ILogger<ApplicationHttpClient> _logger;
 
-        public ApplicationHttpClient(HttpClient client, ILogger<ApplicationHttpClient> logger)
+        public ApplicationHttpClient(HttpClient client, JsonDataSerializer jsonDataSerializer, ILogger<ApplicationHttpClient> logger)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
+            _jsonDataSerializer = jsonDataSerializer ?? throw new ArgumentNullException(nameof(jsonDataSerializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -33,27 +35,30 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
             if (resp.Content == null) return default;
 
-            return await HttpClientUtils.FromJsonContent<T>(resp.Content);
+            return await _jsonDataSerializer.Deserialize<T>(resp.Content);
         }
 
         public async Task<T?> PostAsync<T>(string uri, object data, IReadOnlyDictionary<string, string>? headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
-            message.Content = HttpClientUtils.ToJsonContent(data);
+            message.Content = _jsonDataSerializer.Serialize(data);
 
             var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
             if (resp.Content == null) return default;
 
-            return await HttpClientUtils.FromJsonContent<T>(resp.Content);
+            return await _jsonDataSerializer.Deserialize<T>(resp.Content);
         }
 
-        public Task DeleteAsync(string uri, IReadOnlyDictionary<string, string>? headers = null)
+        public async Task<T?> DeleteAsync<T>(string uri, IReadOnlyDictionary<string, string>? headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
 
-            return ExecuteHttpMethod(() => _client.SendAsync(message));
+            var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
+            if (resp.Content == null) return default;
+
+            return await _jsonDataSerializer.Deserialize<T>(resp.Content);
         }
 
         private async Task<HttpResponseMessage> ExecuteHttpMethod(Func<Task<HttpResponseMessage>> method)

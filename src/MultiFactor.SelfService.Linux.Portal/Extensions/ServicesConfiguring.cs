@@ -20,8 +20,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddHttpContextAccessor()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
-                .AddSingleton<ApplicationAuthenticationState>()
+                .AddSingleton<TokenClaimsProvider>()
                 .AddSingleton<DataProtection>()
+                .AddSingleton<JsonDataSerializer>()
 
                 .AddTransient<ActiveDirectoryCredentialVerifier>()
                 .AddTransient<HttpClientTokenProvider>()
