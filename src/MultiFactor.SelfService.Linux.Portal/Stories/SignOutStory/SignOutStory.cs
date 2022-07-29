@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using System.Text;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
@@ -26,12 +25,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
             var redirectUrl = new StringBuilder("/account/login");
             if (claimsDto.HasSamlSession())
             {
-                redirectUrl.Append($"?{MultiFactorClaims.SamlSessionId}={claimsDto.SamlSession}");
+                redirectUrl.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={claimsDto.SamlSession}");
             }
 
             if (claimsDto.HasOidcSession())
             {
-                redirectUrl.Append($"?{MultiFactorClaims.OidcSessionId}={claimsDto.OidcSession}");
+                redirectUrl.Append($"?{Constants.MultiFactorClaims.OidcSessionId}={claimsDto.OidcSession}");
             }
 
             return new RedirectResult(redirectUrl.ToString(), false);

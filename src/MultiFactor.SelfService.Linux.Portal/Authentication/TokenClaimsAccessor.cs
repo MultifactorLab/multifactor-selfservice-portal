@@ -3,12 +3,12 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Authentication
 {
-    public class TokenClaimsProvider
+    public class TokenClaimsAccessor
     {
         private readonly TokenVerifier _tokenVerifier;
         private readonly SafeHttpContextAccessor _contextAccessor;
 
-        public TokenClaimsProvider(TokenVerifier tokenVerifier, SafeHttpContextAccessor contextAccessor)
+        public TokenClaimsAccessor(TokenVerifier tokenVerifier, SafeHttpContextAccessor contextAccessor)
         {
             _tokenVerifier = tokenVerifier ?? throw new ArgumentNullException(nameof(tokenVerifier));
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));

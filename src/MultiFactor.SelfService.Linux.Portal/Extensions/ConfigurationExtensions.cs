@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using MultiFactor.SelfService.Linux.Portal.Core;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {

@@ -6,7 +6,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
-using MultiFactor.SelfService.Linux.Portal.Models;
+using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
-        public async Task<IActionResult> ExecuteAsync(LoginModel model, MultiFactorClaimsDto claims)
+        public async Task<IActionResult> ExecuteAsync(LoginViewModel model, MultiFactorClaimsDto claims)
         {
             if (_settings.RequiresUserPrincipalName)
             {
@@ -115,23 +115,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             var claims = new Dictionary<string, string>
             {
                 // as specifyed by user
-                { MultiFactorClaims.RawUserName, username }
+                { Constants.MultiFactorClaims.RawUserName, username }
             };
 
             if (mustResetPassword)
             {
-                claims.Add(MultiFactorClaims.ChangePassword, "true");
+                claims.Add(Constants.MultiFactorClaims.ChangePassword, "true");
                 return claims;
             }
 
             if (mfClaims.HasSamlSession())
             {
-                claims.Add(MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
+                claims.Add(Constants.MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
             }
 
             if (mfClaims.HasOidcSession())
             {
-                claims.Add(MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
+                claims.Add(Constants.MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
             }
 
             return claims;

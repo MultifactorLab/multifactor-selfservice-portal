@@ -7,6 +7,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [Authorize]
     public class TelegramController : Controller
     {
-        public IActionResult Index([FromServices] TokenClaimsProvider claimsProvider) => View(claimsProvider.GetTokenClaims());
+        public IActionResult Index([FromServices] TokenClaimsAccessor claimsAccessor) => View(claimsAccessor.GetTokenClaims());
     }
 }

@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Models;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
+using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
@@ -18,12 +18,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         public IActionResult Login(string returnUrl)
         {
-            return View(new LoginModel());
+            return View(new LoginViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginModel model, [FromServices] SignInStory signIn)
+        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStory signIn)
         {
             if (!ModelState.IsValid)
             {

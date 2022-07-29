@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
-using MultiFactor.SelfService.Linux.Portal;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Filters;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding;
