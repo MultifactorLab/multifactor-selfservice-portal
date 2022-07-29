@@ -1,0 +1,32 @@
+﻿@model MultiFactor.SelfService.Linux.Portal.Authentication.TokenClaims
+
+<div class="block">
+    <div class="container">
+        <div class="info">
+            <p>@Localizer["Header"]</p>
+
+            <p>
+                @Html.Raw(string.Format(Localizer.GetString("Instruction"), Model.Id))
+            </p>
+
+            <br />
+
+            <div id="qrcode"></div>
+            <br />
+            <br />
+
+            <ul class="action">
+                <li><a href="~/" class="btn">@Localizer["Ok"]</a></li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/qrcode.min.js"></script>
+    <script type="text/javascript">
+        new QRCode(document.getElementById("qrcode"), "multifactor://resolve?r=@Model.Id");
+    </script>
+}
