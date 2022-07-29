@@ -3,7 +3,9 @@ using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.GetGoogleAuthKeyStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
@@ -20,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddHttpContextAccessor()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
-                .AddSingleton<TokenClaimsProvider>()
+                .AddSingleton<TokenClaimsAccessor>()
                 .AddSingleton<DataProtection>()
                 .AddSingleton<JsonDataSerializer>()
 
@@ -34,7 +36,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
                 .AddTransient<AuthenticateSessionStory>()
-                .AddTransient<RemoveAuthenticatorStory>();
+                .AddTransient<RemoveAuthenticatorStory>()
+                .AddTransient<CreateGoogleAuthKeyStory>()
+                .AddTransient<AddGoogleAuthStory>();
 
             ConfigureHttpClient(builder);
 

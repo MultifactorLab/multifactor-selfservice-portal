@@ -1,5 +1,6 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using System.Text;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
@@ -17,6 +18,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
+        /// <summary>
+        /// Removes specified authenticator from user profile.
+        /// </summary>
+        /// <param name="authenticator">Name</param>
+        /// <param name="id">Id</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UnsuccessfulResponseException"></exception>
         public Task RemoveAuthenticatorAsync(string authenticator, string id)
         {
             if (authenticator is null)  throw new ArgumentNullException(nameof(authenticator));
@@ -25,6 +33,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _client.DeleteAsync<ApiResponse>($"/self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
         }
 
+        /// <summary>
+        /// Returns user profile.
+        /// </summary>
+        /// <exception cref="UnsuccessfulResponseException"></exception>
         public async Task<UserProfileDto> GetUserProfileAsync()
         {
             var response = await ExecuteAsync(() => _client.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
@@ -47,6 +59,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             };
         }
 
+        /// <summary>
+        /// Returns new access token.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="displayName"></param>
+        /// <param name="email"></param>
+        /// <param name="phone"></param>
+        /// <param name="postbackUrl"></param>
+        /// <param name="claims"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UnsuccessfulResponseException"></exception>
         public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
             string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
@@ -71,6 +94,29 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _client.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
         }
 
+        /// <summary>
+        /// Returns new Time-based One Time Password.
+        /// </summary>
+        /// <exception cref="UnsuccessfulResponseException"></exception>
+        public Task<TotpKeyDto> CreateTotpKey() => ExecuteAsync(() => _client.GetAsync<ApiResponse<TotpKeyDto>>("self-service/totp/new", GetBearerAuthHeaders()));
+
+        /// <summary>
+        /// Adds new Time-based One Time Password authenticator to the user profile.
+        /// </summary>
+        /// <param name="key">Totp identifier</param>
+        /// <param name="otp">Password</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UnsuccessfulResponseException"></exception>
+        public Task AddTotpAuthenticatorAsync(string key, string otp)
+        {
+            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (otp is null) throw new ArgumentNullException(nameof(otp));
+
+            var payload = new { key, otp };
+
+            return ExecuteAsync(() => _client.PostAsync<ApiResponse>("self-service/totp", payload, GetBearerAuthHeaders()));
+        }
+
         private static async Task ExecuteAsync(Func<Task<ApiResponse?>> method)
         {
             var response = await method();
@@ -81,7 +127,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             }
             if (!response.Success)
             {
-                throw new Exception($"Unsuccessful response: {response}");
+                throw new UnsuccessfulResponseException(response.Message);
             }
         }
 
@@ -95,7 +141,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             }
             if (!response.Success)
             {
-                throw new Exception($"Unsuccessful response: {response}");
+                throw new UnsuccessfulResponseException(response.Message);
             }
             if (response.Model == null)
             {

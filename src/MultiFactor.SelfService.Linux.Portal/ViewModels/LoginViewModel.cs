@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MultiFactor.SelfService.Linux.Portal.Models
+namespace MultiFactor.SelfService.Linux.Portal.ViewModels
 {
-    public class LoginModel
+    public class LoginViewModel
     {
         //[Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.Validation))]
         [Required(ErrorMessage = "Required")]

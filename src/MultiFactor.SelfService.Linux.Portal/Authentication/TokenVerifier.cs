@@ -1,6 +1,6 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Authentication;
+﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace MultiFactor.SelfService.Linux.Portal.Authentication
@@ -27,12 +27,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                 var jwtSecurityToken = (JwtSecurityToken)securityToken;
 
                 var identity = jwtSecurityToken.Subject;
-                var rawUserName = claimsPrincipal.Claims.SingleOrDefault(claim => claim.Type == MultiFactorClaims.RawUserName)?.Value;
+                var rawUserName = claimsPrincipal.Claims.SingleOrDefault(claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
 
                 // use raw user name when possible couse multifactor may transform identity depend by settings
                 return new TokenClaims(jwtSecurityToken.Id,
                     rawUserName ?? identity,
-                    claimsPrincipal.Claims.Any(claim => claim.Type == MultiFactorClaims.ChangePassword),
+                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword),
                     jwtSecurityToken.ValidTo);
             }
             catch (Exception ex)
