@@ -32,7 +32,7 @@
                     <tr>
                         <td>@(indexer++)</td>
                         <td>Authenticator</td>
-                        <td>&nbsp;</td>
+                        <td>@totp.Label</td>
                         <td><a href="#" data-type="totp" data-id="@totp.Id">@Localizer["Remove"]</a></td>
                     </tr>
                 }
@@ -121,12 +121,6 @@
                                 }
                             }
                         });
-
-                        //if (confirm('@Localizer["ConfirmRemoving"]')) {
-                        //    $('#remove-authenticator-form-authenticator').val($(this).attr('data-type'));
-                        //    $('#remove-authenticator-form-id').val($(this).attr('data-id'));
-                        //    $('#remove-authenticator-form').submit();
-                        //}
                     });
                     </text>
                 }
