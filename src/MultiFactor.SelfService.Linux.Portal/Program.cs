@@ -15,7 +15,7 @@ builder.AddConfiguration(args)
     .AddControllersWithViewsAndLocalization(o =>
     {
         o.ModelBinderProviders.Insert(0, ModelBindingConfiguration.GetModelBinderProvider());
-        o.Filters.Add<ModelStateErrorExceptionFilter>();
+        o.Filters.Add<ApplicationExceptionFilter>();
     });
 
 //
@@ -34,7 +34,7 @@ var app = builder.Build();
 
 if (app.Environment.IsEnvironment("production"))
 {
-    app.UseExceptionHandler("/shared/error");
+    app.UseExceptionHandler("/error");
     app.UseHsts();
 }
 else

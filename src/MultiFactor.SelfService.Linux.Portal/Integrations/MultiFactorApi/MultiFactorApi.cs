@@ -1,4 +1,5 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using System.Text;
