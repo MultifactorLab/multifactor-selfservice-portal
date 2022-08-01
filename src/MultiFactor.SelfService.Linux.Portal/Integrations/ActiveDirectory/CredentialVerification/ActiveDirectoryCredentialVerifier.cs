@@ -1,7 +1,7 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification
 {
     public class ActiveDirectoryCredentialVerifier
     {

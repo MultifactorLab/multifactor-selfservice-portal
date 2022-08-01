@@ -1,10 +1,13 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetGoogleAuthKeyStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
@@ -20,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         public static WebApplicationBuilder ConfigureApplicationServices(this WebApplicationBuilder builder)
         {
             builder.Services
+                .AddSession()
                 .AddHttpContextAccessor()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
@@ -28,6 +32,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<JsonDataSerializer>()
 
                 .AddTransient<ActiveDirectoryCredentialVerifier>()
+                .AddTransient<ActiveDirectoryPasswordChanger>()
                 .AddTransient<HttpClientTokenProvider>()
                 .AddTransient<HttpMessageInterceptor>()
                 .AddTransient<ApplicationHttpClient>()
@@ -40,7 +45,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<RemoveAuthenticatorStory>()
                 .AddTransient<CreateGoogleAuthKeyStory>()
                 .AddTransient<AddGoogleAuthStory>()
-                .AddTransient<GetApplicationInfoStory>();
+                .AddTransient<GetApplicationInfoStory>()
+                .AddTransient<CheckExpiredPasswordSessionStory>()
+                .AddTransient<ChangeExpiredPasswordStory>();
 
             ConfigureHttpClient(builder);
 

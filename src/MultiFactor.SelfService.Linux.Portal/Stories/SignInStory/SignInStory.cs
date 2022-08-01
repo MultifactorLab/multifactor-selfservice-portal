@@ -3,7 +3,7 @@ using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;

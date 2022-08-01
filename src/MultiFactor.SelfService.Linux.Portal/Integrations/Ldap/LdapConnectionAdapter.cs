@@ -16,16 +16,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 
         public async Task<LdapIdentity> WhereAmI()
         {
-            var queryResult = await QueryAsync("", "(objectclass=*)", LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
+            var queryResult = await SearchQueryAsync("", "(objectclass=*)", LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
             var result = queryResult.SingleOrDefault() ?? throw new InvalidOperationException($"Unable to query {_uri} for current user");
 
             var defaultNamingContext = result.DirectoryAttributes["defaultNamingContext"].GetValue<string>();
             return new LdapIdentity(defaultNamingContext, IdentityType.DistinguishedName);
         }
 
-        public Task<IList<LdapEntry>> QueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
+        public Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
         {
             return _connection.SearchAsync(baseDn, filter, attributes, scope);
+        }
+
+        public Task<DirectoryResponse> SendRequestAsync(DirectoryRequest request)
+        {
+            return _connection.SendRequestAsync(request);
         }
 
         public static async Task<LdapConnectionAdapter> CreateAsync(string uri, LdapIdentity user, string password)
