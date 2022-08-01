@@ -23,7 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             var searchFilter = $"(&(objectClass={_names.UserClass})({_names.Identity(user)}={user.Name}))";
 
             _logger.LogDebug("Querying user '{user:l}' in {domain:l}", user, domain);
-            var response = await _connection.QueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, _queryAttributes);
+            var response = await _connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, _queryAttributes);
 
             var entry = response.SingleOrDefault();
             if (entry == null)
@@ -68,7 +68,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
         {
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
             var searchFilter = $"(member:1.2.840.113556.1.4.1941:={escaped})";
-            return _connection.QueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, "DistinguishedName");
+            return _connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, "DistinguishedName");
         }
 
         private string GetDistinguishedNameEscaped(string distinguishedName)

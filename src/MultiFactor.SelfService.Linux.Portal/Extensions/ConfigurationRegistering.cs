@@ -6,7 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     public static class ConfigurationRegistering
     {
         /// <summary>
-        /// Loads configuration and adds it as a singletone to the DI container.
+        /// Loads configuration and adds it as a singletone in the DI container.
         /// Must be called after the logger is configered (ConfigureLogging()).
         /// </summary>
         public static WebApplicationBuilder RegisterConfiguration(this WebApplicationBuilder applicationBuilder)
@@ -56,6 +56,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             RuleFor(c => c.CompanyName).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyName)));
             RuleFor(c => c.CompanyDomain).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyDomain)));
             RuleFor(c => c.CompanyLogoUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyLogoUrl)));
+            RuleFor(c => c.TechnicalAccUsr).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccUsr)));
+            RuleFor(c => c.TechnicalAccPwd).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccPwd)));
             RuleFor(c => c.MultiFactorApiUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiUrl)));
             RuleFor(c => c.MultiFactorApiKey).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiKey)));
             RuleFor(c => c.MultiFactorApiSecret).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiSecret)));

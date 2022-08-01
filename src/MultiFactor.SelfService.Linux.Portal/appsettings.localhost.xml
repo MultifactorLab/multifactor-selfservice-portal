@@ -17,11 +17,15 @@
 		<CompanyName>ACME</CompanyName>
 
 		<!--Active Directory Domain -->
-		<CompanyDomain>dc1.multifactor.dev</CompanyDomain>
+		<CompanyDomain>ldaps://dc1.multifactor.dev:636</CompanyDomain>
 			
 		<!--Company Logo URL: absolute or relative -->
-		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>			
-		
+		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
+
+		<!--Technical AD user-->
+		<TechnicalAccUsr>sspl.service.user</TechnicalAccUsr>
+		<TechnicalAccPwd>Qwerty123!</TechnicalAccPwd>
+
 		<!--ActiveDirectory 2FA group (optional) for SAML and OpenID Connect Single Sign On -->
 		<!--<ActiveDirectory2faGroup>2FA Users</ActiveDirectory2faGroup>-->
 			

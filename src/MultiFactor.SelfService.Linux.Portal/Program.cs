@@ -49,6 +49,7 @@ else
 
 app.UseRequestLocalization();
 app.UseCookiePolicy();
+app.UseSession();
 
 app.UseStaticFiles();
 app.Use(async (context, next) =>

@@ -1,0 +1,40 @@
+﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.ChangeExpiredPasswordViewModel
+@{
+    ViewData["Title"] = Localizer["Title"];
+}
+
+<div class="login change-pwd">
+    <div class="form-column">
+        @using (Html.BeginForm("Change", "ExpiredPassword", 
+        new { ReturnUrl = "/" }, FormMethod.Post))
+        {
+        <fieldset>
+            @Html.AntiForgeryToken()
+            <p>@Localizer["Invitation"]</p>
+            <ul class="list">
+                <li>@Localizer["Req1"]</li>
+                <li>@Localizer["Req2"]</li>
+                <li>@Localizer["Req3"]</li>
+                <li>@Localizer["Req4"]</li>
+            </ul>
+            <br />
+            <div>
+                @Html.ValidationSummary(true)
+            </div>
+            <div class="form-row">
+                <div class="input">
+                    @Html.PasswordFor(m => m.NewPassword, new { placeholder = Localizer.GetString("NewPassword"), autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.NewPassword)
+                </div>
+                <div class="input">
+                    @Html.PasswordFor(m => m.NewPasswordAgain, new { placeholder = Localizer.GetString("ConfirmPassword"), autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.NewPasswordAgain)
+                </div>
+            </div>
+            <div class="form-row">
+                <input type="submit" class="btn" value="@Localizer["Submit"]" />
+            </div>
+        </fieldset>
+        }
+    </div>
+</div>
