@@ -11,5 +11,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             var value = config.GetValue<string>(Constants.TOKEN_VALIDATION);
             return new JsonWebKeySet(value);
         }
+
+        public static string GetVersion(this IConfiguration config)
+        {
+            if (config is null) throw new ArgumentNullException(nameof(config));
+            return config.GetValue<string>(Constants.VERSION_KEY);
+        }
     }
 }

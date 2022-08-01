@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+﻿using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.Dto;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
@@ -6,11 +7,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
     public class GetApplicationInfoStory
     {
         private readonly MultiFactorApi _api;
+        private readonly IConfiguration _config;
         private readonly ILogger<GetApplicationInfoStory> _logger;
 
-        public GetApplicationInfoStory(MultiFactorApi api, ILogger<GetApplicationInfoStory> logger)
+        public GetApplicationInfoStory(MultiFactorApi api, IConfiguration config, ILogger<GetApplicationInfoStory> logger)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -20,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             var ldapStatus = await GetLdapStatus();
             return new ApplicationInfoDto(
                 DateTime.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
+                _config.GetVersion(),
                 apiSTatus.ToString(),
                 ldapStatus.ToString()
                 );
