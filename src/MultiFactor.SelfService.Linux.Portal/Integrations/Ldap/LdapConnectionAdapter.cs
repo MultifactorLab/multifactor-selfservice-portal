@@ -36,8 +36,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 
             var instance = new LdapConnectionAdapter(uri);
 
-            // TODO: trust self-signed certificates on ldap server
-            //connection.TrustAllCertificates();
+            // trust self-signed certificates on ldap server
+            instance._connection.TrustAllCertificates();
 
             if (Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {

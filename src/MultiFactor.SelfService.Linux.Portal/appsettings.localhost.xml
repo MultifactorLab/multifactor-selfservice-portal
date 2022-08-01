@@ -56,7 +56,7 @@
 		<!--<SyslogFacility>Auth</SyslogFacility>-->
 		<!--<SyslogAppName>multifactor-portal</SyslogAppName>-->
 
-		<UICulture>ru</UICulture>
+		<!--<UICulture>ru</UICulture>-->
 	</PortalSettings>
 
 </configuration>

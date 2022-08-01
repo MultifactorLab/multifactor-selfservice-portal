@@ -4,11 +4,12 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewModels
 {
     public class LoginViewModel
     {
-        //[Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.Validation))]
-        [Required(ErrorMessage = "Required")]
+        // TODO
+        //[Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(ValidationResources))]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Required")]
+        // TODO
+        //[Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(ValidationResources))]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
