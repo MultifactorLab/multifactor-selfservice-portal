@@ -18,6 +18,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             applicationBuilder.Services.Configure<RequestLocalizationOptions>(options =>
             {
                 var cultures = GetCultures(applicationBuilder.Configuration);
+                options.SetDefaultCulture(_supportedCultures[0].TwoLetterISOLanguageName);
                 options.SupportedCultures = cultures;
                 options.SupportedUICultures = cultures;
             });

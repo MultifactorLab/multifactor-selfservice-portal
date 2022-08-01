@@ -1,5 +1,4 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using System.Text;
@@ -19,6 +18,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
+        internal Task PingAsync()
+        {
+            return ExecuteAsync(() => _client.GetAsync<ApiResponse>("ping"));
+        }
+
         /// <summary>
         /// Removes specified authenticator from user profile.
         /// </summary>
@@ -31,7 +35,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             if (authenticator is null)  throw new ArgumentNullException(nameof(authenticator));
             if (id is null) throw new ArgumentNullException(nameof(id));
 
-            return ExecuteAsync(() => _client.DeleteAsync<ApiResponse>($"/self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
+            return ExecuteAsync(() => _client.DeleteAsync<ApiResponse>($"self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
         }
 
         /// <summary>
