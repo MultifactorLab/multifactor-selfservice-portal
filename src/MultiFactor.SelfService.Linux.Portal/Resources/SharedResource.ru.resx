@@ -135,4 +135,7 @@
   <data name="SiteName" xml:space="preserve">
     <value>Портал двухфакторной аутентификации {0}</value>
   </data>
+  <data name="WrongUserNameOrPassword" xml:space="preserve">
+    <value>Неверное имя пользователя или пароль</value>
+  </data>
 </root>

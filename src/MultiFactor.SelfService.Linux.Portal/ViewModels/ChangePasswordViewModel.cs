@@ -2,8 +2,12 @@
 
 namespace MultiFactor.SelfService.Linux.Portal.ViewModels
 {
-    public class ChangeExpiredPasswordViewModel
+    public class ChangePasswordViewModel
     {
+        [Required(ErrorMessage = "Required")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+
         [Required(ErrorMessage = "Required")]
         [DataType(DataType.Password)]
         [MinLength(7, ErrorMessage = "Minimum7")]

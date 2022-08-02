@@ -11,7 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [AllowAnonymous]
     public class AccountController : ControllerBase
     {
-        public IActionResult Login(string returnUrl)
+        public IActionResult Login()
         {
             return View(new LoginViewModel());
         }
@@ -28,9 +28,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             return await signIn.ExecuteAsync(model, new MultiFactorClaimsDto("", ""));
         }
 
-        public IActionResult Logout(MultiFactorClaimsDto claimsDto, [FromServices] SignOutStory signOut) => signOut.Execute(claimsDto);
+        public IActionResult Logout(MultiFactorClaimsDto claimsDto, [FromServices] SignOutStory signOut) 
+            => signOut.Execute(claimsDto);
 
         [HttpPost]
-        public IActionResult PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateStory) => authenticateStory.Execute(accessToken); 
+        public IActionResult PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateSession) 
+            => authenticateSession.Execute(accessToken); 
     }
 }

@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, user, password);
+                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, user, password, _logger);
 
                 var domain = await connection.WhereAmI();
 

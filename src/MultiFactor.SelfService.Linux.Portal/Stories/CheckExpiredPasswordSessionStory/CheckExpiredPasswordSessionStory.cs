@@ -16,15 +16,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessi
 
         public IActionResult Execute()
         {
-            var userName = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY);
-            var encryptedPwd = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY);
-
-            if (userName == null || encryptedPwd == null)
+            if (!_settings.EnablePasswordManagement)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
 
-            if (!_settings.EnablePasswordManagement)
+            var userName = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY);
+            var encryptedPwd = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY);
+
+            if (userName == null || encryptedPwd == null)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
