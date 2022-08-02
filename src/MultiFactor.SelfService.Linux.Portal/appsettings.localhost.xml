@@ -17,7 +17,8 @@
 		<CompanyName>ACME</CompanyName>
 
 		<!--Active Directory Domain -->
-		<CompanyDomain>ldaps://dc1.multifactor.dev:636</CompanyDomain>
+		<CompanyDomain>dc1.multifactor.dev:636</CompanyDomain>
+		<!--<CompanyDomain>ldaps://dc1.multifactor.dev:636/dc=multifactor,dc=local</CompanyDomain>-->
 			
 		<!--Company Logo URL: absolute or relative -->
 		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
