@@ -61,6 +61,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             RuleFor(c => c.MultiFactorApiUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiUrl)));
             RuleFor(c => c.MultiFactorApiKey).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiKey)));
             RuleFor(c => c.MultiFactorApiSecret).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiSecret)));
+
+            RuleFor(c => c.EnablePasswordManagement).Must((model, value) =>
+            {
+                if (!Uri.IsWellFormedUriString(model.CompanyDomain, UriKind.Absolute)) return true;               
+                var uri = new Uri(model.CompanyDomain);
+                return uri.Scheme == "ldaps";
+            }).WithMessage($"Need use secure connection for manage password. Please check '{nameof(PortalSettings.CompanyDomain)}' settings property or disable password management ('{nameof(PortalSettings.EnablePasswordManagement)}' property)");
         }
 
         private static string GetErrorMessage(string propertyName)
