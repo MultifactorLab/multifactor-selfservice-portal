@@ -135,6 +135,15 @@
   <data name="SiteName" xml:space="preserve">
     <value>Портал двухфакторной аутентификации {0}</value>
   </data>
+  <data name="SyncDeviceAccessStateAllowed" xml:space="preserve">
+    <value>Работает</value>
+  </data>
+  <data name="SyncDeviceAccessStateBlocked" xml:space="preserve">
+    <value>Отключен</value>
+  </data>
+  <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
+    <value>Ожидает подтверждения</value>
+  </data>
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Неверное имя пользователя или пароль</value>
   </data>

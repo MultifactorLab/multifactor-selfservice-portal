@@ -118,45 +118,36 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Allow" xml:space="preserve">
-    <value>Allow</value>
+    <value>включить</value>
   </data>
   <data name="AllowConfirm" xml:space="preserve">
-    <value>Allow this device?</value>
-  </data>
-  <data name="AllowedState" xml:space="preserve">
-    <value>Allowed</value>
+    <value>Включить почту на устройстве?</value>
   </data>
   <data name="Block" xml:space="preserve">
-    <value>Block</value>
+    <value>отключить</value>
   </data>
   <data name="BlockConfirm" xml:space="preserve">
-    <value>Block this device?</value>
-  </data>
-  <data name="BlockedState" xml:space="preserve">
-    <value>Blocked</value>
+    <value>Отключить почту на устройстве?</value>
   </data>
   <data name="DeviceAndId" xml:space="preserve">
-    <value>Device / ID</value>
+    <value>Устройство / ID</value>
   </data>
   <data name="Header" xml:space="preserve">
-    <value>ActiveSync devices</value>
+    <value>Почта на мобильном</value>
   </data>
   <data name="Instruction1" xml:space="preserve">
-    <value>The list contains mobile devices with your mail.&lt;br/&gt;If you have received an email that your device is in quarantine, check the ID before turning it on.</value>
+    <value>В списке представлены мобильные устройства с вашей почтой. Если вам пришло письмо, что устройство на карантине, сверьте ID перед включением.</value>
   </data>
   <data name="NothingFound" xml:space="preserve">
-    <value>Nothing found</value>
+    <value>Устройства не найдены</value>
   </data>
   <data name="Ok" xml:space="preserve">
-    <value>Ok</value>
-  </data>
-  <data name="QuarantinedState" xml:space="preserve">
-    <value>Quarantined</value>
+    <value>Готово</value>
   </data>
   <data name="State" xml:space="preserve">
-    <value>State</value>
+    <value>Статус</value>
   </data>
   <data name="WhenCreated" xml:space="preserve">
-    <value>When created</value>
+    <value>Дата подключения</value>
   </data>
 </root>

@@ -1,5 +1,7 @@
 ﻿using LdapForNet;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.Web;
 using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
@@ -76,35 +78,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             // do not follow chase referrals
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
 
-            var bindDn = FormatBindDn(uri, user);
+            var bindDn = user.FormatBindDn(uri);
+            var escapedPwd = EscapePwdString(password);
             await instance._connection.BindAsync(LdapAuthType.Simple, new LdapCredential
             {
                 UserName = bindDn,
-                Password = password
+                Password = escapedPwd
             });
 
             return instance;
         }
 
-        private static string FormatBindDn(string ldapUri, LdapIdentity user)
+        private static string EscapePwdString(string input)
         {
-            if (user.Type == IdentityType.UserPrincipalName)
-            {
-                return user.Name;
-            }
-
-            //try create upn from domain name
-            if (Uri.IsWellFormedUriString(ldapUri, UriKind.Absolute))
-            {
-                var uri = new Uri(ldapUri);
-                if (uri.PathAndQuery != null && uri.PathAndQuery != "/")
-                {
-                    var fqdn = LdapIdentity.DnToFqdn(uri.PathAndQuery);
-                    return $"{user.Name}@{fqdn}";
-                }
-            }
-
-            return user.Name;
+            // TODO
+            return input;
         }
 
         public void Dispose()

@@ -2,10 +2,12 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
@@ -13,6 +15,7 @@ using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetGoogleAuthKeyStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
+using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using System.Net;
@@ -31,6 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<TokenClaimsAccessor>()
                 .AddSingleton<DataProtection>()
                 .AddSingleton<JsonDataSerializer>()
+                .AddSingleton<DeviceAccessStateNameLocalizer>()
 
                 .AddTransient<ActiveDirectoryCredentialVerifier>()
                 .AddTransient<ActiveDirectoryPasswordChanger>()
@@ -38,6 +42,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<HttpMessageInterceptor>()
                 .AddTransient<ApplicationHttpClient>()
                 .AddTransient<MultiFactorApi>()
+                .AddTransient<ExchangeActiveSyncDevicesSearcher>()
 
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
@@ -49,7 +54,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<GetApplicationInfoStory>()
                 .AddTransient<CheckExpiredPasswordSessionStory>()
                 .AddTransient<ChangeExpiredPasswordStory>()
-                .AddTransient<ChangeValidPasswordStory>();
+                .AddTransient<ChangeValidPasswordStory>()
+                .AddTransient<SearchExchangeActiveSyncDevicesStory>()
+                .AddTransient<ChangeActiveSyncDeviceStateStory>();
 
             ConfigureHttpClient(builder);
 
