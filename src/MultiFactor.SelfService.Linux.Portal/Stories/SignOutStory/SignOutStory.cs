@@ -17,10 +17,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
         public IActionResult Execute(MultiFactorClaimsDto claimsDto)
         {
             // remove mfa cookie
-            if (_contextAccessor.HttpContext.Request.Cookies[Constants.COOKIE_NAME] != null)
-            {
-                _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
-            }
+             _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
+            _contextAccessor.HttpContext.Request.Headers.Remove("Authorization");
 
             var redirectUrl = new StringBuilder("/account/login");
             if (claimsDto.HasSamlSession())

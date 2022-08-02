@@ -7,6 +7,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetGoogleAuthKeyStory;
@@ -47,7 +48,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<AddGoogleAuthStory>()
                 .AddTransient<GetApplicationInfoStory>()
                 .AddTransient<CheckExpiredPasswordSessionStory>()
-                .AddTransient<ChangeExpiredPasswordStory>();
+                .AddTransient<ChangeExpiredPasswordStory>()
+                .AddTransient<ChangeValidPasswordStory>();
 
             ConfigureHttpClient(builder);
 

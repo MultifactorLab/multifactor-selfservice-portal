@@ -26,7 +26,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
 
             return TryExecuteAsync(async () =>
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, user, currentPassword);
+                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, user, currentPassword, _logger);
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }
@@ -42,7 +42,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
 
             return TryExecuteAsync(async () =>
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, techUser, _settings.TechnicalAccPwd);
+                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, techUser, _settings.TechnicalAccPwd, _logger);
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }

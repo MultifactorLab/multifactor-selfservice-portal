@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Change(ChangeExpiredPasswordViewModel model, 
             [FromServices] ChangeExpiredPasswordStory changeExpiredPassword,
-            [FromServices] IStringLocalizer<Change> localizer)
+            [FromServices] IStringLocalizer<SharedResource> localizer)
         {
             if (!ModelState.IsValid)
             {
