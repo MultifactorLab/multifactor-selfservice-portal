@@ -17,7 +17,7 @@
 		<CompanyName>ACME</CompanyName>
 
 		<!--Active Directory Domain -->
-		<CompanyDomain>domain.local</CompanyDomain>
+		<CompanyDomain>ldaps://dc.domain.local/dc=domain,dc=local</CompanyDomain>
 			
 		<!--Company Logo URL: absolute or relative -->
 		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
@@ -50,7 +50,7 @@
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
-		<!--enable user password change-->
+		<!--enable user password change. AD connection must be secure (SSL/TLS)-->
 		<EnablePasswordManagement>true</EnablePasswordManagement>
 		<!--enable user Exchange AciveSync devices provisioning-->
 		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
