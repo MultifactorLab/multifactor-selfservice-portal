@@ -31,10 +31,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
             catch (ModelStateErrorException ex)
             {
-                // TODO: move this handling logic to the some custom FILTER and register GLOBALLY.
                 ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
-            }
+                return View("Index", model);
+            }   
         }
     }
 }

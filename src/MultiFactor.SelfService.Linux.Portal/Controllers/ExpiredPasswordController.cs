@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -29,8 +30,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return View(model);
             }
 
-            var result = await changeExpiredPassword.ExecuteAsync(model);
-            return result;
+            try
+            {
+                return await changeExpiredPassword.ExecuteAsync(model);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
         }
 
         public ActionResult Done()

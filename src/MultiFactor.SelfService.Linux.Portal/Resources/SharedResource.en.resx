@@ -144,6 +144,9 @@
   <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
     <value>Quarantined</value>
   </data>
+  <data name="WrongOtp" xml:space="preserve">
+    <value>Wrong code</value>
+  </data>
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Wrong user name or password</value>
   </data>
