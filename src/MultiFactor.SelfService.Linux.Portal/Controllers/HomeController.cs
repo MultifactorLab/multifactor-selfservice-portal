@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             if (claims.HasSamlSession() || claims.HasOidcSession())
             {
                 //re-login for saml or oidc authentication
-                return RedirectToAction("logout", "account", new { claims });
+                return RedirectToAction("logout", "account", claims);
             }
 
             var userProfile = await loadProfile.ExecuteAsync();
