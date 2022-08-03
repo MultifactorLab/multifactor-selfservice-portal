@@ -47,32 +47,33 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
             throw new Exception(result.Errors.Select(x => x.ErrorMessage).Aggregate((acc, cur) => $"{acc}{Environment.NewLine}{cur}"));
         }
-    }
 
-    public class PortalSettingsValidator : AbstractValidator<PortalSettings>
-    {
-        public PortalSettingsValidator()
+        private class PortalSettingsValidator : AbstractValidator<PortalSettings>
         {
-            RuleFor(c => c.CompanyName).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyName)));
-            RuleFor(c => c.CompanyDomain).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyDomain)));
-            RuleFor(c => c.CompanyLogoUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyLogoUrl)));
-            RuleFor(c => c.TechnicalAccUsr).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccUsr)));
-            RuleFor(c => c.TechnicalAccPwd).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccPwd)));
-            RuleFor(c => c.MultiFactorApiUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiUrl)));
-            RuleFor(c => c.MultiFactorApiKey).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiKey)));
-            RuleFor(c => c.MultiFactorApiSecret).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiSecret)));
-
-            RuleFor(c => c.EnablePasswordManagement).Must((model, value) =>
+            public PortalSettingsValidator()
             {
-                if (!Uri.IsWellFormedUriString(model.CompanyDomain, UriKind.Absolute)) return true;               
-                var uri = new Uri(model.CompanyDomain);
-                return uri.Scheme == "ldaps";
-            }).WithMessage($"Need use secure connection for manage password. Please check '{nameof(PortalSettings.CompanyDomain)}' settings property or disable password management ('{nameof(PortalSettings.EnablePasswordManagement)}' property)");
-        }
+                RuleFor(c => c.CompanyName).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyName)));
+                RuleFor(c => c.CompanyDomain).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyDomain)));
+                RuleFor(c => c.CompanyLogoUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyLogoUrl)));
+                RuleFor(c => c.TechnicalAccUsr).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccUsr)));
+                RuleFor(c => c.TechnicalAccPwd).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccPwd)));
+                RuleFor(c => c.MultiFactorApiUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiUrl)));
+                RuleFor(c => c.MultiFactorApiKey).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiKey)));
+                RuleFor(c => c.MultiFactorApiSecret).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiSecret)));
 
-        private static string GetErrorMessage(string propertyName)
-        {
-            return $"Configuration error: '{propertyName}' element not found";
+                RuleFor(c => c.EnablePasswordManagement).Must((model, value) =>
+                {
+                    if (!value) return true;
+                    if (!Uri.IsWellFormedUriString(model.CompanyDomain, UriKind.Absolute)) return false;
+                    var uri = new Uri(model.CompanyDomain);
+                    return uri.Scheme == "ldaps";
+                }).WithMessage($"Need use secure connection for manage password. Please check '{nameof(PortalSettings.CompanyDomain)}' settings property or disable password management ('{nameof(PortalSettings.EnablePasswordManagement)}' property)");
+            }
+
+            private static string GetErrorMessage(string propertyName)
+            {
+                return $"Configuration error: '{propertyName}' element not found";
+            }
         }
     }
 }

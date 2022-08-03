@@ -17,7 +17,7 @@
 		<CompanyName>ACME</CompanyName>
 
 		<!--Active Directory Domain -->
-		<CompanyDomain>ldaps://dc1.multifactor.dev:636/dc=multifactor,dc=local</CompanyDomain>
+		<CompanyDomain>ldap://51.250.94.4:389/dc=autoban,dc=local</CompanyDomain>
 			
 		<!--Company Logo URL: absolute or relative -->
 		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
@@ -51,7 +51,7 @@
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
 		<!--enable user password change-->
-		<EnablePasswordManagement>true</EnablePasswordManagement>
+		<EnablePasswordManagement>false</EnablePasswordManagement>
 		<!--enable user Exchange AciveSync devices provisioning-->
 		<EnableExchangeActiveSyncDevicesManagement>true</EnableExchangeActiveSyncDevicesManagement>
 
