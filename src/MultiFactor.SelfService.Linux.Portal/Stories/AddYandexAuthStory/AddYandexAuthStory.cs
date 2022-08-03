@@ -4,14 +4,14 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory
+namespace MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory
 {
-    public class AddGoogleAuthStory
+    public class AddYandexAuthStory
     {
         private readonly MultiFactorApi _api;
         private readonly IStringLocalizer<AddTotp> _localizer;
 
-        public AddGoogleAuthStory(MultiFactorApi api, IStringLocalizer<AddTotp> localizer)
+        public AddYandexAuthStory(MultiFactorApi api, IStringLocalizer<AddTotp> localizer)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory
         {
             if (key is null) throw new ArgumentNullException(nameof(key));
             if (otp is null) throw new ArgumentNullException(nameof(otp));
-            
+
             try
             {
                 await _api.AddTotpAuthenticatorAsync(key, otp);

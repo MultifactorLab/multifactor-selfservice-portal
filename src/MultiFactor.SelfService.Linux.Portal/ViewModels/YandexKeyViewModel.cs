@@ -2,7 +2,7 @@
 
 namespace MultiFactor.SelfService.Linux.Portal.ViewModels
 {
-    public class GoogleAuthenticatorViewModel
+    public class YandexKeyViewModel
     {
         public string Link { get; set; }
         public string Key { get; set; }

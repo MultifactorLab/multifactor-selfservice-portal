@@ -5,14 +5,14 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Credenti
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
-using MultiFactor.SelfService.Linux.Portal.Stories.AddGoogleAuthStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.CreateYandexAuthKeyStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.GetGoogleAuthKeyStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
@@ -50,8 +50,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<LoadProfileStory>()
                 .AddTransient<AuthenticateSessionStory>()
                 .AddTransient<RemoveAuthenticatorStory>()
-                .AddTransient<CreateGoogleAuthKeyStory>()
-                .AddTransient<AddGoogleAuthStory>()
+                .AddTransient<CreateYandexAuthKeyStory>()
+                .AddTransient<AddYandexAuthStory>()
                 .AddTransient<GetApplicationInfoStory>()
                 .AddTransient<CheckExpiredPasswordSessionStory>()
                 .AddTransient<ChangeExpiredPasswordStory>()
