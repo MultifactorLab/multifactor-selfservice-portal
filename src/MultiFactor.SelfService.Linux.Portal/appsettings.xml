@@ -2,6 +2,7 @@
 <configuration>
 
 	<Version>0.11.1</Version>
+	<Environment></Environment>
 
 	<Logging>
 		<LogLevel>
