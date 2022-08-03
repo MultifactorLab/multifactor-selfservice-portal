@@ -18,9 +18,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        internal Task PingAsync()
+        public Task PingAsync()
         {
             return ExecuteAsync(() => _client.GetAsync<ApiResponse>("ping"));
+        }
+
+        public Task<BypassPageDto> CreateSamlBypassRequestAsync(string login, string samlSessionId)
+        {
+            var payload = new
+            {
+                Identity = login,
+                SamlSessionId = samlSessionId
+            };
+
+            return ExecuteAsync(() => _client.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
         }
 
         /// <summary>

@@ -17,14 +17,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly MultiFactorApi _api;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
-        private readonly IStringLocalizer<Login> _localizer;
+        private readonly IStringLocalizer _localizer;
 
         public SignInStory(ActiveDirectoryCredentialVerifier credentialVerifier,
             DataProtection dataProtection,
             MultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
-            IStringLocalizer<Login> localizer)
+            IStringLocalizer<SharedResource> localizer)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -42,7 +42,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 var userName = LdapIdentity.ParseUser(model.UserName);
                 if (userName.Type != IdentityType.UserPrincipalName)
                 {
-                    // TODO
                     throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
                 }
             }
@@ -53,7 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             {
                 if (claims.HasSamlSession() && adValidationResult.IsBypass)
                 {
-                    //return ByPassSamlSession(model.UserName, claims.SamlSession);
+                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = claims.SamlSession });
                 }
 
                 return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, claims);

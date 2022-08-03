@@ -144,6 +144,9 @@
   <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
     <value>Ожидает подтверждения</value>
   </data>
+  <data name="UserNameUpnRequired" xml:space="preserve">
+    <value>Пожалуйста, введите имя пользователя в формате user@domain.loc</value>
+  </data>
   <data name="WrongOtp" xml:space="preserve">
     <value>Неверный код</value>
   </data>
