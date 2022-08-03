@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
@@ -19,7 +20,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStory signIn)
+        public async Task<IActionResult> Login(LoginViewModel model, MultiFactorClaimsDto claimsDto, [FromServices] SignInStory signIn)
         {
             if (!ModelState.IsValid)
             {
@@ -28,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                return await signIn.ExecuteAsync(model, new MultiFactorClaimsDto("", ""));
+                return await signIn.ExecuteAsync(model, claimsDto);
             }
             catch (ModelStateErrorException ex)
             {
@@ -43,5 +44,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [HttpPost]
         public IActionResult PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateSession) 
             => authenticateSession.Execute(accessToken); 
+        
+        [HttpPost]
+        public async Task<IActionResult> ByPassSamlSession(string username, string samlSession, [FromServices] MultiFactorApi api)
+        {
+            var page = await api.CreateSamlBypassRequestAsync(username, samlSession);
+            return View(page);
+        }
     }
 }

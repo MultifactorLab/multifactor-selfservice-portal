@@ -144,6 +144,9 @@
   <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
     <value>Quarantined</value>
   </data>
+  <data name="UserNameUpnRequired" xml:space="preserve">
+    <value>Please enter user name as user@domain.loc format</value>
+  </data>
   <data name="WrongOtp" xml:space="preserve">
     <value>Wrong code</value>
   </data>
