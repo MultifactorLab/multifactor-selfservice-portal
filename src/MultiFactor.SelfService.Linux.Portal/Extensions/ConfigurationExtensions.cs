@@ -17,5 +17,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             if (config is null) throw new ArgumentNullException(nameof(config));
             return config.GetValue<string>(Constants.VERSION_KEY);
         }
+
+        public static string GetEnvironment(this IConfiguration config)
+        {
+            if (config is null) throw new ArgumentNullException(nameof(config));
+            return config.GetValue<string>(Constants.ENVIRONMENT_KEY);
+        }
     }
 }

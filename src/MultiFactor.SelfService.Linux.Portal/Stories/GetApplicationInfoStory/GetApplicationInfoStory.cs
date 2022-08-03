@@ -22,6 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             var apiSTatus = await GetApiStatusAsync();
             var ldapStatus = await GetLdapStatus();
             return new ApplicationInfoDto(
+                _config.GetEnvironment(),
                 DateTime.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
                 _config.GetVersion(),
                 apiSTatus.ToString(),
