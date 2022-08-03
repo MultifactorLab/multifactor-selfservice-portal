@@ -1,8 +1,8 @@
 ﻿namespace MultiFactor.SelfService.Linux.Portal.Dto
 {
-    public record MultiFactorClaimsDto (string SamlSession, string OidcSession)
+    public record MultiFactorClaimsDto (string SamlSessionId, string OidcSessionId)
     {
-        public bool HasSamlSession() => !string.IsNullOrEmpty(SamlSession);
-        public bool HasOidcSession() => !string.IsNullOrEmpty(OidcSession);
+        public bool HasSamlSession() => !string.IsNullOrEmpty(SamlSessionId);
+        public bool HasOidcSession() => !string.IsNullOrEmpty(OidcSessionId);
     }
 }

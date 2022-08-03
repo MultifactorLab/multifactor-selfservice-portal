@@ -29,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory
             }
             catch (UnsuccessfulResponseException)
             {
-                throw new ModelStateErrorException(_localizer.GetString("WrongOtp"), "Index");
+                throw new ModelStateErrorException(_localizer.GetString("WrongOtp"));
             }
         }
     }

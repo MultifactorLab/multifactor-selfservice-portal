@@ -52,7 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             {
                 if (claims.HasSamlSession() && adValidationResult.IsBypass)
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = claims.SamlSession });
+                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = claims.SamlSessionId });
                 }
 
                 return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, claims);
@@ -125,12 +125,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             if (mfClaims.HasSamlSession())
             {
-                claims.Add(Constants.MultiFactorClaims.SamlSessionId, mfClaims.SamlSession);
+                claims.Add(Constants.MultiFactorClaims.SamlSessionId, mfClaims.SamlSessionId);
             }
 
             if (mfClaims.HasOidcSession())
             {
-                claims.Add(Constants.MultiFactorClaims.OidcSessionId, mfClaims.OidcSession);
+                claims.Add(Constants.MultiFactorClaims.OidcSessionId, mfClaims.OidcSessionId);
             }
 
             return claims;

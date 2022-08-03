@@ -23,12 +23,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
             var redirectUrl = new StringBuilder("/account/login");
             if (claimsDto.HasSamlSession())
             {
-                redirectUrl.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={claimsDto.SamlSession}");
+                redirectUrl.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={claimsDto.SamlSessionId}");
             }
 
             if (claimsDto.HasOidcSession())
             {
-                redirectUrl.Append($"?{Constants.MultiFactorClaims.OidcSessionId}={claimsDto.OidcSession}");
+                redirectUrl.Append($"?{Constants.MultiFactorClaims.OidcSessionId}={claimsDto.OidcSessionId}");
             }
 
             return new RedirectResult(redirectUrl.ToString(), false);
