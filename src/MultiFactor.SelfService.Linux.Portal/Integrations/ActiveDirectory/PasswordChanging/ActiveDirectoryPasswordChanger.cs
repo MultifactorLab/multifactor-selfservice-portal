@@ -1,7 +1,7 @@
 ﻿using LdapForNet;
-using LdapForNet.Native;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using System.Text;
+using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging
 {
@@ -88,12 +88,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
             var newPasswordAttribute = new DirectoryModificationAttribute
             {
                 Name = "unicodePwd",
-                LdapModOperation = Native.LdapModOperation.LDAP_MOD_REPLACE
+                LdapModOperation = LdapModOperation.LDAP_MOD_REPLACE
             };
             newPasswordAttribute.Add(Encoding.Unicode.GetBytes($"\"{newPassword}\""));
 
             var response = await connection.SendRequestAsync(new ModifyRequest(dn, newPasswordAttribute));
-            if (response.ResultCode != Native.ResultCode.Success)
+            if (response.ResultCode != ResultCode.Success)
             {
                 throw new Exception($"Password change command error: {response.ErrorMessage}");
             }

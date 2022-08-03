@@ -104,7 +104,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
                 _logger.LogDebug("Found {count} devices for user '{user:l}'", searchResponse.Count, username);
 
-                return new ExchangeActiveSyncDeviceInfo(searchResponse.First().Dn);
+                return new ExchangeActiveSyncDeviceInfo(deviceId, searchResponse.First().Dn, profile.DistinguishedName);
 
             }
             catch (Exception ex)

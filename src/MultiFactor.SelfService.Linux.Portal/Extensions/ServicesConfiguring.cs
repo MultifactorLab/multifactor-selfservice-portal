@@ -43,6 +43,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ApplicationHttpClient>()
                 .AddTransient<MultiFactorApi>()
                 .AddTransient<ExchangeActiveSyncDevicesSearcher>()
+                .AddTransient<ExchangeActiveSyncDeviceStateChanger>()
 
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
