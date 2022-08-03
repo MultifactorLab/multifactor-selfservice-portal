@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Dto;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
@@ -25,7 +26,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return View(model);
             }
 
-            return await signIn.ExecuteAsync(model, new MultiFactorClaimsDto("", ""));
+            try
+            {
+                return await signIn.ExecuteAsync(model, new MultiFactorClaimsDto("", ""));
+            }
+            catch (ModelStateErrorException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
         }
 
         public IActionResult Logout(MultiFactorClaimsDto claimsDto, [FromServices] SignOutStory signOut) 

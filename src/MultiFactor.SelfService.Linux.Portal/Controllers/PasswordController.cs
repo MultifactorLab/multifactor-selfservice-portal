@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
@@ -31,7 +32,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 ModelState.AddModelError(string.Empty, localizer.GetString("WrongUserNameOrPassword"));
                 return View(model);
             }
-            return await changeValidPassword.ExecuteAsync(model);
+
+            try
+            {
+                return await changeValidPassword.ExecuteAsync(model);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
         }
     }
 }

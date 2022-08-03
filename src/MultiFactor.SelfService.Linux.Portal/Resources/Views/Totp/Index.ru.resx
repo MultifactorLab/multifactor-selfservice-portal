@@ -132,7 +132,4 @@
   <data name="Submit" xml:space="preserve">
     <value>Сохранить</value>
   </data>
-  <data name="WrongOtp" xml:space="preserve">
-    <value>Неверный код</value>
-  </data>
 </root>

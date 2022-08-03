@@ -89,10 +89,11 @@
                 @if (Model.Count > 1)
                 {
                     <text>
+                    const target = $(this);
                     target.on("click", function () {     
                         if (confirm('@Localizer["ConfirmRemoving"]')) {
-                        $('#remove-authenticator-form-authenticator').val($(this).attr('data-type'));
-                        $('#remove-authenticator-form-id').val($(this).attr('data-id'));
+                        $('#remove-authenticator-form-authenticator').val(target.attr('data-type'));
+                        $('#remove-authenticator-form-id').val(target.attr('data-id'));
                         $('#remove-authenticator-form').submit();
                     }
                     });

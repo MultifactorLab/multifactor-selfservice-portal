@@ -9,9 +9,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory
     public class AddYandexAuthStory
     {
         private readonly MultiFactorApi _api;
-        private readonly IStringLocalizer<AddTotp> _localizer;
+        private readonly IStringLocalizer _localizer;
 
-        public AddYandexAuthStory(MultiFactorApi api, IStringLocalizer<AddTotp> localizer)
+        public AddYandexAuthStory(MultiFactorApi api, IStringLocalizer<SharedResource> localizer)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
@@ -25,11 +25,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory
             try
             {
                 await _api.AddTotpAuthenticatorAsync(key, otp);
-                return new RedirectToActionResult("Index", "Home", new { });
+                return new LocalRedirectResult("/");
             }
             catch (UnsuccessfulResponseException)
             {
-                throw new ModelStateErrorException(_localizer.GetString("WrongOtp"));
+                throw new ModelStateErrorException(_localizer.GetString("WrongOtp"), "Index");
             }
         }
     }

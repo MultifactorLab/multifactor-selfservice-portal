@@ -144,6 +144,9 @@
   <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
     <value>Ожидает подтверждения</value>
   </data>
+  <data name="WrongOtp" xml:space="preserve">
+    <value>Неверный код</value>
+  </data>
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Неверное имя пользователя или пароль</value>
   </data>
