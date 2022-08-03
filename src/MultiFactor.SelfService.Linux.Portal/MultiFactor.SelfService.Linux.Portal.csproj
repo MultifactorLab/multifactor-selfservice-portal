@@ -10,16 +10,12 @@
   </PropertyGroup>
 
 	<ItemGroup>
-    <None Remove="appsettings.localhost.xml" />
     <None Remove="appsettings.production.xml" />
     <None Remove="appsettings.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.production.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appsettings.localhost.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.xml">
