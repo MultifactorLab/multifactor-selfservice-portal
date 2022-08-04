@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Filters;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding;
+using MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,7 +71,7 @@ app.UseStatusCodePages(async context =>
     var response = context.HttpContext.Response;
     if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
     {
-        response.Redirect("/account/logout");
+        response.Redirect($"/account/logout{MultiFactorClaimsDtoBinder.FromRequest(request)}");
     }
 });
 

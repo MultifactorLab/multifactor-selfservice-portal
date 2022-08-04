@@ -1,4 +1,6 @@
-﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.LoginViewModel
+﻿@using MultiFactor.SelfService.Linux.Portal.Core
+
+@model MultiFactor.SelfService.Linux.Portal.ViewModels.LoginViewModel
 
 <div action="#" class="login">
     <div class="form-bg">
@@ -6,8 +8,10 @@
     </div>
     <div class="form-column">
         <h2>@Localizer["Title"]</h2>
-        @using (Html.BeginForm("Login", "Account", new { 
-            ReturnUrl = "/"
+        @using (Html.BeginForm("Login", "Account", new Dictionary<string, string>
+        { 
+            [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty, 
+            [Constants.MultiFactorClaims.OidcSessionId] = Context.Request.Query[Constants.MultiFactorClaims.OidcSessionId].FirstOrDefault() ?? string.Empty
         }, FormMethod.Post))
         {
             <fieldset>

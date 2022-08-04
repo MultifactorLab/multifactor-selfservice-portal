@@ -18,13 +18,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
+        private readonly ILogger<SignInStory> _logger;
 
         public SignInStory(ActiveDirectoryCredentialVerifier credentialVerifier,
             DataProtection dataProtection,
             MultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
-            IStringLocalizer<SharedResource> localizer)
+            IStringLocalizer<SharedResource> localizer,
+            ILogger<SignInStory> logger)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -32,9 +34,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IActionResult> ExecuteAsync(LoginViewModel model, MultiFactorClaimsDto claims)
+        public async Task<IActionResult> ExecuteAsync(LoginViewModel model, SingleSignOnDto sso)
         {
             if (_settings.RequiresUserPrincipalName)
             {
@@ -50,12 +53,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
             if (adValidationResult.IsAuthenticated)
             {
-                if (claims.HasSamlSession() && adValidationResult.IsBypass)
+                if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = claims.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
-                return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, claims);
+                return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, sso);
             }
 
             if (adValidationResult.UserMustChangePassword && _settings.EnablePasswordManagement)
@@ -79,7 +82,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private async Task<IActionResult> RedirectToMfa(string username,
             CredentialVerificationResult verificationResult,
             string documentUrl,
-            MultiFactorClaimsDto mfClaims,
+            SingleSignOnDto sso,
             bool mustResetPassword = false)
         {
             // public url from browser if we behind nginx or other proxy
@@ -97,7 +100,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             var postbackUrl = noLastSegment + "/PostbackFromMfa";
 
             // exra params
-            var claims = GetClaims(username, mustResetPassword, mfClaims);
+            var claims = GetClaims(username, mustResetPassword, sso);
 
             var accessPage = await _api.CreateAccessRequestAsync(username,
                 verificationResult.DisplayName,
@@ -109,7 +112,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             return new RedirectResult(accessPage.Url, true);
         }
 
-        private static IReadOnlyDictionary<string, string> GetClaims(string username, bool mustResetPassword, MultiFactorClaimsDto mfClaims)
+        private static IReadOnlyDictionary<string, string> GetClaims(string username, bool mustResetPassword, SingleSignOnDto sso)
         {
             var claims = new Dictionary<string, string>
             {
@@ -123,14 +126,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 return claims;
             }
 
-            if (mfClaims.HasSamlSession())
+            if (sso.HasSamlSession())
             {
-                claims.Add(Constants.MultiFactorClaims.SamlSessionId, mfClaims.SamlSessionId);
+                claims.Add(Constants.MultiFactorClaims.SamlSessionId, sso.SamlSessionId);
             }
 
-            if (mfClaims.HasOidcSession())
+            if (sso.HasOidcSession())
             {
-                claims.Add(Constants.MultiFactorClaims.OidcSessionId, mfClaims.OidcSessionId);
+                claims.Add(Constants.MultiFactorClaims.OidcSessionId, sso.OidcSessionId);
             }
 
             return claims;
