@@ -1,7 +1,5 @@
 ﻿using LdapForNet;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.Web;
 using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
