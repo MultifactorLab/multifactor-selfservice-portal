@@ -15,7 +15,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     {
         public IActionResult Login()
         {
-            //ViewData["sso"] = sso;
             return View(new LoginViewModel());
         }
 

@@ -21,12 +21,10 @@ builder.AddConfiguration(args)
 
 //
 // "If data protection isn't configured, the keys are held in memory and discarded when the app restarts."
-Console.WriteLine($"OS: {Environment.OSVersion}");
-Console.WriteLine($"LocalApplicationData: {Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
 builder.Services.AddDataProtection()
     // TODO: test!
-    .PersistKeysToFileSystem(new DirectoryInfo(@"/var/sspl-key-storage"))
-    .SetApplicationName("MultiFactorSSP");
+    .PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration.GetPortalSettingsValue(x => x.KeyStorageDirectory)))
+    .SetApplicationName("MultiFactorSSPL");
 //
 //
 
@@ -42,11 +40,6 @@ else
 {
     app.UseDeveloperExceptionPage();
 }
-
-//app.UseForwardedHeaders(new ForwardedHeadersOptions
-//{
-//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-//});
 
 app.UseRequestLocalization();
 app.UseCookiePolicy();
