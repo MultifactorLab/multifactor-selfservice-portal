@@ -57,6 +57,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 RuleFor(c => c.CompanyLogoUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.CompanyLogoUrl)));
                 RuleFor(c => c.TechnicalAccUsr).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccUsr)));
                 RuleFor(c => c.TechnicalAccPwd).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.TechnicalAccPwd)));
+                RuleFor(c => c.KeyStorageDirectory).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.KeyStorageDirectory)));
                 RuleFor(c => c.MultiFactorApiUrl).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiUrl)));
                 RuleFor(c => c.MultiFactorApiKey).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiKey)));
                 RuleFor(c => c.MultiFactorApiSecret).NotEmpty().WithMessage(GetErrorMessage(nameof(PortalSettings.MultiFactorApiSecret)));

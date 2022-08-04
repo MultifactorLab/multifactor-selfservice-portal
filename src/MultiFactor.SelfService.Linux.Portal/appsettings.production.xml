@@ -23,8 +23,8 @@
 		<CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
 
 		<!--Technical AD user-->
-		<TechnicalAccUsr>sspl.service.user</TechnicalAccUsr>
-		<TechnicalAccPwd>Qwerty123!</TechnicalAccPwd>		
+		<TechnicalAccUsr>user</TechnicalAccUsr>
+		<TechnicalAccPwd>password</TechnicalAccPwd>		
 		
 		<!--ActiveDirectory 2FA group (optional) for SAML and OpenID Connect Single Sign On -->
 		<!--<ActiveDirectory2faGroup>2FA Users</ActiveDirectory2faGroup>-->

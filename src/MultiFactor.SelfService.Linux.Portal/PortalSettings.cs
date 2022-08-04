@@ -25,6 +25,11 @@
         public string TechnicalAccPwd { get; private set; }
 
         /// <summary>
+        /// FileSystem persistant storage for the data protection tools.
+        /// </summary>
+        public string KeyStorageDirectory { get; private set; }
+
+        /// <summary>
         /// Company Logo URL.
         /// </summary>
         public string CompanyLogoUrl { get; private set; }
