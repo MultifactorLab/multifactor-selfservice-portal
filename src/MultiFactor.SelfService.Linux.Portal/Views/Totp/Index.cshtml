@@ -1,0 +1,62 @@
+﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.YandexKeyViewModel
+
+<div class="block">
+    <div class="container">
+        <div class="info">
+            <p>@Localizer["Header"]</p>
+
+            <p>
+                @Html.Raw(string.Format(Localizer.GetString("Instruction1"), Model.Link))
+            </p>
+            <p>
+                @Html.Raw(Localizer.GetString("Instruction2"))
+            </p>
+            <br />
+
+            <div id="qrcode"></div>
+
+            <br />
+            <br />
+
+            <div class="form-column">
+                @using (Html.BeginForm("Add", "Totp", FormMethod.Post))
+                {
+                    <fieldset>
+                        @Html.AntiForgeryToken()
+                        <div class="form-row">
+                            <div class="input" style="max-width:256px;margin-left:auto;margin-right:auto;">
+                                @Html.TextBoxFor(m => m.Otp, new { placeholder = "000000", autocomplete = "off" })
+                                @Html.ValidationMessageFor(m => m.Otp)
+                            </div>
+                        </div>
+                        @Html.HiddenFor(m => m.Key)
+                        @Html.HiddenFor(m => m.Link)
+                    </fieldset>
+                    <br />
+                    <ul class="action">
+                        <li>
+                            <input type="submit" value="@Localizer["Submit"]" />
+                        </li>
+                    </ul>
+                }
+            </div>
+            <br />
+
+            <ul class="action">
+                <li><a href="~/" class="btn">@Localizer["Cancel"]</a></li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/qrcode.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('#Otp').focus();
+        });
+        new QRCode(document.getElementById("qrcode"), "@Html.Raw(Model.Link)");
+    </script>
+}

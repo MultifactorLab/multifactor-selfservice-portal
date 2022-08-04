@@ -1,0 +1,110 @@
+﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
+@{ 
+    var indexer = 1;
+}
+
+<div class="block">
+    <div class="container">
+        <p>@Localizer["Greetings"] @(Model.Name ?? Model.Identity).</p>
+        <p>@Localizer["ConfiguredMethods"]</p>
+        <table class="authenticators max600">
+            <tbody>
+                @foreach (var app in Model.MobileAppAuthenticators)
+                {
+                    <tr>
+                        <td>@(indexer++)</td>
+                        <td>@Localizer["MobileApp"]</td>
+                        <td>@app.Label</td>
+                        <td><a href="#" data-type="mobileapp" data-id="@app.Id">@Localizer["Remove"]</a></td>
+                    </tr>
+                }
+                @foreach (var tlg in Model.TelegramAuthenticators)
+                {
+                    <tr>
+                        <td>@(indexer++)</td>
+                        <td>Telegram</td>
+                        <td>@tlg.Label</td>
+                        <td><a href="#" data-type="telegram" data-id="@tlg.Id">@Localizer["Remove"]</a></td>
+                    </tr>
+                }
+                @foreach (var totp in Model.TotpAuthenticators)
+                {
+                    <tr>
+                        <td>@(indexer++)</td>
+                        <td>Authenticator</td>
+                        <td>@totp.Label</td>
+                        <td><a href="#" data-type="totp" data-id="@totp.Id">@Localizer["Remove"]</a></td>
+                    </tr>
+                }
+                @foreach (var phone in Model.PhoneAuthenticators)
+                {
+                    <tr>
+                        <td>@(indexer++)</td>
+                        <td>@Localizer["Phone"]</td>
+                        <td>@phone.Label</td>
+                        <td><a href="#" data-type="phone" data-id="@phone.Id">@Localizer["Remove"]</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <p>&nbsp;</p>
+        <ul class="action">
+            @if (Model.Policy.MobileApp && Model.MobileAppAuthenticators.Count == 0)
+            {
+                <li><a href="~/mobileApp" class="btn">@Localizer["SetupMobileApp"]</a></li>
+            }
+            @if (Model.Policy.Telegram && Model.TelegramAuthenticators.Count == 0)
+            {
+                <li><a href="~/telegram" class="btn">@Localizer["SetupTelegram"]</a></li>
+            }
+            @if (Model.Policy.Totp && Model.TotpAuthenticators.Count == 0)
+            {
+                <li><a href="~/totp" class="btn">@Localizer["SetupYandexKey"]</a></li>
+            }
+            @if (Model.EnablePasswordManagement)
+            {
+                <li><a href="~/password/change" class="btn">@Localizer["ChangePassword"]</a></li>
+            }
+            @if (Model.EnableExchangeActiveSyncDevicesManagement)
+            {
+                <li><a href="~/ExchangeActiveSyncDevices" class="btn">@Localizer["ManageActiveSyncDevices"]</a></li>
+            }
+            <li><a href="~/account/logout" class="btn">@Localizer["Exit"]</a></li>
+        </ul>
+    </div>
+    @using (Html.BeginForm("RemoveAuthenticator", "Home", FormMethod.Post, new { Id = "remove-authenticator-form" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Authenticator" id="remove-authenticator-form-authenticator" />
+        <input type="hidden" name="Id" id="remove-authenticator-form-id" />
+    }
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(function () {
+            $("table.authenticators a").each(function () {
+                @if (Model.Count > 1)
+                {
+                    <text>
+                    const target = $(this);
+                    target.on("click", function () {     
+                        if (confirm('@Localizer["ConfirmRemoving"]')) {
+                        $('#remove-authenticator-form-authenticator').val(target.attr('data-type'));
+                        $('#remove-authenticator-form-id').val(target.attr('data-id'));
+                        $('#remove-authenticator-form').submit();
+                    }
+                    });
+                    </text>
+                }
+                else
+                {
+                    <text>$(this).attr('disabled', 'disabled');</text>
+                }
+            });
+        });
+    </script>
+
+}

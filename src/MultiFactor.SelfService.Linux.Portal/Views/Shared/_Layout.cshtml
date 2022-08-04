@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = string.Format(SharedLocalizer.GetString("SiteName"), Settings.CompanyName);
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["Title"]</title>
+    @RenderSection("head", false)
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+</head>
+<body>
+    <div id="wrapper">
+        <header id="header">
+            <strong class="logo">
+                <img src="~/@Settings.CompanyLogoUrl" style="max-height:100px" />
+            </strong>
+            <h1>@ViewBag.Title</h1>
+        </header>
+        <main id="main">
+            @RenderBody()
+        </main>
+        <footer id="footer">
+            <em class="copyright">&copy; @Settings.CompanyName @DateTime.Now.Year</em>
+        </footer>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+     @RenderSection("Scripts", required: false)
+</body>
+</html>

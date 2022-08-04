@@ -1,0 +1,35 @@
+﻿@model MultiFactor.SelfService.Linux.Portal.Authentication.TokenClaims
+
+@{
+    var botName = "MultifactorBot";
+}
+
+<div class="block">
+    <div class="container">
+        <div class="info">
+            <p>@Localizer["Header"]</p>
+
+            <p>@Html.Raw(string.Format(Localizer.GetString("Instruction1"), botName, Model.Id))</p>
+            <p>@Html.Raw(Localizer.GetString("Instruction2"))</p>
+
+            <br />
+
+            <div id="qrcode"></div>
+            <br />
+            <br />
+
+            <ul class="action">
+                <li><a href="~/" class="btn">@Localizer["Ok"]</a></li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/qrcode.min.js"></script>
+    <script type="text/javascript">
+        new QRCode(document.getElementById("qrcode"), "tg://resolve?domain=@botName&start=@Model.Id");
+    </script>
+}
