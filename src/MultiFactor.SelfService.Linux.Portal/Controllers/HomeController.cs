@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [Authorize]
     public class HomeController : ControllerBase
     {
-        public async Task<IActionResult> Index(MultiFactorClaimsDto claims, [FromServices] LoadProfileStory loadProfile)
+        public async Task<IActionResult> Index(SingleSignOnDto claims, [FromServices] LoadProfileStory loadProfile)
         {
             if (claims.HasSamlSession() || claims.HasOidcSession())
             {

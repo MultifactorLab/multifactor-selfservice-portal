@@ -8,13 +8,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
     public class SignOutStory
     {
         private readonly SafeHttpContextAccessor _contextAccessor;
+        private readonly ILogger<SignOutStory> _logger;
 
-        public SignOutStory(SafeHttpContextAccessor contextAccessor)
+        public SignOutStory(SafeHttpContextAccessor contextAccessor, ILogger<SignOutStory> logger)
         {
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IActionResult Execute(MultiFactorClaimsDto claimsDto)
+        public IActionResult Execute(SingleSignOnDto claimsDto)
         {
             // remove mfa cookie
              _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
@@ -31,7 +33,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
                 redirectUrl.Append($"?{Constants.MultiFactorClaims.OidcSessionId}={claimsDto.OidcSessionId}");
             }
 
-            return new RedirectResult(redirectUrl.ToString(), false);
+            var res = redirectUrl.ToString();
+
+            _logger.LogDebug("[SignOutStory]: Result redirectUrl: {redirectUrl:l}", res);
+
+            return new RedirectResult(res, false);
         }
     }
 }

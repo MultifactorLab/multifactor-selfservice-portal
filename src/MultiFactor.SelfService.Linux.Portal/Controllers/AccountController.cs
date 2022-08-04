@@ -15,12 +15,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     {
         public IActionResult Login()
         {
+            //ViewData["sso"] = sso;
             return View(new LoginViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, MultiFactorClaimsDto claimsDto, [FromServices] SignInStory signIn)
+        public async Task<IActionResult> Login(LoginViewModel model, SingleSignOnDto sso, [FromServices] SignInStory signIn)
         {
             if (!ModelState.IsValid)
             {
@@ -29,7 +30,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                return await signIn.ExecuteAsync(model, claimsDto);
+                return await signIn.ExecuteAsync(model, sso);
             }
             catch (ModelStateErrorException ex)
             {
@@ -38,7 +39,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
         }
 
-        public IActionResult Logout(MultiFactorClaimsDto claimsDto, [FromServices] SignOutStory signOut) 
+        public IActionResult Logout(SingleSignOnDto claimsDto, [FromServices] SignOutStory signOut) 
             => signOut.Execute(claimsDto);
 
         [HttpPost]

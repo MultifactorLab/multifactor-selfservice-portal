@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ModelBinding
         public static IModelBinderProvider GetModelBinderProvider()
         {
             return new ModelBinderProviderFactory()
-                .AddBinding<MultiFactorClaimsDto, MultiFactorClaimsDtoBinder>()
+                .AddBinding<SingleSignOnDto, MultiFactorClaimsDtoBinder>()
                 .BuildProvider();
         }
     }
