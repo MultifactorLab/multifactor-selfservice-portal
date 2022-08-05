@@ -46,16 +46,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
-            // TODO: проверить в линуксе
-            var path = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
             var formatter = GetLogFormatter(applicationBuilder);
+            var path = $"{Path.DirectorySeparatorChar}var{Path.DirectorySeparatorChar}www{Path.DirectorySeparatorChar}logs{Path.DirectorySeparatorChar}sspl-log-.txt";
             if (formatter != null)
             {
-                loggerConfiguration.WriteTo.File(formatter, $"{path}\\Logs\\log-.txt", rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);
             }
             else
             {
-                loggerConfiguration.WriteTo.File($"{path}\\Logs\\log-.txt", rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day);
             }
         }
 
