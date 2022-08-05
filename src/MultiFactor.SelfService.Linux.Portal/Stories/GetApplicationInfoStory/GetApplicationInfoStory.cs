@@ -2,9 +2,13 @@
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.Dto;
+using System.Reflection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
 {
+    /// <summary>
+    /// Returns information about application status.
+    /// </summary>
     public class GetApplicationInfoStory
     {
         private readonly MultiFactorApi _api;
@@ -22,12 +26,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
 
         public async Task<ApplicationInfoDto> ExecuteAsync()
         {
+            var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0";
             var apiSTatus = await GetApiStatusAsync();
             var ldapStatus = await GetLdapStatus();
             return new ApplicationInfoDto(
                 _config.GetEnvironment(),
                 DateTime.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
-                _config.GetVersion(),
+                version,
                 apiSTatus.ToString(),
                 ldapStatus.ToString()
                 );
