@@ -4,6 +4,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Google;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
@@ -18,6 +19,7 @@ using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.VerifyCaptchaStory;
 using System.Net;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
@@ -44,6 +46,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<MultiFactorApi>()
                 .AddTransient<ExchangeActiveSyncDevicesSearcher>()
                 .AddTransient<ExchangeActiveSyncDeviceStateChanger>()
+                .AddTransient<GoogleApi>()
 
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
@@ -57,9 +60,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ChangeExpiredPasswordStory>()
                 .AddTransient<ChangeValidPasswordStory>()
                 .AddTransient<SearchExchangeActiveSyncDevicesStory>()
-                .AddTransient<ChangeActiveSyncDeviceStateStory>();
+                .AddTransient<ChangeActiveSyncDeviceStateStory>()
+                .AddTransient<VerifyCaptchaStory>();
 
             ConfigureHttpClient(builder);
+            ConfigureGoogleApiHttpClient(builder);
 
             return builder;
         }
@@ -95,6 +100,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
 
             return proxy;
+        }
+
+        private static void ConfigureGoogleApiHttpClient(WebApplicationBuilder builder)
+        {
+            builder.Services.AddHttpClient<GoogleApi>((services, client) =>
+            {
+                client.BaseAddress = new Uri("https://www.google.com");
+            });
         }
     }
 }
