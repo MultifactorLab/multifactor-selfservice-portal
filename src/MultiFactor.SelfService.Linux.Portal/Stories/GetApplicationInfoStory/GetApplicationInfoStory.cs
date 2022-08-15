@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Extensions;
+﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.Dto;
@@ -12,13 +13,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
     public class GetApplicationInfoStory
     {
         private readonly MultiFactorApi _api;
+        private readonly IWebHostEnvironment _env;
         private readonly PortalSettings _settings;
         private readonly IConfiguration _config;
         private readonly ILogger<GetApplicationInfoStory> _logger;
 
-        public GetApplicationInfoStory(MultiFactorApi api, PortalSettings settings, IConfiguration config, ILogger<GetApplicationInfoStory> logger)
+        public GetApplicationInfoStory(MultiFactorApi api, 
+            IWebHostEnvironment env,
+            PortalSettings settings, 
+            IConfiguration config, 
+            ILogger<GetApplicationInfoStory> logger)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
+            _env = env ?? throw new ArgumentNullException(nameof(env));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -26,16 +33,33 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
 
         public async Task<ApplicationInfoDto> ExecuteAsync()
         {
-            var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0";
-            var apiSTatus = await GetApiStatusAsync();
+            var apiStatus = await GetApiStatusAsync();
             var ldapStatus = await GetLdapStatus();
-            return new ApplicationInfoDto(
-                _config.GetEnvironment(),
-                DateTime.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
-                version,
-                apiSTatus.ToString(),
-                ldapStatus.ToString()
-                );
+
+            var data = new
+            {
+                TimeStamp = DateTime.UtcNow.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'"),
+                Environment = _config.GetEnvironment(),
+                Version = Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString() ?? "1.0.0",
+                ApiStatus = apiStatus.ToString(),
+                LdapServicesStatus = ldapStatus.ToString()
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(data);
+
+            _logger.LogInformation("Application status was requested. Result: {json:l}", json);
+
+            var isProd = _env.IsEnvironment(Constants.PRODUCTION_ENV);
+            var ok = apiStatus == ApplicationComponentStatus.Ok && ldapStatus == ApplicationComponentStatus.Ok;
+
+            return new ApplicationInfoDto 
+            {
+                TimeStamp = data.TimeStamp,
+                Environment = !isProd ? data.Environment : null,
+                Version = !isProd ? data.Version : null,
+                ApiStatus = !isProd ? data.ApiStatus : null,
+                LdapServicesStatus = !isProd ? data.LdapServicesStatus : null,
+                Message = isProd ? $"{(ok ? "Everything is OK" : "Something is WRONG")}. For more information see logs." : null
+            };
         }
 
         private async Task<ApplicationComponentStatus> GetApiStatusAsync()

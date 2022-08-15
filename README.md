@@ -4,7 +4,7 @@
 # MultiFactor.SelfService.Linux.Portal
 _Also available in other languages: [Русский](README.ru.md)_
 
-MultiFactor SelfService Portal is a website developed and maintained by MultiFactor for self-enrollment of a second authentication factor by users within an `Active Directory` corporate network. In addition to Active Directory other ldap directories are also supported.
+MultiFactor SelfService Portal (Linux version) is a website developed and maintained by MultiFactor for self-enrollment of a second authentication factor by users within an `Active Directory` corporate network. In addition to Active Directory other ldap directories are also supported.
 
 The portal is a part of <a href="https://multifactor.pro/" target="_blank">MultiFactor</a> 2FA hybrid solution.
 
@@ -34,6 +34,7 @@ See documentation at https://multifactor.pro/docs/multifactor-selfservice-linux-
 - Supports Active Directory and other ldap directories.
 
 The portal is designed to be installed and operated within the corporate network perimeter.
+> :warning: The Linux version of the MultiFactor SelfService Portal does not support Cyrillic passwords. 
 
 ## First Steps
 
@@ -46,8 +47,7 @@ The portal is designed to be installed and operated within the corporate network
 
 - installation requires Linux server;
 - the server with the installed portal requires access to the `api.multifactor.ru` host via TCP port 443 (TLS);
-- '.NET 6 runtime' installed on the server;
-- `libldap-2.4-2` package istalled on the server;
+- `.NET 6 runtime` installed on the server;
 - any reverse proxy server installed and configured on the server;
 - unix service file configured using `systemd`;
 - technical unix user added (e.g. sspl-service-user);
@@ -119,7 +119,7 @@ If the `UseActiveDirectoryMobileUserPhone` option is enabled, the component will
 
 <img src="https://multifactor.pro/img/radius-adapter/ra-ad-mobile-phone-source.png" width="400">
 
-## Installation
+## Installation (Debian 11, Nginx)
 This is a web application. The Kestrel web server is used to launch it. The web server does not need to be installed and is included in the <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">relese</a>. 
 A typical scheme for running .NET 6 web application on the Linux server is as follows:
 1. The application is deployed to the Kestrel web server. The Kestrel listens for requests on a specific port (5000) of the local host using the `http` scheme.
@@ -145,10 +145,7 @@ Install the runtime:
 sudo apt-get update && \
   sudo apt-get install -y aspnetcore-runtime-6.0
 ```  
-Install libldap package:
-```
-sudo apt-get install libldap-2.4-2
-```
+
 Add technical user `sspl-service-user` (or choose another name).
 
 ### 3. Copy the app files

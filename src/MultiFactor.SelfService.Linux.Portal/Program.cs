@@ -36,7 +36,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-if (app.Environment.IsEnvironment("production"))
+if (app.Environment.IsEnvironment(Constants.PRODUCTION_ENV))
 {
     app.UseExceptionHandler("/error");
     app.UseHsts();
@@ -78,5 +78,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+app.MapApiEndpoints();
 
 app.Run();
