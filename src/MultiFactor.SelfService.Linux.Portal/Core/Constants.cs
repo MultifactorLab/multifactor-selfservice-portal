@@ -7,6 +7,7 @@
         public const string SESSION_EXPIRED_PASSWORD_CIPHER_KEY = "multifactor:expired-password:cipher";
         public const string TOKEN_VALIDATION = "TokenValidation:JsonWebKeySet";
         public const string ENVIRONMENT_KEY = "Environment";
+        public const string PRODUCTION_ENV = "production";
 
         public static class MultiFactorClaims
         {

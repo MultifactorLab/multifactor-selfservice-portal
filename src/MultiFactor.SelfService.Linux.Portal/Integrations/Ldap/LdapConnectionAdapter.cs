@@ -70,8 +70,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
                 instance._connection.Connect(uri, 389);
             }
 
-            var ldapVersion = (int)LdapVersion.LDAP_VERSION3;
-            instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, ldapVersion);
+            instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
 
             // do not follow chase referrals
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);

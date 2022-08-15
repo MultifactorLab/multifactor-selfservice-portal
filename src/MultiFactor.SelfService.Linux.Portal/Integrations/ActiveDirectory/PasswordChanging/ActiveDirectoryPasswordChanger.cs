@@ -1,4 +1,5 @@
 ﻿using LdapForNet;
+using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using System.Text;
 using static LdapForNet.Native.Native;
@@ -9,11 +10,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
     {
         private readonly PortalSettings _settings;
         private readonly ILogger<ActiveDirectoryPasswordChanger> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public ActiveDirectoryPasswordChanger(PortalSettings settings, ILogger<ActiveDirectoryPasswordChanger> logger)
+        public ActiveDirectoryPasswordChanger(PortalSettings settings, ILogger<ActiveDirectoryPasswordChanger> logger, IStringLocalizer<SharedResource> localizer)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
         public Task<PasswordChangingResult> ChangeValidPasswordAsync(string username, string currentPassword, string newPassword)
@@ -58,12 +61,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
             catch (LdapUnwillingToPerformException ex)
             {
                 _logger.LogWarning("Changing password for user '{identity:l}' failed: {message:l}, {result:l}", identity.Name, ex.Message, ex.HResult);
-                return new PasswordChangingResult(false, "Resources.AD.PasswordDoesNotMeetRequirements");
+                return new PasswordChangingResult(false, _localizer.GetString("AD.PasswordDoesNotMeetRequirements"));
             }
             catch (Exception ex)
             {
                 _logger.LogWarning("Changing password for user '{identity:l}' failed: {message:l}", identity.Name, ex.Message);
-                return new PasswordChangingResult(false, "Resources.AD.UnableToChangePassword");
+                return new PasswordChangingResult(false, _localizer.GetString("AD.UnableToChangePassword"));
             }
         }
 
@@ -75,7 +78,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
             var profile = await profileLoader.LoadProfileAsync(domain, user);
             if (profile == null)
             {
-                return new PasswordChangingResult(false, "Resources.AD.UnableToChangePassword");
+                return new PasswordChangingResult(false, "AD.UnableToChangePassword");
             }
 
             await ExecuteReplaceCommandAsync(profile.DistinguishedName, newPassword, connection);

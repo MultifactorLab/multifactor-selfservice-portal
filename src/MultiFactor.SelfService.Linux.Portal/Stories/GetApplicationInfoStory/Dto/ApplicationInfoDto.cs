@@ -1,4 +1,23 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.Dto
+﻿using System.Text.Json.Serialization;
+
+namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.Dto
 {
-    public record ApplicationInfoDto (string Environment, string TimeStamp, string Version, string ApiStatus, string LdapServicesStatus);
+    public class ApplicationInfoDto {
+        public string TimeStamp { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Environment { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Version { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? ApiStatus { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? LdapServicesStatus { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Message { get; init; }
+    }
 }
