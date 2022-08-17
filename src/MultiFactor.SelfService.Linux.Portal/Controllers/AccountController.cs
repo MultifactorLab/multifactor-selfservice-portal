@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
@@ -19,6 +20,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
+        [VerifyCaptcha]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, SingleSignOnDto sso, [FromServices] SignInStory signIn)
         {

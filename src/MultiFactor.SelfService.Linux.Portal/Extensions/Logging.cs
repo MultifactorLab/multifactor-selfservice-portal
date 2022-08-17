@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             var loggerConfiguration = new LoggerConfiguration().MinimumLevel.ControlledBy(levelSwitch);
 
             var isLocalhost = applicationBuilder.Environment.IsEnvironment("localhost");
-            loggerConfiguration.WriteTo.Console(isLocalhost ? LogEventLevel.Information : LogEventLevel.Warning);
+            loggerConfiguration.WriteTo.Console(isLocalhost ? levelSwitch.MinimumLevel : LogEventLevel.Warning);
 
             ConfigureFileLog(loggerConfiguration, applicationBuilder);
 
@@ -47,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
             var formatter = GetLogFormatter(applicationBuilder);
-            var path = $"{Path.DirectorySeparatorChar}var{Path.DirectorySeparatorChar}www{Path.DirectorySeparatorChar}logs{Path.DirectorySeparatorChar}sspl-log-.txt";
+            var path = $"{Core.Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
                 loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);

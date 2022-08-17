@@ -1,16 +1,16 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
+﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration
 {
     public class TokenValidationConfigurationSource : IConfigurationSource
     {
-        private readonly ApplicationHttpClient _client;
+        private readonly MultifactorHttpClientAdapterFactory _clientFactory;
 
-        public TokenValidationConfigurationSource(ApplicationHttpClient client)
+        public TokenValidationConfigurationSource(MultifactorHttpClientAdapterFactory clientFactory)
         {
-            _client = client;
+            _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
         }
 
-        public IConfigurationProvider Build(IConfigurationBuilder builder) => new MultiFactorConfigurationProvider(_client);        
+        public IConfigurationProvider Build(IConfigurationBuilder builder) => new MultiFactorConfigurationProvider(_clientFactory);        
     }
 }
