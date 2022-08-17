@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {

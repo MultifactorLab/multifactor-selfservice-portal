@@ -29,7 +29,8 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 - Настройка второго фактора аутентификации;
 - Смена пароля пользователя после подтверждения второго фактора;
 - Единая точка входа (Single Sign-On) для корпоративных приложений;
-- Поддержка ActiveDirectory и других ldap-каталогов. 
+- Поддержка ActiveDirectory и других ldap-каталогов;
+- Поддержка проверки капчи при входе в портал.
 
 Портал предназначен для установки и работы внутри корпоративной сети.
 > :warning:  Linux-версия MultiFactor SelfService Portal не поддерживает кириллические пароли. 
@@ -58,38 +59,61 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 Параметры работы портала хранятся в файле `appsettings.production.xml` в формате XML.
 
 ```xml
-<PortalSettings>			
-				
-    <!-- Название вашей организации -->
-    <CompanyName>ACME</CompanyName>
-    <!-- Название домена Active Directory для проверки логина и пароля пользователей -->
-    <CompanyDomain>ldaps://dc.domain.local/dc=domain,dc=local</CompanyDomain>  
-    <!-- URL адрес логотипа организации -->
-    <CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
+<PortalSettings>		
+
+    <Company>		
+        <!-- Название вашей организации -->
+		<Name>ACME</Name>
+
+		<!-- Название домена Active Directory для проверки логина и пароля пользователей -->
+		<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
+			
+		<!-- URL адрес логотипа организации -->
+		<LogoUrl>images/logo.svg</LogoUrl>	
+	</Company>
 
     <!-- Техническая учетная запись в Active Directory -->
-    <TechnicalAccUsr>user</TechnicalAccUsr>
-    <TechnicalAccPwd>password</TechnicalAccPwd>
+    <TechnicalAccount>
+		<User>user</User>
+		<Password>password</Password>
+	</TechnicalAccount
 
-    <!-- Запрашивать второй фактор только у пользователей из указанной группы для Single Sign On (второй фактор требуется всем, если удалить настройку) -->
-    <!--<ActiveDirectory2faGroup>2FA Users</ActiveDirectory2faGroup>-->
+    <ActiveDirectoryOptions>
+        <!--[Опционально] Запрашивать второй фактор только у пользователей из указанной группы для Single Sign On (второй фактор требуется всем, если удалить настройку) --> -->
+		<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
+
+		<!-- [Опционально] Использовать номер телефона из Active Directory для отправки одноразового кода в СМС (не используется, если удалить настройку). -->
+		<!--<UseUserPhone>true</UseUserPhone>-->
+		<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
+	</ActiveDirectoryOptions>
+
+    <MultiFactorApi>
+		<!-- Адрес API Мультифактора -->
+		<ApiUrl>https://api.multifactor.ru</ApiUrl>
+
+		<!-- Параметр API KEY из личного кабинета Мультифактора. -->
+		<ApiKey>key</ApiKey>
+
+		<!-- Параметр API Secret из личного кабинета Мультифактора. -->
+		<ApiSecret>secret</ApiSecret>
+
+		<!-- [Опционально] Доступ к API Мультифактора через HTTP прокси.-->
+		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
+	</MultiFactorApi>
+
+    <GoogleReCaptchaSettings>
+		<!-- Включена проверка капчи Google reCaptcha2. -->
+		<Enabled>false</Enabled>
 			
-    <!-- Использовать номер телефона из Active Directory для отправки одноразового кода в СМС (не используется, если удалить настройку) -->
-    <!--<UseActiveDirectoryUserPhone>true</UseActiveDirectoryUserPhone>-->    
-    <!--<UseActiveDirectoryMobileUserPhone>true</UseActiveDirectoryMobileUserPhone>-->
+		<!-- Site Key из личного кабинета https://www.google.com/recaptcha/admin -->
+		<!--<Key>site key</Key>-->
+			
+		<!-- Secret Key из личного кабинета https://www.google.com/recaptcha/admin -->
+		<!--<Secret>secret</Secret>-->
+	</GoogleReCaptchaSettings>
     
     <!-- Использовать UPN для входа в портал -->
     <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
-
-    <!-- Адрес API Мультифактора -->
-    <MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>
-    <!-- Параметр API KEY из личного кабинета Мультифактора -->
-    <MultifactorApiKey>key</MultifactorApiKey>
-    <!-- Параметр API Secret из личного кабинета Мультифактора -->
-    <MultifactorApiSecret>secret</MultifactorApiSecret>
-
-    <!-- Доступ к API Мультифактора через HTTP прокси (опционально) -->
-    <!--<MultifactorApiProxy>http://proxy:3128</MultifactorApiProxy>-->
 
     <!-- Уровень логирования: 'Debug', 'Info', 'Warn', 'Error' -->
     <LoggingLevel>Info</LoggingLevel>

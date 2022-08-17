@@ -126,6 +126,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Captcha.Failed" xml:space="preserve">
+    <value>Form autofill check failed</value>
+  </data>
   <data name="Confirm" xml:space="preserve">
     <value>Are you sure?</value>
   </data>

@@ -2,6 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.Dto;
 using System.Reflection;
 
@@ -80,8 +81,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         {
             try
             {
-                var user = LdapIdentity.ParseUser(_settings.TechnicalAccUsr);
-                using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, user, _settings.TechnicalAccPwd, _logger);
+                var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+                using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, _settings.TechnicalAccountSettings.Password, _logger);
                 return ApplicationComponentStatus.Ok;
             }
             catch (Exception ex)

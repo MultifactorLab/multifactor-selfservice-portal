@@ -31,7 +31,8 @@ See documentation at https://multifactor.pro/docs/multifactor-selfservice-linux-
 - Configuration of the second authentication factor by the end-user;
 - User's password change (available only after the second-factor confirmation);
 - Single Sign-On for corporate applications;
-- Supports Active Directory and other ldap directories.
+- Supports Active Directory and other ldap directories;
+- Supports captcha verification before user's login.
 
 The portal is designed to be installed and operated within the corporate network perimeter.
 > :warning: The Linux version of the MultiFactor SelfService Portal does not support Cyrillic passwords. 
@@ -61,36 +62,61 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
 ```xml
 <PortalSettings>			
 				
-    <!-- Name of your organization -->
-    <CompanyName>ACME</CompanyName>
-    <!-- Name of your Active Directory domain to verify username and password -->
-    <CompanyDomain>ldaps://dc.domain.local/dc=domain,dc=local</CompanyDomain>     
-    <!-- Company logo URL address -->
-    <CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
+    <Company>		
+        <!-- Name of your organization -->
+		<Name>ACME</Name>
+
+		<!-- Name of your Active Directory domain to verify username and password -->
+		<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
+			
+		<!-- Company logo URL address: absolute or relative -->
+		<LogoUrl>images/logo.svg</LogoUrl>	
+	</Company>
 
     <!-- Technical Active Directory account -->
-    <TechnicalAccUsr>user</TechnicalAccUsr>
-    <TechnicalAccPwd>password</TechnicalAccPwd>
+	<TechnicalAccount>
+		<User>user</User>
+		<Password>password</Password>
+	</TechnicalAccount
 
-    <!-- [Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
-    <!--<ActiveDirectory2faGroup>2FA Users</ActiveDirectory2faGroup>-->
+    <ActiveDirectoryOptions>
+        <!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
+		<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
+
+		<!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
+		<!--<UseUserPhone>true</UseUserPhone>-->
+
+		<!-- [Optional] Use ActiveDirectory User Telephones properties mobile number. -->
+		<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
+	</ActiveDirectoryOptions>
+
+    <MultiFactorApi>
+		<!-- Multifactor API Address -->
+		<ApiUrl>https://api.multifactor.ru</ApiUrl>
+
+		<!-- API KEY parameter from the Multifactor personal account -->
+		<ApiKey>key</ApiKey>
+
+		<!-- API Secret parameter from the Multifactor personal account -->
+		<ApiSecret>secret</ApiSecret>
+
+		<!-- [Optional] Access the Multifactor API via the HTTP proxy -->
+		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
+	</MultiFactorApi>
+
+    <GoogleReCaptchaSettings>
+			<!-- Google reCaptcha2 enabled. -->
+			<Enabled>false</Enabled>
 			
-    <!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
-    <!--<UseActiveDirectoryUserPhone>true</UseActiveDirectoryUserPhone>-->    
-    <!--<UseActiveDirectoryMobileUserPhone>true</UseActiveDirectoryMobileUserPhone>-->
+			<!-- Site Key from https://www.google.com/recaptcha/admin -->
+			<!--<Key>site key</Key>-->
+			
+			<!-- Secret Key from https://www.google.com/recaptcha/admin -->
+			<!--<Secret>secret</Secret>-->
+		</GoogleReCaptchaSettings>
     
-    <!-- Use UPN username -->
+    <!-- Only UPN user name format permitted -->
     <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
-
-    <!-- Multifactor API Address -->
-    <MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>
-    <!-- API KEY parameter from the Multifactor personal account -->
-    <MultifactorApiKey>key</MultifactorApiKey>
-    <!-- API Secret parameter from the Multifactor personal account -->
-    <MultifactorApiSecret>secret</MultifactorApiSecret>
-
-    <!-- [Optional] Access the Multifactor API via the HTTP proxy -->
-    <!--<MultifactorApiProxy>http://proxy:3128</MultifactorApiProxy>-->
 
     <!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
     <LoggingLevel>Info</LoggingLevel>

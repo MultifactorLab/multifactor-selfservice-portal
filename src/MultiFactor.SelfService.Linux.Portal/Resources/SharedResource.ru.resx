@@ -126,6 +126,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
+  <data name="Captcha.Failed" xml:space="preserve">
+    <value>Не пройдена проверка от автоматического заполнения</value>
+  </data>
   <data name="Confirm" xml:space="preserve">
     <value>Вы уверены?</value>
   </data>

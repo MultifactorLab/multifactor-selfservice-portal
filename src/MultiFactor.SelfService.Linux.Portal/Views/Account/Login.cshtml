@@ -19,7 +19,7 @@
                 <p>@Localizer["Invitation"]</p>
                 <div class="form-row">
                     <div class="input">
-                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName 
+                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
                             : Localizer.GetString("UserName") })
                         @Html.ValidationMessageFor(m => m.UserName)
@@ -29,22 +29,62 @@
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @Html.ValidationSummary(true)
+
+                    
+                    @if (Settings.GoogleReCaptchaSettings.Enabled)
+                    {
+                        <div class="g-recaptcha" 
+                            data-sitekey="@Settings.GoogleReCaptchaSettings.Key" 
+                            data-callback="captchaCallback"
+                            data-size="normal">
+                        </div>
+                    }
+
                 </div>
+
                 <div class="form-row">
+
                     <input type="hidden" name="myUrl" id="myUrl" />
-                    <input type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
+
+                    @if (Settings.GoogleReCaptchaSettings.Enabled)
+                    {
+                        <input type="hidden" name="responseToken" id="responseToken" />
+                        <input type="submit" class="btn" disabled="disabled" value="@Localizer["Submit"]" id="submit" />
+                    }
+                    else
+                    {
+                        <input type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
+                    }   
+                    
                 </div>
             </fieldset>
         }
     </div>
 </div>
 
+@section head {
+
+    @if (Settings.GoogleReCaptchaSettings.Enabled)
+    {
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    }
+}
+
 @section Scripts {
     
     <partial name="_ValidationScriptsPartial" />
 
     <script type="text/javascript">
-        $(document).ready(function(){
+        function enableSubmit() {
+            $("form").find(':submit').removeAttr('disabled');
+        }
+
+        function captchaCallback(token) {
+            $('#responseToken').val(token);
+            enableSubmit();
+        }
+
+        $(document).ready(function() {
             $('#myUrl').val(document.location);
 
             $("form").submit(function () {
