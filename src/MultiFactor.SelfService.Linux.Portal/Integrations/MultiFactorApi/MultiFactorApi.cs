@@ -1,26 +1,29 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
     public class MultiFactorApi
     {
-        private readonly ApplicationHttpClient _client;
+        private readonly HttpClientAdapter _clientAdapter;
         private readonly HttpClientTokenProvider _tokenProvider;
         private readonly PortalSettings _settings;
 
-        public MultiFactorApi(ApplicationHttpClient client, HttpClientTokenProvider tokenProvider, PortalSettings settings)
+        public MultiFactorApi(MultifactorHttpClientAdapterFactory clientFactory, HttpClientTokenProvider tokenProvider, PortalSettings settings)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            if (clientFactory is null) throw new ArgumentNullException(nameof(clientFactory));
+            _clientAdapter = clientFactory.CreateClientAdapter();
+
             _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         public Task PingAsync()
         {
-            return ExecuteAsync(() => _client.GetAsync<ApiResponse>("ping"));
+            return ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse>("ping"));
         }
 
         public Task<BypassPageDto> CreateSamlBypassRequestAsync(string login, string samlSessionId)
@@ -31,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 SamlSessionId = samlSessionId
             };
 
-            return ExecuteAsync(() => _client.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             if (authenticator is null)  throw new ArgumentNullException(nameof(authenticator));
             if (id is null) throw new ArgumentNullException(nameof(id));
 
-            return ExecuteAsync(() => _client.DeleteAsync<ApiResponse>($"self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
+            return ExecuteAsync(() => _clientAdapter.DeleteAsync<ApiResponse>($"self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <exception cref="UnsuccessfulResponseException"></exception>
         public async Task<UserProfileDto> GetUserProfileAsync()
         {
-            var response = await ExecuteAsync(() => _client.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
+            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
             return new UserProfileDto
             {
                 Id = response.Id,
@@ -94,7 +97,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
             var payload = new
             {
-                Identity = string.IsNullOrEmpty(_settings.NetBiosName) ? username : $"{_settings.NetBiosName}\\{username}",
+                Identity = string.IsNullOrEmpty(_settings.ActiveDirectorySettings.NetBiosName) 
+                    ? username 
+                    : $"{_settings.ActiveDirectorySettings.NetBiosName}\\{username}",
                 Callback = new
                 {
                     Action = postbackUrl,
@@ -107,14 +112,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 Language = Thread.CurrentThread.CurrentCulture?.TwoLetterISOLanguageName
             };
 
-            return ExecuteAsync(() => _client.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
         }
 
         /// <summary>
         /// Returns new Time-based One Time Password.
         /// </summary>
         /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task<TotpKeyDto> CreateTotpKey() => ExecuteAsync(() => _client.GetAsync<ApiResponse<TotpKeyDto>>("self-service/totp/new", GetBearerAuthHeaders()));
+        public Task<TotpKeyDto> CreateTotpKey() => ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<TotpKeyDto>>("self-service/totp/new", GetBearerAuthHeaders()));
 
         /// <summary>
         /// Adds new Time-based One Time Password authenticator to the user profile.
@@ -130,7 +135,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
             var payload = new { key, otp };
 
-            return ExecuteAsync(() => _client.PostAsync<ApiResponse>("self-service/totp", payload, GetBearerAuthHeaders()));
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse>("self-service/totp", payload, GetBearerAuthHeaders()));
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse?>> method)
@@ -177,7 +182,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         private IReadOnlyDictionary<string, string> GetBasicAuthHeaders()
         {
-            var auth = Convert.ToBase64String(Encoding.ASCII.GetBytes(_settings.MultiFactorApiKey + ":" + _settings.MultiFactorApiSecret));
+            var auth = Convert.ToBase64String(Encoding.ASCII.GetBytes(_settings.MultiFactorApiSettings.ApiKey + ":" + _settings.MultiFactorApiSettings.ApiSecret));
             return new Dictionary<string, string>
             {
                 { "Authorization", $"Basic {auth}" }

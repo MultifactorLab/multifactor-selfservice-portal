@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication
                 IssuerSigningKeys = config.GetJsonWebKeySet().Keys,
 
                 ValidateAudience = true,
-                ValidAudience = config.GetPortalSettingsValue(x => x.MultiFactorApiKey),
+                ValidAudience = config.GetPortalSettingsValue(x => x.MultiFactorApiSettings.ApiKey),
 
                 ValidateIssuer = false,
                 ValidateLifetime = true,

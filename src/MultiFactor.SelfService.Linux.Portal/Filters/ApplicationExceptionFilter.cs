@@ -4,17 +4,8 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Filters
 {
-    public class ApplicationExceptionFilter : IExceptionFilter, IActionFilter
+    public class ApplicationExceptionFilter : IExceptionFilter
     {
-        public void OnActionExecuted(ActionExecutedContext context)
-        {
-        }
-
-        public void OnActionExecuting(ActionExecutingContext context)
-        {
-
-        }
-
         public void OnException(ExceptionContext context)
         {
             if (context.Exception is UnauthorizedException ue)

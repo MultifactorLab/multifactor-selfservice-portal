@@ -1,14 +1,15 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration
 {
     public class MultiFactorConfigurationProvider : ConfigurationProvider
     {
-        private readonly ApplicationHttpClient _client;
+        private readonly HttpClientAdapter _client;
 
-        public MultiFactorConfigurationProvider(ApplicationHttpClient client)
+        public MultiFactorConfigurationProvider(MultifactorHttpClientAdapterFactory clientFactory)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _client = clientFactory?.CreateClientAdapter() ?? throw new ArgumentNullException(nameof(clientFactory));
         }
 
         public override void Load()

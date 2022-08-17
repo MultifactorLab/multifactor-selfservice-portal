@@ -7,7 +7,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
         public static JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            AllowTrailingCommas = true
+            AllowTrailingCommas = true,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
     }
 }

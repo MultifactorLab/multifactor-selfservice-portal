@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using LdapForNet;
 using static LdapForNet.Native.Native;
 using FluentValidation;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync
 {
@@ -21,11 +22,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         {
             ValidateDeviceInfo(device);
 
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccUsr);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, techUser, _settings.TechnicalAccPwd, _logger);
+                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, techUser, _settings.TechnicalAccountSettings.Password, _logger);
 
                 // first, we need to update device state and state reason.
                 // modify attributes msExchDeviceAccessState and msExchDeviceAccessStateReason

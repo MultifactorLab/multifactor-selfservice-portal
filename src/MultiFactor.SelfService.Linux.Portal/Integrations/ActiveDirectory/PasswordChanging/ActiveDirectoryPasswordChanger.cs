@@ -1,6 +1,7 @@
 ﻿using LdapForNet;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
 using static LdapForNet.Native.Native;
 
@@ -29,7 +30,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
 
             return TryExecuteAsync(async () =>
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, user, currentPassword, _logger);
+                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, currentPassword, _logger);
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }
@@ -41,11 +42,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
             if (newPassword is null) throw new ArgumentNullException(nameof(newPassword));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccUsr);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
 
             return TryExecuteAsync(async () =>
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, techUser, _settings.TechnicalAccPwd, _logger);
+                using var connection = await LdapConnectionAdapter.CreateAsync(
+                    _settings.CompanySettings.Domain, 
+                    techUser, 
+                    _settings.TechnicalAccountSettings.Password, 
+                    _logger);
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }
