@@ -44,14 +44,8 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 
 ## Требования для установки портала
 
-- портал устанавливается на Linux сервер;
+- портал устанавливается на Linux сервер, тестировался на Debian;
 - серверу с установленным порталом необходим доступ к хосту `api.multifactor.ru` по TCP порту 443 (TLS).
-- на сервере должна быть установлена среда выполнения `.NET 6 runtime`;
-- должен быть правильным образом настроен реверс-прокси;
-- для удобного управления процессом приложения должна быть настроена служба `systemd`;
-- должен быть создан технический пользователь Linux (например, sspl-service-user);
-- должны быть созданы дериктории  `/var/sspl-key-storage, /var/www/logs`;
-- технический пользователь должен быть владельцем этих директорий.
 
 
 ## Конфигурация портала
@@ -169,15 +163,15 @@ sudo apt-get update && \
 
 Создайте директории:
 ```
-sudo mkdir /opt/multifactor /opt/multifactor/sspl /opt/multifactor/sspl/app
-sudo mkdir /opt/multifactor/sspl/logs /opt/multifactor/sspl/key-storage
+sudo mkdir /opt/multifactor /opt/multifactor/ssp /opt/multifactor/ssp/app
+sudo mkdir /opt/multifactor/ssp/logs /opt/multifactor/ssp/key-storage
 ```
 Создайте пользователя и настройте права:
 ```
 sudo useradd mfa
 
-sudo chown -R mfa: /opt/multifactor/sspl
-sudo chmod -R 700 /opt/multifactor/sspl
+sudo chown -R mfa: /opt/multifactor/ssp
+sudo chmod -R 700 /opt/multifactor/ssp
 ```
 
 ### 3. Копирование файлов
@@ -203,7 +197,7 @@ sudo vi /etc/nginx/sites-available/default
 ```
 server {
   # dns сервера с порталом
-  server_name sspl.domain.org;
+  server_name ssp.domain.org;
 
   location / {
     # http://хост:порт Kestrel
@@ -233,7 +227,7 @@ sudo nginx -s reload
 По умолчанию прокси-сервер работает с незащищенным http-соединением. Если требуется установить сертификат и настроить https, файл `/etc/nginx/sites-available/default` должен выглядеть следующим образом:
 ```
 server {
-	server_name sspl.domain.org;
+	server_name ssp.domain.org;
 
 	location / {
 		proxy_pass         http://localhost:5000;
@@ -249,8 +243,8 @@ server {
   # слушать порт 443
   listen 443 ssl;
   # настройки ssl
-  ssl_certificate /etc/letsencrypt/live/sspl.multifactor.dev/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/sspl.multifactor.dev/privkey.pem;
+  ssl_certificate /etc/letsencrypt/live/ssp.domain.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/ssp.domain.org/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -258,7 +252,7 @@ server {
 
 # резервный сервер для перенаправления запросов http на https
 server {
-  if ($host = sspl.domain.org) {
+  if ($host = ssp.domain.org) {
       return 301 https://$host$request_uri;
   }
 
@@ -274,20 +268,20 @@ server {
 ### 5. Создание службы systemd
 Создайте файл службы:
 ```
-sudo vi /etc/systemd/system/sspl.service
+sudo vi /etc/systemd/system/ssp.service
 ```
 ```
 [Unit]
-Description=Self Service Portal for Linux
+Description=Self Service Portal
 
 [Service]
-WorkingDirectory=/opt/multifactor/sspl/app
-ExecStart=/usr/bin/dotnet /opt/multifactor/sspl/app/MultiFactor.SelfService.Linux.Portal.dll
+WorkingDirectory=/opt/multifactor/ssp/app
+ExecStart=/usr/bin/dotnet /opt/multifactor/ssp/app/MultiFactor.SelfService.Linux.Portal.dll
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
 TimeoutStopSec=90
-SyslogIdentifier=sspl-service
+SyslogIdentifier=ssp-service
 User=mfa
 Environment=ASPNETCORE_ENVIRONMENT=production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
@@ -298,38 +292,38 @@ WantedBy=multi-user.target
 
 СОхраните файл и включите службу:
 ```
-sudo systemctl enable sspl.service
+sudo systemctl enable ssp.service
 ```
 Затем запустите ее и убедитесь, что служба работает:
 ```
-sudo systemctl start sspl.service
-sudo systemctl status sspl.service
+sudo systemctl start ssp.service
+sudo systemctl status ssp.service
 ```
 В дальнейшем после каждого изменения настроек службы нужно перезапускать подсистему служб и сервис:
 ```
 sudo systemctl daemon-reload
-sudo systemctl restart sspl.service
+sudo systemctl restart ssp.service
 ```
 
 ## Журналы
 
-Журналы работы портала записываются в `syslog` и сохраняются в текстовые файлы в директорию `/opt/multifactor/sspl/logs`. Если директория пуста или ее нет, нужно убедиться, что у пользователя, под которым запускается служба, достаточно прав.  
+Журналы работы портала записываются в `syslog` и сохраняются в текстовые файлы в директорию `/opt/multifactor/ssp/logs`. Если директория пуста или ее нет, нужно убедиться, что у пользователя, под которым запускается служба, достаточно прав.  
 
 Для просмотра содержимого syslog можно воспользоваться командой: 
 ```
 less /var/log/syslog
 ```
 
-Для просмотра журналов службы sspl.service используйте команду:
+Для просмотра журналов службы ssp.service используйте команду:
 ```
-sudo journalctl -fu sspl.service
+sudo journalctl -fu ssp.service
 ```
 
 ## Доступ к порталу
 
-Портал доступен по адресу `https://sspl.domain.org`.
+Портал доступен по адресу `https://ssp.domain.org`.
 
-Для реализации liveness check используйте GET https://sspl.domain.org/api/ping.  
+Для реализации liveness check используйте GET https://ssp.domain.org/api/ping.  
 Пример ответа:
 ```json
 {
