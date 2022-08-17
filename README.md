@@ -172,24 +172,38 @@ sudo apt-get update && \
   sudo apt-get install -y aspnetcore-runtime-6.0
 ```  
 
-Add technical user `sspl-service-user` (or choose another name).
+Create directories:
+```
+sudo mkdir /opt/multifactor /opt/multifactor/sspl /opt/multifactor/sspl/app
+sudo mkdir /opt/multifactor/sspl/logs /opt/multifactor/sspl/key-storage
+```
+Create a user and set up permissions:
+```
+sudo useradd mfa
 
-### 3. Copy the app files
-Copy <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">this</a> application files in `/var/www/sspl/`.  
-Make the user `sspl-service-user` the owner (recursively) of the /var/www/sspl.
+sudo chown -R mfa: /opt/multifactor/sspl
+sudo chmod -R 700 /opt/multifactor/sspl
+```
+### 3. Copy files
+Download and extract application files:
+```
+sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
 
-### 4. Install and configure Nginx
-Use this command to install Nginx:
+sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
+```
+
+### 4. Configure Nginx
 ```
 sudo apt-get install nginx
-```
-Then start it:
-```
 sudo service nginx start
 ```
 Check that the browser displays the default landing page for Nginx `http://<server_IP_address>/index.nginx-debian.html`.
 
-To configure Nginx as a reverse proxy open `/etc/nginx/sites-available/default` in a text editor and replace the contents with the following snippet:
+Configure Nginx as a reverse proxy. Open file:
+```
+sudo vi /etc/nginx/sites-available/default
+```
+Replace the contents with the following snippet:
 ```
 server {
   # Linux server DNS
@@ -261,35 +275,29 @@ In this case SSL have been configured using service <a href="https://letsencrypt
 
 
 ### 5. Create the systemd service
-Create the definition file `/etc/systemd/system/sspl.service` with the following content:
+Create the service definition file:
+```
+sudo vi /etc/systemd/system/sspl.service
+```
 ```
 [Unit]
-Description=Self Service Portal for Linux Service
+Description=Self Service Portal for Linux
 
 [Service]
-WorkingDirectory=/var/www/sspl
-ExecStart=/usr/bin/dotnet /var/www/sspl/MultiFactor.SelfService.Linux.Portal.dll
+WorkingDirectory=/opt/multifactor/sspl/app
+ExecStart=/usr/bin/dotnet /opt/multifactor/sspl/app/MultiFactor.SelfService.Linux.Portal.dll
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
 TimeoutStopSec=90
 SyslogIdentifier=sspl-service
-User=sspl-service-user
+User=mfa
 Environment=ASPNETCORE_ENVIRONMENT=production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
 [Install]
 WantedBy=multi-user.target
 ```
-
-In the preceding example, the user that manages the service is specified by the `User` option. The user (sspl-service-user) must exist and have proper recursively ownership of this directories: `/var/www/sspl`, `/var/sspl-key-storage`, `/var/www/logs`.
-
-`Environment` option sets environment variable value. In this case `ASPNETCORE_ENVIRONMENT` variable value is `production`.
-
-Other useful options:  
-`RestartSec` – restart service after 10 seconds if the service crashes.  
-`TimeoutStopSec` –  duration of time to wait for the app to shut down after it receives the initial interrupt signal.  
-`SyslogIdentifier` – event log identifier.
 
 Save the file and enable the service:
 ```
@@ -308,7 +316,7 @@ sudo systemctl restart sspl.service
 
 ## Logs
 
-The Self-Service Portal logs are located in `/var/www/logs` directory. If they are not there, make sure that the directory is writable by the sspl-service-user. Logs are also saved to `syslog`.   
+The Self-Service Portal logs are located in `/opt/multifactor/sspl/logs` directory. If they are not there, make sure that the directory is writable by the sspl-service-user. Logs are also saved to `syslog`.   
 
 To view the syslog use this command: 
 ```

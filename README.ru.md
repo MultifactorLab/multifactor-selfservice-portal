@@ -151,42 +151,55 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 
 Таким образом приложение портала располагается за реверс-прокси и обрабатывает запросы только от него.  
 
-> Для именования директорий, сервиса и т.п. будет использоваться имя `sspl`. Вы можете выбрать другое.
-
 ### 1. Настройка среды
 Для работы портала необходимы пакеты .NET 6 runtime.  
 > Дополнительную информацию можно найти <a href="https://docs.microsoft.com/ru-ru/dotnet/core/install/linux#microsoft-packages" target="_blank">здесь</a>. 
 
-Сначала нужно добавить ключ подписывания пакета в список доверенных ключей, а также добавить репозиторий пакетов. Для этого выполните следующие команды:
+Добавьте ключ подписывания пакета в список доверенных ключей, затем добавьте репозиторий пакетов:
 ```
 wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 ``` 
-Затем установите среду:
+Установите среду:
 ```
 sudo apt-get update && \
   sudo apt-get install -y aspnetcore-runtime-6.0
 ```  
 
-Создайте технического пользователя `sspl-service-user` (имя произвольное).
+Создайте директории:
+```
+sudo mkdir /opt/multifactor /opt/multifactor/sspl /opt/multifactor/sspl/app
+sudo mkdir /opt/multifactor/sspl/logs /opt/multifactor/sspl/key-storage
+```
+Создайте пользователя и настройте права:
+```
+sudo useradd mfa
+
+sudo chown -R mfa: /opt/multifactor/sspl
+sudo chmod -R 700 /opt/multifactor/sspl
+```
 
 ### 3. Копирование файлов
-Скопируйте <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">файлы</a> приложения в `/var/www/sspl/`.  
-Сделайте пользователя `sspl-service-user` владельцем (рекурсивно) директории /var/www/sspl.
+Скачайте и распакуйте файлы приложения:
+```
+sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
 
-### 4. Установка и настройка Nginx
-Для установки пакета nginx выполните команды:
+sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
+```
+
+### 4. Настройка Nginx
 ```
 sudo apt-get install nginx
-```
-Затем запустите веб-сервер:
-```
 sudo service nginx start
 ```
 Перейдите в браузере по адресу `http://<server_IP_address>/index.nginx-debian.html` и убедитесь, что отображается стандартная страница Nginx.
 
-Чтобы настроить веб-сервер в режиме реверс-прокси откройте файл `/etc/nginx/sites-available/default` и замените его содержимое на:
+Настройте nginx в режиме реверс-прокси. Откройте файл:
+```
+sudo vi /etc/nginx/sites-available/default
+```
+Замените содержимое:
 ```
 server {
   # dns сервера с порталом
@@ -207,6 +220,7 @@ server {
   listen 80;
 }
 ```
+
 Для проверки конфигурации выполните:
 ```
 sudo nginx -t
@@ -215,7 +229,6 @@ sudo nginx -t
 ```
 sudo nginx -s reload
 ```
-Настройка Nginx в режиме реверс-прокси выполнена. Теперь запросы вида `http://sspl.domain.org/...` должны перенаправляться на локальный Kestrel и обрабатываться приложением портала. 
 
 По умолчанию прокси-сервер работает с незащищенным http-соединением. Если требуется установить сертификат и настроить https, файл `/etc/nginx/sites-available/default` должен выглядеть следующим образом:
 ```
@@ -259,20 +272,23 @@ server {
 
 
 ### 5. Создание службы systemd
-Создайте файл `/etc/systemd/system/sspl.service` со следующим содержимым:
+Создайте файл службы:
+```
+sudo vi /etc/systemd/system/sspl.service
+```
 ```
 [Unit]
-Description=Self Service Portal for Linux Service
+Description=Self Service Portal for Linux
 
 [Service]
-WorkingDirectory=/var/www/sspl
-ExecStart=/usr/bin/dotnet /var/www/sspl/MultiFactor.SelfService.Linux.Portal.dll
+WorkingDirectory=/opt/multifactor/sspl/app
+ExecStart=/usr/bin/dotnet /opt/multifactor/sspl/app/MultiFactor.SelfService.Linux.Portal.dll
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
 TimeoutStopSec=90
 SyslogIdentifier=sspl-service
-User=sspl-service-user
+User=mfa
 Environment=ASPNETCORE_ENVIRONMENT=production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
@@ -280,16 +296,7 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 WantedBy=multi-user.target
 ```
 
-В настройках службы используется пользователь `sspl-service-user` (опция `User`). От имени этого пользователя будет выполняться служба. Нужно заранее создать этого пользователя и сделать его владельцем директорий `/var/www/sspl`, `/var/sspl-key-storage`, `/var/www/logs`. Если каких-то директорий нет, их нужно создать.
-
-Опция `Environment` устанавливает значение переменной среды. В данном случае мы устанавливаем значение `production` для переменной `ASPNETCORE_ENVIRONMENT`.
-
-Описание некоторых других настроек:  
-`RestartSec` – задержка перед перезапуском сервиса в случае его падения.  
-`TimeoutStopSec` – задержка перед завершением работы сервиса после первоначального сигнала прерывания.  
-`SyslogIdentifier` – идентификатор журналов.
-
-После сохранения файла включите службу:
+СОхраните файл и включите службу:
 ```
 sudo systemctl enable sspl.service
 ```
@@ -306,7 +313,7 @@ sudo systemctl restart sspl.service
 
 ## Журналы
 
-Журналы работы портала записываются в `syslog` и сохраняются в текстовые файлы в директорию `/var/www/logs`. Если директория пуста или ее нет, нужно убедиться, что у пользователя, под которым запускается служба, достаточно прав.  
+Журналы работы портала записываются в `syslog` и сохраняются в текстовые файлы в директорию `/opt/multifactor/sspl/logs`. Если директория пуста или ее нет, нужно убедиться, что у пользователя, под которым запускается служба, достаточно прав.  
 
 Для просмотра содержимого syslog можно воспользоваться командой: 
 ```
@@ -326,11 +333,8 @@ sudo journalctl -fu sspl.service
 Пример ответа:
 ```json
 {
-    "environment": "production",
     "timeStamp": "2022-08-05T08:19:42.336Z",
-    "version": "1.0.0",
-    "apiStatus": "Ok",
-    "ldapServicesStatus": "Ok"
+    "message": "Ok"
 }
 ```
 
