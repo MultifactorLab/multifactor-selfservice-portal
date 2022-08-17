@@ -29,7 +29,8 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 - Настройка второго фактора аутентификации;
 - Смена пароля пользователя после подтверждения второго фактора;
 - Единая точка входа (Single Sign-On) для корпоративных приложений;
-- Поддержка ActiveDirectory и других ldap-каталогов. 
+- Поддержка ActiveDirectory и других ldap-каталогов;
+- Поддержка проверки капчи при входе в портал.
 
 Портал предназначен для установки и работы внутри корпоративной сети.
 > :warning:  Linux-версия MultiFactor SelfService Portal не поддерживает кириллические пароли. 
@@ -43,14 +44,8 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 
 ## Требования для установки портала
 
-- портал устанавливается на Linux сервер;
+- портал устанавливается на Linux сервер, тестировался на Debian;
 - серверу с установленным порталом необходим доступ к хосту `api.multifactor.ru` по TCP порту 443 (TLS).
-- на сервере должна быть установлена среда выполнения `.NET 6 runtime`;
-- должен быть правильным образом настроен реверс-прокси;
-- для удобного управления процессом приложения должна быть настроена служба `systemd`;
-- должен быть создан технический пользователь Linux (например, sspl-service-user);
-- должны быть созданы дериктории  `/var/sspl-key-storage, /var/www/logs`;
-- технический пользователь должен быть владельцем этих директорий.
 
 
 ## Конфигурация портала
@@ -58,38 +53,61 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 Параметры работы портала хранятся в файле `appsettings.production.xml` в формате XML.
 
 ```xml
-<PortalSettings>			
-				
-    <!-- Название вашей организации -->
-    <CompanyName>ACME</CompanyName>
-    <!-- Название домена Active Directory для проверки логина и пароля пользователей -->
-    <CompanyDomain>ldaps://dc.domain.local/dc=domain,dc=local</CompanyDomain>  
-    <!-- URL адрес логотипа организации -->
-    <CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
+<PortalSettings>		
+
+    <Company>		
+        <!-- Название вашей организации -->
+		<Name>ACME</Name>
+
+		<!-- Название домена Active Directory для проверки логина и пароля пользователей -->
+		<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
+			
+		<!-- URL адрес логотипа организации -->
+		<LogoUrl>images/logo.svg</LogoUrl>	
+	</Company>
 
     <!-- Техническая учетная запись в Active Directory -->
-    <TechnicalAccUsr>user</TechnicalAccUsr>
-    <TechnicalAccPwd>password</TechnicalAccPwd>
+    <TechnicalAccount>
+		<User>user</User>
+		<Password>password</Password>
+	</TechnicalAccount
 
-    <!-- Запрашивать второй фактор только у пользователей из указанной группы для Single Sign On (второй фактор требуется всем, если удалить настройку) -->
-    <!--<ActiveDirectory2faGroup>2FA Users</ActiveDirectory2faGroup>-->
+    <ActiveDirectoryOptions>
+        <!--[Опционально] Запрашивать второй фактор только у пользователей из указанной группы для Single Sign On (второй фактор требуется всем, если удалить настройку) --> -->
+		<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
+
+		<!-- [Опционально] Использовать номер телефона из Active Directory для отправки одноразового кода в СМС (не используется, если удалить настройку). -->
+		<!--<UseUserPhone>true</UseUserPhone>-->
+		<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
+	</ActiveDirectoryOptions>
+
+    <MultiFactorApi>
+		<!-- Адрес API Мультифактора -->
+		<ApiUrl>https://api.multifactor.ru</ApiUrl>
+
+		<!-- Параметр API KEY из личного кабинета Мультифактора. -->
+		<ApiKey>key</ApiKey>
+
+		<!-- Параметр API Secret из личного кабинета Мультифактора. -->
+		<ApiSecret>secret</ApiSecret>
+
+		<!-- [Опционально] Доступ к API Мультифактора через HTTP прокси.-->
+		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
+	</MultiFactorApi>
+
+    <GoogleReCaptchaSettings>
+		<!-- Включена проверка капчи Google reCaptcha2. -->
+		<Enabled>false</Enabled>
 			
-    <!-- Использовать номер телефона из Active Directory для отправки одноразового кода в СМС (не используется, если удалить настройку) -->
-    <!--<UseActiveDirectoryUserPhone>true</UseActiveDirectoryUserPhone>-->    
-    <!--<UseActiveDirectoryMobileUserPhone>true</UseActiveDirectoryMobileUserPhone>-->
+		<!-- Site Key из личного кабинета https://www.google.com/recaptcha/admin -->
+		<!--<Key>site key</Key>-->
+			
+		<!-- Secret Key из личного кабинета https://www.google.com/recaptcha/admin -->
+		<!--<Secret>secret</Secret>-->
+	</GoogleReCaptchaSettings>
     
     <!-- Использовать UPN для входа в портал -->
     <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
-
-    <!-- Адрес API Мультифактора -->
-    <MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>
-    <!-- Параметр API KEY из личного кабинета Мультифактора -->
-    <MultifactorApiKey>key</MultifactorApiKey>
-    <!-- Параметр API Secret из личного кабинета Мультифактора -->
-    <MultifactorApiSecret>secret</MultifactorApiSecret>
-
-    <!-- Доступ к API Мультифактора через HTTP прокси (опционально) -->
-    <!--<MultifactorApiProxy>http://proxy:3128</MultifactorApiProxy>-->
 
     <!-- Уровень логирования: 'Debug', 'Info', 'Warn', 'Error' -->
     <LoggingLevel>Info</LoggingLevel>
@@ -127,46 +145,59 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 
 Таким образом приложение портала располагается за реверс-прокси и обрабатывает запросы только от него.  
 
-> Для именования директорий, сервиса и т.п. будет использоваться имя `sspl`. Вы можете выбрать другое.
-
 ### 1. Настройка среды
 Для работы портала необходимы пакеты .NET 6 runtime.  
 > Дополнительную информацию можно найти <a href="https://docs.microsoft.com/ru-ru/dotnet/core/install/linux#microsoft-packages" target="_blank">здесь</a>. 
 
-Сначала нужно добавить ключ подписывания пакета в список доверенных ключей, а также добавить репозиторий пакетов. Для этого выполните следующие команды:
+Добавьте ключ подписывания пакета в список доверенных ключей, затем добавьте репозиторий пакетов:
 ```
 wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 ``` 
-Затем установите среду:
+Установите среду:
 ```
 sudo apt-get update && \
   sudo apt-get install -y aspnetcore-runtime-6.0
 ```  
 
-Создайте технического пользователя `sspl-service-user` (имя произвольное).
+Создайте директории:
+```
+sudo mkdir /opt/multifactor /opt/multifactor/ssp /opt/multifactor/ssp/app
+sudo mkdir /opt/multifactor/ssp/logs /opt/multifactor/ssp/key-storage
+```
+Создайте пользователя и настройте права:
+```
+sudo useradd mfa
+
+sudo chown -R mfa: /opt/multifactor/ssp
+sudo chmod -R 700 /opt/multifactor/ssp
+```
 
 ### 3. Копирование файлов
-Скопируйте <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">файлы</a> приложения в `/var/www/sspl/`.  
-Сделайте пользователя `sspl-service-user` владельцем (рекурсивно) директории /var/www/sspl.
+Скачайте и распакуйте файлы приложения:
+```
+sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
 
-### 4. Установка и настройка Nginx
-Для установки пакета nginx выполните команды:
+sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
+```
+
+### 4. Настройка Nginx
 ```
 sudo apt-get install nginx
-```
-Затем запустите веб-сервер:
-```
 sudo service nginx start
 ```
 Перейдите в браузере по адресу `http://<server_IP_address>/index.nginx-debian.html` и убедитесь, что отображается стандартная страница Nginx.
 
-Чтобы настроить веб-сервер в режиме реверс-прокси откройте файл `/etc/nginx/sites-available/default` и замените его содержимое на:
+Настройте nginx в режиме реверс-прокси. Откройте файл:
+```
+sudo vi /etc/nginx/sites-available/default
+```
+Замените содержимое:
 ```
 server {
   # dns сервера с порталом
-  server_name sspl.domain.org;
+  server_name ssp.domain.org;
 
   location / {
     # http://хост:порт Kestrel
@@ -183,6 +214,7 @@ server {
   listen 80;
 }
 ```
+
 Для проверки конфигурации выполните:
 ```
 sudo nginx -t
@@ -191,12 +223,11 @@ sudo nginx -t
 ```
 sudo nginx -s reload
 ```
-Настройка Nginx в режиме реверс-прокси выполнена. Теперь запросы вида `http://sspl.domain.org/...` должны перенаправляться на локальный Kestrel и обрабатываться приложением портала. 
 
 По умолчанию прокси-сервер работает с незащищенным http-соединением. Если требуется установить сертификат и настроить https, файл `/etc/nginx/sites-available/default` должен выглядеть следующим образом:
 ```
 server {
-	server_name sspl.domain.org;
+	server_name ssp.domain.org;
 
 	location / {
 		proxy_pass         http://localhost:5000;
@@ -212,8 +243,8 @@ server {
   # слушать порт 443
   listen 443 ssl;
   # настройки ssl
-  ssl_certificate /etc/letsencrypt/live/sspl.multifactor.dev/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/sspl.multifactor.dev/privkey.pem;
+  ssl_certificate /etc/letsencrypt/live/ssp.domain.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/ssp.domain.org/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -221,7 +252,7 @@ server {
 
 # резервный сервер для перенаправления запросов http на https
 server {
-  if ($host = sspl.domain.org) {
+  if ($host = ssp.domain.org) {
       return 301 https://$host$request_uri;
   }
 
@@ -235,20 +266,23 @@ server {
 
 
 ### 5. Создание службы systemd
-Создайте файл `/etc/systemd/system/sspl.service` со следующим содержимым:
+Создайте файл службы:
+```
+sudo vi /etc/systemd/system/ssp.service
+```
 ```
 [Unit]
-Description=Self Service Portal for Linux Service
+Description=Self Service Portal
 
 [Service]
-WorkingDirectory=/var/www/sspl
-ExecStart=/usr/bin/dotnet /var/www/sspl/MultiFactor.SelfService.Linux.Portal.dll
+WorkingDirectory=/opt/multifactor/ssp/app
+ExecStart=/usr/bin/dotnet /opt/multifactor/ssp/app/MultiFactor.SelfService.Linux.Portal.dll
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
 TimeoutStopSec=90
-SyslogIdentifier=sspl-service
-User=sspl-service-user
+SyslogIdentifier=ssp-service
+User=mfa
 Environment=ASPNETCORE_ENVIRONMENT=production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
@@ -256,57 +290,45 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 WantedBy=multi-user.target
 ```
 
-В настройках службы используется пользователь `sspl-service-user` (опция `User`). От имени этого пользователя будет выполняться служба. Нужно заранее создать этого пользователя и сделать его владельцем директорий `/var/www/sspl`, `/var/sspl-key-storage`, `/var/www/logs`. Если каких-то директорий нет, их нужно создать.
-
-Опция `Environment` устанавливает значение переменной среды. В данном случае мы устанавливаем значение `production` для переменной `ASPNETCORE_ENVIRONMENT`.
-
-Описание некоторых других настроек:  
-`RestartSec` – задержка перед перезапуском сервиса в случае его падения.  
-`TimeoutStopSec` – задержка перед завершением работы сервиса после первоначального сигнала прерывания.  
-`SyslogIdentifier` – идентификатор журналов.
-
-После сохранения файла включите службу:
+СОхраните файл и включите службу:
 ```
-sudo systemctl enable sspl.service
+sudo systemctl enable ssp.service
 ```
 Затем запустите ее и убедитесь, что служба работает:
 ```
-sudo systemctl start sspl.service
-sudo systemctl status sspl.service
+sudo systemctl start ssp.service
+sudo systemctl status ssp.service
 ```
 В дальнейшем после каждого изменения настроек службы нужно перезапускать подсистему служб и сервис:
 ```
 sudo systemctl daemon-reload
-sudo systemctl restart sspl.service
+sudo systemctl restart ssp.service
 ```
 
 ## Журналы
 
-Журналы работы портала записываются в `syslog` и сохраняются в текстовые файлы в директорию `/var/www/logs`. Если директория пуста или ее нет, нужно убедиться, что у пользователя, под которым запускается служба, достаточно прав.  
+Журналы работы портала записываются в `syslog` и сохраняются в текстовые файлы в директорию `/opt/multifactor/ssp/logs`. Если директория пуста или ее нет, нужно убедиться, что у пользователя, под которым запускается служба, достаточно прав.  
 
 Для просмотра содержимого syslog можно воспользоваться командой: 
 ```
 less /var/log/syslog
 ```
 
-Для просмотра журналов службы sspl.service используйте команду:
+Для просмотра журналов службы ssp.service используйте команду:
 ```
-sudo journalctl -fu sspl.service
+sudo journalctl -fu ssp.service
 ```
 
 ## Доступ к порталу
 
-Портал доступен по адресу `https://sspl.domain.org`.
+Портал доступен по адресу `https://ssp.domain.org`.
 
-Для реализации liveness check используйте GET https://sspl.domain.org/api/ping.  
+Для реализации liveness check используйте GET https://ssp.domain.org/api/ping.  
 Пример ответа:
 ```json
 {
-    "environment": "production",
     "timeStamp": "2022-08-05T08:19:42.336Z",
-    "version": "1.0.0",
-    "apiStatus": "Ok",
-    "ldapServicesStatus": "Ok"
+    "message": "Ok"
 }
 ```
 

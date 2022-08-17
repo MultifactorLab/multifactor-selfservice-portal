@@ -24,7 +24,7 @@ builder.AddConfiguration(args)
 // "If data protection isn't configured, the keys are held in memory and discarded when the app restarts."
 builder.Services.AddDataProtection()
     // TODO: test!
-    .PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration.GetPortalSettingsValue(x => x.KeyStorageDirectory)))
+    .PersistKeysToFileSystem(new DirectoryInfo(Constants.KEY_STORAGE_DIRECTORY))
     .SetApplicationName("MultiFactorSSPL");
 //
 //

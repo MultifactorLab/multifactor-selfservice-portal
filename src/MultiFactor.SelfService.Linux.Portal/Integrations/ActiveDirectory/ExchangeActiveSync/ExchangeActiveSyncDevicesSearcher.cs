@@ -1,6 +1,7 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync.Models;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Globalization;
 using static LdapForNet.Native.Native;
 
@@ -26,11 +27,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             if (username is null) throw new ArgumentNullException(nameof(username));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccUsr);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, techUser, _settings.TechnicalAccPwd, _logger);
+                using var connection = await LdapConnectionAdapter.CreateAsync(
+                    _settings.CompanySettings.Domain, 
+                    techUser, 
+                    _settings.TechnicalAccountSettings.Password, 
+                    _logger);
 
                 var domain = await connection.WhereAmI();
                 var names = new LdapNames(LdapServerType.ActiveDirectory);
@@ -75,11 +80,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             if (string.IsNullOrEmpty(deviceId)) throw new ArgumentException($"'{nameof(deviceId)}' cannot be null or empty.", nameof(deviceId));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccUsr);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanyDomain, techUser, _settings.TechnicalAccPwd, _logger);
+                using var connection = await LdapConnectionAdapter.CreateAsync(
+                    _settings.CompanySettings.Domain, 
+                    techUser, 
+                    _settings.TechnicalAccountSettings.Password, 
+                    _logger);
 
                 var domain = await connection.WhereAmI();
                 var names = new LdapNames(LdapServerType.ActiveDirectory);

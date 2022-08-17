@@ -1,10 +1,13 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Authentication;
-using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
+using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Google;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
@@ -29,21 +32,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             builder.Services
                 .AddSession()
                 .AddHttpContextAccessor()
+
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
                 .AddSingleton<TokenClaimsAccessor>()
                 .AddSingleton<DataProtection>()
                 .AddSingleton<JsonDataSerializer>()
+                .AddSingleton<JsonPayloadLogger>()
                 .AddSingleton<DeviceAccessStateNameLocalizer>()
+                .AddSingleton<ActiveDirectoryCredentialVerifier>()
+                .AddSingleton<ActiveDirectoryPasswordChanger>()
+                .AddSingleton<HttpClientTokenProvider>()
+                .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
+                .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
 
-                .AddTransient<ActiveDirectoryCredentialVerifier>()
-                .AddTransient<ActiveDirectoryPasswordChanger>()
-                .AddTransient<HttpClientTokenProvider>()
                 .AddTransient<HttpMessageInterceptor>()
-                .AddTransient<ApplicationHttpClient>()
-                .AddTransient<MultiFactorApi>()
-                .AddTransient<ExchangeActiveSyncDevicesSearcher>()
-                .AddTransient<ExchangeActiveSyncDeviceStateChanger>()
+                .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()
 
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
@@ -59,29 +63,42 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<SearchExchangeActiveSyncDevicesStory>()
                 .AddTransient<ChangeActiveSyncDeviceStateStory>();
 
-            ConfigureHttpClient(builder);
+            ConfigureMultifactorApi(builder);
+            ConfigureGoogleApi(builder);
 
             return builder;
         }
 
-        private static void ConfigureHttpClient(WebApplicationBuilder builder)
+        private static void ConfigureMultifactorApi(WebApplicationBuilder builder)
         {
-            builder.Services.AddHttpClient<ApplicationHttpClient>((services, client) =>
-            {
-                var settings = services.GetRequiredService<PortalSettings>();
-                client.BaseAddress = new Uri(settings.MultiFactorApiUrl);
-            }).ConfigurePrimaryHttpMessageHandler(() =>
-            {
-                var handler = new HttpClientHandler();
-
-                var proxySetting = builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiProxy);
-                if (!string.IsNullOrEmpty(proxySetting))
+            builder.Services.AddTransient<MultiFactorApi>()
+                .AddTransient<MultifactorHttpClientAdapterFactory>()
+                .AddHttpClient<MultifactorHttpClientAdapterFactory>((services, client) =>
                 {
-                    handler.Proxy = BuildProxy(proxySetting);
-                }
+                    var settings = services.GetRequiredService<PortalSettings>();
+                    client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl);
+                }).ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    var handler = new HttpClientHandler();
 
-                return handler;
-            }).AddHttpMessageHandler<HttpMessageInterceptor>();
+                    var proxySetting = builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiSettings.ApiProxy);
+                    if (!string.IsNullOrEmpty(proxySetting))
+                    {
+                        handler.Proxy = BuildProxy(proxySetting);
+                    }
+
+                    return handler;
+                }).AddHttpMessageHandler<HttpMessageInterceptor>();
+        }
+
+        private static void ConfigureGoogleApi(WebApplicationBuilder builder)
+        {
+            builder.Services.AddTransient<GoogleReCaptcha2Api>()
+                .AddTransient<GoogleHttpClientAdapterFactory>()
+                .AddHttpClient<GoogleHttpClientAdapterFactory>((services, client) =>
+                {
+                    client.BaseAddress = new Uri("https://www.google.com/recaptcha/api/");
+                }).AddHttpMessageHandler<HttpMessageInterceptor>();
         }
 
         private static WebProxy BuildProxy(string proxyUri)

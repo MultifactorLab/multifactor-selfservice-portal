@@ -31,7 +31,8 @@ See documentation at https://multifactor.pro/docs/multifactor-selfservice-linux-
 - Configuration of the second authentication factor by the end-user;
 - User's password change (available only after the second-factor confirmation);
 - Single Sign-On for corporate applications;
-- Supports Active Directory and other ldap directories.
+- Supports Active Directory and other ldap directories;
+- Supports captcha verification before user's login.
 
 The portal is designed to be installed and operated within the corporate network perimeter.
 > :warning: The Linux version of the MultiFactor SelfService Portal does not support Cyrillic passwords. 
@@ -45,14 +46,8 @@ The portal is designed to be installed and operated within the corporate network
 
 ## Prerequisites
 
-- installation requires Linux server;
-- the server with the installed portal requires access to the `api.multifactor.ru` host via TCP port 443 (TLS);
-- `.NET 6 runtime` installed on the server;
-- any reverse proxy server installed and configured on the server;
-- unix service file configured using `systemd`;
-- technical unix user added (e.g. sspl-service-user);
-- directories `/var/sspl-key-storage, /var/www/logs` created on the server;
-- directories from prev item must be owned by technical unix user. 
+- application is installed on a Linux server, tested on Debian;
+- the server with the installed portal requires access to the `api.multifactor.ru` host via TCP port 443 (TLS). 
 
 ## Configuration
 
@@ -61,36 +56,61 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
 ```xml
 <PortalSettings>			
 				
-    <!-- Name of your organization -->
-    <CompanyName>ACME</CompanyName>
-    <!-- Name of your Active Directory domain to verify username and password -->
-    <CompanyDomain>ldaps://dc.domain.local/dc=domain,dc=local</CompanyDomain>     
-    <!-- Company logo URL address -->
-    <CompanyLogoUrl>images/logo.svg</CompanyLogoUrl>
+    <Company>		
+        <!-- Name of your organization -->
+		<Name>ACME</Name>
+
+		<!-- Name of your Active Directory domain to verify username and password -->
+		<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
+			
+		<!-- Company logo URL address: absolute or relative -->
+		<LogoUrl>images/logo.svg</LogoUrl>	
+	</Company>
 
     <!-- Technical Active Directory account -->
-    <TechnicalAccUsr>user</TechnicalAccUsr>
-    <TechnicalAccPwd>password</TechnicalAccPwd>
+	<TechnicalAccount>
+		<User>user</User>
+		<Password>password</Password>
+	</TechnicalAccount
 
-    <!-- [Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
-    <!--<ActiveDirectory2faGroup>2FA Users</ActiveDirectory2faGroup>-->
+    <ActiveDirectoryOptions>
+        <!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
+		<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
+
+		<!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
+		<!--<UseUserPhone>true</UseUserPhone>-->
+
+		<!-- [Optional] Use ActiveDirectory User Telephones properties mobile number. -->
+		<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
+	</ActiveDirectoryOptions>
+
+    <MultiFactorApi>
+		<!-- Multifactor API Address -->
+		<ApiUrl>https://api.multifactor.ru</ApiUrl>
+
+		<!-- API KEY parameter from the Multifactor personal account -->
+		<ApiKey>key</ApiKey>
+
+		<!-- API Secret parameter from the Multifactor personal account -->
+		<ApiSecret>secret</ApiSecret>
+
+		<!-- [Optional] Access the Multifactor API via the HTTP proxy -->
+		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
+	</MultiFactorApi>
+
+    <GoogleReCaptchaSettings>
+			<!-- Google reCaptcha2 enabled. -->
+			<Enabled>false</Enabled>
 			
-    <!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
-    <!--<UseActiveDirectoryUserPhone>true</UseActiveDirectoryUserPhone>-->    
-    <!--<UseActiveDirectoryMobileUserPhone>true</UseActiveDirectoryMobileUserPhone>-->
+			<!-- Site Key from https://www.google.com/recaptcha/admin -->
+			<!--<Key>site key</Key>-->
+			
+			<!-- Secret Key from https://www.google.com/recaptcha/admin -->
+			<!--<Secret>secret</Secret>-->
+		</GoogleReCaptchaSettings>
     
-    <!-- Use UPN username -->
+    <!-- Only UPN user name format permitted -->
     <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
-
-    <!-- Multifactor API Address -->
-    <MultifactorApiUrl>https://api.multifactor.ru</MultifactorApiUrl>
-    <!-- API KEY parameter from the Multifactor personal account -->
-    <MultifactorApiKey>key</MultifactorApiKey>
-    <!-- API Secret parameter from the Multifactor personal account -->
-    <MultifactorApiSecret>secret</MultifactorApiSecret>
-
-    <!-- [Optional] Access the Multifactor API via the HTTP proxy -->
-    <!--<MultifactorApiProxy>http://proxy:3128</MultifactorApiProxy>-->
 
     <!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
     <LoggingLevel>Info</LoggingLevel>
@@ -128,8 +148,6 @@ A typical scheme for running .NET 6 web application on the Linux server is as fo
 
 Therefore, the Portal application is behind a reverse proxy and processes requests only from it.
 
-> For naming directories, services, etc. the name `sspl` will be used. You can choose another.
-
 ### 1. Setup environment
 The application requires .NET 6 runtime packages.  
 > More information <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux#microsoft-packages" target="_blank">here</a>.
@@ -146,24 +164,38 @@ sudo apt-get update && \
   sudo apt-get install -y aspnetcore-runtime-6.0
 ```  
 
-Add technical user `sspl-service-user` (or choose another name).
+Create directories:
+```
+sudo mkdir /opt/multifactor /opt/multifactor/ssp /opt/multifactor/ssp/app
+sudo mkdir /opt/multifactor/ssp/logs /opt/multifactor/ssp/key-storage
+```
+Create a user and set up permissions:
+```
+sudo useradd mfa
 
-### 3. Copy the app files
-Copy <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">this</a> application files in `/var/www/sspl/`.  
-Make the user `sspl-service-user` the owner (recursively) of the /var/www/sspl.
+sudo chown -R mfa: /opt/multifactor/ssp
+sudo chmod -R 700 /opt/multifactor/ssp
+```
+### 3. Copy files
+Download and extract application files:
+```
+sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
 
-### 4. Install and configure Nginx
-Use this command to install Nginx:
+sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
+```
+
+### 4. Configure Nginx
 ```
 sudo apt-get install nginx
-```
-Then start it:
-```
 sudo service nginx start
 ```
 Check that the browser displays the default landing page for Nginx `http://<server_IP_address>/index.nginx-debian.html`.
 
-To configure Nginx as a reverse proxy open `/etc/nginx/sites-available/default` in a text editor and replace the contents with the following snippet:
+Configure Nginx as a reverse proxy. Open file:
+```
+sudo vi /etc/nginx/sites-available/default
+```
+Replace the contents with the following snippet:
 ```
 server {
   # Linux server DNS
@@ -196,7 +228,7 @@ sudo nginx -s reload
 By default reverse proxy interacts with insecure http. If you need to install SSL certificate and setup https make sure that Nginx config looks like this: 
 ```
 server {
-	server_name sspl.domain.org;
+	server_name ssp.domain.org;
 
 	location / {
 		proxy_pass         http://localhost:5000;
@@ -212,8 +244,8 @@ server {
   # listen port 443
   listen 443 ssl;
   # ssl configuration
-  ssl_certificate /etc/letsencrypt/live/sspl.multifactor.dev/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/sspl.multifactor.dev/privkey.pem;
+  ssl_certificate /etc/letsencrypt/live/ssp.domain.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/ssp.domain.org/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf;
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -221,7 +253,7 @@ server {
 
 # default server to redirect http -> https
 server {
-  if ($host = sspl.domain.org) {
+  if ($host = ssp.domain.org) {
       return 301 https://$host$request_uri;
   }
 
@@ -235,20 +267,23 @@ In this case SSL have been configured using service <a href="https://letsencrypt
 
 
 ### 5. Create the systemd service
-Create the definition file `/etc/systemd/system/sspl.service` with the following content:
+Create the service definition file:
+```
+sudo vi /etc/systemd/system/ssp.service
+```
 ```
 [Unit]
-Description=Self Service Portal for Linux Service
+Description=Self Service Portal
 
 [Service]
-WorkingDirectory=/var/www/sspl
-ExecStart=/usr/bin/dotnet /var/www/sspl/MultiFactor.SelfService.Linux.Portal.dll
+WorkingDirectory=/opt/multifactor/ssp/app
+ExecStart=/usr/bin/dotnet /opt/multifactor/ssp/app/MultiFactor.SelfService.Linux.Portal.dll
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
 TimeoutStopSec=90
-SyslogIdentifier=sspl-service
-User=sspl-service-user
+SyslogIdentifier=ssp-service
+User=mfa
 Environment=ASPNETCORE_ENVIRONMENT=production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
@@ -256,57 +291,45 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 WantedBy=multi-user.target
 ```
 
-In the preceding example, the user that manages the service is specified by the `User` option. The user (sspl-service-user) must exist and have proper recursively ownership of this directories: `/var/www/sspl`, `/var/sspl-key-storage`, `/var/www/logs`.
-
-`Environment` option sets environment variable value. In this case `ASPNETCORE_ENVIRONMENT` variable value is `production`.
-
-Other useful options:  
-`RestartSec` – restart service after 10 seconds if the service crashes.  
-`TimeoutStopSec` –  duration of time to wait for the app to shut down after it receives the initial interrupt signal.  
-`SyslogIdentifier` – event log identifier.
-
 Save the file and enable the service:
 ```
-sudo systemctl enable sspl.service
+sudo systemctl enable ssp.service
 ```
 Start the service and verify that it's running:
 ```
-sudo systemctl start sspl.service
-sudo systemctl status sspl.service
+sudo systemctl start ssp.service
+sudo systemctl status ssp.service
 ```
 At any point in the future after changing the service file, trload the systemd manager configuration and restart service:
 ```
 sudo systemctl daemon-reload
-sudo systemctl restart sspl.service
+sudo systemctl restart ssp.service
 ```
 
 ## Logs
 
-The Self-Service Portal logs are located in `/var/www/logs` directory. If they are not there, make sure that the directory is writable by the sspl-service-user. Logs are also saved to `syslog`.   
+The Self-Service Portal logs are located in `/opt/multifactor/ssp/logs` directory. If they are not there, make sure that the directory is writable by the sspl-service-user. Logs are also saved to `syslog`.   
 
 To view the syslog use this command: 
 ```
 less /var/log/syslog
 ```
 
-To view the sspl.service logs use this command:
+To view the ssp.service logs use this command:
 ```
-sudo journalctl -fu sspl.service
+sudo journalctl -fu ssp.service
 ```
 
 ## Access Portal
 
 The portal can be accessed at `https://yourdomain.com/mfa`
 
-For liveness check use GET https://sspl.domain.org/api/ping.  
+For liveness check use GET https://ssp.domain.org/api/ping.  
 Response example:
 ```json
 {
-    "environment": "production",
     "timeStamp": "2022-08-05T08:19:42.336Z",
-    "version": "1.0.0",
-    "apiStatus": "Ok",
-    "ldapServicesStatus": "Ok"
+    "message": "Ok"
 }
 ```
 
