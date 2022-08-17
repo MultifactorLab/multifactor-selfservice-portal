@@ -10,7 +10,7 @@
         public const string PRODUCTION_ENV = "production";
         public const string CAPTCHA_TOKEN = "responseToken";
 
-        public const string WORKING_DIRECTORY = "/opt/multifactor/sspl";
+        public const string WORKING_DIRECTORY = "/opt/multifactor/ssp";
         public const string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
         public const string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";
 
