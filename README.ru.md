@@ -290,7 +290,7 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 WantedBy=multi-user.target
 ```
 
-СОхраните файл и включите службу:
+Сохраните файл и включите службу:
 ```
 sudo systemctl enable ssp.service
 ```
