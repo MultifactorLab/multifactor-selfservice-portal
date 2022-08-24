@@ -168,6 +168,14 @@ Create directories:
 ```
 sudo mkdir /opt/multifactor /opt/multifactor/ssp /opt/multifactor/ssp/app
 sudo mkdir /opt/multifactor/ssp/logs /opt/multifactor/ssp/key-storage
+
+### 3. Copy files
+Download and extract application files:
+```
+sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
+
+sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
+```
 ```
 Create a user and set up permissions:
 ```
@@ -175,13 +183,6 @@ sudo useradd mfa
 
 sudo chown -R mfa: /opt/multifactor/ssp
 sudo chmod -R 700 /opt/multifactor/ssp
-```
-### 3. Copy files
-Download and extract application files:
-```
-sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
-
-sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
 ```
 
 ### 4. Configure Nginx

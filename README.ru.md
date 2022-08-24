@@ -155,7 +155,7 @@ wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 ``` 
-Установите среду:
+Установите среду выполнения:
 ```
 sudo apt-get update && \
   sudo apt-get install -y aspnetcore-runtime-6.0
@@ -166,13 +166,6 @@ sudo apt-get update && \
 sudo mkdir /opt/multifactor /opt/multifactor/ssp /opt/multifactor/ssp/app
 sudo mkdir /opt/multifactor/ssp/logs /opt/multifactor/ssp/key-storage
 ```
-Создайте пользователя и настройте права:
-```
-sudo useradd mfa
-
-sudo chown -R mfa: /opt/multifactor/ssp
-sudo chmod -R 700 /opt/multifactor/ssp
-```
 
 ### 3. Копирование файлов
 Скачайте и распакуйте файлы приложения:
@@ -180,6 +173,13 @@ sudo chmod -R 700 /opt/multifactor/ssp
 sudo wget https://github.com/MultifactorLab/multifactor-selfservice-portal/releases/latest/download/MultiFactor.SelfService.Linux.Portal.zip
 
 sudo unzip MultiFactor.SelfService.Linux.Portal.zip -d $app_dir
+```
+Создайте пользователя и настройте права:
+```
+sudo useradd mfa
+
+sudo chown -R mfa: /opt/multifactor/ssp
+sudo chmod -R 700 /opt/multifactor/ssp
 ```
 
 ### 4. Настройка Nginx
