@@ -38,7 +38,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
                 return new RedirectToActionResult("ChangePassword", "Home", new { });
             }
 
-            return new LocalRedirectResult("/");
+            return new RedirectToActionResult("Index", "Home", new { });
         }
     }
 }
