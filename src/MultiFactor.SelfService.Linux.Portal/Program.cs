@@ -39,7 +39,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 if (app.Environment.IsEnvironment(Constants.PRODUCTION_ENV))
 {
     app.UseExceptionHandler("/error");
-    app.UseHsts();
 }
 else
 {
