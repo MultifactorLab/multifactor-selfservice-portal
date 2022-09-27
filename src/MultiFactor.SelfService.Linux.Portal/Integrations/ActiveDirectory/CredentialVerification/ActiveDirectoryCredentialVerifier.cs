@@ -72,8 +72,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
                 if (ex.Message != null)
                 {
                     var result = CredentialVerificationResult.FromKnownError(ex.Message);
-                    _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {.Reason:}",
-                        user.Name, _settings.CompanySettings.Domain, result.Reason);
+                    _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {Reason:l}. Error message: {msg:l}",
+                        user.Name, _settings.CompanySettings.Domain, result.Reason, ex.Message);
                     return result;
                 }
 
