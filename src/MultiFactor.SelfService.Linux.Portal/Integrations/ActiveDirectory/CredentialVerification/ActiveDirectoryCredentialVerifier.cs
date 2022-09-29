@@ -31,7 +31,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
             {
                 using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, password, _logger);
 
-                var domain = await connection.WhereAmI();
+                var domain = await connection.WhereAmIAsync();
 
                 var names = new LdapNames(LdapServerType.ActiveDirectory);
                 var profileLoader = new LdapProfileLoader(connection, names, _logger);

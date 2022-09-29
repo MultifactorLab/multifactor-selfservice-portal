@@ -133,9 +133,29 @@
             return new LdapIdentity(identity, isUser ? IdentityType.Uid : IdentityType.Cn);
         }
 
+        public string GetUid()
+        {
+            switch (Type)
+            {
+                case IdentityType.Uid: return Name;
+                case IdentityType.UserPrincipalName: return UpnToUid(Name);
+                default: throw new InvalidOperationException("Identity should be of type UID or UPN");
+            }
+        }
+
         public override string ToString()
         {
             return Name;
+        }
+
+        private static string UpnToUid(string upn)
+        {
+            if (string.IsNullOrWhiteSpace(upn)) throw new ArgumentException($"'{nameof(upn)}' cannot be null or whitespace.", nameof(upn));
+
+            var index = upn.IndexOf('@');
+            if (index == -1) throw new InvalidOperationException("Identity should be of UPN type");
+
+            return upn.Substring(0, index);
         }
     }
 }
