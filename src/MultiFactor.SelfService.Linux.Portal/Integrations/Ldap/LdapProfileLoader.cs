@@ -18,7 +18,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<LdapProfile?> LoadProfileAsync(LdapIdentity domain, LdapIdentity user)
+        public async Task<LdapProfile?> LoadProfileAsync(LdapDomain domain, LdapIdentity user)
         {
             var searchFilter = $"(&(objectClass={_names.UserClass})({_names.Identity(user)}={user.Name}))";
 
@@ -64,7 +64,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             return builder.Build();
         }
 
-        private Task<IList<LdapEntry>> GetAllUserGroups(LdapIdentity domain, string distinguishedName)
+        private Task<IList<LdapEntry>> GetAllUserGroups(LdapDomain domain, string distinguishedName)
         {
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
             var searchFilter = $"(member:1.2.840.113556.1.4.1941:={escaped})";

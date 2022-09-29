@@ -37,7 +37,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.TechnicalAccountSettings.Password, 
                     _logger);
 
-                var domain = await connection.WhereAmI();
+                var domain = await connection.WhereAmIAsync();
                 var names = new LdapNames(LdapServerType.ActiveDirectory);
                 var profileLoader = new LdapProfileLoader(connection, names, _logger);
                 var profile = await profileLoader.LoadProfileAsync(domain, user);
@@ -90,7 +90,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.TechnicalAccountSettings.Password, 
                     _logger);
 
-                var domain = await connection.WhereAmI();
+                var domain = await connection.WhereAmIAsync();
                 var names = new LdapNames(LdapServerType.ActiveDirectory);
                 var profileLoader = new LdapProfileLoader(connection, names, _logger);
                 var profile = await profileLoader.LoadProfileAsync(domain, user);
