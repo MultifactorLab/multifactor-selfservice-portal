@@ -1,4 +1,5 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using System.Diagnostics;
 using static LdapForNet.Native.Native;
 
@@ -10,20 +11,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
         private readonly string _uri;
         private readonly ILogger? _logger;
 
-        private LdapConnectionAdapter(string uri, ILogger? logger)
+        public LdapIdentity ConnectedUser { get; }
+
+        private LdapConnectionAdapter(string uri, LdapIdentity user, ILogger? logger)
         {
             _connection = new LdapConnection();
             _uri = uri;
+            ConnectedUser = user;
             _logger = logger;
         }
 
-        public async Task<LdapIdentity> WhereAmI()
+        public async Task<LdapDomain> WhereAmIAsync()
         {
-            var queryResult = await SearchQueryAsync("", "(objectclass=*)", LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
+            var filter = LdapFilter.Create("objectclass", "*").Build();
+            var queryResult = await SearchQueryAsync("", filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
             var result = queryResult.SingleOrDefault() ?? throw new InvalidOperationException($"Unable to query {_uri} for current user");
 
             var defaultNamingContext = result.DirectoryAttributes["defaultNamingContext"].GetValue<string>();
-            return new LdapIdentity(defaultNamingContext, IdentityType.DistinguishedName);
+            return LdapDomain.Parse(defaultNamingContext);
         }
 
         public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
@@ -55,7 +60,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (password is null) throw new ArgumentNullException(nameof(password));
 
-            var instance = new LdapConnectionAdapter(uri, logger);
+            var instance = new LdapConnectionAdapter(uri, user, logger);
 
             // trust self-signed certificates on ldap server
             instance._connection.TrustAllCertificates();
