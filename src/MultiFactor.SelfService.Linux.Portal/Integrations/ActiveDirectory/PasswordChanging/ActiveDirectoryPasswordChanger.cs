@@ -77,7 +77,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Pass
 
         private async Task<PasswordChangingResult> ChangePasswordAsync(LdapIdentity user, string newPassword, LdapConnectionAdapter connection)
         {
-            var domain = await connection.WhereAmI();
+            var domain = await connection.WhereAmIAsync();
             var names = new LdapNames(LdapServerType.ActiveDirectory);
             var profileLoader = new LdapProfileLoader(connection, names, _logger);
             var profile = await profileLoader.LoadProfileAsync(domain, user);
