@@ -57,6 +57,11 @@
 		<!--<SyslogAppName>multifactor-portal</SyslogAppName>-->
 
 		<!--<UICulture>auto:en</UICulture>-->
+
+		<!--<GroupPolicyPreset>-->
+			<!-- Groups to assign to the registered user -->
+			<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
+		<!--</GroupPolicyPreset>-->
 	</PortalSettings>
 
 </configuration>
