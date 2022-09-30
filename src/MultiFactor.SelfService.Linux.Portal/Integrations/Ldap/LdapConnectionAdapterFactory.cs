@@ -8,10 +8,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
     public class LdapConnectionAdapterFactory
     {
         private readonly PortalSettings _settings;
+        private readonly ILogger<LdapConnectionAdapterFactory> _logger;
 
-        public LdapConnectionAdapterFactory(PortalSettings settings)
+        public LdapConnectionAdapterFactory(PortalSettings settings, ILogger<LdapConnectionAdapterFactory> logger)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -36,13 +38,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             using var technicalConn = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain,
                     LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User),
-                    _settings.TechnicalAccountSettings.Password);
+                    _settings.TechnicalAccountSettings.Password,
+                    _logger);
 
             var domain = await technicalConn.WhereAmIAsync();
             var existedUser = await FindUserByUidAsync(username, domain, technicalConn);
             if (existedUser == null) throw new LdapUserNotFoundException($"User with '{username}' does not exist in domain '{_settings.CompanySettings.Domain}'");
 
-            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password);
+            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, _logger);
         }
 
         private static async Task<LdapIdentity?> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)

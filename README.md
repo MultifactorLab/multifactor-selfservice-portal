@@ -129,6 +129,14 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
        If option not specefied - English.
     -->
     <UICulture>auto:en</UICulture>
+    <GroupPolicyPreset>
+      <!-- 
+        Groups to assign to the registered user. Specified groups will be assigned to a new user.
+        Syntax: group names (from your Management Portal) separated by semicolons.
+        Example: group1;Group Name Two;
+        -->
+      <!-- <SignUpGroups>group names</SignUpGroups>  -->
+	  </GroupPolicyPreset>
 </PortalSettings>
 ```
 If the `UseActiveDirectoryUserPhone` option is enabled, the component will use the phone stored in the **General** tab. All phone number formats are supported.

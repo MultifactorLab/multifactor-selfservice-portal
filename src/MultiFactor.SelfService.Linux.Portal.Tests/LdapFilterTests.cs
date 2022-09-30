@@ -117,5 +117,4 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             Assert.Equal("(&(|(objectclass=user)(objectclass=person))(|(uid=a.pashkov)(sAMAccountName=a.pashkov)))", s);
         }
     }
-
 }

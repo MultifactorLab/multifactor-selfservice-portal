@@ -11,13 +11,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
         private readonly string _uri;
         private readonly ILogger? _logger;
 
-        public LdapIdentity ConnectedUser { get; }
+        /// <summary>
+        /// Returns user that has been successfully binded with LDAP directory.
+        /// </summary>
+        public LdapIdentity BindedUser { get; }
 
         private LdapConnectionAdapter(string uri, LdapIdentity user, ILogger? logger)
         {
             _connection = new LdapConnection();
             _uri = uri;
-            ConnectedUser = user;
+            BindedUser = user;
             _logger = logger;
         }
 
