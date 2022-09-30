@@ -20,15 +20,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
-        private readonly ILogger<SignInStory> _logger;
 
         public SignInStory(ActiveDirectoryCredentialVerifier credentialVerifier,
             DataProtection dataProtection,
             MultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
-            IStringLocalizer<SharedResource> localizer,
-            ILogger<SignInStory> logger)
+            IStringLocalizer<SharedResource> localizer)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -36,7 +34,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model, SingleSignOnDto sso)

@@ -126,6 +126,14 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
         Если настройку убрать или оставить пустой, бует использоваться English.
         -->
     <UICulture>auto:ru</UICulture>
+    <GroupPolicyPreset>
+      <!-- 
+        Новому пользователю при регистрации будут назначены эти группы. 
+        Формат ввода: имена групп из Админки, разделенные точкой с запятой. 
+        Например: Группа1;группа два;group3
+      -->
+      <!-- <SignUpGroups>group names</SignUpGroups>  -->
+	  </GroupPolicyPreset>
 </PortalSettings>
 ```
 

@@ -6,14 +6,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
 {
     public class ActiveDirectoryCredentialVerifier
     {
+        private readonly LdapConnectionAdapterFactory _connectionFactory;
         private readonly PortalSettings _settings;
         private readonly ILogger<ActiveDirectoryCredentialVerifier> _logger;
 
-        public ActiveDirectoryCredentialVerifier(PortalSettings settings,
+        public ActiveDirectoryCredentialVerifier(LdapConnectionAdapterFactory connectionFactory, PortalSettings settings,
             ILogger<ActiveDirectoryCredentialVerifier> logger)
         {
-            _settings = settings;
-            _logger = logger;
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<CredentialVerificationResult> VerifyCredentialAsync(string username, string password)
@@ -25,12 +27,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
                 return CredentialVerificationResult.FromUnknowError("Invalid credentials");
             };
 
-            var user = LdapIdentity.ParseUser(username);
-
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, password, _logger);
+                using var connection = await _connectionFactory.CreateAdapterAsync(username, password);
 
+                var user = connection.BindedUser;
                 var domain = await connection.WhereAmIAsync();
 
                 var names = new LdapNames(LdapServerType.ActiveDirectory);
@@ -45,11 +46,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
                 {
                     if (!IsMemberOf(profile, _settings.ActiveDirectorySettings.SecondFactorGroup))
                     {
-                        _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user.Name, _settings.ActiveDirectorySettings.SecondFactorGroup);
-                        _logger.LogInformation("Bypass second factor for user '{user:l}'", user.Name);
+                        _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user, _settings.ActiveDirectorySettings.SecondFactorGroup);
+                        _logger.LogInformation("Bypass second factor for user '{user:l}'", user);
                         return CredentialVerificationResult.ByPass();
                     }
-                    _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user.Name, _settings.ActiveDirectorySettings.SecondFactorGroup);
+                    _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user, _settings.ActiveDirectorySettings.SecondFactorGroup);
                 }
 
                 var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
@@ -73,16 +74,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
                 {
                     var result = CredentialVerificationResult.FromKnownError(ex.Message);
                     _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {Reason:l}. Error message: {msg:l}",
-                        user.Name, _settings.CompanySettings.Domain, result.Reason, ex.Message);
+                        username, _settings.CompanySettings.Domain, result.Reason, ex.Message);
                     return result;
                 }
 
-                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed", user.Name, _settings.CompanySettings.Domain);
+                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed", username, _settings.CompanySettings.Domain);
                 return CredentialVerificationResult.FromUnknowError(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed.", user.Name, _settings.CompanySettings.Domain);
+                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed.", username, _settings.CompanySettings.Domain);
                 return CredentialVerificationResult.FromUnknowError(ex.Message);
             }
         }

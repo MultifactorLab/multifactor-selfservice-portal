@@ -6,6 +6,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exchange
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Google;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
@@ -45,6 +46,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
+                .AddSingleton<LdapConnectionAdapterFactory>()
 
                 .AddTransient<HttpMessageInterceptor>()
                 .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()
