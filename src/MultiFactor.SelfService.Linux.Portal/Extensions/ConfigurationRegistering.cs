@@ -7,7 +7,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     {
         /// <summary>
         /// Loads configuration and adds it as a singletone in the DI container.
-        /// Must be called after the logger is configered (ConfigureLogging()).
+        /// Must be called after the logger is configered (<see cref="Logging.ConfigureLogging(WebApplicationBuilder)"/>).
         /// </summary>
         public static WebApplicationBuilder RegisterConfiguration(this WebApplicationBuilder applicationBuilder)
         {
