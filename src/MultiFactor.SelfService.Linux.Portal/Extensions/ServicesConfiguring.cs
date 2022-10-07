@@ -1,4 +1,5 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
@@ -47,6 +48,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
                 .AddSingleton<LdapConnectionAdapterFactory>()
+                .AddSingleton<LdapBindDnFormatterFactory>()
+                .AddSingleton(services => services.GetRequiredService<LdapBindDnFormatterFactory>().CreateFormatter())
 
                 .AddTransient<HttpMessageInterceptor>()
                 .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()

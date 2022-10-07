@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
@@ -18,18 +19,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         private readonly PortalSettings _settings;
         private readonly IConfiguration _config;
         private readonly ILogger<GetApplicationInfoStory> _logger;
+        private readonly ILdapBindDnFormatter _bindDnFormatter;
 
         public GetApplicationInfoStory(MultiFactorApi api, 
             IWebHostEnvironment env,
             PortalSettings settings, 
             IConfiguration config, 
-            ILogger<GetApplicationInfoStory> logger)
+            ILogger<GetApplicationInfoStory> logger,
+            ILdapBindDnFormatter bindDnFormatter)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
             _env = env ?? throw new ArgumentNullException(nameof(env));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
         }
 
         public async Task<ApplicationInfoDto> ExecuteAsync()
@@ -82,7 +86,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             try
             {
                 var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
-                using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, _settings.TechnicalAccountSettings.Password, _logger);
+                using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, 
+                    _settings.TechnicalAccountSettings.Password,
+                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
                 return ApplicationComponentStatus.Ok;
             }
             catch (Exception ex)

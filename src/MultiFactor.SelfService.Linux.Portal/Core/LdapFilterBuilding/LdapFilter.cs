@@ -3,7 +3,7 @@
 namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
 {
     /// <summary>
-    /// LDAP filter representation.
+    /// API for building ldapsearch filter.
     /// </summary>
     public class LdapFilter : ILdapFilter
     {
@@ -14,16 +14,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
 
         private LdapFilter(string attribute, string value)
         {
-            if (string.IsNullOrEmpty(attribute))
-            {
-                throw new ArgumentException($"'{nameof(attribute)}' cannot be null or empty.", nameof(attribute));
-            }
-
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentException($"'{nameof(value)}' cannot be null or empty.", nameof(value));
-            }
-
             _attribute = attribute;
             _value = value;
         }
@@ -36,20 +26,53 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
         /// </summary>
         /// <param name="attribute">Attribute name.</param>
         /// <param name="value">Attribute value.</param>
+        /// <returns>New LDAP filter.</returns>
         public static ILdapFilter Create(string attribute, string value)
         {
+            if (string.IsNullOrEmpty(attribute))
+            {
+                throw new ArgumentException($"'{nameof(attribute)}' cannot be null or empty.", nameof(attribute));
+            }
+
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentException($"'{nameof(value)}' cannot be null or empty.", nameof(value));
+            }
+
             return new LdapFilter(attribute, value);
         }
 
-        public ILdapFilter And(ILdapFilter filter)
+        /// <summary>
+        /// Returns new filter group with specified multiple values.
+        /// </summary>
+        /// <code>Representation examples:
+        /// (|(<paramref name="attribute"/>=value1)(<paramref name="attribute"/>=value2))
+        /// </code>
+        /// <param name="attribute">Attribute name.</param>
+        /// <param name="values">Possible attribute values.</param>
+        /// <returns>New LDAP filter group.</returns>
+        public static ILdapFilter Create(string attribute, params string[] values)
         {
-            return LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.And).Add(this, filter);
+            if (string.IsNullOrEmpty(attribute)) throw new ArgumentException($"'{nameof(attribute)}' cannot be null or empty.", nameof(attribute));
+            if (values is null) throw new ArgumentNullException(nameof(values));
+            if (!values.Any()) throw new ArgumentException($"'nameof(values)' collection cannot be empty.");
+
+            var group = LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.Or);
+            foreach (var value in values)
+            {
+                group.Add(Create(attribute, value));
+            }
+
+            return group;
         }
 
-        public ILdapFilter Or(ILdapFilter filter)
-        {
-            return LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.Or).Add(this, filter);
-        }
+        public ILdapFilter And(ILdapFilter filter) => LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.And).Add(this, filter);
+        
+        public ILdapFilter And(string attribute, string value) => And(Create(attribute, value));     
+
+        public ILdapFilter Or(ILdapFilter filter) => LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.Or).Add(this, filter);
+        
+        public ILdapFilter Or(string attribute, string value) => Or(Create(attribute, value));      
 
         public ILdapFilter Not()
         {

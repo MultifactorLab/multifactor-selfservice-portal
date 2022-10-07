@@ -86,27 +86,6 @@
             return Name.EndsWith(parent.Name);
         }
 
-        public string FormatBindDn(string ldapUri)
-        {
-            if (Type == IdentityType.UserPrincipalName)
-            {
-                return Name;
-            }
-
-            //try create upn from domain name
-            if (Uri.IsWellFormedUriString(ldapUri, UriKind.Absolute))
-            {
-                var uri = new Uri(ldapUri);
-                if (uri.PathAndQuery != null && uri.PathAndQuery != "/")
-                {
-                    var fqdn = DnToFqdn(uri.PathAndQuery);
-                    return $"{Name}@{fqdn}";
-                }
-            }
-
-            return Name;
-        }
-
         private static LdapIdentity Parse(string name, bool isUser)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));

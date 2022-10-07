@@ -349,3 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /src/MultiFactor.SelfService.Linux.Portal/appsettings.localhost.xml
+/src/MultiFactor.SelfService.Linux.Portal/appsettings.test.xml

@@ -19,6 +19,11 @@
         /// </summary>
         public const string SIGN_UP_GROUPS_REGEX = @"([\wа-я\s\-]+)(\s*;\s*([\wа-я\s\-]+)*)*";
 
+        /// <summary>
+        /// uid=
+        /// </summary>
+        public const string UID_ATTRIBUTE = "uid=";
+
         public static class MultiFactorClaims
         {
             public const string SamlSessionId = "samlSessionId";

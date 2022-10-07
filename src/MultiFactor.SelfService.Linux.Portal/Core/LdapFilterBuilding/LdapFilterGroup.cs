@@ -14,28 +14,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
             Operator = op;
         }
 
-        public static ILdapFilterGroup Create(LdapFilterOperator op)
-        {
-            return new LdapFilterGroup(op);
-        }
-
+        /// <summary>
+        /// Creates and returns the new filter group with the cpecified operator.
+        /// </summary>
+        /// <param name="op">Operator</param>
+        /// <returns>New filter group.</returns>
+        internal static ILdapFilterGroup Create(LdapFilterOperator op) => new LdapFilterGroup(op);
+        
         public ILdapFilter Add(params ILdapFilter[] filters)
         {
             _filters.AddRange(filters);
             return this;
         }
 
-        public ILdapFilter Add(string attribute, string value) => Add(LdapFilter.Create(attribute, value));     
+        public ILdapFilter Add(string attribute, string value) => Add(attribute, value);     
 
-        public ILdapFilter And(ILdapFilter filter)
-        {
-            return new LdapFilterGroup(LdapFilterOperator.And).Add(this, filter);
-        }
+        public ILdapFilter And(ILdapFilter filter) => new LdapFilterGroup(LdapFilterOperator.And).Add(this, filter);
+        
+        public ILdapFilter And(string attribute, string value) => And(attribute, value);
 
-        public ILdapFilter Or(ILdapFilter filter)
-        {
-            return new LdapFilterGroup(LdapFilterOperator.Or).Add(this, filter);
-        }
+        public ILdapFilter Or(ILdapFilter filter) => new LdapFilterGroup(LdapFilterOperator.Or).Add(this, filter);
+
+        public ILdapFilter Or(string attribute, string value) => Or(attribute, value);
 
         public ILdapFilter Not()
         {
@@ -61,15 +61,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
             }
         }
 
-        public ILdapFilter And(string attribute, string value)
-        {
-            throw new NotImplementedException();
-        }
-
         public enum LdapFilterOperator
         {
             /// <summary>
-            /// &
+            /// &amp;
             /// </summary>
             And,
 
