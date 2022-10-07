@@ -1,4 +1,6 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
@@ -9,13 +11,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
         private readonly LdapConnectionAdapterFactory _connectionFactory;
         private readonly PortalSettings _settings;
         private readonly ILogger<ActiveDirectoryCredentialVerifier> _logger;
+        private readonly ILdapBindDnFormatter _bindDnFormatter;
 
         public ActiveDirectoryCredentialVerifier(LdapConnectionAdapterFactory connectionFactory, PortalSettings settings,
-            ILogger<ActiveDirectoryCredentialVerifier> logger)
+            ILogger<ActiveDirectoryCredentialVerifier> logger, ILdapBindDnFormatter bindDnFormatter)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
         }
 
         public async Task<CredentialVerificationResult> VerifyCredentialAsync(string username, string password)
@@ -34,8 +38,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
                 var user = connection.BindedUser;
                 var domain = await connection.WhereAmIAsync();
 
-                var names = new LdapNames(LdapServerType.ActiveDirectory);
-                var profileLoader = new LdapProfileLoader(connection, names, _logger);
+                var profileLoader = new LdapProfileLoader(connection, _bindDnFormatter, _logger);
                 var profile = await profileLoader.LoadProfileAsync(domain, user);
                 if (profile == null)
                 {
@@ -80,6 +83,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Cred
 
                 _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed", username, _settings.CompanySettings.Domain);
                 return CredentialVerificationResult.FromUnknowError(ex.Message);
+            }
+            catch (LdapUserNotFoundException ex)
+            {
+                _logger.LogError(ex, "Verification technical account user at {Domain:l} failed", _settings.CompanySettings.Domain);
+                return CredentialVerificationResult.FromUnknowError("Invalid credentials");
             }
             catch (Exception ex)
             {

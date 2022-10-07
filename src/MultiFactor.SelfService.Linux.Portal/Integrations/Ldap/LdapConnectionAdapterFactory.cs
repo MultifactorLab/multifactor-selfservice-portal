@@ -1,4 +1,5 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
@@ -9,11 +10,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
     {
         private readonly PortalSettings _settings;
         private readonly ILogger<LdapConnectionAdapterFactory> _logger;
+        private readonly ILdapBindDnFormatter _bindDnFormatter;
 
-        public LdapConnectionAdapterFactory(PortalSettings settings, ILogger<LdapConnectionAdapterFactory> logger)
+        public LdapConnectionAdapterFactory(PortalSettings settings, ILogger<LdapConnectionAdapterFactory> logger, ILdapBindDnFormatter bindDnFormatter)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
         }
 
         /// <summary>
@@ -32,28 +35,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             var parsed = LdapIdentity.ParseUser(username);
             if (parsed.Type == IdentityType.UserPrincipalName)
             {
-                return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, parsed, password);
+                return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, parsed, password,
+                    config => config.SetFormatter(_bindDnFormatter));
             }
 
             using var technicalConn = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain,
                     LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User),
                     _settings.TechnicalAccountSettings.Password,
-                    _logger);
+                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
 
             var domain = await technicalConn.WhereAmIAsync();
             var existedUser = await FindUserByUidAsync(username, domain, technicalConn);
             if (existedUser == null) throw new LdapUserNotFoundException($"User with '{username}' does not exist in domain '{_settings.CompanySettings.Domain}'");
 
-            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, _logger);
+            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
         }
 
         private static async Task<LdapIdentity?> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)
         {
             var user = LdapIdentity.ParseUser(username);
-            var filter = LdapFilter.Create("objectclass", "user")
-                    .Or(LdapFilter.Create("objectclass", "person"))
-                    .And(LdapFilter.Create("uid", user.GetUid()).Or(LdapFilter.Create("sAMAccountName", user.GetUid())));
+            var filter = LdapFilter.Create("objectclass", "user").Or("objectclass", "person")
+                    .And(LdapFilter.Create("uid", user.GetUid()).Or("sAMAccountName", user.GetUid()));
 
             var attrs = new[] { "uid", "sAMAccountName" };
             var result = await connection.SearchQueryAsync(domain.Name, filter.Build(), LdapForNet.Native.Native.LdapSearchScope.LDAP_SCOPE_SUBTREE, attrs);

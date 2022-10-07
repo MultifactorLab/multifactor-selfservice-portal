@@ -4,6 +4,7 @@ using LdapForNet;
 using static LdapForNet.Native.Native;
 using FluentValidation;
 using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync
 {
@@ -11,11 +12,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
     {
         private readonly PortalSettings _settings;
         private readonly ILogger<ExchangeActiveSyncDeviceStateChanger> _logger;
+        private readonly ILdapBindDnFormatter _bindDnFormatter;
 
-        public ExchangeActiveSyncDeviceStateChanger(PortalSettings settings, ILogger<ExchangeActiveSyncDeviceStateChanger> logger)
+        public ExchangeActiveSyncDeviceStateChanger(PortalSettings settings, ILogger<ExchangeActiveSyncDeviceStateChanger> logger,
+            ILdapBindDnFormatter bindDnFormatter)
         {
             _settings = settings;
             _logger = logger;
+            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
         }
 
         public async Task ChangeStateAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state)
@@ -26,7 +30,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, techUser, _settings.TechnicalAccountSettings.Password, _logger);
+                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, techUser, 
+                    _settings.TechnicalAccountSettings.Password, 
+                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 // first, we need to update device state and state reason.
                 // modify attributes msExchDeviceAccessState and msExchDeviceAccessStateReason

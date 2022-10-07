@@ -4,7 +4,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
 {
     public static class ClassPropertyAccessor
     {
-        public static string GetPropertyPath<TClass, TProperty>(Expression<Func<TClass, TProperty>> propertySelector, string separator) where TClass : class
+        public static string GetPropertyPath<TClass, TProperty>(Expression<Func<TClass, TProperty>> propertySelector, string separator = ":") where TClass : class
         {
             if (propertySelector is null) throw new ArgumentNullException(nameof(propertySelector));
             if (separator is null) throw new ArgumentNullException(nameof(separator));
