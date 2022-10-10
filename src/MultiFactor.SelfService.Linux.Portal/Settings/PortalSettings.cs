@@ -20,6 +20,6 @@
         public bool EnablePasswordManagement { get; private set; }
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
         public string UICulture { get; private set; }
-        public string LdapBindDn { get; private set; }
+        public string LdapBaseDn { get; private set; }
     }
 }

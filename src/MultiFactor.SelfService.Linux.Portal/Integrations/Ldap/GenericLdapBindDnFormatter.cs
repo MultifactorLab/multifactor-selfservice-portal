@@ -12,16 +12,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public bool BindDnIsDefined => !string.IsNullOrEmpty(_settings.LdapBindDn);
+        public bool BindDnIsDefined => !string.IsNullOrEmpty(_settings.LdapBaseDn);
 
-        public string BindDn => _settings.LdapBindDn;
+        public string BindDn => _settings.LdapBaseDn;
 
         public string FormatBindDn(LdapIdentity user, string ldapUri)
         {
             var bindDn = $"{Core.Constants.UID_ATTRIBUTE}{user.GetUid()}";
-            if (!string.IsNullOrEmpty(_settings.LdapBindDn))
+            if (!string.IsNullOrEmpty(_settings.LdapBaseDn))
             {
-                bindDn += "," + _settings.LdapBindDn;
+                bindDn += "," + _settings.LdapBaseDn;
             }
 
             return bindDn;

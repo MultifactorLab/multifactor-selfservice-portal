@@ -13,9 +13,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public bool BindDnIsDefined => !string.IsNullOrEmpty(_settings.LdapBindDn);
+        public bool BindDnIsDefined => !string.IsNullOrEmpty(_settings.LdapBaseDn);
 
-        public string BindDn => _settings.LdapBindDn;
+        public string BindDn => _settings.LdapBaseDn;
 
         public string FormatBindDn(LdapIdentity user, string ldapUri)
         {

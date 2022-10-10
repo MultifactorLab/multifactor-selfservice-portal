@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 
         public ILdapBindDnFormatter CreateFormatter()
         {
-            if (!string.IsNullOrWhiteSpace(_settings.LdapBindDn))
+            if (!string.IsNullOrWhiteSpace(_settings.LdapBaseDn))
             {
                 return new GenericLdapBindDnFormatter(_settings);
             }
