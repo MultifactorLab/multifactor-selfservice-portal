@@ -137,6 +137,8 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
         -->
       <!-- <SignUpGroups>group names</SignUpGroups>  -->
 	  </GroupPolicyPreset>
+    <!-- FreeIPA supporting -->
+    <!--<LdapBaseDn></LdapBaseDn>-->
 </PortalSettings>
 ```
 If the `UseActiveDirectoryUserPhone` option is enabled, the component will use the phone stored in the **General** tab. All phone number formats are supported.

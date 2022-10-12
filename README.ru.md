@@ -134,6 +134,8 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
       -->
       <!-- <SignUpGroups>group names</SignUpGroups>  -->
 	  </GroupPolicyPreset>
+    <!-- Для подключения к FreeIPA -->
+    <!--<LdapBaseDn></LdapBaseDn>-->
 </PortalSettings>
 ```
 
