@@ -95,6 +95,7 @@
 			<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
 		<!--</GroupPolicyPreset>-->
 
+		<!-- FreeIPA supporting -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
 	</PortalSettings>
 
