@@ -127,6 +127,13 @@
             return Name;
         }
 
+        public bool IsEquivalentTo(LdapIdentity identity)
+        {
+            if (identity == null) return false;
+            if (identity == this) return true;
+            return identity.GetUid().Equals(GetUid(), StringComparison.OrdinalIgnoreCase);
+        }
+
         private static string UpnToUid(string upn)
         {
             if (string.IsNullOrWhiteSpace(upn)) throw new ArgumentException($"'{nameof(upn)}' cannot be null or whitespace.", nameof(upn));
