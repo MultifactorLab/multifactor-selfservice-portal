@@ -2,7 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -14,12 +14,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         private readonly PortalSettings _settings;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly DataProtection _dataProtection;
-        private readonly ActiveDirectoryPasswordChanger _passwordChanger;
+        private readonly PasswordChanger _passwordChanger;
 
         public ChangeExpiredPasswordStory(PortalSettings settings, 
             SafeHttpContextAccessor contextAccessor, 
             DataProtection dataProtection, 
-            ActiveDirectoryPasswordChanger passwordChanger)
+            PasswordChanger passwordChanger)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));

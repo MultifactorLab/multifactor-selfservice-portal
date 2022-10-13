@@ -1,5 +1,6 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
+using MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
@@ -17,7 +18,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
         {
             if (!string.IsNullOrWhiteSpace(_settings.LdapBaseDn))
             {
-                return new GenericLdapBindDnFormatter(_settings);
+                return new IpaLdapBindDnFormatter(_settings);
             }
 
             return new ADLdapBindDnFormatter(_settings);

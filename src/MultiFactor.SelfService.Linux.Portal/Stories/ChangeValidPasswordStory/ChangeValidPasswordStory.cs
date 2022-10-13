@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
@@ -10,10 +10,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
     public class ChangeValidPasswordStory
     {
         private readonly PortalSettings _settings;
-        private readonly ActiveDirectoryPasswordChanger _passwordChanger;
+        private readonly PasswordChanger _passwordChanger;
         private readonly TokenClaimsAccessor _claimsAccessor;
 
-        public ChangeValidPasswordStory(PortalSettings settings, ActiveDirectoryPasswordChanger passwordChanger, TokenClaimsAccessor claimsAccessor)
+        public ChangeValidPasswordStory(PortalSettings settings, PasswordChanger passwordChanger, TokenClaimsAccessor claimsAccessor)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));

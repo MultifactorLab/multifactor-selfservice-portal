@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 {
     public class LdapConnectionAdapter : IDisposable
     {
@@ -58,7 +58,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
             return _connection.SendRequestAsync(request);
         }
 
-        public static async Task<LdapConnectionAdapter> CreateAsync(string uri, LdapIdentity user, string password, 
+        public static async Task<LdapConnectionAdapter> CreateAsync(string uri, LdapIdentity user, string password,
             Action<LdapConnectionAdapterConfigBuilder>? configure)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
@@ -67,9 +67,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 
             var config = new LdapConnectionAdapterConfig();
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
-            
+
             var instance = new LdapConnectionAdapter(uri, user, config);
-            
+
             // fix for tests running.
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -94,7 +94,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 
             var bindDn = config.Formatter.FormatBindDn(user, uri);
             var escapedPwd = EscapePwdString(password);
-      
+
             await instance._connection.BindAsync(LdapAuthType.Simple, new LdapCredential
             {
                 UserName = bindDn,

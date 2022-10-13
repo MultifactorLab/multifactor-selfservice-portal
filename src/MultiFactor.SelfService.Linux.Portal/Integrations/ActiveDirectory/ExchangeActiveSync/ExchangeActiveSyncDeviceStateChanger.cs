@@ -5,6 +5,7 @@ using static LdapForNet.Native.Native;
 using FluentValidation;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync
 {
