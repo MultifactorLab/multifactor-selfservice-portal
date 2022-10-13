@@ -129,6 +129,16 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
        If option not specefied - English.
     -->
     <UICulture>auto:en</UICulture>
+    <GroupPolicyPreset>
+      <!-- 
+        Groups to assign to the registered user. Specified groups will be assigned to a new user.
+        Syntax: group names (from your Management Portal) separated by semicolons.
+        Example: group1;Group Name Two;
+        -->
+      <!-- <SignUpGroups>group names</SignUpGroups>  -->
+	  </GroupPolicyPreset>
+    <!-- FreeIPA supporting -->
+    <!--<LdapBaseDn></LdapBaseDn>-->
 </PortalSettings>
 ```
 If the `UseActiveDirectoryUserPhone` option is enabled, the component will use the phone stored in the **General** tab. All phone number formats are supported.
@@ -331,6 +341,19 @@ Response example:
     "message": "Ok"
 }
 ```
+
+
+## LDAP implementations supporting
+Self Service Portal has been tesed with the folowing implementations:
+ - ActiveDirectory
+ - Samba4
+ - FreeIPA
+### FreeIPA
+For the correct connection you need to set `LdapBaseDn` setting in the configuration file. Example:
+```xml
+<LdapBaseDn>cn=users,cn=accounts,dc=domain,dc=local</LdapBaseDn>
+```
+
 
 ## Use Cases
 

@@ -80,3 +80,8 @@ app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.MapApiEndpoints();
 
 app.Run();
+
+// Needs for tests.
+#pragma warning disable CA1050 // Declare types in namespaces
+public partial class Program {}
+#pragma warning restore CA1050 // Declare types in namespaces

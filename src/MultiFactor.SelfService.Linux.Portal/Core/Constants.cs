@@ -14,6 +14,16 @@
         public const string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
         public const string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";
 
+        /// <summary>
+        /// Group 1; группа 2 ; ГРУППА_3;
+        /// </summary>
+        public const string SIGN_UP_GROUPS_REGEX = @"([\wа-я\s\-]+)(\s*;\s*([\wа-я\s\-]+)*)*";
+
+        /// <summary>
+        /// uid=
+        /// </summary>
+        public const string UID_ATTRIBUTE = "uid=";
+
         public static class MultiFactorClaims
         {
             public const string SamlSessionId = "samlSessionId";

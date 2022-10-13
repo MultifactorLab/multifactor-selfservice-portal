@@ -126,6 +126,16 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
         Если настройку убрать или оставить пустой, бует использоваться English.
         -->
     <UICulture>auto:ru</UICulture>
+    <GroupPolicyPreset>
+      <!-- 
+        Новому пользователю при регистрации будут назначены эти группы. 
+        Формат ввода: имена групп из Админки, разделенные точкой с запятой. 
+        Например: Группа1;группа два;group3
+      -->
+      <!-- <SignUpGroups>group names</SignUpGroups>  -->
+	  </GroupPolicyPreset>
+    <!-- Для подключения к FreeIPA -->
+    <!--<LdapBaseDn></LdapBaseDn>-->
 </PortalSettings>
 ```
 
@@ -331,6 +341,19 @@ sudo journalctl -fu ssp.service
     "message": "Ok"
 }
 ```
+
+
+## Поддержка реализаций LDAP
+Портал протестирован со следующими реализации каталогов:
+ - ActiveDirectory
+ - Samba4
+ - FreeIPA
+### Особенности при работе с FreeIPA
+Для корректного подключения к FreeIPA необходимо в файле конфигурации раскомментировать и заполнить настройку `LdapBaseDn`. Пример:
+```xml
+<LdapBaseDn>cn=users,cn=accounts,dc=domain,dc=local</LdapBaseDn>
+```
+
 
 ## Сценарии использования
 

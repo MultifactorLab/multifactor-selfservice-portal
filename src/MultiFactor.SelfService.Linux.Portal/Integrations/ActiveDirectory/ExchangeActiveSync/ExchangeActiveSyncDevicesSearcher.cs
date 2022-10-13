@@ -1,6 +1,8 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync.Models;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Globalization;
 using static LdapForNet.Native.Native;
@@ -12,14 +14,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         private readonly PortalSettings _settings;
         private readonly DeviceAccessStateNameLocalizer _stateNameLocalizer;
         private readonly ILogger<ExchangeActiveSyncDevicesSearcher> _logger;
+        private readonly ILdapBindDnFormatter _bindDnFormatter;
 
         public ExchangeActiveSyncDevicesSearcher(PortalSettings settings, 
             DeviceAccessStateNameLocalizer stateNameLocalizer, 
-            ILogger<ExchangeActiveSyncDevicesSearcher> logger)
+            ILogger<ExchangeActiveSyncDevicesSearcher> logger,
+            ILdapBindDnFormatter bindDnFormatter)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _stateNameLocalizer = stateNameLocalizer ?? throw new ArgumentNullException(nameof(stateNameLocalizer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _bindDnFormatter = bindDnFormatter;
         }
 
         public async Task<IReadOnlyList<ExchangeActiveSyncDevice>> FindAllByUserAsync(string username)
@@ -34,12 +39,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                 using var connection = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain, 
                     techUser, 
-                    _settings.TechnicalAccountSettings.Password, 
-                    _logger);
+                    _settings.TechnicalAccountSettings.Password,
+                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
 
-                var domain = await connection.WhereAmI();
-                var names = new LdapNames(LdapServerType.ActiveDirectory);
-                var profileLoader = new LdapProfileLoader(connection, names, _logger);
+                var domain = await connection.WhereAmIAsync();
+                var profileLoader = new LdapProfileLoader(connection, _bindDnFormatter, _logger);
                 var profile = await profileLoader.LoadProfileAsync(domain, user);
                 if (profile == null)
                 {
@@ -87,12 +91,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                 using var connection = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain, 
                     techUser, 
-                    _settings.TechnicalAccountSettings.Password, 
-                    _logger);
+                    _settings.TechnicalAccountSettings.Password,
+                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
 
-                var domain = await connection.WhereAmI();
-                var names = new LdapNames(LdapServerType.ActiveDirectory);
-                var profileLoader = new LdapProfileLoader(connection, names, _logger);
+                var domain = await connection.WhereAmIAsync();
+                var profileLoader = new LdapProfileLoader(connection, _bindDnFormatter, _logger);
                 var profile = await profileLoader.LoadProfileAsync(domain, user);
                 if (profile == null)
                 {

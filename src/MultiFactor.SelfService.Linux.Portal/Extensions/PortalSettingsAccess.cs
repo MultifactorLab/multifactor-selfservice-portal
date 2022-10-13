@@ -11,7 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             if (propertySelector is null) throw new ArgumentNullException(nameof(propertySelector));
 
-            var key = ClassPropertyAccessor.GetPropertyPath<PortalSettings, TProperty>(propertySelector, ":");
+            var key = ClassPropertyAccessor.GetPropertyPath(propertySelector, ":");
             return GetConfigValue<TProperty>(config, $"{PortalSettings.SectionName}:{key}");
         }
 

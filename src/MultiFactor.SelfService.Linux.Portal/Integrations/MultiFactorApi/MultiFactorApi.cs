@@ -109,7 +109,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 Email = email,
                 Phone = phone,
                 Claims = claims,
-                Language = Thread.CurrentThread.CurrentCulture?.TwoLetterISOLanguageName
+                Language = Thread.CurrentThread.CurrentCulture?.TwoLetterISOLanguageName,
+                GroupPolicyPreset = new
+                {
+                    SignUpGroups = _settings.GroupPolicyPreset.SignUpGroups
+                }
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
