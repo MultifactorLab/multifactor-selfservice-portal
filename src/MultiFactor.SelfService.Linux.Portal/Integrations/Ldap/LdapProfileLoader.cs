@@ -1,6 +1,7 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 

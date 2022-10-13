@@ -4,8 +4,8 @@ using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
     public class SignInStory
     {
-        private readonly ActiveDirectoryCredentialVerifier _credentialVerifier;
+        private readonly CredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
         private readonly MultiFactorApi _api;
         private readonly SafeHttpContextAccessor _contextAccessor;
@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly IStringLocalizer _localizer;
         private readonly ILogger<SignInStory> _logger;
 
-        public SignInStory(ActiveDirectoryCredentialVerifier credentialVerifier,
+        public SignInStory(CredentialVerifier credentialVerifier,
             DataProtection dataProtection,
             MultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,

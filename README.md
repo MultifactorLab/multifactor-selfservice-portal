@@ -342,6 +342,19 @@ Response example:
 }
 ```
 
+
+## LDAP implementations supporting
+Self Service Portal has been tesed with the folowing implementations:
+ - ActiveDirectory
+ - Samba4
+ - FreeIPA
+### FreeIPA
+For the correct connection you need to set `LdapBaseDn` setting in the configuration file. Example:
+```xml
+<LdapBaseDn>cn=users,cn=accounts,dc=domain,dc=local</LdapBaseDn>
+```
+
+
 ## Use Cases
 
 The portal is used for self-enrollment and registration of the second authentication factor by users within the corporate network. It also acts as a Single Sign-On entry point for corporate SSO applications.
