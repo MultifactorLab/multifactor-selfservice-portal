@@ -14,11 +14,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration
 
         public override void Load()
         {
-            var value = _client.GetAsync(".well-known/jwks.json").Result ?? "{\"keys\":[]}";
-            Data = new Dictionary<string, string>
+            try
             {
-                { Constants.TOKEN_VALIDATION, value }
-            };
+                var value = _client.GetAsync(".well-known/jwks.json").Result ?? "{\"keys\":[]}";
+                Data = new Dictionary<string, string>
+                {
+                    { Constants.TOKEN_VALIDATION, value }
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Unable to retrieve configuration from server: Multifactor API is unreachable", ex);
+            }
         }
     }
 }

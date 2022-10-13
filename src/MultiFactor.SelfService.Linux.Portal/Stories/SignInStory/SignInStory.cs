@@ -4,8 +4,8 @@ using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
     public class SignInStory
     {
-        private readonly ActiveDirectoryCredentialVerifier _credentialVerifier;
+        private readonly CredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
         private readonly MultiFactorApi _api;
         private readonly SafeHttpContextAccessor _contextAccessor;
@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly IStringLocalizer _localizer;
         private readonly ILogger<SignInStory> _logger;
 
-        public SignInStory(ActiveDirectoryCredentialVerifier credentialVerifier,
+        public SignInStory(CredentialVerifier credentialVerifier,
             DataProtection dataProtection,
             MultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
@@ -41,20 +41,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model, SingleSignOnDto sso)
         {
+            var userName = LdapIdentity.ParseUser(model.UserName);
             if (_settings.RequiresUserPrincipalName)
             {
-                // AD requires UPN check
-                var userName = LdapIdentity.ParseUser(model.UserName);
+                // AD requires UPN check      
                 if (userName.Type != IdentityType.UserPrincipalName)
                 {
                     throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
                 }
             }
 
+            var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+            if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
+
             // AD credential check
             var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
             if (adValidationResult.IsAuthenticated)
             {
+                _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName, _settings.CompanySettings.Domain);
                 if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
                     return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = sso.SamlSessionId });
@@ -73,11 +77,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 return new RedirectToActionResult("Change", "ExpiredPassword", new { });
             }
 
+            return await WrongAsync();
+        }
+
+        private async Task<IActionResult> WrongAsync()
+        {
             // Invalid credentials, freeze response for 2-5 seconds to prevent brute-force attacks
             var rnd = new Random();
             int delay = rnd.Next(2, 6);
             await Task.Delay(TimeSpan.FromSeconds(delay));
-
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 

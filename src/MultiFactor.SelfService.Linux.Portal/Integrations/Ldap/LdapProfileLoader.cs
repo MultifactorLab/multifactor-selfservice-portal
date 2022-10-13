@@ -1,4 +1,7 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
@@ -7,23 +10,39 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
     public class LdapProfileLoader
     {
         private readonly LdapConnectionAdapter _connection;
-        private readonly LdapNames _names;
+        private readonly ILdapBindDnFormatter _bindDnFormatter;
         private readonly ILogger _logger;
-        private readonly string[] _queryAttributes = new[] { "DistinguishedName", "displayName", "mail", "telephoneNumber", "mobile" };
+        private readonly string[] _queryAttributes = new[] { "DistinguishedName", "displayName", "mail", "telephoneNumber", "mobile", "memberOf" };
 
-        public LdapProfileLoader(LdapConnectionAdapter connection, LdapNames names, ILogger logger)
+        public LdapProfileLoader(LdapConnectionAdapter connection, ILdapBindDnFormatter bindDnFormatter, ILogger logger)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            _names = names ?? throw new ArgumentNullException(nameof(names));
+            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<LdapProfile?> LoadProfileAsync(LdapIdentity domain, LdapIdentity user)
+        public async Task<LdapProfile?> LoadProfileAsync(LdapDomain domain, LdapIdentity user)
         {
-            var searchFilter = $"(&(objectClass={_names.UserClass})({_names.Identity(user)}={user.Name}))";
+            var searchFilter = LdapFilter.Create("objectClass", "user", "person");
+            if (user.Type == IdentityType.UserPrincipalName && !_bindDnFormatter.BindDnIsDefined)
+            {
+                searchFilter = searchFilter.And(LdapFilter.Create("userPrincipalName", user.Name));
+            }
+            else if (_bindDnFormatter.BindDnIsDefined)
+            {
+                searchFilter = searchFilter.And(LdapFilter.Create("uid", $"{user.GetUid()}"));
+            } 
+            else if (user.Type == IdentityType.Uid)
+            {
+                searchFilter = searchFilter.And(LdapFilter.Create("uid", user.Name).Or("sAMAccountName", user.Name));
+            }
+            else
+            {
+                throw new NotImplementedException($"Unexpected user identity type: {user.Type}");
+            }
 
             _logger.LogDebug("Querying user '{user:l}' in {domain:l}", user, domain);
-            var response = await _connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, _queryAttributes);
+            var response = await _connection.SearchQueryAsync(domain.Name, searchFilter.Build(), LdapSearchScope.LDAP_SCOPE_SUB, _queryAttributes);
 
             var entry = response.SingleOrDefault();
             if (entry == null)
@@ -56,15 +75,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
                 builder.SetMobile(mobileAttr.GetValue<string>());
             }
 
-            var allGroups = await GetAllUserGroups(domain, entry.Dn);
-            builder.AddMemberOfValues(allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray());
+            if (attributes.TryGetValue("memberOf", out var memberOfAttr))
+            {
+                builder.AddMemberOfValues(memberOfAttr.GetValues<string>()
+                    .Select(entry => LdapIdentity.DnToCn(entry)).ToArray());
+            }
+            else
+            {
+                var allGroups = await GetAllUserGroups(domain, entry.Dn);
+                builder.AddMemberOfValues(allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray());
+            }
 
             _logger.LogDebug("User '{user:l}' profile loaded: {DN:l}", user, entry.Dn);
 
             return builder.Build();
         }
 
-        private Task<IList<LdapEntry>> GetAllUserGroups(LdapIdentity domain, string distinguishedName)
+        private Task<IList<LdapEntry>> GetAllUserGroups(LdapDomain domain, string distinguishedName)
         {
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
             var searchFilter = $"(member:1.2.840.113556.1.4.1941:={escaped})";

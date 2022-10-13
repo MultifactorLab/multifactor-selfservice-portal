@@ -86,27 +86,6 @@
             return Name.EndsWith(parent.Name);
         }
 
-        public string FormatBindDn(string ldapUri)
-        {
-            if (Type == IdentityType.UserPrincipalName)
-            {
-                return Name;
-            }
-
-            //try create upn from domain name
-            if (Uri.IsWellFormedUriString(ldapUri, UriKind.Absolute))
-            {
-                var uri = new Uri(ldapUri);
-                if (uri.PathAndQuery != null && uri.PathAndQuery != "/")
-                {
-                    var fqdn = DnToFqdn(uri.PathAndQuery);
-                    return $"{Name}@{fqdn}";
-                }
-            }
-
-            return Name;
-        }
-
         private static LdapIdentity Parse(string name, bool isUser)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
@@ -133,9 +112,36 @@
             return new LdapIdentity(identity, isUser ? IdentityType.Uid : IdentityType.Cn);
         }
 
+        public string GetUid()
+        {
+            switch (Type)
+            {
+                case IdentityType.Uid: return Name;
+                case IdentityType.UserPrincipalName: return UpnToUid(Name);
+                default: throw new InvalidOperationException("Identity should be of type UID or UPN");
+            }
+        }
+
         public override string ToString()
         {
             return Name;
+        }
+
+        public bool IsEquivalentTo(LdapIdentity identity)
+        {
+            if (identity == null) return false;
+            if (identity == this) return true;
+            return identity.GetUid().Equals(GetUid(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string UpnToUid(string upn)
+        {
+            if (string.IsNullOrWhiteSpace(upn)) throw new ArgumentException($"'{nameof(upn)}' cannot be null or whitespace.", nameof(upn));
+
+            var index = upn.IndexOf('@');
+            if (index == -1) throw new InvalidOperationException("Identity should be of UPN type");
+
+            return upn.Substring(0, index);
         }
     }
 }

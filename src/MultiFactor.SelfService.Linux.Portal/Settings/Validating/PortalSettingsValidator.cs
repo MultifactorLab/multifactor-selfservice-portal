@@ -2,6 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -61,6 +62,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     var uri = new Uri(model.CompanySettings.Domain);
                     return uri.Scheme == "ldaps";
                 }).WithMessage($"Need secure connection for password management. Please check '{GetPropPath(x => x.CompanySettings.Domain)}' settings property or disable password management ('{nameof(PortalSettings.EnablePasswordManagement)}' property).");
+
+                RuleFor(x => x.GroupPolicyPreset).Must((model, value) =>
+                {
+                    if (value == null || string.IsNullOrWhiteSpace(value.SignUpGroups)) return true;
+                    return Regex.IsMatch(value.SignUpGroups, Constants.SIGN_UP_GROUPS_REGEX, RegexOptions.IgnoreCase);
+                }).WithMessage($"Invalid group names. Please check '{GetPropPath(p => p.GroupPolicyPreset.SignUpGroups)}' settings property and fix syntax errors.");
             }
 
             private static string GetErrorMessage<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)
