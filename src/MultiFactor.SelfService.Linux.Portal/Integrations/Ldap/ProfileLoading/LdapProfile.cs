@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
+﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 {
     public class LdapProfile
     {

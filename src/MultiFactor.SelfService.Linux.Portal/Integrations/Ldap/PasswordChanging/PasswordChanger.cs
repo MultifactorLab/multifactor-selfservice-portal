@@ -3,6 +3,7 @@ using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
 
@@ -14,15 +15,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
         private readonly PortalSettings _settings;
         private readonly ILogger<PasswordChanger> _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
-        private readonly ILdapBindDnFormatter _bindDnFormatter;
+        private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly IPasswordAttributeReplacer _passwordAttributeReplacer;
+        private readonly LdapProfileLoader _profileLoader;
 
         public PasswordChanger(LdapConnectionAdapterFactory connectionFactory, 
             PortalSettings settings,
             ILogger<PasswordChanger> logger, 
             IStringLocalizer<SharedResource> localizer,
-            ILdapBindDnFormatter bindDnFormatter,
-            IPasswordAttributeReplacer passwordAttributeReplacer)
+            IBindIdentityFormatter bindDnFormatter,
+            IPasswordAttributeReplacer passwordAttributeReplacer,
+            LdapProfileLoader profileLoader)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -30,6 +33,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
             _passwordAttributeReplacer = passwordAttributeReplacer ?? throw new ArgumentNullException(nameof(passwordAttributeReplacer));
+            _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
         }
 
         public Task<PasswordChangingResult> ChangeValidPasswordAsync(string username, string currentPassword, string newPassword)
@@ -63,7 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
                     _settings.CompanySettings.Domain,
                     techUser,
                     _settings.TechnicalAccountSettings.Password,
-                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }
@@ -96,8 +100,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
         private async Task<PasswordChangingResult> ChangePasswordAsync(LdapIdentity user, string newPassword, LdapConnectionAdapter connection)
         {
             var domain = await connection.WhereAmIAsync();
-            var profileLoader = new LdapProfileLoader(connection, _bindDnFormatter, _logger);
-            var profile = await profileLoader.LoadProfileAsync(domain, user);
+            var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
             if (profile == null)
             {
                 return new PasswordChangingResult(false, "AD.UnableToChangePassword");

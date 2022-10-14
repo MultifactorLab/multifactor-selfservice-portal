@@ -1,5 +1,4 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
-using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
@@ -9,6 +8,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
@@ -48,6 +48,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
+
+                .AddSingleton<LdapServerInfoFactory>()
+                .AddSingleton(services =>
+                {
+                    var infoTask = services.GetRequiredService<LdapServerInfoFactory>().CreateServerInfoAsync();
+                    return infoTask.Result;
+                })
+
                 .AddSingleton<LdapConnectionAdapterFactory>()
 
                 .AddSingleton<LdapBindDnFormatterFactory>()
@@ -55,6 +63,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                 .AddSingleton<PasswordAttributeReplacerFactory>()
                 .AddSingleton(services => services.GetRequiredService<PasswordAttributeReplacerFactory>().CreateReplacer())
+
+                .AddSingleton<LdapProfileFilterProvider>()
+                .AddSingleton<LdapProfileLoader>()
 
                 .AddTransient<HttpMessageInterceptor>()
                 .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()
