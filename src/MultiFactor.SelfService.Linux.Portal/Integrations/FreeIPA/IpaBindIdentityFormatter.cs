@@ -4,23 +4,23 @@ using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA
 {
-    public class IpaLdapBindDnFormatter : ILdapBindDnFormatter
+    public class IpaBindIdentityFormatter : IBindIdentityFormatter
     {
         private readonly PortalSettings _settings;
 
-        public IpaLdapBindDnFormatter(PortalSettings settings)
+        public IpaBindIdentityFormatter(PortalSettings settings)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public bool BindDnIsDefined => !string.IsNullOrEmpty(_settings.LdapBaseDn);
+        public bool BaseDnIsDefined => !string.IsNullOrEmpty(_settings.LdapBaseDn);
 
-        public string BindDn => _settings.LdapBaseDn;
+        public string BaseDn => _settings.LdapBaseDn;
 
-        public string FormatBindDn(LdapIdentity user, string ldapUri)
+        public string FormatIdentity(LdapIdentity user, string ldapUri)
         {
-            var bindDn = $"{Core.Constants.UID_ATTRIBUTE}{user.GetUid()}";
-            if (!string.IsNullOrEmpty(_settings.LdapBaseDn))
+            var bindDn = $"uid={user.GetUid()}";
+            if (BaseDnIsDefined)
             {
                 bindDn += "," + _settings.LdapBaseDn;
             }

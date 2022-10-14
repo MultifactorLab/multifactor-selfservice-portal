@@ -1,21 +1,22 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
+﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA;
-using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging
 {
     public class PasswordAttributeReplacerFactory
     {
-        private readonly PortalSettings _settings;
+        private readonly LdapServerInfo _serverInfo;
 
-        public PasswordAttributeReplacerFactory(PortalSettings settings)
+        public PasswordAttributeReplacerFactory(LdapServerInfo serverInfo)
         {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
         }
 
         public IPasswordAttributeReplacer CreateReplacer()
         {
-            if (!string.IsNullOrWhiteSpace(_settings.LdapBaseDn))
+            if (_serverInfo.Implementation == LdapImplementation.FreeIPA)
             {
                 return new IpaPasswordAttributeReplacer();
             }

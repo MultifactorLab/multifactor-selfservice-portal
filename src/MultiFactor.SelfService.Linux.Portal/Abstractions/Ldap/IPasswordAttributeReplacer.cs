@@ -1,6 +1,6 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging
+namespace MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap
 {
     public interface IPasswordAttributeReplacer
     {

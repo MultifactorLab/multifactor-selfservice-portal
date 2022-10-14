@@ -4,7 +4,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 {
     public class LdapConnectionAdapterConfig
     {
-        public ILdapBindDnFormatter Formatter { get; set; } = new DefaultLdapBindDnFormatter();
+        public IBindIdentityFormatter BindIdentityFormatter { get; set; } = new DefaultBindIdentityFormatter();
+        public IBindPasswordFormatter BindPasswordFormatter { get; set; } = new DefaultBindPasswordFormatter();
         public ILogger? Logger { get; set; }
     }
 }

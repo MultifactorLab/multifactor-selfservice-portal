@@ -10,9 +10,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
     {
         private readonly PortalSettings _settings;
         private readonly ILogger<LdapConnectionAdapterFactory> _logger;
-        private readonly ILdapBindDnFormatter _bindDnFormatter;
+        private readonly IBindIdentityFormatter _bindDnFormatter;
 
-        public LdapConnectionAdapterFactory(PortalSettings settings, ILogger<LdapConnectionAdapterFactory> logger, ILdapBindDnFormatter bindDnFormatter)
+        public LdapConnectionAdapterFactory(PortalSettings settings, 
+            ILogger<LdapConnectionAdapterFactory> logger, 
+            IBindIdentityFormatter bindDnFormatter)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -36,20 +38,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             if (parsed.Type == IdentityType.UserPrincipalName)
             {
                 return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, parsed, password,
-                    config => config.SetFormatter(_bindDnFormatter));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter));
             }
 
             using var technicalConn = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain,
                     LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User),
                     _settings.TechnicalAccountSettings.Password,
-                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
             var domain = await technicalConn.WhereAmIAsync();
             var existedUser = await FindUserByUidAsync(username, domain, technicalConn);
             if (existedUser == null) throw new LdapUserNotFoundException($"User with '{username}' does not exist in domain '{_settings.CompanySettings.Domain}'");
 
-            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
         }
 
         private static async Task<LdapIdentity?> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)
