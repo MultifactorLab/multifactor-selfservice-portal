@@ -19,6 +19,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA
 
         public string FormatIdentity(LdapIdentity user, string ldapUri)
         {
+            if (user.Type == IdentityType.DistinguishedName)
+            {
+                return user.Name;
+            }
             var bindDn = $"uid={user.GetUid()}";
             if (BaseDnIsDefined)
             {

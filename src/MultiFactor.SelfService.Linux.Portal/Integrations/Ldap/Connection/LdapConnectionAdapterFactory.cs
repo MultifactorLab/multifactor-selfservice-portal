@@ -41,17 +41,31 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                     config => config.SetBindIdentityFormatter(_bindDnFormatter));
             }
 
-            using var technicalConn = await LdapConnectionAdapter.CreateAsync(
-                    _settings.CompanySettings.Domain,
-                    LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User),
-                    _settings.TechnicalAccountSettings.Password,
-                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
-
+            using var technicalConn = await CreateAdapterAsTechnicalAccAsync();
+            
             var domain = await technicalConn.WhereAmIAsync();
             var existedUser = await FindUserByUidAsync(username, domain, technicalConn);
-            if (existedUser == null) throw new LdapUserNotFoundException($"User with '{username}' does not exist in domain '{_settings.CompanySettings.Domain}'");
+            if (existedUser == null) throw new LdapUserNotFoundException(username, _settings.CompanySettings.Domain);
 
             return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
+               
+        }
+
+        public async Task<LdapConnectionAdapter> CreateAdapterAsTechnicalAccAsync()
+        {
+            try
+            {
+                var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+                return await LdapConnectionAdapter.CreateAsync(
+                    _settings.CompanySettings.Domain,
+                    user,
+                    _settings.TechnicalAccountSettings.Password,
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
+            }
+            catch (Exception ex)
+            {
+                throw new TechnicalAccountErrorException(_settings.TechnicalAccountSettings.User, _settings.CompanySettings.Domain, ex);
+            }
         }
 
         private static async Task<LdapIdentity?> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)
@@ -60,13 +74,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var filter = LdapFilter.Create("objectclass", "user").Or("objectclass", "person")
                     .And(LdapFilter.Create("uid", user.GetUid()).Or("sAMAccountName", user.GetUid()));
 
-            var attrs = new[] { "uid", "sAMAccountName" };
+            var attrs = new[] { "uid", "sAMAccountName", "distinguishedName" };
             var result = await connection.SearchQueryAsync(domain.Name, filter.Build(), LdapForNet.Native.Native.LdapSearchScope.LDAP_SCOPE_SUBTREE, attrs);
 
             var entry = result.FirstOrDefault();
-            if (entry == null) return null;
+            if (entry == null) return null; 
 
-            var attrValue = GetAnyAttrValue(entry, attrs);
+            var attrValue = GetAnyAttrValue(entry, "uid", "sAMAccountName");
             if (attrValue == null) throw new Exception($"No attribute of ({string.Join(',', attrs)}) was found in the SEARCH response");
 
             return LdapIdentity.ParseUser(attrValue);

@@ -131,6 +131,14 @@
         {
             if (identity == null) return false;
             if (identity == this) return true;
+            if (identity.Type == IdentityType.DistinguishedName && Type == IdentityType.DistinguishedName)
+            {
+                return identity.Name.Equals(Name, StringComparison.OrdinalIgnoreCase);
+            }
+            else if (identity.Type == IdentityType.DistinguishedName || Type == IdentityType.DistinguishedName)
+            {
+                return false;
+            }
             return identity.GetUid().Equals(GetUid(), StringComparison.OrdinalIgnoreCase);
         }
 
