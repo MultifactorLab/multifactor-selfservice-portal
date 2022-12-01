@@ -43,7 +43,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             if (newPassword is null) throw new ArgumentNullException(nameof(newPassword));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
 
             return TryExecuteAsync(async () =>
             {
@@ -59,15 +58,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             if (newPassword is null) throw new ArgumentNullException(nameof(newPassword));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
 
             return TryExecuteAsync(async () =>
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(
-                    _settings.CompanySettings.Domain,
-                    techUser,
-                    _settings.TechnicalAccountSettings.Password,
-                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
+                using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }
@@ -77,22 +71,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             try
             {
                 var res = await action();
-                _logger.LogInformation("Password changed for user '{user:l}'", identity.Name);
+                _logger.LogInformation("Password changed for user '{user}'", identity);
                 return res;
             }
             catch (LdapUnwillingToPerformException ex)
             {
-                _logger.LogWarning("Changing password for user '{identity:l}' failed: {message:l}, {result:l}", identity.Name, ex.Message, ex.HResult);
+                _logger.LogWarning("Changing password for user '{identity}' failed: {message:l}, {result:l}", 
+                    identity, ex.Message, ex.HResult);
                 return new PasswordChangingResult(false, _localizer.GetString("AD.PasswordDoesNotMeetRequirements"));
-            }
-            catch (LdapUserNotFoundException ex)
-            {
-                _logger.LogError(ex, "Verification technical account user at {Domain:l} failed", _settings.CompanySettings.Domain);
-                return new PasswordChangingResult(false, _localizer.GetString("AD.UnableToChangePassword"));
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("Changing password for user '{identity:l}' failed: {message:l}", identity.Name, ex.Message);
+                _logger.LogWarning("Changing password for user '{identity}' failed: {message:l}", 
+                    identity, ex.Message);
                 return new PasswordChangingResult(false, _localizer.GetString("AD.UnableToChangePassword"));
             }
         }

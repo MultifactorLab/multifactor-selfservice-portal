@@ -80,17 +80,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     return result;
                 }
 
-                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed", username, _settings.CompanySettings.Domain);
+                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}", 
+                    username, _settings.CompanySettings.Domain, ex.Message);
                 return CredentialVerificationResult.FromUnknowError(ex.Message);
             }
-            catch (LdapUserNotFoundException ex)
+            catch (Exception ex) when (ex is TechnicalAccountErrorException || ex is LdapUserNotFoundException)
             {
-                _logger.LogError(ex, "Verification technical account user at {Domain:l} failed", _settings.CompanySettings.Domain);
+                _logger.LogError(ex, "Verification user '{user}' at {Domain:l} failed: {msg:l}", 
+                    username, _settings.CompanySettings.Domain, ex.Message);
                 return CredentialVerificationResult.FromUnknowError("Invalid credentials");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed.", username, _settings.CompanySettings.Domain);
+                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}", 
+                    username, _settings.CompanySettings.Domain, ex.Message);
                 return CredentialVerificationResult.FromUnknowError(ex.Message);
             }
         }

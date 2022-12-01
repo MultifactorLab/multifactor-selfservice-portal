@@ -3,11 +3,12 @@
     [Serializable]
     internal class LdapUserNotFoundException : Exception
     {
-        public LdapUserNotFoundException() { }
 
-        public LdapUserNotFoundException(string message) : base(message) { }
+        public LdapUserNotFoundException(string user, string domain) 
+            : base($"User '{user}' not found at domain '{domain}'") { }
 
-        public LdapUserNotFoundException(string message, string viewName, Exception inner) : base(message, inner) { }
+        public LdapUserNotFoundException(string user, string domain, Exception inner) 
+            : base($"User '{user}' not found at domain '{domain}': {inner.Message}", inner) { }
 
         protected LdapUserNotFoundException(
           System.Runtime.Serialization.SerializationInfo info,
