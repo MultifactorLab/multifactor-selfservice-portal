@@ -4,6 +4,8 @@
     {
         [ConfigurationKeyName(nameof(Claim))]
         public List<Claim> Claims { get; private set; } = new List<Claim>();
+
+        public bool Log { get; private set; }
     }
 
     public class Claim

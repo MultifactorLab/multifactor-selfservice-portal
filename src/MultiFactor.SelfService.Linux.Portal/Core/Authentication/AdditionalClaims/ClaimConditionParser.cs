@@ -32,9 +32,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
 
         private static IClaimValueSource GetOperandSource(string value)
         {
-            if (value.StartsWith("'") && value.EndsWith("'"))
+            var leftB = value.IndexOf("'");
+            var rightB = value.LastIndexOf("'");
+            if (leftB == 0 && rightB == value.Length - 1 && value.Length > 2)
             {
-                return new LiteralClaimValueSource(value);
+                return new LiteralClaimValueSource(value.Substring(1, rightB - 1));
             }
 
             if (ApplicationGlobalValuesMetadata.HasKey(value))

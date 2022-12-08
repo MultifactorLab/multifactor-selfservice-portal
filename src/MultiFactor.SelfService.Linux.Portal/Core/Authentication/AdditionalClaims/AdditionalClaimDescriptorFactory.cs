@@ -10,14 +10,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
         public static AdditionalClaimDescriptor Create(Claim claim)
         {
             if (claim is null) throw new ArgumentNullException(nameof(claim));
-
-            if (string.IsNullOrWhiteSpace(claim.Name)) throw new InvalidClaimDescriptionException(claim.Name);
+            var name = (claim.Name ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(name)) throw new InvalidClaimDescriptionException(claim.Name);
 
             var source = GetSource(claim);
             var condition = !string.IsNullOrWhiteSpace(claim.When) 
-                ? ClaimConditionParser.Parse(claim.When)
+                ? ClaimConditionParser.Parse(claim.When.Trim())
                 : null;
-            return new AdditionalClaimDescriptor(claim.Name, source, condition);
+            return new AdditionalClaimDescriptor(name, source, condition);
         }
 
         private static IClaimValueSource GetSource(Claim claim)

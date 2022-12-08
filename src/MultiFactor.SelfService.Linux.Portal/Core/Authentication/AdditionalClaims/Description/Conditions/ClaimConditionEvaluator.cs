@@ -19,21 +19,12 @@
         public bool Evaluate(ClaimCondition condition)
         {
             var leftValue = condition.LeftOperand.GetValues(_claimValuesContext);
-            if (leftValue.Count == 0)
-            {
-                _logger.LogDebug("Empty left value found while evaluating condition of claim");
-            }
-
             var rightValue = condition.RightOperand.GetValues(_claimValuesContext);
-            if (rightValue.Count == 0)
-            {
-                _logger.LogDebug("Empty right value found while evaluating condition of claim");
-            }
 
             switch (condition.Operation)
             {
                 case ClaimsConditionOperation.Eq:
-                    return leftValue.All(x => rightValue.Contains(x, new OrdinalIgnoreCaseStringComparer()));
+                    return rightValue.All(x => leftValue.Contains(x, new OrdinalIgnoreCaseStringComparer()));
 
                 default:
                     _logger.LogDebug("Not supported claim condition operation: {op}", condition.Operation);
