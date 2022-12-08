@@ -25,6 +25,9 @@
             {
                 case ClaimsConditionOperation.Eq:
                     return rightValue.All(x => leftValue.Contains(x, new OrdinalIgnoreCaseStringComparer()));
+                
+                case ClaimsConditionOperation.In:
+                    return leftValue.All(x => rightValue.Contains(x, new OrdinalIgnoreCaseStringComparer()));
 
                 default:
                     _logger.LogDebug("Not supported claim condition operation: {op}", condition.Operation);

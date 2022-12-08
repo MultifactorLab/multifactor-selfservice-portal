@@ -14,21 +14,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         [InlineData("value=")]
         [InlineData("=")]
         [InlineData("=value")]
+        [InlineData("~value")]
+        [InlineData("value~")]
+        [InlineData("~")]
         public void Parse_InvalidValue_ShouldThrow(string value)
         {
             var ex = Assert.Throws<InvalidClaimConditionException>(() => ClaimConditionParser.Parse(value));
             Assert.Equal($"Invalid expression: {value}", ex.Message);
         }
 
-        [Fact]
-        public void Parse_CorrectValue_ShouldReturnConditionObject()
+        [Theory]
+        [InlineData("'value'='value'")]
+        [InlineData("'value'~attr")]
+        public void Parse_CorrectValue_ShouldReturnConditionObject(string expression)
         {
-            var cond = ClaimConditionParser.Parse("value=value");
+            var cond = ClaimConditionParser.Parse(expression);
             Assert.NotNull(cond);
         }
         
         [Theory]
         [InlineData("=", ClaimsConditionOperation.Eq)]
+        [InlineData("~", ClaimsConditionOperation.In)]
         public void Parse_CorrectValue_ShouldReturnCorrectOperation(string opString, ClaimsConditionOperation parsed)
         {
             var cond = ClaimConditionParser.Parse($"value{opString}value");

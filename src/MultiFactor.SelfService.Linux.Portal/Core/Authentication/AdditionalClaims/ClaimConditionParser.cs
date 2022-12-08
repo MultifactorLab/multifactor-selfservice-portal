@@ -1,6 +1,7 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.AdditionalClaimValueSources;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description.Conditions;
 using MultiFactor.SelfService.Linux.Portal.Core.Metadata.GlobalValues;
+using System.Linq.Expressions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims
 {
@@ -16,8 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
         {
             if (string.IsNullOrWhiteSpace(expression)) throw new InvalidClaimConditionException(expression);
 
-            var index = expression.IndexOf('=');
-            if (index == -1) throw new InvalidClaimConditionException(expression);
+            var (op, index) = ParseOp(expression);
 
             var leftPart = expression.Substring(0, index);
             var rightPart = expression.Substring(index + 1);
@@ -27,7 +27,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
             var left = GetOperandSource(leftPart);
             var right = GetOperandSource(rightPart);
 
-            return new ClaimCondition(left, right, ClaimsConditionOperation.Eq);
+            return new ClaimCondition(left, right, op);
+        }
+
+        private static (ClaimsConditionOperation op, int index) ParseOp(string expression)
+        {
+            int index = expression.IndexOf('=');
+            if (index != -1) return (ClaimsConditionOperation.Eq, index);
+
+            index = expression.IndexOf('~');
+            if (index != -1)
+            {
+                return (ClaimsConditionOperation.In, index);
+            }
+            
+            throw new InvalidClaimConditionException(expression);
         }
 
         private static IClaimValueSource GetOperandSource(string value)

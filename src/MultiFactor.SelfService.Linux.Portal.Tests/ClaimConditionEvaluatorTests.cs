@@ -31,20 +31,41 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         }
         
         [Theory]
-        [InlineData("", "uid", new[] { "" })]
-        [InlineData("u.user", "uid", new[] { "U.USER" })]
-        [InlineData("vpn users", "memberOf", new[] { "Users", "VPN Users", "Domain Users" })]
-        public void Evaluate_EqOperationWithLiteralAndAttr_ShouldReturnTrue(string lit, string attr, IReadOnlyList<string> attrValues)
+        [InlineData("uid", "", new[] { "" })]
+        [InlineData("uid", "u.user", new[] { "U.USER" })]
+        [InlineData("memberOf", "vpn users", new[] { "Users", "VPN Users", "Domain Users" })]
+        public void Evaluate_EqOperationWithLiteralAndAttr_ShouldReturnTrue(string attr, string lit, IReadOnlyList<string> attrValues)
         {
             var ctxMock = new Mock<IApplicationValuesContext>();
             ctxMock.Setup(x => x[It.Is<string>(v => v == attr)]).Returns(attrValues);
 
             var loggerMock = new Mock<ILogger<ClaimConditionEvaluator>>();
             var evaluator = new ClaimConditionEvaluator(ctxMock.Object, loggerMock.Object);
-            var condition = new ClaimCondition(
-                new LiteralClaimValueSource(lit), 
-                new AttributeClaimValueSource(attr), 
+            var condition = new ClaimCondition( 
+                new AttributeClaimValueSource(attr),
+                new LiteralClaimValueSource(lit),
                 ClaimsConditionOperation.Eq);
+
+            var result = evaluator.Evaluate(condition);
+
+            Assert.True(result);
+        }
+        
+        [Theory]
+        [InlineData("", "uid", new[] { "" })]
+        [InlineData("u.user", "uid", new[] { "U.USER" })]
+        [InlineData("vpn users", "memberOf", new[] { "Users", "VPN Users", "Domain Users" })]
+        public void Evaluate_InOperationWithLiteralAndAttr_ShouldReturnTrue(string lit, string attr, IReadOnlyList<string> attrValues)
+        {
+            var ctxMock = new Mock<IApplicationValuesContext>();
+            ctxMock.Setup(x => x[It.Is<string>(v => v == attr)]).Returns(attrValues);
+
+            var loggerMock = new Mock<ILogger<ClaimConditionEvaluator>>();
+            var evaluator = new ClaimConditionEvaluator(ctxMock.Object, loggerMock.Object);
+            var condition = new ClaimCondition( 
+                new LiteralClaimValueSource(lit),
+                new AttributeClaimValueSource(attr),
+                ClaimsConditionOperation.In);
 
             var result = evaluator.Evaluate(condition);
 
@@ -52,7 +73,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "vpn users", "domain Users" }, new[] { "Users", "VPN Users", "Domain Users" })]
+        [InlineData(new[] { "Users", "VPN Users", "Domain Users" }, new[] { "vpn users", "domain Users" })]
         public void Evaluate_EqOperationWithAttrsAndAttrs_ShouldReturnTrue(IReadOnlyList<string> leftValues, IReadOnlyList<string> rightValues)
         {
             var ctxMock = new Mock<IApplicationValuesContext>();
