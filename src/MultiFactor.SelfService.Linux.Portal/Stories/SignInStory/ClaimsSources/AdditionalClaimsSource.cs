@@ -8,8 +8,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
 {
     public class AdditionalClaimsSource : IClaimsSource
     {
-        private const string _additionalClaimTypePrefix = "ssp:";
-
         private readonly AdditionalClaimsMetadata _additionalClaimsMetadata;
         private readonly IApplicationValuesContext _claimValuesContext;
         private readonly ClaimConditionEvaluator _conditionEvaluator;
@@ -30,7 +28,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
         {
             var claims = new Dictionary<string, string>();
             Log($"Try to consume additional claims: {string.Join(", ", _additionalClaimsMetadata.Descriptors.Select(x => x.Name))}");
-            Log($"Additional claims prefix: '{_additionalClaimTypePrefix}'");
 
             foreach (var descriptor in _additionalClaimsMetadata.Descriptors)
             {
@@ -39,7 +36,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
                 if (descriptor.Condition == null)
                 {
                     var value = GetValue(descriptor.Source.GetValues(_claimValuesContext));
-                    claims[$"{_additionalClaimTypePrefix}{descriptor.Name}"] = value;
+                    claims[descriptor.Name] = value;
                     Log($"Claim {{Type: '{descriptor.Name}', Value: '{value}'}} was added");
                     continue;
                 } 
@@ -49,7 +46,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
                 if (result)
                 {
                     var value = GetValue(descriptor.Source.GetValues(_claimValuesContext));
-                    claims[$"{_additionalClaimTypePrefix}{descriptor.Name}"] = value;
+                    claims[descriptor.Name] = value;
                     Log($"Claim {{Type: '{descriptor.Name}', Value: '{value}'}} was added");
                 }           
             }
