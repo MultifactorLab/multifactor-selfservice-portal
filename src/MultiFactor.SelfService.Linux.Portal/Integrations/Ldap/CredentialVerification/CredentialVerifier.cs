@@ -1,4 +1,6 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
@@ -6,22 +8,36 @@ using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification
 {
+    /// <summary>
+    /// First factor credentials verifier.
+    /// </summary>
     public class CredentialVerifier
     {
         private readonly LdapConnectionAdapterFactory _connectionFactory;
         private readonly PortalSettings _settings;
         private readonly ILogger<CredentialVerifier> _logger;
         private readonly LdapProfileLoader _profileLoader;
+        private readonly SafeHttpContextAccessor _httpContextAccessor;
 
-        public CredentialVerifier(LdapConnectionAdapterFactory connectionFactory, PortalSettings settings,
-            ILogger<CredentialVerifier> logger, LdapProfileLoader profileLoader)
+        public CredentialVerifier(LdapConnectionAdapterFactory connectionFactory, 
+            PortalSettings settings,
+            ILogger<CredentialVerifier> logger, LdapProfileLoader profileLoader,
+            SafeHttpContextAccessor httpContextAccessor)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
+        /// <summary>
+        /// Checks credentials and set CredentialVerificationResult to the HttpContext.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task<CredentialVerificationResult> VerifyCredentialAsync(string username, string password)
         {
             if (username is null) throw new ArgumentNullException(nameof(username));
@@ -43,6 +59,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 {
                     return CredentialVerificationResult.FromUnknowError("Unable to load profile");
                 }
+
+                _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
 
                 if (!string.IsNullOrEmpty(_settings.ActiveDirectorySettings.SecondFactorGroup))
                 {
@@ -67,8 +85,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 {
                     resultBuilder.SetPhone(profile.Mobile);
                 }
+                resultBuilder.SetUsername(username);
+                
+                var result = resultBuilder.Build();
+                _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
 
-                return resultBuilder.Build();
+                return result;
             }
             catch (LdapException ex)
             {
@@ -77,24 +99,35 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     var result = CredentialVerificationResult.FromKnownError(ex.Message);
                     _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {Reason:l}. Error message: {msg:l}",
                         username, _settings.CompanySettings.Domain, result.Reason, ex.Message);
+
+                    _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
                     return result;
                 }
 
                 _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}", 
                     username, _settings.CompanySettings.Domain, ex.Message);
-                return CredentialVerificationResult.FromUnknowError(ex.Message);
+
+                var res = CredentialVerificationResult.FromUnknowError(ex.Message);
+                _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = res;
+                return res;
             }
             catch (Exception ex) when (ex is TechnicalAccountErrorException || ex is LdapUserNotFoundException)
             {
                 _logger.LogError(ex, "Verification user '{user}' at {Domain:l} failed: {msg:l}", 
                     username, _settings.CompanySettings.Domain, ex.Message);
-                return CredentialVerificationResult.FromUnknowError("Invalid credentials");
+
+                var res = CredentialVerificationResult.FromUnknowError("Invalid credentials");
+                _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = res;
+                return res;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}", 
                     username, _settings.CompanySettings.Domain, ex.Message);
-                return CredentialVerificationResult.FromUnknowError(ex.Message);
+
+                var res = CredentialVerificationResult.FromUnknowError(ex.Message);
+                _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = res;
+                return res;
             }
         }
 

@@ -1,6 +1,12 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
+using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description.Conditions;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Core.Metadata;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Google;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha;
@@ -23,6 +29,7 @@ using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using System.Net;
 
@@ -88,6 +95,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureGoogleApi(builder);
 
             builder.Services.AddHostedService<ApplicationChecker>();
+
+            builder.Services
+                .AddSingleton<ClaimsProvider>()
+                .AddSingleton<IClaimsSource, MultiFactorClaimsSource>()
+                .AddSingleton<IClaimsSource, SsoClaimsSource>()
+                .AddSingleton<IClaimsSource, AdditionalClaimsSource>();
+
+            builder.Services.AddSingleton<AdditionalClaimDescriptorsProvider>();
+            builder.Services.AddSingleton<AdditionalClaimsMetadata>();
+
+            builder.Services.AddSingleton<IApplicationValuesContext, ClaimValuesContext>();
+            builder.Services.AddSingleton<ApplicationGlobalValuesProvider>();
+            builder.Services.AddSingleton<ClaimConditionEvaluator>();
 
             return builder;
         }

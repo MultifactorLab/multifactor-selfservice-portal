@@ -1,19 +1,21 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
+﻿using MultiFactor.SelfService.Linux.Portal.Core.LdapAttributesCaching;
+
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 {
     public class LdapProfile
     {
         public LdapIdentity BaseDn { get; }
         public string DistinguishedName { get; }
 
-        public string? DisplayName { get; private set; }
-        public string? Email { get; private set; }
-        public string? Phone { get; private set; }
-        public string? Mobile { get; private set; }
+        public string? DisplayName => Attributes.GetValue("displayName");
+        public string? Email => Attributes.GetValue("email");
+        public string? Phone => Attributes.GetValue("telephoneNumber");
+        public string? Mobile => Attributes.GetValue("mobile");
 
-        private readonly List<string> _memberOf = new();
-        public IReadOnlyList<string> MemberOf => _memberOf;
+        public IReadOnlyList<string> MemberOf => Attributes.GetValues("memberOf");
 
-        public IReadOnlyDictionary<string, object> LdapAttrs { get; } = new Dictionary<string, object>();
+        private readonly LdapAttributesCache _attributes = new ();
+        public ILdapAttributesCache Attributes => _attributes;
 
         private LdapProfile(LdapIdentity baseDn, string distinguishedName)
         {
@@ -23,47 +25,23 @@
             DistinguishedName = distinguishedName;
         }
 
-        public static ActiveDirectoryProfileBuilder CreateBuilder(LdapIdentity baseDn, string distinguishedName)
+        public static LdapProfileBuilder CreateBuilder(LdapIdentity baseDn, string distinguishedName)
         {
-            return new ActiveDirectoryProfileBuilder(new LdapProfile(baseDn, distinguishedName));
+            return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName));
         }
 
-        public class ActiveDirectoryProfileBuilder
+        public class LdapProfileBuilder
         {
             private readonly LdapProfile _profile;
 
-            public ActiveDirectoryProfileBuilder(LdapProfile profile)
+            public LdapProfileBuilder(LdapProfile profile)
             {
                 _profile = profile ?? throw new ArgumentNullException(nameof(profile));
             }
-
-            public ActiveDirectoryProfileBuilder SetDisplayName(string displayName)
+            
+            public LdapProfileBuilder AddAttribute(string attr, IEnumerable<string> values)
             {
-                _profile.DisplayName = displayName;
-                return this;
-            }
-
-            public ActiveDirectoryProfileBuilder SetEmail(string email)
-            {
-                _profile.Email = email;
-                return this;
-            }
-
-            public ActiveDirectoryProfileBuilder SetPhone(string phone)
-            {
-                _profile.Phone = phone;
-                return this;
-            }
-
-            public ActiveDirectoryProfileBuilder SetMobile(string mobile)
-            {
-                _profile.Mobile = mobile;
-                return this;
-            }
-
-            public ActiveDirectoryProfileBuilder AddMemberOfValues(string[] values)
-            {
-                _profile._memberOf.AddRange(values);
+                _profile._attributes.AddAttribute(attr, values);
                 return this;
             }
 

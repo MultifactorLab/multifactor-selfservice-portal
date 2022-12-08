@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Dto;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
 using System.Text;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
@@ -17,13 +17,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IActionResult Execute(SingleSignOnDto claimsDto)
+        public IActionResult Execute()
         {
             // remove mfa cookie
              _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
             _contextAccessor.HttpContext.Request.Headers.Remove("Authorization");
 
             var redirectUrl = new StringBuilder("/account/login");
+            var claimsDto = _contextAccessor.SafeGetSsoClaims();
             if (claimsDto.HasSamlSession())
             {
                 redirectUrl.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={claimsDto.SamlSessionId}");
