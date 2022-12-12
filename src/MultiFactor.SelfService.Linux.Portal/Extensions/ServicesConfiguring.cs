@@ -94,7 +94,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureMultifactorApi(builder);
             ConfigureGoogleApi(builder);
 
-            builder.Services.AddHostedService<ApplicationChecker>();
+            builder.Services.AddHostedService<ApplicationStarter>();
 
             builder.Services
                 .AddSingleton<ClaimsProvider>()
