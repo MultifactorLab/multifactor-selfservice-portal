@@ -31,11 +31,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
 
         public ILdapFilter And(ILdapFilter filter) => new LdapFilterGroup(LdapFilterOperator.And).Add(this, filter);
         
-        public ILdapFilter And(string attribute, string value) => And(attribute, value);
+        public ILdapFilter And(string attribute, string value) => And(LdapFilter.Create(attribute, value));
 
         public ILdapFilter Or(ILdapFilter filter) => new LdapFilterGroup(LdapFilterOperator.Or).Add(this, filter);
 
-        public ILdapFilter Or(string attribute, string value) => Or(attribute, value);
+        public ILdapFilter Or(string attribute, string value) => Or(LdapFilter.Create(attribute, value));
 
         public ILdapFilter Not()
         {

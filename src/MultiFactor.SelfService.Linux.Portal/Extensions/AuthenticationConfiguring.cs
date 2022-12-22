@@ -17,7 +17,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>
             {
                 var provider = applicationBuilder.Services.BuildServiceProvider();
-                configBuilder.Add(new TokenValidationConfigurationSource(provider.GetRequiredService<MultifactorHttpClientAdapterFactory>()));
+                configBuilder.Add(new TokenValidationConfigurationSource(
+                    provider.GetRequiredService<MultifactorHttpClientAdapterFactory>(), 
+                    provider.GetRequiredService<ILogger<TokenValidationConfigurationSource>>()));
             });
 
             applicationBuilder.Services
