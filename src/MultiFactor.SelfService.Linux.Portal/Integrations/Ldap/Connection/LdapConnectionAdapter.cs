@@ -1,5 +1,6 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
+using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding.Abstractions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
@@ -15,9 +16,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         /// <summary>
         /// Returns user that has been successfully binded with LDAP directory.
         /// </summary>
-        public LdapIdentity BindedUser { get; }
+        public LdapIdentity? BindedUser { get; }
 
-        private LdapConnectionAdapter(string uri, LdapIdentity user, LdapConnectionAdapterConfig config)
+        private LdapConnectionAdapter(string uri, LdapIdentity? user, LdapConnectionAdapterConfig config)
         {
             _connection = new LdapConnection();
             Uri = uri;
@@ -92,21 +93,108 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             // do not follow chase referrals
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
 
-            var bindDn = config.Formatter.FormatBindDn(user, uri);
-            var escapedPwd = EscapePwdString(password);
-
+            var bindDn = config.BindIdentityFormatter.FormatIdentity(user, uri);
             await instance._connection.BindAsync(LdapAuthType.Simple, new LdapCredential
             {
                 UserName = bindDn,
-                Password = escapedPwd
+                Password = config.BindPasswordFormatter.Format(password)
             });
             return instance;
         }
 
-        private static string EscapePwdString(string input)
+        public static LdapConnectionAdapter CreateAnonymous(string uri, ILogger? logger = null)
         {
-            // TODO
-            return input;
+            if (uri is null) throw new ArgumentNullException(nameof(uri));
+
+            var config = new LdapConnectionAdapterConfig
+            {
+                Logger = logger
+            };
+            var instance = new LdapConnectionAdapter(uri, null, config);
+            instance._connection.TrustAllCertificates();
+
+            if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
+            {
+                var ldapUri = new Uri(uri);
+                instance._connection.Connect(ldapUri.GetLeftPart(UriPartial.Authority));
+            }
+            else
+            {
+                instance._connection.Connect(uri, 389);
+            }
+
+            instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
+            instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
+
+            instance._connection.Bind(LdapAuthType.Anonymous, null);
+
+            return instance;
+        }
+
+        public async Task<LdapServerInfo> GetServerInfoAsync()
+        {
+            var result = await _connection.SearchAsync(null, "(objectclass=*)",
+                        new[]
+                        {
+                        "namingContexts",
+                        "subschemaSubentry",
+                        "supportedLDAPVersion",
+                        "supportedSASLMechanisms",
+                        "supportedExtension",
+                        "supportedControl",
+                        "supportedFeatures",
+                        "vendorName",
+                        "vendorVersion"
+                        }, LdapSearchScope.LDAP_SCOPE_BASE);
+            var entry = result.FirstOrDefault();
+            if (entry == null)
+            {
+                return new LdapServerInfo(LdapImplementation.Unknown);
+            }
+
+            var rootDse = await _connection.SearchAsync(null, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);
+            foreach (var attribute in rootDse.First().DirectoryAttributes)
+            {
+                entry.DirectoryAttributes.Remove(attribute.Name);
+                entry.DirectoryAttributes.Add(attribute);
+            }
+
+            var attrs = entry.DirectoryAttributes;
+            LdapImplementation impl = LdapImplementation.ActiveDirectory;
+
+            if (attrs.TryGetValue("vendorName", out var vendorName))
+            {
+                impl = GetImplementationFromVendorName(vendorName.GetValue<string>());
+                if (impl == LdapImplementation.Unknown)
+                {
+                    impl = LdapImplementation.ActiveDirectory;
+                }
+            }
+            else if (attrs.TryGetValue("objectClass", out var objectClass))
+            {
+                var classes = objectClass.GetValues<string>();
+                if (classes.Contains("OpenLDAProotDSE"))
+                {
+                    impl = LdapImplementation.OpenLdap;
+                }
+            }
+
+            return new LdapServerInfo(impl);
+        }
+
+        private static LdapImplementation GetImplementationFromVendorName(string vendorName)
+        {
+            if (vendorName.Contains("389 Project", StringComparison.OrdinalIgnoreCase))
+            {
+                return LdapImplementation.FreeIPA;
+            }
+
+            if (vendorName.Contains("Samba", StringComparison.OrdinalIgnoreCase))
+            {
+                return LdapImplementation.Samba;
+            }
+
+            return LdapImplementation.Unknown;
         }
 
         public void Dispose()

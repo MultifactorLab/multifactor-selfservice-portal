@@ -1,8 +1,10 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync.Models;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Globalization;
 using static LdapForNet.Native.Native;
@@ -14,17 +16,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         private readonly PortalSettings _settings;
         private readonly DeviceAccessStateNameLocalizer _stateNameLocalizer;
         private readonly ILogger<ExchangeActiveSyncDevicesSearcher> _logger;
-        private readonly ILdapBindDnFormatter _bindDnFormatter;
+        private readonly IBindIdentityFormatter _bindDnFormatter;
+        private readonly LdapProfileLoader _profileLoader;
 
         public ExchangeActiveSyncDevicesSearcher(PortalSettings settings, 
             DeviceAccessStateNameLocalizer stateNameLocalizer, 
             ILogger<ExchangeActiveSyncDevicesSearcher> logger,
-            ILdapBindDnFormatter bindDnFormatter)
+            IBindIdentityFormatter bindDnFormatter,
+            LdapProfileLoader profileLoader)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _stateNameLocalizer = stateNameLocalizer ?? throw new ArgumentNullException(nameof(stateNameLocalizer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _bindDnFormatter = bindDnFormatter;
+            _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
         }
 
         public async Task<IReadOnlyList<ExchangeActiveSyncDevice>> FindAllByUserAsync(string username)
@@ -40,11 +45,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.CompanySettings.Domain, 
                     techUser, 
                     _settings.TechnicalAccountSettings.Password,
-                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 var domain = await connection.WhereAmIAsync();
-                var profileLoader = new LdapProfileLoader(connection, _bindDnFormatter, _logger);
-                var profile = await profileLoader.LoadProfileAsync(domain, user);
+                var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
                 if (profile == null)
                 {
                     _logger.LogError("Unable to load profile for user '{user:l}'", username);
@@ -92,11 +96,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.CompanySettings.Domain, 
                     techUser, 
                     _settings.TechnicalAccountSettings.Password,
-                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 var domain = await connection.WhereAmIAsync();
-                var profileLoader = new LdapProfileLoader(connection, _bindDnFormatter, _logger);
-                var profile = await profileLoader.LoadProfileAsync(domain, user);
+                var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
                 if (profile == null)
                 {
                     _logger.LogError("Unable to load profile for user '{user:l}'", username);
@@ -106,7 +109,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                 _logger.LogDebug("Searching Exchange ActiveSync device {deviceId:l} for user '{user:l}' in {fqdn:l}", deviceId, username, profile.BaseDn.DnToFqdn());
 
                 //active sync device inside user dn container
-                var filter = $"(&(objectclass=msexchactivesyncdevice)(msExchDeviceID={deviceId}))";
+                var filter = LdapFilter.Create("objectclass", "msexchactivesyncdevice")
+                    .And("msExchDeviceID", deviceId).Build();
                 var searchResponse = await connection.SearchQueryAsync(profile.DistinguishedName, filter, LdapSearchScope.LDAP_SCOPE_SUB);
                 if (searchResponse.Count == 0)
                 {

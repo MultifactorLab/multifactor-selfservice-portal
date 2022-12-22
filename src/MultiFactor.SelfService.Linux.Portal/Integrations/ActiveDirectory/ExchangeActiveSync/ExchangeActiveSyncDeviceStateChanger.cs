@@ -13,10 +13,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
     {
         private readonly PortalSettings _settings;
         private readonly ILogger<ExchangeActiveSyncDeviceStateChanger> _logger;
-        private readonly ILdapBindDnFormatter _bindDnFormatter;
+        private readonly IBindIdentityFormatter _bindDnFormatter;
 
         public ExchangeActiveSyncDeviceStateChanger(PortalSettings settings, ILogger<ExchangeActiveSyncDeviceStateChanger> logger,
-            ILdapBindDnFormatter bindDnFormatter)
+            IBindIdentityFormatter bindDnFormatter)
         {
             _settings = settings;
             _logger = logger;
@@ -33,7 +33,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             {
                 using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, techUser, 
                     _settings.TechnicalAccountSettings.Password, 
-                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 // first, we need to update device state and state reason.
                 // modify attributes msExchDeviceAccessState and msExchDeviceAccessStateReason

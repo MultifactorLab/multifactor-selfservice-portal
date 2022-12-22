@@ -20,14 +20,11 @@ builder.AddConfiguration(args)
         o.Filters.Add<ApplicationExceptionFilter>();
     });
 
-//
+
 // "If data protection isn't configured, the keys are held in memory and discarded when the app restarts."
 builder.Services.AddDataProtection()
-    // TODO: test!
     .PersistKeysToFileSystem(new DirectoryInfo(Constants.KEY_STORAGE_DIRECTORY))
     .SetApplicationName("MultiFactorSSPL");
-//
-//
 
 var app = builder.Build();
 

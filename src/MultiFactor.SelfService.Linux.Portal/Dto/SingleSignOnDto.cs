@@ -12,7 +12,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Dto
         {
             var sb = new StringBuilder(string.Empty);
             if (HasSamlSession()) sb.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={SamlSessionId}");
-            if (HasOidcSession()) sb.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={SamlSessionId}");
+            if (HasOidcSession()) sb.Append($"?{Constants.MultiFactorClaims.OidcSessionId}={OidcSessionId}");
             return sb.ToString();
         }
     }

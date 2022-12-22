@@ -20,14 +20,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         private readonly PortalSettings _settings;
         private readonly IConfiguration _config;
         private readonly ILogger<GetApplicationInfoStory> _logger;
-        private readonly ILdapBindDnFormatter _bindDnFormatter;
+        private readonly IBindIdentityFormatter _bindDnFormatter;
 
         public GetApplicationInfoStory(MultiFactorApi api, 
             IWebHostEnvironment env,
             PortalSettings settings, 
             IConfiguration config, 
             ILogger<GetApplicationInfoStory> logger,
-            ILdapBindDnFormatter bindDnFormatter)
+            IBindIdentityFormatter bindDnFormatter)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
             _env = env ?? throw new ArgumentNullException(nameof(env));
@@ -89,7 +89,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
                 var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
                 using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, 
                     _settings.TechnicalAccountSettings.Password,
-                    config => config.SetFormatter(_bindDnFormatter).SetLogger(_logger));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
                 return ApplicationComponentStatus.Ok;
             }
             catch (Exception ex)

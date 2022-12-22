@@ -11,9 +11,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        public LdapConnectionAdapterConfigBuilder SetFormatter(ILdapBindDnFormatter bindDnFormatter)
+        public LdapConnectionAdapterConfigBuilder SetBindIdentityFormatter(IBindIdentityFormatter bindDnFormatter)
         {
-            _config.Formatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
+            _config.BindIdentityFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
+            return this;
+        }
+
+        public LdapConnectionAdapterConfigBuilder SetBindPasswordFormatter(IBindPasswordFormatter pwdFormatter)
+        {
+            _config.BindPasswordFormatter = pwdFormatter ?? throw new ArgumentNullException(nameof(pwdFormatter));
             return this;
         }
 

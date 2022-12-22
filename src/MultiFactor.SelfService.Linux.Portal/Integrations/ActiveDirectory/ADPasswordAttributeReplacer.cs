@@ -1,6 +1,6 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
 using System.Text;
 using static LdapForNet.Native.Native;
 
