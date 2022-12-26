@@ -1,7 +1,6 @@
 ﻿using LdapForNet;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
-using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Settings;
@@ -12,26 +11,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
     public class PasswordChanger
     {
         private readonly LdapConnectionAdapterFactory _connectionFactory;
-        private readonly PortalSettings _settings;
         private readonly ILogger<PasswordChanger> _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
-        private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly IPasswordAttributeReplacer _passwordAttributeReplacer;
         private readonly LdapProfileLoader _profileLoader;
 
         public PasswordChanger(LdapConnectionAdapterFactory connectionFactory, 
-            PortalSettings settings,
             ILogger<PasswordChanger> logger, 
             IStringLocalizer<SharedResource> localizer,
-            IBindIdentityFormatter bindDnFormatter,
             IPasswordAttributeReplacer passwordAttributeReplacer,
             LdapProfileLoader profileLoader)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
             _passwordAttributeReplacer = passwordAttributeReplacer ?? throw new ArgumentNullException(nameof(passwordAttributeReplacer));
             _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
         }
