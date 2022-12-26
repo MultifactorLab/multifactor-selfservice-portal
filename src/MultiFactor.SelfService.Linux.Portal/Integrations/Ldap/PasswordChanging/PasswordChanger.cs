@@ -46,7 +46,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
 
             return TryExecuteAsync(async () =>
             {
-                using var connection = await _connectionFactory.CreateAdapterAsync(username, currentPassword);
+                using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
                 return await ChangePasswordAsync(user, newPassword, connection);
             }, user);
         }
