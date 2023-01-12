@@ -1,4 +1,6 @@
 ﻿using LdapForNet;
+using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Metadata;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
@@ -9,6 +11,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
     {
         private readonly LdapProfileFilterProvider _profileFilterProvider;
         private readonly ILogger<LdapProfileLoader> _logger;
+        private readonly AdditionalClaimsMetadata _additionalClaimsMetadata;
+
+        const string _memberOfAttr = "memberOf";
         private readonly string[] _queryAttributes = new[]
         {
             "DistinguishedName",
@@ -16,13 +21,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             "mail",
             "telephoneNumber",
             "mobile",
-            "memberOf"
+            _memberOfAttr
         };
 
-        public LdapProfileLoader(LdapProfileFilterProvider profileFilterProvider, ILogger<LdapProfileLoader> logger)
+        public LdapProfileLoader(LdapProfileFilterProvider profileFilterProvider, ILogger<LdapProfileLoader> logger,
+            AdditionalClaimsMetadata additionalClaimsMetadata)
         {
             _profileFilterProvider = profileFilterProvider ?? throw new ArgumentNullException(nameof(profileFilterProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _additionalClaimsMetadata = additionalClaimsMetadata ?? throw new ArgumentNullException(nameof(additionalClaimsMetadata));
         }
 
         public async Task<LdapProfile?> LoadProfileAsync(LdapDomain domain, LdapIdentity user,
@@ -30,52 +37,45 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         {
             var searchFilter = _profileFilterProvider.GetProfileSearchFilter(user);
 
-            _logger.LogDebug("Querying user '{user:l}' in {domain:l}", user, domain);
-            var response = await connection.SearchQueryAsync(domain.Name, searchFilter.Build(), LdapSearchScope.LDAP_SCOPE_SUB, _queryAttributes);
+            _logger.LogDebug("Querying user '{user:l}' in '{domain:l}'", user, domain);
+            var allAttrs = _queryAttributes
+                .Concat(_additionalClaimsMetadata.RequiredAttributes)
+                .Distinct(new OrdinalIgnoreCaseStringComparer())
+                .ToArray();
+            var response = await connection.SearchQueryAsync(domain.Name, searchFilter.Build(), LdapSearchScope.LDAP_SCOPE_SUB, allAttrs);
 
             var entry = response.SingleOrDefault();
             if (entry == null)
             {
-                _logger.LogError("Unable to find user '{user:l}' in {domain:l}", user, domain);
+                _logger.LogError("Unable to find user '{user:l}' in '{domain:l}'", user, domain);
                 return null;
             }
 
-            // base profile
             var builder = LdapProfile.CreateBuilder(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
             var attributes = entry.DirectoryAttributes;
 
-            if (attributes.TryGetValue("displayName", out var displayNameAttr))
+
+            foreach (var attr in allAttrs.Where(x => !x.Equals(_memberOfAttr, StringComparison.OrdinalIgnoreCase)))
             {
-                builder.SetDisplayName(displayNameAttr.GetValue<string>());
+                if (attributes.TryGetValue(attr, out var attrValue))
+                {
+                    builder.AddAttribute(attr, attrValue.GetValues<string>());
+                }
             }
 
-            if (attributes.TryGetValue("mail", out var mailAttr))
+            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr))
             {
-                builder.SetEmail(mailAttr.GetValue<string>());
-            }
-
-            if (attributes.TryGetValue("telephoneNumber", out var phoneAttr))
-            {
-                builder.SetPhone(phoneAttr.GetValue<string>());
-            }
-
-            if (attributes.TryGetValue("mobile", out var mobileAttr))
-            {
-                builder.SetMobile(mobileAttr.GetValue<string>());
-            }
-
-            if (attributes.TryGetValue("memberOf", out var memberOfAttr))
-            {
-                builder.AddMemberOfValues(memberOfAttr.GetValues<string>()
-                    .Select(entry => LdapIdentity.DnToCn(entry)).ToArray());
+                var val = memberOfAttr.GetValues<string>().Select(entry => LdapIdentity.DnToCn(entry)).ToArray();
+                builder.AddAttribute(_memberOfAttr, val);
             }
             else
             {
                 var allGroups = await GetAllUserGroups(domain, entry.Dn, connection);
-                builder.AddMemberOfValues(allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray());
+                var val = allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray();
+                builder.AddAttribute(_memberOfAttr, val);
             }
 
-            _logger.LogDebug("User '{user:l}' profile loaded: {DN:l}", user, entry.Dn);
+            _logger.LogDebug("User '{user:l}' profile loaded. DN: '{DN:l}'", user, entry.Dn);
 
             return builder.Build();
         }

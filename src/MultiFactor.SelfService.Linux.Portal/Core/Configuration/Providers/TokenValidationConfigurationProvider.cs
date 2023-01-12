@@ -1,18 +1,20 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 
-namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration
+namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
 {
-    public class MultiFactorConfigurationProvider : ConfigurationProvider
+    public class TokenValidationConfigurationProvider : ConfigurationProvider, IConfigurationSource
     {
         private readonly HttpClientAdapter _client;
-        private readonly ILogger _logger;
+        private readonly ILogger<TokenValidationConfigurationProvider> _logger;
 
-        public MultiFactorConfigurationProvider(MultifactorHttpClientAdapterFactory clientFactory, ILogger logger)
+        public TokenValidationConfigurationProvider(MultifactorHttpClientAdapterFactory clientFactory, ILogger<TokenValidationConfigurationProvider> logger)
         {
             _client = clientFactory?.CreateClientAdapter() ?? throw new ArgumentNullException(nameof(clientFactory));
             _logger = logger;
         }
+
+        public IConfigurationProvider Build(IConfigurationBuilder builder) => this;
 
         public override void Load()
         {

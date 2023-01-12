@@ -11,6 +11,8 @@
         public GoogleReCaptchaSettings GoogleReCaptchaSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
 
+        public AdditionalClaims AdditionalClaims { get; private set; } = new();
+
         public bool RequiresUserPrincipalName { get; private set; }
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }

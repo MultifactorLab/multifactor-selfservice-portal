@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
-using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
@@ -21,8 +20,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpPost]
         [VerifyCaptcha]
+        [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, SingleSignOnDto sso, [FromServices] SignInStory signIn)
+        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStory signIn)
         {
             if (!ModelState.IsValid)
             {
@@ -31,7 +31,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                return await signIn.ExecuteAsync(model, sso);
+                return await signIn.ExecuteAsync(model);
             }
             catch (ModelStateErrorException ex)
             {
@@ -40,8 +40,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
         }
 
-        public IActionResult Logout(SingleSignOnDto claimsDto, [FromServices] SignOutStory signOut) 
-            => signOut.Execute(claimsDto);
+        [ConsumeSsoClaims]
+        public IActionResult Logout([FromServices] SignOutStory signOut) => signOut.Execute();
 
         [HttpPost]
         public IActionResult PostbackFromMfa(string accessToken, [FromServices] AuthenticateSessionStory authenticateSession) 

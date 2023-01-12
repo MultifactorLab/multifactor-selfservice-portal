@@ -14,7 +14,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             try
             {
                 var settings = GetSettings(applicationBuilder.Configuration) ?? throw new Exception("Can't find PortalSettings section in appsettings");
-
                 Validate(settings);
 
                 applicationBuilder.Services.AddSingleton(settings);
