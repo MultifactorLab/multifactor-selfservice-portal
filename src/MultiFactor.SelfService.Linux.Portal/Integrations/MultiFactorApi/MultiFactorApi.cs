@@ -56,26 +56,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// Returns user profile.
         /// </summary>
         /// <exception cref="UnsuccessfulResponseException"></exception>
-        public async Task<UserProfileDto> GetUserProfileAsync()
+        public Task<UserProfileApiDto> GetUserProfileAsync()
         {
-            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
-            return new UserProfileDto
-            {
-                Id = response.Id,
-                Identity = response.Identity,
-                Name = response.Name,
-                Email = response.Email,
-
-                TotpAuthenticators = response.TotpAuthenticators,
-                TelegramAuthenticators = response.TelegramAuthenticators,
-                MobileAppAuthenticators = response.MobileAppAuthenticators,
-                PhoneAuthenticators = response.PhoneAuthenticators,
-
-                Policy = response.Policy,
-
-                EnablePasswordManagement = _settings.EnablePasswordManagement,
-                EnableExchangeActiveSyncDevicesManagement = _settings.EnableExchangeActiveSyncDevicesManagement
-            };
+            return ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
         }
 
         /// <summary>

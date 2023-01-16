@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
-using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
@@ -11,12 +10,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private const string _protectorName = "SSPL.Protector";
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
-        private readonly PortalSettings _settings;
 
-        public DataProtection(IDataProtectionProvider dataProtectionProvider, PortalSettings settings)
+        public DataProtection(IDataProtectionProvider dataProtectionProvider)
         {
             _dataProtectionProvider = dataProtectionProvider;
-            _settings = settings;
         }
 
         public string Protect(string data)

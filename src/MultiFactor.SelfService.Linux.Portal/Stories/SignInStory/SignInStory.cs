@@ -70,10 +70,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 return await RedirectToMfa(validationResult, model.MyUrl);
             }
 
-            if (validationResult.UserMustChangePassword && _settings.EnablePasswordManagement)
+            if (validationResult.UserMustChangePassword)
             {
-                var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
+                _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}, but user must change password", 
+                    userName, 
+                    _settings.CompanySettings.Domain);
 
+                if (!_settings.EnablePasswordManagement)
+                {
+                    _logger.LogWarning("User cannot change password: password management is disabled");
+                    return await WrongAsync();
+                }
+                
+                var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
                 _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
                 _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
 

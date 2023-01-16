@@ -38,9 +38,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Metadata
 
         private IReadOnlyList<string> GetRequiredAttributes()
         {
-            if (_requiredAttributes == null)
+            if (_requiredAttributes != null)
             {
-                _requiredAttributes = GetDescriptors()
+                return _requiredAttributes;
+            }
+
+            _requiredAttributes = GetDescriptors()
                 .Select(x => x.Source)
                 .Concat(GetDescriptors()
                     .Where(x => x.Condition != null)
@@ -50,7 +53,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Metadata
                 .Distinct(new OrdinalIgnoreCaseStringComparer())
                 .ToList()
                 .AsReadOnly();
-            }
 
             return _requiredAttributes;
         }

@@ -79,7 +79,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
-                .AddTransient<LoadProfileStory>()
+                .AddTransient<LoadUserProfileStory>()
                 .AddTransient<AuthenticateSessionStory>()
                 .AddTransient<RemoveAuthenticatorStory>()
                 .AddTransient<CreateYandexAuthKeyStory>()
@@ -95,7 +95,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureGoogleApi(builder);
 
             builder.Services.AddHostedService<ApplicationStarter>();
+            AddClaimsFeature(builder);
 
+            builder.Services.AddSingleton<UserCanChangePasswordFactory>();
+            builder.Services.AddSingleton(prov => prov.GetRequiredService<UserCanChangePasswordFactory>().Create());
+
+            return builder;
+        }
+
+        private static void AddClaimsFeature(WebApplicationBuilder builder)
+        {
             builder.Services
                 .AddSingleton<ClaimsProvider>()
                 .AddSingleton<IClaimsSource, MultiFactorClaimsSource>()
@@ -108,8 +117,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             builder.Services.AddSingleton<IApplicationValuesContext, ClaimValuesContext>();
             builder.Services.AddSingleton<ApplicationGlobalValuesProvider>();
             builder.Services.AddSingleton<ClaimConditionEvaluator>();
-
-            return builder;
         }
 
         private static void ConfigureMultifactorApi(WebApplicationBuilder builder)

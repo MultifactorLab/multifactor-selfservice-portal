@@ -3,7 +3,6 @@ using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
-using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging
@@ -15,44 +14,42 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
         private readonly IStringLocalizer<SharedResource> _localizer;
         private readonly IPasswordAttributeReplacer _passwordAttributeReplacer;
         private readonly LdapProfileLoader _profileLoader;
+        private readonly IUserCanChangePassword _userCanChangePassword;
 
         public PasswordChanger(LdapConnectionAdapterFactory connectionFactory, 
             ILogger<PasswordChanger> logger, 
             IStringLocalizer<SharedResource> localizer,
             IPasswordAttributeReplacer passwordAttributeReplacer,
-            LdapProfileLoader profileLoader)
+            LdapProfileLoader profileLoader,
+            IUserCanChangePassword userCanChangePassword)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _passwordAttributeReplacer = passwordAttributeReplacer ?? throw new ArgumentNullException(nameof(passwordAttributeReplacer));
             _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
+            _userCanChangePassword = userCanChangePassword ?? throw new ArgumentNullException(nameof(userCanChangePassword));
         }
 
-        public Task<PasswordChangingResult> ChangeValidPasswordAsync(string username, string currentPassword, string newPassword)
+        public async Task<PasswordChangingResult> ChangeValidPasswordAsync(string username, string currentPassword, string newPassword)
+        {
+            return await ChangeExpiredPasswordAsync(username, currentPassword, newPassword);
+        }
+
+        public async Task<PasswordChangingResult> ChangeExpiredPasswordAsync(string username, string currentPassword, string newPassword)
         {
             if (username is null) throw new ArgumentNullException(nameof(username));
             if (currentPassword is null) throw new ArgumentNullException(nameof(currentPassword));
             if (newPassword is null) throw new ArgumentNullException(nameof(newPassword));
 
             var user = LdapIdentity.ParseUser(username);
-
-            return TryExecuteAsync(async () =>
+            var canChange = await _userCanChangePassword.CheckAsync(user);
+            if (!canChange)
             {
-                using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
-                return await ChangePasswordAsync(user, newPassword, connection);
-            }, user);
-        }
+                return new PasswordChangingResult(false, _localizer.GetString("AD.UnableToChangePassword"));
+            }
 
-        public Task<PasswordChangingResult> ChangeExpiredPasswordAsync(string username, string currentPassword, string newPassword)
-        {
-            if (username is null) throw new ArgumentNullException(nameof(username));
-            if (currentPassword is null) throw new ArgumentNullException(nameof(currentPassword));
-            if (newPassword is null) throw new ArgumentNullException(nameof(newPassword));
-
-            var user = LdapIdentity.ParseUser(username);
-
-            return TryExecuteAsync(async () =>
+            return await TryExecuteAsync(async () =>
             {
                 using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
                 return await ChangePasswordAsync(user, newPassword, connection);
@@ -87,7 +84,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
             if (profile == null)
             {
-                return new PasswordChangingResult(false, "AD.UnableToChangePassword");
+                return new PasswordChangingResult(false, _localizer.GetString("AD.UnableToChangePassword"));
             }
 
             await _passwordAttributeReplacer.ExecuteReplaceCommandAsync(profile.DistinguishedName, newPassword, connection);

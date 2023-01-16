@@ -9,14 +9,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [Authorize]
     public class HomeController : ControllerBase
     {
-        public async Task<IActionResult> Index(SingleSignOnDto claims, [FromServices] LoadProfileStory loadProfile)
+        public async Task<IActionResult> Index(SingleSignOnDto claims, [FromServices] LoadUserProfileStory loadProfile)
         {
             if (claims.HasSamlSession() || claims.HasOidcSession())
             {
                 //re-login for saml or oidc authentication
                 return RedirectToAction("logout", "account", claims);
             }
-
             var userProfile = await loadProfile.ExecuteAsync();
             return View(userProfile);
         }
