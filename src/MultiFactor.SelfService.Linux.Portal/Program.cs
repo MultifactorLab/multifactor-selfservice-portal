@@ -52,7 +52,7 @@ app.Use(async (context, next) =>
     var token = context.Request.Cookies[Constants.COOKIE_NAME];
     if (!string.IsNullOrEmpty(token))
     {
-        context.Request.Headers.Add("Authorization", $"Bearer {token}");
+        context.Request.Headers.Authorization = $"Bearer {token}";
     }
 
     await next();
