@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha
 {
     public static class GoogleSiteverifyErrorCode
     {

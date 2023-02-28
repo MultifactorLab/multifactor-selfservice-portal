@@ -37,12 +37,13 @@
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
 
-		<GoogleReCaptchaSettings>
+		<CaptchaSettings>
 			<Enabled>false</Enabled>
-			<Key>site key</Key>
+			<!-- Google/Yandex-->
+			<CaptchaType>Google</CaptchaType>
+			<Key>key</Key>
 			<Secret>secret</Secret>
-		</GoogleReCaptchaSettings>
-
+		</CaptchaSettings>
 		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
 
 		<!--<LoggingLevel>Info</LoggingLevel>-->

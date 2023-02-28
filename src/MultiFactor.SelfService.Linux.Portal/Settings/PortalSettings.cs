@@ -8,9 +8,8 @@
         public TechnicalAccountSettings TechnicalAccountSettings { get; private set; } = new();
         public ActiveDirectorySettings ActiveDirectorySettings { get; private set; } = new();
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
-        public GoogleReCaptchaSettings GoogleReCaptchaSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
-
+        public CaptchaSettings CaptchaSettings { get; private set; } = new();
         public bool RequiresUserPrincipalName { get; private set; }
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }

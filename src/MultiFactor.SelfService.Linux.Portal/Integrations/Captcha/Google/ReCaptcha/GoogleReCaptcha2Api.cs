@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha.Dto;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha
 {
     public class GoogleReCaptcha2Api
     {
@@ -19,7 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha
         /// <param name="secret">Required. The shared key between your site and reCAPTCHA.</param>
         /// <param name="responseToken">Required. The user response token provided by the reCAPTCHA client-side integration on your site.</param>
         /// <param name="remoteIp">Optional. The user's IP address.</param>
-        public async Task<VerifyCaptchaResponseDto> SiteverifyAsync(string secret, string responseToken, string? remoteIp = null)
+        public async Task<GoogleVerifyCaptchaResponseDto> SiteverifyAsync(string secret, string responseToken, string? remoteIp = null)
         {
             if (secret is null) throw new ArgumentNullException(nameof(secret));
             if (responseToken is null) throw new ArgumentNullException(nameof(responseToken));
@@ -36,7 +36,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha
 
             var newAction = QueryHelpers.AddQueryString("siteverify", param);
 
-            var resp = await _client.PostAsync<VerifyCaptchaResponseDto>(newAction) ?? throw new Exception("Response is null");
+            var resp = await _client.PostAsync<GoogleVerifyCaptchaResponseDto>(newAction) ?? throw new Exception("Response is null");
             return resp;
         }
     }
