@@ -30,7 +30,7 @@
                     </div>
                     @Html.ValidationSummary(true)
                     
-                    @if (Settings.CaptchaSettings.IsGoogleEnabled)
+                    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
                     {
                         <div class="g-recaptcha" 
                             data-sitekey="@Settings.CaptchaSettings.Key" 
@@ -39,7 +39,7 @@
                         </div>
                     }
                     
-                    @if (Settings.CaptchaSettings.IsYandexEnabled)
+                    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
                     {
                         <div id="yandex-captcha-container"></div>
                     }
@@ -69,11 +69,11 @@
 
 @section head {
 
-    @if (Settings.CaptchaSettings.IsGoogleEnabled)
+    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
     {
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     }
-    @if (Settings.CaptchaSettings.IsYandexEnabled)
+    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
     {
         <script
             src="https://captcha-api.yandex.ru/captcha.js?render=onload&onload=yandexCaptchaLoadFunction"
@@ -106,14 +106,13 @@
             });
         });
         
-        @if (Settings.CaptchaSettings.IsYandexEnabled)
+        @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
         {
             <text>
                 function yandexCaptchaLoadFunction() {
                     if (window.smartCaptcha) {
                         const container = document.getElementById('yandex-captcha-container');
-                        const availableLanguage = '@ApplicationLanguageProvider.GetLanguage()';
-                        const widgetId = window.smartCaptcha.render(container, {
+                        window.smartCaptcha.render(container, {
                             sitekey: '@Settings.CaptchaSettings.Key',
                             callback:  captchaCallback,
                             hl: '@ApplicationLanguageProvider.GetLanguage()'

@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             try
             {
                 var settings = GetSettings(applicationBuilder.Configuration) ?? throw new Exception("Can't find PortalSettings section in appsettings");
-
+                MapObsoleteSections(settings);
                 Validate(settings);
 
                 applicationBuilder.Services.AddSingleton(settings);
@@ -29,6 +29,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             {
                 Log.CloseAndFlush();
             }
+        }
+
+        private static void MapObsoleteSections(PortalSettings settings)
+        {
+#pragma warning disable CS0612
+            if (settings.GoogleReCaptchaSettings.Enabled && !settings.CaptchaSettings.Enabled)
+            {
+                settings.CaptchaSettings = new CaptchaSettings()
+                {
+                    Enabled = settings.GoogleReCaptchaSettings.Enabled,
+                    Key = settings.GoogleReCaptchaSettings.Key,
+                    Secret = settings.GoogleReCaptchaSettings.Secret,
+                    CaptchaType = CaptchaType.Google
+                };
+            }
+#pragma warning restore CS0612
         }
 
         private static PortalSettings GetSettings(IConfigurationRoot config)

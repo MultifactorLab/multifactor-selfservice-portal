@@ -98,16 +98,15 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
 		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 	</MultiFactorApi>
 
-    <GoogleReCaptchaSettings>
-			<!-- Google reCaptcha2 enabled. -->
-			<Enabled>false</Enabled>
-			
-			<!-- Site Key from https://www.google.com/recaptcha/admin -->
-			<!--<Key>site key</Key>-->
-			
-			<!-- Secret Key from https://www.google.com/recaptcha/admin -->
-			<!--<Secret>secret</Secret>-->
-		</GoogleReCaptchaSettings>
+    <CaptchaSettings>
+        <Enabled>false</Enabled>
+        <!-- Either Google or Yandex-->
+        <CaptchaType>Yandex</CaptchaType>
+        <!-- The Site Key from the admin panel of either Google ReCaptcha or Yandex SmartCaptcha -->
+        <Key>key</Key>
+        <!-- The Secret from the admin panel of either Google ReCaptcha or Yandex SmartCaptcha -->
+        <Secret>secret</Secret>
+    </CaptchaSettings>
     
     <!-- Only UPN user name format permitted -->
     <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->

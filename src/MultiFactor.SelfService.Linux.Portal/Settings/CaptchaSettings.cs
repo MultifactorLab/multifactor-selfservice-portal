@@ -8,12 +8,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
     
     public class CaptchaSettings
     {
-        public CaptchaType CaptchaType { get; private set; } = CaptchaType.Yandex;
-        public bool Enabled { get; private set; } = false;
-        public string Key { get; private set; } = string.Empty;
-        public string Secret { get; private set; } = string.Empty;
+        public CaptchaType CaptchaType { get; init; }
+        public bool Enabled { get; init; }
+        public string Key { get; init; } = string.Empty;
+        public string Secret { get; init; } = string.Empty;
 
-        public bool IsYandexEnabled => CaptchaType == CaptchaType.Yandex && Enabled;
-        public bool IsGoogleEnabled => CaptchaType == CaptchaType.Google && Enabled;
+        public bool IsCaptchaEnabled(CaptchaType type) => Enabled && CaptchaType == type;
     }
 }

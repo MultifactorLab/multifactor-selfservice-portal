@@ -54,7 +54,7 @@
 		</MultiFactorApiSettings>
 		
 		<CaptchaSettings>
-			<Enabled>true</Enabled>
+			<Enabled>false</Enabled>
 			<!-- Google/Yandex-->
 			<CaptchaType>Yandex</CaptchaType>
 			<Key>key</Key>

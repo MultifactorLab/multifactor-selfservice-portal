@@ -105,6 +105,16 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 		<!-- Secret Key из личного кабинета https://www.google.com/recaptcha/admin -->
 		<!--<Secret>secret</Secret>-->
 	</GoogleReCaptchaSettings>
+
+    <CaptchaSettings>
+        <Enabled>false</Enabled>
+        <!-- Либо Google, либо Yandex-->
+        <CaptchaType>Yandex</CaptchaType>
+        <!-- Site Key из личного кабинета Google ReCaptcha или Yandex SmartCaptcha -->
+        <Key>key</Key>
+        <!-- Secret из личного кабинета Google ReCaptcha или Yandex SmartCaptcha -->
+        <Secret>secret</Secret>
+    </CaptchaSettings>
     
     <!-- Использовать UPN для входа в портал -->
     <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->

@@ -127,12 +127,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             builder.Services.AddTransient<CaptchaVerifierResolver>(services => () =>
             {
                 var settings = services.GetRequiredService<PortalSettings>();
-                if (settings.CaptchaSettings.IsYandexEnabled)
+                if (settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
                 {
-                    return services.GetService<YandexCaptchaVerifier>()!;
+                    return services.GetRequiredService<YandexCaptchaVerifier>();
                 }
 
-                return services.GetService<GoogleReCaptchaVerifier>()!;
+                return services.GetRequiredService<GoogleReCaptchaVerifier>();
             });
         }
 

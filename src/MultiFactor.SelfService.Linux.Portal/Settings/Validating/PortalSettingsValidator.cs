@@ -43,10 +43,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     .ChildRules(x =>
                     {
                         x.RuleFor(r => r.Key)
-                            .Must((model, value) =>
-                            {
-                                return !model.Enabled || !string.IsNullOrWhiteSpace(value);
-                            })
+                            .Must((model, value) => !model.Enabled || !string.IsNullOrWhiteSpace(value))
                             .WithMessage(GetCaptchaError(x => x.CaptchaSettings.Key));
 
                         x.RuleFor(r => r.Secret)
