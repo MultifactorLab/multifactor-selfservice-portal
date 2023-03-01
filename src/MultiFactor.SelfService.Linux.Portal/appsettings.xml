@@ -26,8 +26,8 @@
 
 		<!-- Technical Active Directory account -->
 		<TechnicalAccountSettings>
-			   <User>user</User>
-			   <Password>password</Password>
+		   <User>user</User>
+		   <Password>password</Password>
 		</TechnicalAccountSettings>
 
 
