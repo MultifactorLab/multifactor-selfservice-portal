@@ -1,4 +1,5 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 
 namespace MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier
 {
@@ -29,8 +30,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier
                     return new CaptchaVerificationResult(false, "Response token is null");
                 }
 
-                var response = await VerifyTokenAsync(token,  
-                        request.HttpContext?.Connection?.RemoteIpAddress?.ToString());
+                var headerAccessor = new HttpHeaderAccessor(request.HttpContext);
+                var ipAddress = HttpClientUtils.GetRequestIp(request.HttpContext, headerAccessor);
+                
+                var response = await VerifyTokenAsync(token, ipAddress);
                 if (response)
                 {
                     return new CaptchaVerificationResult(true);

@@ -21,8 +21,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCap
         /// <param name="remoteIp">Optional. The user's IP address.</param>
         public async Task<GoogleVerifyCaptchaResponseDto> SiteverifyAsync(string secret, string responseToken, string? remoteIp = null)
         {
-            if (secret is null) throw new ArgumentNullException(nameof(secret));
-            if (responseToken is null) throw new ArgumentNullException(nameof(responseToken));
+            if (string.IsNullOrWhiteSpace(secret)) throw new ArgumentNullException(nameof(secret));
+            if (string.IsNullOrWhiteSpace(responseToken)) throw new ArgumentNullException(nameof(responseToken));
 
             var param = new Dictionary<string, string?>
             { 

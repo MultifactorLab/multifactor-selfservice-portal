@@ -1,6 +1,6 @@
 namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
-    [Obsolete]
+    [Obsolete("To be replaced with CaptchaSettings class")]
     public class GoogleReCaptchaSettings
     {
         public bool Enabled { get; private set; } = false;

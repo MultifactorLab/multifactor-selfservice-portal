@@ -15,8 +15,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex
         
         public async Task<YandexVerifyCaptchaResponseDto> VerifyAsync(string secret, string responseToken, string? remoteIp = null)
         {
-            if (secret is null) throw new ArgumentNullException(nameof(secret));
-            if (responseToken is null) throw new ArgumentNullException(nameof(responseToken));
+            if (string.IsNullOrWhiteSpace(secret)) throw new ArgumentNullException(nameof(secret));
+            if (string.IsNullOrWhiteSpace(responseToken)) throw new ArgumentNullException(nameof(responseToken));
 
             var param = new Dictionary<string, string?>
             { 

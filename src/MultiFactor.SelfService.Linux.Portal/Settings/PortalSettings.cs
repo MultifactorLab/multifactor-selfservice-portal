@@ -10,7 +10,7 @@
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
-        [Obsolete]
+        [Obsolete("Use CaptchaSettings property instead")]
         public GoogleReCaptchaSettings GoogleReCaptchaSettings { get; private set; } = new();
         public bool RequiresUserPrincipalName { get; private set; } 
         public string LoggingLevel { get; private set; }

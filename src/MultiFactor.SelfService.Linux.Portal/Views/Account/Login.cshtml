@@ -52,7 +52,6 @@
 
                     @if (Settings.CaptchaSettings.Enabled)
                     {   
-                        <!-- Кнопка выключается когда вызывается капча callback -->
                         <input type="hidden" name="responseToken" id="responseToken" />
                         <input type="submit" class="btn" disabled="disabled" value="@Localizer["Submit"]" id="submit" />
                     }
