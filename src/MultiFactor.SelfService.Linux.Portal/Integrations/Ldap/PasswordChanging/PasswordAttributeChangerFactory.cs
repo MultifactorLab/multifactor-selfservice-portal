@@ -5,23 +5,23 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging
 {
-    public class PasswordAttributeReplacerFactory
+    public class PasswordAttributeChangerFactory
     {
         private readonly LdapServerInfo _serverInfo;
 
-        public PasswordAttributeReplacerFactory(LdapServerInfo serverInfo)
+        public PasswordAttributeChangerFactory(LdapServerInfo serverInfo)
         {
             _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
         }
 
-        public IPasswordAttributeReplacer CreateReplacer()
+        public IPasswordAttributeChanger CreateChanger()
         {
             if (_serverInfo.Implementation == LdapImplementation.FreeIPA)
             {
-                return new IpaPasswordAttributeReplacer();
+                return new IpaPasswordAttributeChanger();
             }
 
-            return new ADPasswordAttributeReplacer();
+            return new ADPasswordAttributeChanger();
         }
     }
 }
