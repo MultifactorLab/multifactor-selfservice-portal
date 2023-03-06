@@ -61,8 +61,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<LdapBindDnFormatterFactory>()
                 .AddSingleton(services => services.GetRequiredService<LdapBindDnFormatterFactory>().CreateFormatter())
 
-                .AddSingleton<PasswordAttributeReplacerFactory>()
-                .AddSingleton(services => services.GetRequiredService<PasswordAttributeReplacerFactory>().CreateReplacer())
+                .AddSingleton<PasswordAttributeChangerFactory>()
+                .AddSingleton(services => services.GetRequiredService<PasswordAttributeChangerFactory>().CreateChanger())
 
                 .AddSingleton<LdapProfileFilterProvider>()
                 .AddSingleton<LdapProfileLoader>()
