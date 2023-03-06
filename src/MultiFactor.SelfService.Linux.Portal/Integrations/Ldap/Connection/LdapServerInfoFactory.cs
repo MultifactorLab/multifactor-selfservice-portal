@@ -15,10 +15,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
         public async Task<LdapServerInfo> CreateServerInfoAsync()
         {
-            using var conn = LdapConnectionAdapter.CreateAnonymous(_settings.CompanySettings.Domain, _logger);
-            var info = await conn.GetServerInfoAsync();
-            _logger.LogInformation("Ldap implementation: {impl}", info.Implementation);
-            return info;
+            try
+            {
+                using var conn = LdapConnectionAdapter.CreateAnonymous(_settings.CompanySettings.Domain,
+                    x => x.SetLogger(_logger));
+                var info = await conn.GetServerInfoAsync();
+                _logger.LogInformation("Ldap implementation: {impl}", info);
+                return info;
+            }
+            catch (Exception ex)
+            {
+                var info = LdapServerInfo.Default;
+                _logger.LogWarning(ex, "Unable to retrieve directory info. Using default info: {def}. Maybe anonymous binding is disabled by policy.", info);
+                return info;
+            }
         }
     }
 }

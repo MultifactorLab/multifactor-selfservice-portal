@@ -45,7 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
             }
 
             var currentPassword = _dataProtection.Unprotect(encryptedPwd);
-            var pwdChangeResult = await _passwordChanger.ChangeExpiredPasswordAsync(userName, currentPassword, model.NewPassword);
+            var pwdChangeResult = await _passwordChanger.ResetExpiredPasswordAsync(userName, currentPassword, model.NewPassword);
             if (!pwdChangeResult.Success)
             {
                 throw new ModelStateErrorException(pwdChangeResult.ErrorReason);

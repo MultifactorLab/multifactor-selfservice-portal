@@ -72,6 +72,8 @@
 
 		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
 		<EnablePasswordManagement>true</EnablePasswordManagement>
+		<!--<ChangeValidPasswordMode>AsUser</ChangeValidPasswordMode>-->
+		<!--<ChangeExpiredPasswordMode>AsTechnicalAccount</ChangeExpiredPasswordMode>-->
 		<!-- Enable user Exchange AciveSync devices provisioning. Not works with Samba. -->
 		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
 

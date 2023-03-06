@@ -19,7 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA
             var response = await connection.SendRequestAsync(new ModifyRequest(dn, newPasswordAttribute));
             if (response.ResultCode != ResultCode.Success)
             {
-                throw new Exception($"Password change command error: {response.ErrorMessage}");
+                throw new Exception($"Password reset command error: {response.ErrorMessage}");
             }
         }
     }
