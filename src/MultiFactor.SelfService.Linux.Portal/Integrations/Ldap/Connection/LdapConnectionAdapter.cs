@@ -101,7 +101,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return instance;
         }
 
-        public static LdapConnectionAdapter CreateAnonymous(string uri, Action<LdapConnectionAdapterConfigBuilder>? configure = null)
+        public static LdapConnectionAdapter CreateAnonymous(string uri, 
+            Action<LdapConnectionAdapterConfigBuilder>? configure = null)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
 
@@ -109,7 +110,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
 
             var instance = new LdapConnectionAdapter(uri, null, config);
-            instance._connection.TrustAllCertificates();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // trust self-signed certificates on ldap server
+                instance._connection.TrustAllCertificates();
+            }
 
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {

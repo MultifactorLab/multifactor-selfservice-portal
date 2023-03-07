@@ -19,8 +19,18 @@
         public string SyslogFacility { get; private set; }
         public string SyslogAppName { get; private set; }
         public bool EnablePasswordManagement { get; private set; }
+        public ChangePasswordMode ChangeValidPasswordMode { get; private set; } = 
+            ChangePasswordMode.AsUser;
+        public ChangePasswordMode ChangeExpiredPasswordMode { get; private set; } =
+            ChangePasswordMode.AsTechnicalAccount;
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
         public string UICulture { get; private set; }
         public string LdapBaseDn { get; private set; }
+    }
+
+    public enum ChangePasswordMode
+    {
+        AsUser,
+        AsTechnicalAccount
     }
 }

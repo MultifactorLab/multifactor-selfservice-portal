@@ -50,20 +50,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
+
                 .AddSingleton<LdapServerInfoFactory>()
                 .AddSingleton(services =>
                 {
                     var infoTask = services.GetRequiredService<LdapServerInfoFactory>().CreateServerInfoAsync();
                     return infoTask.Result;
                 })
+
                 .AddSingleton<LdapConnectionAdapterFactory>()
+
                 .AddSingleton<LdapBindDnFormatterFactory>()
                 .AddSingleton(services => services.GetRequiredService<LdapBindDnFormatterFactory>().CreateFormatter())
-                .AddSingleton<PasswordAttributeReplacerFactory>()
-                .AddSingleton(services => services.GetRequiredService<PasswordAttributeReplacerFactory>().CreateReplacer())
+
+                .AddSingleton<PasswordAttributeChangerFactory>()
+                .AddSingleton(services => services.GetRequiredService<PasswordAttributeChangerFactory>().CreateChanger())
+
                 .AddSingleton<LdapProfileFilterProvider>()
                 .AddSingleton<LdapProfileLoader>()
+
                 .AddTransient<HttpMessageInterceptor>()
+                .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()
+
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
@@ -78,12 +86,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<SearchExchangeActiveSyncDevicesStory>()
                 .AddTransient<ChangeActiveSyncDeviceStateStory>();
 
-            
             ConfigureMultifactorApi(builder);
             ConfigureGoogleApi(builder);
             ConfigureYandexCaptchaApi(builder);
             ConfigureCaptchaVerifier(builder);
+            
             builder.Services.AddHostedService<ApplicationChecker>();
+            
             return builder;
         }
 

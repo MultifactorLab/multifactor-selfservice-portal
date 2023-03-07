@@ -17,7 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         {
             try
             {
-                using var conn = LdapConnectionAdapter.CreateAnonymous(_settings.CompanySettings.Domain, 
+                using var conn = LdapConnectionAdapter.CreateAnonymous(_settings.CompanySettings.Domain,
                     x => x.SetLogger(_logger));
                 var info = await conn.GetServerInfoAsync();
                 _logger.LogInformation("Ldap implementation: {impl}", info);
