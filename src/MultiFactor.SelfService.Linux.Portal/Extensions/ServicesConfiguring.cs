@@ -2,8 +2,6 @@
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Google;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
@@ -25,6 +23,10 @@ using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevic
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using System.Net;
+using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -86,9 +88,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
             ConfigureMultifactorApi(builder);
             ConfigureGoogleApi(builder);
-
+            ConfigureYandexCaptchaApi(builder);
+            ConfigureCaptchaVerifier(builder);
+            
             builder.Services.AddHostedService<ApplicationChecker>();
-
+            
             return builder;
         }
 
@@ -121,6 +125,33 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddHttpClient<GoogleHttpClientAdapterFactory>((services, client) =>
                 {
                     client.BaseAddress = new Uri("https://www.google.com/recaptcha/api/");
+                }).AddHttpMessageHandler<HttpMessageInterceptor>();
+        }
+
+        private static void ConfigureCaptchaVerifier(WebApplicationBuilder builder)
+        {
+            builder.Services.AddTransient<GoogleReCaptchaVerifier>();
+            builder.Services.AddTransient<YandexCaptchaVerifier>();
+            
+            builder.Services.AddTransient<CaptchaVerifierResolver>(services => () =>
+            {
+                var settings = services.GetRequiredService<PortalSettings>();
+                if (settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
+                {
+                    return services.GetRequiredService<YandexCaptchaVerifier>();
+                }
+
+                return services.GetRequiredService<GoogleReCaptchaVerifier>();
+            });
+        }
+
+        private static void ConfigureYandexCaptchaApi(WebApplicationBuilder builder)
+        {
+            builder.Services.AddTransient<YandexCaptchaApi>()
+                .AddTransient<YandexHttpClientAdapterFactory>()
+                .AddHttpClient<YandexHttpClientAdapterFactory>((services, client) =>
+                {
+                    client.BaseAddress = new Uri("https://captcha-api.yandex.ru/");
                 }).AddHttpMessageHandler<HttpMessageInterceptor>();
         }
 

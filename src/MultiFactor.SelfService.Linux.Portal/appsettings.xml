@@ -17,18 +17,19 @@
 			 <!--Name of your organization--> 
 			<Name>ACME</Name>
 
-			 <!--Name of your Active Directory domain to verify username and password--> 
+			 <!--Name of your Active Directory domain to verify username and password-->
 			<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
 			
-			 <!--Company logo URL address: absolute or relative--> 
+			<!--Company logo URL address: absolute or relative--> 
 			<LogoUrl>images/logo.svg</LogoUrl>	
 		</CompanySettings>
 
 		<!-- Technical Active Directory account -->
 		<TechnicalAccountSettings>
-			<User>user</User>
-			<Password>password</Password>
+		   <User>user</User>
+		   <Password>password</Password>
 		</TechnicalAccountSettings>
+
 
 		<ActiveDirectorySettings>
 			<!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
@@ -51,17 +52,14 @@
 			<!-- [Optional] Access the Multifactor API via the HTTP proxy. -->
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
-
-		<GoogleReCaptchaSettings>
-			<!-- Google reCaptcha2 enabled. -->
+		
+		<CaptchaSettings>
 			<Enabled>false</Enabled>
-			
-			<!-- Site Key from https://www.google.com/recaptcha/admin -->
-			<!--<Key>site key</Key>-->
-			
-			<!-- Secret Key from https://www.google.com/recaptcha/admin -->
-			<!--<Secret>secret</Secret>-->
-		</GoogleReCaptchaSettings>
+			<!-- Google/Yandex-->
+			<CaptchaType>Yandex</CaptchaType>
+			<Key>key</Key>
+			<Secret>secret</Secret>
+		</CaptchaSettings>
 		
 		<!-- Only UPN user name format permitted -->
 		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->

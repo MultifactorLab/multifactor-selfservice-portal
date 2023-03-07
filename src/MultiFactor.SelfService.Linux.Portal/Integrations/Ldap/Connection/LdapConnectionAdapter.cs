@@ -152,7 +152,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var entry = result.FirstOrDefault();
             if (entry == null)
             {
-                return new LdapServerInfo(LdapImplementation.Unknown);
+                var def = LdapServerInfo.Default;
+                _config.Logger?.LogWarning("Unknown directory implementation. Using default value: {def}", def);
+                return def;
             }
 
             var rootDse = await _connection.SearchAsync(null, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);

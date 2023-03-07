@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha.Dto
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha.Dto
 {
-    public class VerifyCaptchaResponseDto
+    public class GoogleVerifyCaptchaResponseDto
     {
         /// <summary>
         /// true|false.
@@ -21,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Google.ReCaptcha.Dto
         /// </summary>
         [JsonPropertyName("hostname")]
         public string HostName { get; set; }
-
+        
         /// <summary>
         /// Optional.
         /// </summary>
