@@ -4,4 +4,6 @@
     {
         Task<CaptchaVerificationResult> VerifyCaptchaAsync(HttpRequest request);
     }
+
+    public delegate ICaptchaVerifier CaptchaVerifierResolver();
 }

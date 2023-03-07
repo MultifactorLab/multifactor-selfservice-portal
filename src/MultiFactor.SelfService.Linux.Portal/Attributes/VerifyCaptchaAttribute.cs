@@ -12,13 +12,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             var ctx = context.HttpContext;
 
             var config = ctx.RequestServices.GetRequiredService<PortalSettings>();
-            if (!config.GoogleReCaptchaSettings.Enabled)
+            if (!config.CaptchaSettings.Enabled)           
             {
                 await base.OnActionExecutionAsync(context, next);
                 return;
             }
 
-            var captchaVerifier = ctx.RequestServices.GetRequiredService<ICaptchaVerifier>();
+            var captchaVerifierResolver = ctx.RequestServices.GetRequiredService<CaptchaVerifierResolver>();
+            var captchaVerifier = captchaVerifierResolver();
             var res = await captchaVerifier.VerifyCaptchaAsync(ctx.Request);
             if (res.Success)
             {

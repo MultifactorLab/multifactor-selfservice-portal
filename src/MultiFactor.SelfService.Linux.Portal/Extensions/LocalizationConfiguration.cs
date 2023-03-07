@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -22,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             {
                 SetOptions(options, applicationBuilder.Configuration);
             });
+            applicationBuilder.Services.AddSingleton<ApplicationLanguageProvider>();
 
             applicationBuilder.Services.AddControllersWithViews(configure)
                 .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
