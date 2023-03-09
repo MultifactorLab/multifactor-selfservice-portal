@@ -13,6 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
 
         public IReadOnlyList<AdditionalClaimDescriptor> GetDescriptors()
         {
+            _portalSettings.AdditionalClaims.EnsureArraysBinging();
             return _portalSettings.AdditionalClaims.Claims
                 .Where(x => !string.IsNullOrEmpty(x.Name))
                 .Select(x => AdditionalClaimDescriptorFactory.Create(x))
