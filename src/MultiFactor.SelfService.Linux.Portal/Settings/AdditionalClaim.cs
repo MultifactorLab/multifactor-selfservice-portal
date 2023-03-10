@@ -25,11 +25,7 @@
     public class Claim
     {
         public string? Name { get; internal set; }
-
         public string? Value { get; internal set; }
-
-        public string? From { get; internal set; }
-
         public string? When { get; internal set; }
     }
 }

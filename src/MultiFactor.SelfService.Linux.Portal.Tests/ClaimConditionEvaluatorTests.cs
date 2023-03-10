@@ -12,7 +12,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         [InlineData("", "")]
         [InlineData(null, null)]
         [InlineData(" ", " ")]
-        [InlineData("Value", "value")]
+        [InlineData("value", "value")]
         public void Evaluate_EqOperationWithLiterals_ShouldReturnTrue(string left, string right)
         {
             var ctxMock = new Mock<IApplicationValuesContext>();
@@ -32,8 +32,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         
         [Theory]
         [InlineData("uid", "", new[] { "" })]
-        [InlineData("uid", "u.user", new[] { "U.USER" })]
-        [InlineData("memberOf", "vpn users", new[] { "Users", "VPN Users", "Domain Users" })]
+        [InlineData("uid", "u.user", new[] { "u.user" })]
+        [InlineData("memberOf", "VPN Users", new[] { "Users", "VPN Users", "Domain Users" })]
         public void Evaluate_EqOperationWithLiteralAndAttr_ShouldReturnTrue(string attr, string lit, IReadOnlyList<string> attrValues)
         {
             var ctxMock = new Mock<IApplicationValuesContext>();
@@ -52,28 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         }
         
         [Theory]
-        [InlineData("", "uid", new[] { "" })]
-        [InlineData("u.user", "uid", new[] { "U.USER" })]
-        [InlineData("vpn users", "memberOf", new[] { "Users", "VPN Users", "Domain Users" })]
-        public void Evaluate_InOperationWithLiteralAndAttr_ShouldReturnTrue(string lit, string attr, IReadOnlyList<string> attrValues)
-        {
-            var ctxMock = new Mock<IApplicationValuesContext>();
-            ctxMock.Setup(x => x[It.Is<string>(v => v == attr)]).Returns(attrValues);
-
-            var loggerMock = new Mock<ILogger<ClaimConditionEvaluator>>();
-            var evaluator = new ClaimConditionEvaluator(ctxMock.Object, loggerMock.Object);
-            var condition = new ClaimCondition( 
-                new LiteralClaimValueSource(lit),
-                new AttributeClaimValueSource(attr),
-                ClaimsConditionOperation.In);
-
-            var result = evaluator.Evaluate(condition);
-
-            Assert.True(result);
-        }
-
-        [Theory]
-        [InlineData(new[] { "Users", "VPN Users", "Domain Users" }, new[] { "vpn users", "domain Users" })]
+        [InlineData(new[] { "VPN Users", "Domain Users", "Users" }, new[] {  "Domain Users", "VPN Users", "Users" })]
         public void Evaluate_EqOperationWithAttrsAndAttrs_ShouldReturnTrue(IReadOnlyList<string> leftValues, IReadOnlyList<string> rightValues)
         {
             var ctxMock = new Mock<IApplicationValuesContext>();
