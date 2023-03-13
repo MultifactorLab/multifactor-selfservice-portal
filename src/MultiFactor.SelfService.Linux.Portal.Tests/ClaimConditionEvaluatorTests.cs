@@ -52,7 +52,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
         }
         
         [Theory]
-        [InlineData(new[] { "VPN Users", "Domain Users", "Users" }, new[] {  "Domain Users", "VPN Users", "Users" })]
+        [InlineData(new[] { "VPN Users", "Users", "Domain Users" }, new[] {  "Domain Users", "VPN Users", "Users" })]
+        [InlineData(new[] { "VPN Users" }, new[] {  "Domain Users", "VPN Users" })]
         public void Evaluate_EqOperationWithAttrsAndAttrs_ShouldReturnTrue(IReadOnlyList<string> leftValues, IReadOnlyList<string> rightValues)
         {
             var ctxMock = new Mock<IApplicationValuesContext>();
@@ -69,6 +70,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var result = evaluator.Evaluate(condition);
 
             Assert.True(result);
+        }
+        
+        [Theory]
+        [InlineData(new[] { "VPN Users", "Users", "Domain Users" }, new[] {  "Domain Users", "VPN Users" })]
+        [InlineData(new[] { "VPN Users" }, new[] {  "Domain Users" })]
+        public void Evaluate_EqOperationWithAttrsAndAttrs_ShouldReturnFalse(IReadOnlyList<string> leftValues, IReadOnlyList<string> rightValues)
+        {
+            var ctxMock = new Mock<IApplicationValuesContext>();
+            ctxMock.Setup(x => x[It.Is<string>(v => v == "left")]).Returns(leftValues);
+            ctxMock.Setup(x => x[It.Is<string>(v => v == "right")]).Returns(rightValues);
+
+            var loggerMock = new Mock<ILogger<ClaimConditionEvaluator>>();
+            var evaluator = new ClaimConditionEvaluator(ctxMock.Object, loggerMock.Object);
+            var condition = new ClaimCondition(
+                new AttributeClaimValueSource("left"),
+                new AttributeClaimValueSource("right"),
+                ClaimsConditionOperation.Eq);
+
+            var result = evaluator.Evaluate(condition);
+
+            Assert.False(result);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
             var name = (claim.Name ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(name)) throw new InvalidClaimDescriptionException(claim.Name);
             if (string.IsNullOrWhiteSpace(claim.Value)) throw new InvalidClaimDescriptionException(claim.Name);
-            var source = ClaimOperandHelper.GetOperandSource(claim.Value);
+            var source = ClaimValueSourceFactory.CreateClaimValueSource(claim.Value);
             var condition = !string.IsNullOrWhiteSpace(claim.When) 
                 ? ClaimConditionParser.Parse(claim.When.Trim())
                 : null;

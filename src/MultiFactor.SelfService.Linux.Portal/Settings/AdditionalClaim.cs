@@ -3,22 +3,22 @@
     public class AdditionalClaims
     {
         [ConfigurationKeyName(nameof(Claim))]
-        public List<Claim> Claims { get; set; } = new List<Claim>();
+        private List<Claim> Claims { get; set; } = new List<Claim>();
 
         [ConfigurationKeyName(nameof(Claim))] 
         private Claim SingleClaim { get; set; } = new Claim();
         
         public bool Log { get; private set; }
         
-        public void EnsureArraysBinging()
+        public List<Claim> GetClaims()
         {
             // To deal with a single element binding to array issue, we should map a single claim manually 
             // See: https://github.com/dotnet/runtime/issues/57325
-            if (!Claims.Any() &&
-                SingleClaim.Value != null)
+            if (!Claims.Any() && !string.IsNullOrEmpty(SingleClaim.Name))
             {
                 Claims.Add(SingleClaim);
             }
+            return Claims;
         }
     }
 

@@ -21,8 +21,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
 
             if (leftPart == string.Empty || rightPart == string.Empty) throw new InvalidClaimConditionException(expression);
 
-            var left = ClaimOperandHelper.GetOperandSource(leftPart);
-            var right = ClaimOperandHelper.GetOperandSource(rightPart);
+            var left = ClaimValueSourceFactory.CreateClaimValueSource(leftPart);
+            var right = ClaimValueSourceFactory.CreateClaimValueSource(rightPart);
 
             return new ClaimCondition(left, right, op);
         }

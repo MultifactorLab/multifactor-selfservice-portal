@@ -29,18 +29,18 @@
             if (!leftValue.Any() || !rightValue.Any())
                 return false;
             
-            if (leftValue.Count() == 1 && rightValue.Count() == 1)
+            if (leftValue.Count == 1 && rightValue.Count == 1)
             {
                 return leftValue[0] == rightValue[0];
             }
             
-            if (leftValue.Count() > 1 && rightValue.Count() > 1)
+            if (leftValue.Count > 1 && rightValue.Count > 1)
             {
                 return leftValue.OrderBy(x => x).SequenceEqual(
                     rightValue.OrderBy(x => x));
             }
             
-            return rightValue.Count() > 1 && leftValue.Count() == 1? 
+            return rightValue.Count > 1 && leftValue.Count == 1 ? 
                 rightValue.Any(x => leftValue.Contains(x)) :
                 leftValue.Any(x => rightValue.Contains(x));
         }

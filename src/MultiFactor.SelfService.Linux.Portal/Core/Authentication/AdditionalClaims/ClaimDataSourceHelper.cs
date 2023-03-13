@@ -3,9 +3,9 @@ using MultiFactor.SelfService.Linux.Portal.Core.Metadata.GlobalValues;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims;
 
-public static class ClaimOperandHelper
+public static class ClaimValueSourceFactory
 {
-    public static IClaimValueSource GetOperandSource(string value)
+    public static IClaimValueSource CreateClaimValueSource(string value)
     {
         if ((value.StartsWith('@') || value.StartsWith('$')) && value.Length < 2 || value.Length == 0)
         {
