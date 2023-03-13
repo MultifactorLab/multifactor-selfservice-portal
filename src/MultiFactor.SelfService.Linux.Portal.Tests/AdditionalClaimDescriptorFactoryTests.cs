@@ -52,8 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var claim = new Claim
             {
                 Name = "Class",
-                Value = "888",
-                From = "UserName"
+                Value = "UserName"
             };
 
             var desc = AdditionalClaimDescriptorFactory.Create(claim);
@@ -66,7 +65,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var claim = new Claim
             {
                 Name = "Class",
-                From = "UserName"
+                Value = "$UserName"
             };
 
             var desc = AdditionalClaimDescriptorFactory.Create(claim);
@@ -79,7 +78,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var claim = new Claim
             {
                 Name = "Class",
-                From = "samaccountname"
+                Value = "@samaccountname"
             };
 
             var desc = AdditionalClaimDescriptorFactory.Create(claim);
@@ -92,8 +91,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var claim = new Claim
             {
                 Name = "Class",
-                From = "samaccountname",
-                When = "samaccountname='user.name'"
+                Value = "@samaccountname",
+                When = "@samaccountname=user.name"
             };
 
             var desc = AdditionalClaimDescriptorFactory.Create(claim);

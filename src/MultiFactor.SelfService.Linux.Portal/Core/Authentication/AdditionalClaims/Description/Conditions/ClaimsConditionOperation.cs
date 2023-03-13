@@ -2,7 +2,6 @@
 {
     public enum ClaimsConditionOperation
     {
-        Eq,
-        In
+        Eq
     }
 }

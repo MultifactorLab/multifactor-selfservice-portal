@@ -18,21 +18,31 @@
         /// <returns>TRUE / FALSE</returns>
         public bool Evaluate(ClaimCondition condition)
         {
+            if (condition.Operation != ClaimsConditionOperation.Eq)
+            {
+                _logger.LogDebug("Not supported claim condition operation: {op}", condition.Operation);
+                return false;
+            }
             var leftValue = condition.LeftOperand.GetValues(_claimValuesContext);
             var rightValue = condition.RightOperand.GetValues(_claimValuesContext);
-
-            switch (condition.Operation)
+            
+            if (!leftValue.Any() || !rightValue.Any())
+                return false;
+            
+            if (leftValue.Count == 1 && rightValue.Count == 1)
             {
-                case ClaimsConditionOperation.Eq:
-                    return rightValue.All(x => leftValue.Contains(x, new OrdinalIgnoreCaseStringComparer()));
-                
-                case ClaimsConditionOperation.In:
-                    return leftValue.All(x => rightValue.Contains(x, new OrdinalIgnoreCaseStringComparer()));
-
-                default:
-                    _logger.LogDebug("Not supported claim condition operation: {op}", condition.Operation);
-                    return false;
+                return leftValue[0] == rightValue[0];
             }
+            
+            if (leftValue.Count > 1 && rightValue.Count > 1)
+            {
+                return leftValue.OrderBy(x => x).SequenceEqual(
+                    rightValue.OrderBy(x => x));
+            }
+            
+            return rightValue.Count > 1 && leftValue.Count == 1 ? 
+                rightValue.Any(x => leftValue.Contains(x)) :
+                leftValue.Any(x => rightValue.Contains(x));
         }
     }
 }

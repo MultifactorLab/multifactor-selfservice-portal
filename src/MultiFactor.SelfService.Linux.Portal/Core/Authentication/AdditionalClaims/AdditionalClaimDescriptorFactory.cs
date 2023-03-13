@@ -12,32 +12,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
             if (claim is null) throw new ArgumentNullException(nameof(claim));
             var name = (claim.Name ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(name)) throw new InvalidClaimDescriptionException(claim.Name);
-
-            var source = GetSource(claim);
+            if (string.IsNullOrWhiteSpace(claim.Value)) throw new InvalidClaimDescriptionException(claim.Name);
+            var source = ClaimValueSourceFactory.CreateClaimValueSource(claim.Value);
             var condition = !string.IsNullOrWhiteSpace(claim.When) 
                 ? ClaimConditionParser.Parse(claim.When.Trim())
                 : null;
             return new AdditionalClaimDescriptor(name, source, condition);
-        }
-
-        private static IClaimValueSource GetSource(Claim claim)
-        {
-            if (!string.IsNullOrEmpty(claim.Value))
-            {
-                return new LiteralClaimValueSource(claim.Value);
-            }
-
-            if (!string.IsNullOrEmpty(claim.From))
-            {
-                if (ApplicationGlobalValuesMetadata.HasKey(claim.From))
-                {
-                    return new ReservedValueClaimValueSource(ApplicationGlobalValuesMetadata.ParseKey(claim.From));
-                }
-
-                return new AttributeClaimValueSource(claim.From);
-            }
-
-            throw new InvalidClaimDescriptionException(claim.Name);
         }
     }
 
