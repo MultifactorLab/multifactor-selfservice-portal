@@ -38,20 +38,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                         x.RuleFor(r => r.ApiSecret).NotEmpty().WithMessage(GetErrorMessage(r => r.MultiFactorApiSettings.ApiSecret));
                     });
 
-                RuleFor(c => c.GoogleReCaptchaSettings).NotNull()
-                    .WithMessage(GetErrorMessage(x => x.GoogleReCaptchaSettings))
+                RuleFor(c => c.CaptchaSettings).NotNull()
+                    .WithMessage(GetErrorMessage(x => x.CaptchaSettings))
                     .ChildRules(x =>
                     {
                         x.RuleFor(r => r.Key)
-                            .Must((model, value) =>
-                            {
-                                return !model.Enabled || !string.IsNullOrWhiteSpace(value);
-                            })
-                            .WithMessage(GetCaptchaError(x => x.GoogleReCaptchaSettings.Key));
+                            .Must((model, value) => !model.Enabled || !string.IsNullOrWhiteSpace(value))
+                            .WithMessage(GetCaptchaError(x => x.CaptchaSettings.Key));
 
                         x.RuleFor(r => r.Secret)
                             .Must((model, value) => !model.Enabled || !string.IsNullOrWhiteSpace(value))
-                            .WithMessage(GetCaptchaError(r => r.GoogleReCaptchaSettings.Secret));
+                            .WithMessage(GetCaptchaError(r => r.CaptchaSettings.Secret));
                     });
 
                 RuleFor(c => c.EnablePasswordManagement).Must((model, value) =>
@@ -79,7 +76,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             private static string GetCaptchaError<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)
             {
                 var path = ClassPropertyAccessor.GetPropertyPath(propertySelector, ".");
-                return $"Google reCaptcha2 '{path}' is required. Please check appsettings file and define this property value or disable captcha verification ('{GetPropPath(x => x.GoogleReCaptchaSettings.Enabled)}' property).";
+                return $"Captcha Settings '{path}' is required. Please check appsettings file and define this property value or disable captcha verification ('{GetPropPath(x => x.CaptchaSettings.Enabled)}' property).";
             }
 
             private static string GetPropPath<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)

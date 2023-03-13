@@ -29,15 +29,19 @@
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @Html.ValidationSummary(true)
-
                     
-                    @if (Settings.GoogleReCaptchaSettings.Enabled)
+                    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
                     {
                         <div class="g-recaptcha" 
-                            data-sitekey="@Settings.GoogleReCaptchaSettings.Key" 
+                            data-sitekey="@Settings.CaptchaSettings.Key" 
                             data-callback="captchaCallback"
                             data-size="normal">
                         </div>
+                    }
+                    
+                    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
+                    {
+                        <div id="yandex-captcha-container"></div>
                     }
 
                 </div>
@@ -46,8 +50,8 @@
 
                     <input type="hidden" name="myUrl" id="myUrl" />
 
-                    @if (Settings.GoogleReCaptchaSettings.Enabled)
-                    {
+                    @if (Settings.CaptchaSettings.Enabled)
+                    {   
                         <input type="hidden" name="responseToken" id="responseToken" />
                         <input type="submit" class="btn" disabled="disabled" value="@Localizer["Submit"]" id="submit" />
                     }
@@ -64,9 +68,16 @@
 
 @section head {
 
-    @if (Settings.GoogleReCaptchaSettings.Enabled)
+    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
     {
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    }
+    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
+    {
+        <script
+            src="https://captcha-api.yandex.ru/captcha.js?render=onload&onload=yandexCaptchaLoadFunction"
+            defer
+        ></script>
     }
 }
 
@@ -93,6 +104,22 @@
                 }
             });
         });
+        
+        @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
+        {
+            <text>
+                function yandexCaptchaLoadFunction() {
+                    if (window.smartCaptcha) {
+                        const container = document.getElementById('yandex-captcha-container');
+                        window.smartCaptcha.render(container, {
+                            sitekey: '@Settings.CaptchaSettings.Key',
+                            callback:  captchaCallback,
+                            hl: '@ApplicationLanguageProvider.GetLanguage()'
+                        });
+                    }
+                }
+            </text>
+        }
     </script>
 
 }

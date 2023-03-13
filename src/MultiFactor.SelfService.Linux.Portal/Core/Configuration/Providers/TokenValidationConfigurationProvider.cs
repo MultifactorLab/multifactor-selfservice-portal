@@ -6,7 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
     public class TokenValidationConfigurationProvider : ConfigurationProvider, IConfigurationSource
     {
         private readonly HttpClientAdapter _client;
-        private readonly ILogger<TokenValidationConfigurationProvider> _logger;
+        private readonly ILogger _logger;
 
         public TokenValidationConfigurationProvider(MultifactorHttpClientAdapterFactory clientFactory, ILogger<TokenValidationConfigurationProvider> logger)
         {

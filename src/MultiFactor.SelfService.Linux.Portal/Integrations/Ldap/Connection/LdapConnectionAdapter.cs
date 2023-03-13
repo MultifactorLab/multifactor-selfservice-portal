@@ -102,16 +102,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return instance;
         }
 
-        public static LdapConnectionAdapter CreateAnonymous(string uri, ILogger? logger = null)
+        public static LdapConnectionAdapter CreateAnonymous(string uri, 
+            Action<LdapConnectionAdapterConfigBuilder>? configure = null)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-            var config = new LdapConnectionAdapterConfig
-            {
-                Logger = logger
-            };
+            var config = new LdapConnectionAdapterConfig();
+            configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
+
             var instance = new LdapConnectionAdapter(uri, null, config);
-            instance._connection.TrustAllCertificates();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // trust self-signed certificates on ldap server
+                instance._connection.TrustAllCertificates();
+            }
 
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
@@ -126,7 +130,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
 
-            instance._connection.Bind(LdapAuthType.Anonymous, null);
+            instance._connection.Bind(LdapAuthType.Anonymous, new LdapCredential());
 
             return instance;
         }
@@ -149,7 +153,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var entry = result.FirstOrDefault();
             if (entry == null)
             {
-                return new LdapServerInfo(LdapImplementation.Unknown);
+                var def = LdapServerInfo.Default;
+                _config.Logger?.LogWarning("Unknown directory implementation. Using default value: {def}", def);
+                return def;
             }
 
             var rootDse = await _connection.SearchAsync(null, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);

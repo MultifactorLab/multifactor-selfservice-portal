@@ -350,4 +350,6 @@ MigrationBackup/
 .ionide/
 /src/MultiFactor.SelfService.Linux.Portal/appsettings.localhost.xml
 /src/MultiFactor.SelfService.Linux.Portal/appsettings.test.xml
+
+# Rider and other Idea-compatible IDEs
 .idea/
