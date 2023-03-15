@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Middleware;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Filters;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding;
@@ -18,7 +19,6 @@ builder.AddConfiguration(args)
     {
         o.ModelBinderProviders.Insert(0, ModelBindingConfiguration.GetModelBinderProvider());
         o.Filters.Add<ApplicationExceptionFilter>();
-        o.Filters.Add<FeatureNotEnabaledExceptionFilter>();
     });
 
 
@@ -76,7 +76,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.MapApiEndpoints();
-
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.Run();
 
 // Needs for tests.

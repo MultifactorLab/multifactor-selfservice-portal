@@ -92,7 +92,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureCaptchaVerifier(builder);
             
             builder.Services.AddHostedService<ApplicationChecker>();
-            
             return builder;
         }
 
