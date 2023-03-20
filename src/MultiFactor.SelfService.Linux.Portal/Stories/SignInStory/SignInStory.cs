@@ -74,7 +74,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
                 _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
 
-                return new RedirectToActionResult("Change", "ExpiredPassword", new { });
+                return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, sso, true);
+                //return new RedirectToActionResult("Change", "ExpiredPassword", new { });
             }
 
             return await WrongAsync();
