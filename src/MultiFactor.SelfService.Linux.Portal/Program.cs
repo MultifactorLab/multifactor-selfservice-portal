@@ -76,7 +76,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.MapApiEndpoints();
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.Run();
 
 // Needs for tests.

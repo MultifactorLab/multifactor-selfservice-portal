@@ -1,4 +1,6 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Core.Middleware
+﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
+
+namespace MultiFactor.SelfService.Linux.Portal.Core.Middleware
 {
     public class ExceptionHandlingMiddleware
     {
@@ -10,8 +12,26 @@
 
         public async Task InvokeAsync(HttpContext context, ILogger<ExceptionHandlingMiddleware> logger)
         {
-            logger.LogError("In middleware");
-            await _requestDelegate.Invoke(context);
+            try
+            {
+                await _requestDelegate.Invoke(context);
+            } 
+            catch (Exception ex)
+            {
+                if (ex is FeatureNotEnabledException featureEx)
+                {
+                    var rd = context.GetRouteData();
+                    var action = rd.Values["action"] ?? "action";
+                    var controller = rd.Values["controller"] ?? "controller";
+                    var route = $"/{controller}/{action}".ToLower();
+                    logger.LogWarning("Unable to navigate to route '{r:l}' because required feature '{f:l}' is not enabled.", route, featureEx.FeatureDescription);
+
+                    context.Response.Clear();
+                    context.Response.Redirect("/Account/Login");
+                    return;
+                }
+                throw;
+            }
         }
     }
 }
