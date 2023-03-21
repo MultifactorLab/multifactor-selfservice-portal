@@ -38,9 +38,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
         None = 0,
 
         [Description("Password Management")]
-        PasswordManagement = 1 << 0,
+        PasswordManagement = 1,
         
         [Description("Exchange Acitve Sync Device Management")]
-        ExchangeActiveSyncDevicesManagement = 1 << 1
+        ExchangeActiveSyncDevicesManagement = 2
     }
 }

@@ -16,11 +16,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [HttpGet]
         public IActionResult Change([FromServices] PortalSettings settings)
         {
-            if (settings.EnablePasswordManagement)
-            {
-                return View();
-            }
-
             return SignOut();
         }
 

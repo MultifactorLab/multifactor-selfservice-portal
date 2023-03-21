@@ -27,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Middleware
                     logger.LogWarning("Unable to navigate to route '{r:l}' because required feature '{f:l}' is not enabled.", route, featureEx.FeatureDescription);
 
                     context.Response.Clear();
-                    context.Response.Redirect("/Account/Login");
+                    context.Response.Redirect("/Account/Logout");
                     return;
                 }
                 throw;
