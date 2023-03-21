@@ -41,15 +41,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                     config => config.SetBindIdentityFormatter(_bindDnFormatter));
             }
 
-            using var technicalConn = await CreateAdapterAsTechnicalAccAsync();
-            
-            var domain = await technicalConn.WhereAmIAsync();
-            var existedUser = await FindUserByUidAsync(username, domain, technicalConn);
+            var existedUser = await GetExistedUserAsync(username);
             if (existedUser == null) throw new LdapUserNotFoundException(username, _settings.CompanySettings.Domain);
 
             return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
                
         }
+
+        private async Task<LdapIdentity?> GetExistedUserAsync(string username)
+        {
+            using var technicalConn = await CreateAdapterAsTechnicalAccAsync();
+            var domain = await technicalConn.WhereAmIAsync();
+            var existedUser = await FindUserByUidAsync(username, domain, technicalConn);
+            return existedUser;
+        } 
 
         public async Task<LdapConnectionAdapter> CreateAdapterAsTechnicalAccAsync()
         {
