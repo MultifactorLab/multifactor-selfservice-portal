@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [Authorize]
+    [IsAuthorized]
+    [RequiredFeature(ApplicationFeature.ExchangeActiveSyncDevicesManagement)]
     public class ExchangeActiveSyncDevicesController : Controller
     {
         private readonly PortalSettings _settings;
@@ -18,11 +19,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         public async Task<IActionResult> Index([FromServices] SearchExchangeActiveSyncDevicesStory searchExchangeActiveSyncDevices)
         {
-            if (!_settings.EnableExchangeActiveSyncDevicesManagement)
-            {
-                return RedirectToAction("logout", "account");
-            }
-
             var devices = await searchExchangeActiveSyncDevices.ExecuteAsync();
             return View(devices);
         }
@@ -31,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(string deviceId, [FromServices] ChangeActiveSyncDeviceStateStory changeActiveSyncDeviceState)
         {
-            if (!_settings.EnableExchangeActiveSyncDevicesManagement || !ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return RedirectToAction("logout", "account");
             }
@@ -44,7 +40,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(string deviceId, [FromServices] ChangeActiveSyncDeviceStateStory changeActiveSyncDeviceState)
         {
-            if (!_settings.EnableExchangeActiveSyncDevicesManagement || !ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return RedirectToAction("logout", "account");
             }

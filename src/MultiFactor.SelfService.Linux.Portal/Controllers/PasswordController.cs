@@ -9,7 +9,7 @@ using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [Authorize]
+    [Authorize, IsAuthorized]
     [RequiredFeature(ApplicationFeature.PasswordManagement)]
     public class PasswordController : ControllerBase
     {

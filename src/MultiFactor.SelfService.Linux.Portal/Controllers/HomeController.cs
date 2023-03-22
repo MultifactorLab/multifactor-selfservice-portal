@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator.Dto;
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [Authorize]
+    [IsAuthorized]
     public class HomeController : ControllerBase
     {
         public async Task<IActionResult> Index(SingleSignOnDto claims, [FromServices] LoadProfileStory loadProfile)
