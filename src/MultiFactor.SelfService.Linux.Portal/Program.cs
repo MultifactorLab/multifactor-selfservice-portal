@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.Core.Middleware;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Filters;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding;

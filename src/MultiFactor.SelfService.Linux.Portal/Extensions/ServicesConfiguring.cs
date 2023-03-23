@@ -22,11 +22,11 @@ using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
-using System.Net;
-using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
+using System.Net;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -90,7 +90,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureGoogleApi(builder);
             ConfigureYandexCaptchaApi(builder);
             ConfigureCaptchaVerifier(builder);
-            
+            AddPasswordChangingSessionCache(builder);
+
             builder.Services.AddHostedService<ApplicationChecker>();
             return builder;
         }
@@ -165,6 +166,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
 
             return proxy;
+        }
+
+        public static void AddPasswordChangingSessionCache(WebApplicationBuilder builder)
+        {
+            var settings = builder.Services.BuildServiceProvider().GetRequiredService<PortalSettings>().PasswordChangingSessionSettings;
+            builder.Services.AddMemoryCache(x =>
+            {
+                // 5 Mb by default
+                x.SizeLimit = settings.PwdChangingSessionCacheSize ?? 1024 * 1024 * 5;
+            });
+
+            builder.Services.Configure<ApplicationCacheConfig>(x =>
+            {
+                if (settings.PwdChangingSessionLifetime != null)
+                {
+                    x.AbsoluteExpiration = settings.PwdChangingSessionLifetime.Value;
+                }
+            });
+            builder.Services.AddSingleton<ApplicationCache>();
         }
     }
 }

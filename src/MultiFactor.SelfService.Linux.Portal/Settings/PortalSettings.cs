@@ -1,4 +1,6 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Settings
+﻿using MultiFactor.SelfService.Linux.Portal.Core.Caching;
+
+namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
     public class PortalSettings
     {
@@ -26,6 +28,7 @@
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
         public string UICulture { get; private set; }
         public string LdapBaseDn { get; private set; }
+        public PasswordChangingSessionSettings PasswordChangingSessionSettings { get; private set; } = new();
     }
 
     public enum ChangePasswordMode
