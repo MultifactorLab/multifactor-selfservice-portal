@@ -95,6 +95,14 @@
 
 		<!-- FreeIPA supporting -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
+
+		<!-- Expired Password Changing Session Settings-->
+		<!-- <PasswordChangingSessionSettings> -->
+			<!-- Life time changing session in hh:mm:ss  -->
+			<!-- <PwdChangingSessionLifetime></PwdChangingSessionLifetime> -->
+			<!-- Session storage size in `bytes` -->
+			<!-- <PwdChangingSessionCacheSize></PwdChangingSessionCacheSize> -->
+		<!-- </PasswordChangingSessionSettings> -->
 	</PortalSettings>
 
 </configuration>

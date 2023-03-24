@@ -10,13 +10,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [RequiredFeature(ApplicationFeature.ExchangeActiveSyncDevicesManagement)]
     public class ExchangeActiveSyncDevicesController : Controller
     {
-        private readonly PortalSettings _settings;
-
-        public ExchangeActiveSyncDevicesController(PortalSettings settings)
-        {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-        }
-
         public async Task<IActionResult> Index([FromServices] SearchExchangeActiveSyncDevicesStory searchExchangeActiveSyncDevices)
         {
             var devices = await searchExchangeActiveSyncDevices.ExecuteAsync();
