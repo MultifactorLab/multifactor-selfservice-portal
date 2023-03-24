@@ -69,6 +69,7 @@ app.UseStatusCodePages(async context =>
         response.Redirect($"/account/logout{MultiFactorClaimsDtoBinder.FromRequest(request)}");
     }
 });
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseRouting();
@@ -76,6 +77,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.MapApiEndpoints();
+
 app.Run();
 
 // Needs for tests.
