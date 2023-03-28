@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
@@ -15,16 +16,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly DataProtection _dataProtection;
         private readonly PasswordChanger _passwordChanger;
-
+        private readonly ApplicationCache _applicationCache;
         public ChangeExpiredPasswordStory(PortalSettings settings, 
             SafeHttpContextAccessor contextAccessor, 
             DataProtection dataProtection, 
-            PasswordChanger passwordChanger)
+            PasswordChanger passwordChanger,
+            ApplicationCache applicationCache)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
             _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));
+            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(passwordChanger));
         }
 
         public async Task<IActionResult> ExecuteAsync(ChangeExpiredPasswordViewModel model)
@@ -35,24 +38,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
+            var rawUserName = _contextAccessor.HttpContext.User.Claims.SingleOrDefault(
+                claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
+            if (rawUserName is null)
+            {
+                return new RedirectToActionResult("Login", "Account", new { });
+            }
+            var userName = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(rawUserName));
+            var encryptedPwd = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(rawUserName));
 
-            var userName = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY);
-            var encryptedPwd = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY);
-
-            if (userName == null || encryptedPwd == null)
+            if (userName?.Value is null || encryptedPwd?.Value is null)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
 
-            var currentPassword = _dataProtection.Unprotect(encryptedPwd);
-            var pwdChangeResult = await _passwordChanger.ResetExpiredPasswordAsync(userName, currentPassword, model.NewPassword);
+            var currentPassword = _dataProtection.Unprotect(encryptedPwd.Value);
+            var pwdChangeResult = await _passwordChanger.ResetExpiredPasswordAsync(userName.Value, currentPassword, model.NewPassword);
             if (!pwdChangeResult.Success)
             {
                 throw new ModelStateErrorException(pwdChangeResult.ErrorReason);
             }
-
-            _contextAccessor.HttpContext.Session.Remove(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY);
-            _contextAccessor.HttpContext.Session.Remove(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY);
+            _applicationCache.Remove(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(rawUserName));
+            _applicationCache.Remove(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(rawUserName));
 
             return new RedirectToActionResult("Done", "ExpiredPassword", new { });
         }

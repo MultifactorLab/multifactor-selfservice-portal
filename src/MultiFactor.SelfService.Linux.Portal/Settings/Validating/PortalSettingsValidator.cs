@@ -65,6 +65,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     if (value == null || string.IsNullOrWhiteSpace(value.SignUpGroups)) return true;
                     return Regex.IsMatch(value.SignUpGroups, Constants.SIGN_UP_GROUPS_REGEX, RegexOptions.IgnoreCase);
                 }).WithMessage($"Invalid group names. Please check '{GetPropPath(p => p.GroupPolicyPreset.SignUpGroups)}' settings property and fix syntax errors.");
+
+                RuleFor(x => x.PasswordChangingSessionSettings)
+                    .NotNull().WithMessage(GetErrorMessage(x => x.PasswordChangingSessionSettings))
+                    .ChildRules(x =>
+                    {
+                        x.RuleFor(r => r.PwdChangingSessionCacheSize)
+                            .Must((model, value) => value is null ||
+                                                 value > 0 && value < (100L * Constants.BYTES_IN_MB /* 100 MB */))
+                            .WithMessage($"Invalid password changing session cache size. Please check '{GetPropPath(x => x.PasswordChangingSessionSettings.PwdChangingSessionCacheSize)} property.'");
+
+                        x.RuleFor(r => r.PwdChangingSessionLifetime)
+                            .Must((model, value) => value is null ||
+                                                    value.Value < TimeSpan.FromDays(10))
+                            .WithMessage($"Invalid password changing session lifetime. Please check '{GetPropPath(x => x.PasswordChangingSessionSettings.PwdChangingSessionLifetime)} property.'");
+                    });
             }
 
             private static string GetErrorMessage<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)
