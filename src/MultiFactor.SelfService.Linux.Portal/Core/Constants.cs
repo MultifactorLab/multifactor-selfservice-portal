@@ -18,7 +18,7 @@
         /// Group 1; группа 2 ; ГРУППА_3;
         /// </summary>
         public const string SIGN_UP_GROUPS_REGEX = @"([\wа-я\s\-]+)(\s*;\s*([\wа-я\s\-]+)*)*";
-        public const long BYTES_IN_GB = 1073741824L;
+        public const long BYTES_IN_MB = 1048576L;
         public static class MultiFactorClaims
         {
             public const string SamlSessionId = "samlSessionId";

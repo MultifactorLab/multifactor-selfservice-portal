@@ -16,7 +16,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             _requiredFeatureFlags = requiredFeatureFlags;
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context,
+                                         ActionExecutionDelegate next)
         {
             var httpContext = context.HttpContext;
             var configuration = httpContext.RequestServices.GetRequiredService<PortalSettings>();
@@ -29,6 +30,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             {
                 throw new FeatureNotEnabledException(ApplicationFeature.ExchangeActiveSyncDevicesManagement.GetEnumDescription());
             }
+
+            await next();
         }
     }
 
