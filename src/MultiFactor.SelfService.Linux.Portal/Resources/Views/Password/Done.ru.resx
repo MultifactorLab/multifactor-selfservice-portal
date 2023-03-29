@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Info" xml:space="preserve">
-    <value>Используйте новый пароль для входа в учетную запись. Нажмите "Хорошо", чтобы вернуться на главную страницу.</value>
+    <value>Нажмите "Хорошо", чтобы вернуться на главную страницу</value>
   </data>
   <data name="Ok" xml:space="preserve">
     <value>Хорошо</value>
