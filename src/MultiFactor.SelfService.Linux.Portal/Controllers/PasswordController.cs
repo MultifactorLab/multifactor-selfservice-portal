@@ -48,5 +48,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return View(model);
             }
         }
+
+        public ActionResult Done()
+        {
+            return View();
+        }
     }
 }

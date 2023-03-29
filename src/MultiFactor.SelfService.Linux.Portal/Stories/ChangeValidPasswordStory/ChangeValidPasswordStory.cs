@@ -32,7 +32,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
             var res = await _passwordChanger.ChangeValidPasswordAsync(username, model.Password, model.NewPassword);
             if (!res.Success) throw new ModelStateErrorException(res.ErrorReason);
             
-            return new LocalRedirectResult("/");
+            return new LocalRedirectResult("/Password/Done");
         }
     }
 }
