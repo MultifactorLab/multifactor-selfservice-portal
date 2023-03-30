@@ -4,6 +4,7 @@ using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
@@ -20,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
-        [VerifyCaptcha]
+        [VerifyCaptcha(CaptchaPlace.Login)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, SingleSignOnDto sso, [FromServices] SignInStory signIn)
         {
