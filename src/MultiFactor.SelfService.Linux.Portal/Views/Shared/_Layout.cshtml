@@ -12,11 +12,11 @@
     @RenderSection("head", false)
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="icon" type="image/x-icon" href="~/favicon.ico">
-    @if (ViewBag.RenderCaptchaScripts && Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
+    @if (ViewBag.RenderCaptchaScripts == true && Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
     {
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     }
-    @if (ViewBag.RenderCaptchaScripts && Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
+    @if (ViewBag.RenderCaptchaScripts == true && Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex))
     {
         <script
             src="https://captcha-api.yandex.ru/captcha.js?render=onload&onload=yandexCaptchaLoadFunction"
