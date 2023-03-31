@@ -20,7 +20,7 @@
             <fieldset>
                 @Html.AntiForgeryToken()
                 <p>@Localizer["Invitation"]</p>
-                <div class="form-row">
+                <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
                     <div class="input">
                         @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
@@ -41,7 +41,11 @@
                 <div class="form-row">
                     <input type="hidden" name="myUrl" id="myUrl" />
                     <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
+                    <div class="p-8 align-row-right">
+                        <a href="/PasswordRecovery">Забыли пароль?</a>
+                    </div>
                 </div>
+
             </fieldset>
         }
     </div>
