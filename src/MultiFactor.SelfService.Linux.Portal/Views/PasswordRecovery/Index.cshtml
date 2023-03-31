@@ -1,0 +1,48 @@
+﻿@*
+@{
+    ViewBag.Title = Resources.PasswordReset.Title;
+}
+<div class="login change-pwd">
+    <div class="form-column">
+        @using (Html.BeginForm("Index", "PasswordRecovery", FormMethod.Post))
+        {
+            <fieldset>
+                @Html.AntiForgeryToken()
+                <p>@Resources.PasswordReset.EnterLogin</p>
+                <div class="form-row">
+                    <div class="input">
+                        @Html.TextBoxFor(m => m.Identity, 
+                            new { 
+                                placeholder = Configuration.Current.RequiresUpn ? Resources.AccountLogin.UserNameUpn : Resources.AccountLogin.UserName ,
+                                autocomplete = "off"
+                            })
+                        @Html.ValidationMessageFor(m => m.Identity)
+                    </div>
+                    @Html.ValidationSummary(true)
+                    @if (isCaptchaEnabled) {
+                        ViewBag.RenderCaptchaScripts = true;
+                        @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaPlace.Login })
+                    }
+                    
+                </div>
+                <div class="form-row">
+                    <input type="hidden" name="myUrl" id="myUrl" />
+                    <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
+                </div>
+            </fieldset>
+        }
+    </div>
+</div>
+ 
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#myUrl').val(document.location);
+
+        $("form").submit(function () {
+            if ($(this).valid()) {
+                $(this).find(':submit').attr('disabled', 'disabled').val('@Resources.AccountLogin.PleaseWait');
+            }
+        });
+    });
+</script>
+*@
