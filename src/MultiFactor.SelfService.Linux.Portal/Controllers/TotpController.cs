@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CreateYandexAuthKeyStory;
@@ -7,7 +7,7 @@ using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [Authorize]
+    [IsAuthorized]
     public class TotpController : Controller
     {
         [HttpGet]

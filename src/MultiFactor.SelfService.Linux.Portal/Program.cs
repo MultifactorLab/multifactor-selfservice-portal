@@ -18,6 +18,7 @@ builder.AddConfiguration(args)
     {
         o.ModelBinderProviders.Insert(0, ModelBindingConfiguration.GetModelBinderProvider());
         o.Filters.Add<ApplicationExceptionFilter>();
+        o.Filters.Add<FeatureNotEnabledExceptionFilter>();
     });
 
 
