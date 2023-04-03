@@ -72,7 +72,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     {
                         x.RuleFor(r => r.PwdChangingSessionCacheSize)
                             .Must((model, value) => value is null ||
-                                                 value > 0 && value < (100L * Constants.BYTES_IN_MB /* 100 MB */))
+                                                 value >= Constants.BYTES_IN_MB && value < (100L * Constants.BYTES_IN_MB /* 100 MB */))
                             .WithMessage($"Invalid password changing session cache size. Please check '{GetPropPath(x => x.PasswordChangingSessionSettings.PwdChangingSessionCacheSize)} property.'");
 
                         x.RuleFor(r => r.PwdChangingSessionLifetime)
