@@ -2,6 +2,6 @@
 {
     public class ApplicationCacheConfig
     {
-        public TimeSpan AbsoluteExpiration { get; set; } = TimeSpan.FromMinutes(3);
+        public TimeSpan AbsoluteExpiration { get; set; } = TimeSpan.FromMinutes(2);
     }
 }
