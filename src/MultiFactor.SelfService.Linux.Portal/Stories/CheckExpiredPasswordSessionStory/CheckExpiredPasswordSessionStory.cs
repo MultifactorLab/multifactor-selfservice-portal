@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
@@ -10,10 +11,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessi
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
 
-        public CheckExpiredPasswordSessionStory(SafeHttpContextAccessor contextAccessor, PortalSettings settings)
+        private readonly ApplicationCache _applicationCache;
+
+        public CheckExpiredPasswordSessionStory(SafeHttpContextAccessor contextAccessor, PortalSettings settings, ApplicationCache applicationCache)
         {
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
         }
 
         public IActionResult Execute()
@@ -23,10 +27,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessi
                 return new RedirectToActionResult("Login", "Account", new { });
             }
 
-            var userName = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY);
-            var encryptedPwd = _contextAccessor.HttpContext.Session.GetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY);
+            var rawUserName = _contextAccessor.HttpContext.User.Claims.SingleOrDefault(
+                claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
+            if (rawUserName is null)
+            {
+                return new RedirectToActionResult("Login", "Account", new { });
+            }
 
-            if (userName == null || encryptedPwd == null)
+            var userName = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(rawUserName));
+            var encryptedPwd = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(rawUserName));
+
+            if (userName.IsEmpty || encryptedPwd.IsEmpty)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
