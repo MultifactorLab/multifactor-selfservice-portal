@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
+using MultiFactor.SelfService.Linux.Portal.Core.Configuration.XmlConfig;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
@@ -28,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 var userName = LdapIdentity.ParseUser(form.Identity);
                 if (userName.Type != IdentityType.UserPrincipalName)
                 {
-                    ModelState.AddModelError(string.Empty, ""/*Resources.AccountLogin.UserNameUpnRequired*/);
+                   // ModelState.AddModelError(string.Empty, .UserNameUpnRequired);
                     return View(form);
                 }
             }

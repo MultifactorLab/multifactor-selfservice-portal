@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Controllers
+﻿namespace MultiFactor.SelfService.Linux.Portal.ViewModels
 {
     public class EnterIdentityForm
     {

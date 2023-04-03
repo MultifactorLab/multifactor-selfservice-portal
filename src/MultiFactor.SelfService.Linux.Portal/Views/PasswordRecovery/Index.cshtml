@@ -1,4 +1,4 @@
-﻿@*
+﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.EnterIdentityForm
 @{
     ViewBag.Title = Resources.PasswordReset.Title;
 }
@@ -8,12 +8,12 @@
         {
             <fieldset>
                 @Html.AntiForgeryToken()
-                <p>@Resources.PasswordReset.EnterLogin</p>
+                <p>@Localizer["EnterLogin"]</p>
                 <div class="form-row">
                     <div class="input">
                         @Html.TextBoxFor(m => m.Identity, 
                             new { 
-                                placeholder = Configuration.Current.RequiresUpn ? Resources.AccountLogin.UserNameUpn : Resources.AccountLogin.UserName ,
+                                placeholder = Settings.RequiresUserPrincipalName ? Resources.AccountLogin.UserNameUpn : Resources.AccountLogin.UserName ,
                                 autocomplete = "off"
                             })
                         @Html.ValidationMessageFor(m => m.Identity)
@@ -45,4 +45,4 @@
         });
     });
 </script>
-*@
+ 
