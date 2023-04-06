@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
+using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
@@ -140,6 +141,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             var payload = new { key, otp };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse>("self-service/totp", payload, GetBearerAuthHeaders()));
+        }
+
+        public Task<ResetPasswordDto> StartResetPassword(string identity, string callbackUrl)
+        {
+            if (identity is null) throw new ArgumentNullException(nameof(identity));
+            if (callbackUrl is null) throw new ArgumentNullException(nameof(callbackUrl));
+
+            // add netbios domain name to login if specified
+
+            var payload = new
+            {
+                Identity = identity,
+                CallbackUrl = callbackUrl,
+                Claims = new Dictionary<string, string>
+                {
+                    { MultiFactorClaims.ResetPassword, "true" }
+                }
+            };
+
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<ResetPasswordDto>>("self-service/start-reset-password", payload, GetBasicAuthHeaders()));
+
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse?>> method)

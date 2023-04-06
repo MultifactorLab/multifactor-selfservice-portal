@@ -27,6 +27,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using System.Net;
+using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -75,6 +76,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
+                .AddTransient<RecoverPasswordStory>()
                 .AddTransient<AuthenticateSessionStory>()
                 .AddTransient<RemoveAuthenticatorStory>()
                 .AddTransient<CreateYandexAuthKeyStory>()
