@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging.ForgottenPassword;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -12,11 +14,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
     {
         private readonly MultiFactorApi _apiClient;
         private readonly PortalSettings _portalSettings;
+        private readonly ForgottenPasswordChanger _passwordChanger;
         private readonly ILogger<RecoverPasswordStory> _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
+
         public RecoverPasswordStory(
-            MultiFactorApi apiClient, 
-            PortalSettings portalSettings, 
+            MultiFactorApi apiClient,
+            PortalSettings portalSettings,
+            ForgottenPasswordChanger passwordChanger,
             ILogger<RecoverPasswordStory> logger,
             IStringLocalizer<SharedResource> localizer)
         {
@@ -24,6 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             _portalSettings = portalSettings ?? throw new ArgumentNullException(nameof(portalSettings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _localizer = localizer;
+            _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));
         }
 
         public async Task<IActionResult> StartRecoverAsync(EnterIdentityForm form)
@@ -38,7 +44,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                     throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
                 }
             }
-            var callback = BuildCallbackUrl(form.MyUrl, "reset");
+            var callback = BuildCallbackUrl(form.MyUrl, "reset", 1);
 
             try
             {
@@ -54,6 +60,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             }
         }
 
+        public async Task<IActionResult> RecoverPasswordAsync(ResetPasswordForm form)
+        {
+            var result = await _passwordChanger.ChangePassword(new ForgottenPasswordChangeRequest(form.Identity, form.NewPassword));
+            return new RedirectResult("Done");
+        }
 
         public static string BuildCallbackUrl(string currentPath, string relPath, int removeSegments = 0)
         {

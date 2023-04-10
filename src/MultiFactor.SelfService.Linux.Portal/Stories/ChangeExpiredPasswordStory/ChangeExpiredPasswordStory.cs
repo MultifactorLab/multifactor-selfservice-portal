@@ -3,7 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging.ExpiredPasswordReset;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -15,12 +15,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         private readonly PortalSettings _settings;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly DataProtection _dataProtection;
-        private readonly PasswordChanger _passwordChanger;
+        private readonly ExpiredPasswordChanger _passwordChanger;
         private readonly ApplicationCache _applicationCache;
         public ChangeExpiredPasswordStory(PortalSettings settings, 
             SafeHttpContextAccessor contextAccessor, 
             DataProtection dataProtection, 
-            PasswordChanger passwordChanger,
+            ExpiredPasswordChanger passwordChanger,
             ApplicationCache applicationCache)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -53,7 +53,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
             }
 
             var currentPassword = _dataProtection.Unprotect(encryptedPwd.Value);
-            var pwdChangeResult = await _passwordChanger.ResetExpiredPasswordAsync(userName.Value, currentPassword, model.NewPassword);
+            var pwdChangeResult = await _passwordChanger.ChangePassword(new ExpiredPasswordChangeRequest(userName.Value, currentPassword, model.NewPassword));
             if (!pwdChangeResult.Success)
             {
                 throw new ModelStateErrorException(pwdChangeResult.ErrorReason);

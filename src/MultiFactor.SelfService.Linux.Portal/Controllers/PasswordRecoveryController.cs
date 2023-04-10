@@ -15,7 +15,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         private PortalSettings _portalSettings;
         private RecoverPasswordStory _recoverPasswordStory;
         private TokenVerifier _tokenVerifier;
-        private PasswordChanger _passwordChanger;
         public PasswordRecoveryController(
             RecoverPasswordStory recoverPasswordStory,
             PortalSettings portalSettings,
@@ -29,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Change()
         {
             return View();
         }
@@ -48,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             var token = _tokenVerifier.Verify(accessToken);
 
-            if (!token.MustChangePassword)
+            if (!token.MustResetPassword)
             {
                 _logger.LogError("Invalid reset password session for user '{identity:l}': required claims not found", token.Identity);
                 return RedirectToAction("Wrong");
@@ -73,15 +72,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View("Reset", form);
             }
-            var res = await _passwordChanger.ChangeValidPasswordAsync(form.Identity, form.Password, model.NewPassword);
-            {
-                _logger.Error("Unable to reset password for identity '{id:l}'. Failed to set new password: {err:l}", form.Identity, errorReason);
-                ModelState.AddModelError(string.Empty, Resources.PasswordReset.Fail);
-                return View("Reset", form);
-            }
-
+            var result = await _recoverPasswordStory.RecoverPasswordAsync(form);
             return RedirectToAction("Done");
         }
 
+        public ActionResult Wrong() => View();
+        public ActionResult Done() => View();
     }
 }

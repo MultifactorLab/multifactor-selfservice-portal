@@ -1,4 +1,10 @@
-﻿@using MultiFactor.SelfService.Linux.Portal.Core
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@using MultiFactor.SelfService.Linux.Portal.Core
+@using MultiFactor.SelfService.Linux.Portal.Settings
 @model MultiFactor.SelfService.Linux.Portal.ViewModels.EnterIdentityForm;
 @{
     var isCaptchaEnabled = Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaPlace.PasswordRecovery);
