@@ -6,9 +6,15 @@
         {
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>
             {
-                configBuilder.AddXmlFile("appsettings.xml", optional: true, reloadOnChange: true)
-                      .AddXmlFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml", optional: true, reloadOnChange: true)
-                      .AddEnvironmentVariables();
+                XmlConfigurationExtensions.AddXmlFile(configBuilder, "appsettings.xml",
+                    optional: true,
+                    reloadOnChange: true);
+
+                XmlConfigurationExtensions.AddXmlFile(configBuilder, $"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml",
+                    optional: true,
+                    reloadOnChange: true);
+
+                configBuilder.AddEnvironmentVariables();
 
                 if (args.Any())
                 {
