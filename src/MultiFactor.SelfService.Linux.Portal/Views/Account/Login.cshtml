@@ -41,9 +41,12 @@
                 <div class="form-row">
                     <input type="hidden" name="myUrl" id="myUrl" />
                     <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
-                    <div class="p-8 align-row-right">
-                        <a href="/PasswordRecovery/Change">Забыли пароль?</a>
-                    </div>
+                    @if (Settings.PasswordManagement.PasswordRecoveryEnabled)
+                    {
+                        <div class="p-8 align-row-right">
+                            <a href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>
+                        </div>
+                    }
                 </div>
 
             </fieldset>

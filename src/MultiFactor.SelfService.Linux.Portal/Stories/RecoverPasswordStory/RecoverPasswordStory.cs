@@ -40,12 +40,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                 var userName = LdapIdentity.ParseUser(form.Identity);
                 if (userName.Type != IdentityType.UserPrincipalName)
                 {
-                    // ModelState.AddModelError(string.Empty, .UserNameUpnRequired);
                     throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
                 }
             }
-            var callback = BuildCallbackUrl(form.MyUrl, "reset", 1);
-
+            var callback = BuildCallbackUrl(form.MyUrl, "Reset", 1);
             try
             {
                 var response = await _apiClient.StartResetPassword(form.Identity.Trim(), callback);
@@ -55,14 +53,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to recover password for user '{u:l}': {m:l}", form.Identity, ex.Message);
-                // TempData["reset-password-error"] = Resources.PasswordReset.ErrorMessage;
-                throw new ModelStateErrorException(_localizer.GetString("ErrorMessage"));
+                throw new ModelStateErrorException(ex.Message);
             }
         }
 
         public async Task<IActionResult> RecoverPasswordAsync(ResetPasswordForm form)
         {
             var result = await _passwordChanger.ChangePassword(new ForgottenPasswordChangeRequest(form.Identity, form.NewPassword));
+            if(!result.Success)
+            {
+                throw new ModelStateErrorException(result.ErrorReason);
+            }
             return new RedirectResult("Done");
         }
 

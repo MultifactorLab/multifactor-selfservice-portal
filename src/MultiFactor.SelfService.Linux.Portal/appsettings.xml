@@ -59,7 +59,17 @@
 			<CaptchaType>Yandex</CaptchaType>
 			<Key>key</Key>
 			<Secret>secret</Secret>
+			<!-- Full/PasswordRecovery -->
+			<CaptchaRequired>Full</CaptchaRequired>
 		</CaptchaSettings>
+
+		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+		<PasswordManagement passwordManagementEnabled="false" passwordRecoveryEnabled="false">
+			<!--PwdChangingSessionLifetime>00:00:30</PwdChangingSessionLifetime-->
+			<!--PwdChangingSessionCacheSize>1048576</PwdChangingSessionCacheSize-->
+			<!--ChangeValidPasswordMode>AsUser</ChangeValidPasswordMode-->
+			<!--ChangeExpiredPasswordMode>AsTechnicalAccount</ChangeExpiredPasswordMode-->
+		</PasswordManagement>
 		
 		<!-- Only UPN user name format permitted -->
 		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
@@ -68,8 +78,6 @@
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
-		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
-		<EnablePasswordManagement>true</EnablePasswordManagement>
 		<!-- Enable user Exchange AciveSync devices provisioning. Not works with Samba. -->
 		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
 
@@ -95,14 +103,6 @@
 
 		<!-- FreeIPA supporting -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
-
-		<!-- Expired Password Changing Session Settings-->
-		<!-- <PasswordChangingSessionSettings> -->
-			<!-- Life time changing session in hh:mm:ss  -->
-			<!-- <PwdChangingSessionLifetime></PwdChangingSessionLifetime> -->
-			<!-- Session storage size in `bytes` -->
-			<!-- <PwdChangingSessionCacheSize></PwdChangingSessionCacheSize> -->
-		<!-- </PasswordChangingSessionSettings> -->
 	</PortalSettings>
 
 </configuration>

@@ -117,46 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CommonErrorTitle" xml:space="preserve">
-    <value>Ошибка сброса пароля</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отмена</value>
   </data>
-  <data name="EnterLogin" xml:space="preserve">
-    <value>Введите имя пользователя, чтобы продолжить восстановление пароля</value>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Еще раз новый пароль</value>
   </data>
-  <data name="ErrorMessage" xml:space="preserve">
-    <value>Свяжитесь с Администратором для восстановления пароля</value>
-  </data>
-  <data name="Fail" xml:space="preserve">
-    <value>Не удалось установить новый пароль</value>
-  </data>
-  <data name="Info" xml:space="preserve">
-    <value>Пожалуйста, войдите заново с новым паролем.</value>
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>Текущий пароль</value>
   </data>
   <data name="Invitation" xml:space="preserve">
-    <value>Пожалуйста, установите новый пароль. Обратите внимание, новый пароль:</value>
+    <value>Пожалуйста, поменяйте пароль для продолжения работы. Обратите внимание, новый пароль:</value>
   </data>
-  <data name="Next" xml:space="preserve">
-    <value>Сбросить пароль</value>
+  <data name="NewPassword" xml:space="preserve">
+    <value>Новый пароль</value>
   </data>
-  <data name="Ok" xml:space="preserve">
-    <value>Хорошо</value>
+  <data name="Req1" xml:space="preserve">
+    <value>Не должен совпадать с вашим логином</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value />
+  <data name="Req2" xml:space="preserve">
+    <value>Не должен повторять ранее использованные пароли</value>
+  </data>
+  <data name="Req3" xml:space="preserve">
+    <value>Должен содержать не менее 7 символов</value>
+  </data>
+  <data name="Req4" xml:space="preserve">
+    <value>Включать цифры и буквы в разном регистре</value>
   </data>
   <data name="Submit" xml:space="preserve">
-    <value>Подтвердить</value>
-  </data>
-  <data name="Success" xml:space="preserve">
-    <value>Новый пароль успешно установлен</value>
+    <value>Сменить</value>
   </data>
   <data name="Title" xml:space="preserve">
-    <value>Восстановление пароля</value>
+    <value>Смена пароля</value>
   </data>
-  <data name="UserName" xml:space="preserve">
-    <value>Имя пользователя</value>
-  </data>
-  <data name="UserNameUpn" xml:space="preserve">
-    <value>user@domain.loc</value>
+  <data name="WrongUserNameOrPassword" xml:space="preserve">
+    <value>Неверное имя пользователя или пароль</value>
   </data>
 </root>

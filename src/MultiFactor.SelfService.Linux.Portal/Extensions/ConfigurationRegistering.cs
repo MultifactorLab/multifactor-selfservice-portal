@@ -44,6 +44,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     CaptchaType = CaptchaType.Google
                 };
             }
+
+            if (settings.EnablePasswordManagement && !settings.PasswordManagement.PasswordManagementEnabled && 
+                !settings.PasswordManagement.PasswordRecoveryEnabled) {
+
+                settings.PasswordManagement = new PasswordManagementSettings(
+                    settings.EnablePasswordManagement,
+                    false,
+                    settings.ChangeValidPasswordMode,
+                    settings.ChangeExpiredPasswordMode,
+                    settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime ??
+                        settings.PasswordManagement.PwdChangingSessionLifetime,
+                    settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize ??
+                        settings.PasswordManagement.PwdChangingSessionCacheSize
+                    );
+            }
 #pragma warning restore CS0612
         }
 

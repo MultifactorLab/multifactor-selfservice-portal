@@ -12,7 +12,7 @@
 }
 <div class="login change-pwd">
     <div class="form-column">
-        @using (Html.BeginForm("Index", "PasswordRecovery", FormMethod.Post))
+        @using (Html.BeginForm("Change", "ForgottenPassword", FormMethod.Post))
         {
             <fieldset>
                 @Html.AntiForgeryToken()
@@ -46,12 +46,13 @@
 @section Scripts {
         <partial name="_ValidationScriptsPartial" />
         <script>
+            var pleaseWaitMsg = '@Localizer["PleaseWait"]';
             $(document).ready(function(){
             $('#myUrl').val(document.location);
 
             $("form").submit(function () {
                     if ($(this).valid()) {
-                        $(this).find(':submit').attr('disabled', 'disabled').val('@Localizer["PleaseWait"]');
+                        $(this).find(':submit').attr('disabled', 'disabled').val(pleaseWaitMsg);
                     }
                 });
             });

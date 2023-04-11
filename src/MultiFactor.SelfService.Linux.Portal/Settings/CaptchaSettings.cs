@@ -1,3 +1,6 @@
+using MultiFactor.SelfService.Linux.Portal.Extensions;
+using System.Reflection;
+
 namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
     public enum CaptchaType
@@ -13,11 +16,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         PasswordRecovery = 2
     }
 
-    [Flags]
     public enum CaptchaRequired
     {
-        Full = CaptchaPlace.Login | CaptchaPlace.PasswordRecovery,
-        PasswordRecovery = CaptchaPlace.PasswordRecovery
+        [CaptchaPlace(Place = CaptchaPlace.Login | CaptchaPlace.PasswordRecovery)]
+        Full = 0,
+        [CaptchaPlace(Place = CaptchaPlace.PasswordRecovery)]
+        PasswordRecovery = 1
     }
 
     public class CaptchaSettings
@@ -26,14 +30,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public bool Enabled { get; init; }
         public string Key { get; init; } = string.Empty;
         public string Secret { get; init; } = string.Empty;
+        public CaptchaRequired CaptchaRequired { get; init; } = CaptchaRequired.Full;
 
         public bool IsCaptchaEnabled(CaptchaType type, CaptchaPlace place) =>
             Enabled && CaptchaType == type && IsCaptchaEnabled(place);
-        public bool IsCaptchaEnabled(CaptchaPlace place) =>
-            Enabled && CaptchaRequired.HasFlag((CaptchaRequired)place);
+
+        public bool IsCaptchaEnabled(CaptchaPlace place)
+        {
+            var captchaRequiredMask = CaptchaRequired.GetEnumAttribute<CaptchaPlaceAttribute>();
+            return Enabled && captchaRequiredMask!.Place.HasFlag(place);
+        }
+
         public bool IsCaptchaEnabled(CaptchaType type) =>
             Enabled && CaptchaType == type;
 
-        public CaptchaRequired CaptchaRequired { get; init; } = CaptchaRequired.PasswordRecovery;
+    }
+
+    public class CaptchaPlaceAttribute : Attribute
+    {
+        public CaptchaPlace Place { get; init; }
     }
 }

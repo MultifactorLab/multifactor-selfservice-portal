@@ -6,7 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
     {
         public static IServiceCollection AddPasswordChangingSessionCache(this IServiceCollection services)
         {
-            var settings = services.BuildServiceProvider().GetRequiredService<PortalSettings>().PasswordChangingSessionSettings;
+            var settings = services.BuildServiceProvider().GetRequiredService<PortalSettings>().PasswordManagement;
             services.AddMemoryCache(x =>
             {
                 // 5 Mb by default

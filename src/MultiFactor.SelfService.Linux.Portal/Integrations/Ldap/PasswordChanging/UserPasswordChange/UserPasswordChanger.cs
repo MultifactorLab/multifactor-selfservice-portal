@@ -33,7 +33,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             // Get Connection
             return await TryExecuteAsync(async () =>
             {
-                using var connection = (_settings.ChangeValidPasswordMode == ChangePasswordMode.AsTechnicalAccount)
+                using var connection = (_settings.PasswordManagement.ChangeValidPasswordMode == ChangePasswordMode.AsTechnicalAccount)
                     ? await _connectionFactory.CreateAdapterAsTechnicalAccAsync()
                     : await _connectionFactory.CreateAdapterAsync(request.username, request.currentPassword);
                 return await ChangePasswordAsync(user, connection, request);

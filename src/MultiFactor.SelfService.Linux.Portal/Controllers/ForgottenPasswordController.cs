@@ -1,25 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [RequiredFeature(ApplicationFeature.PasswordManagement)]
-    public class PasswordRecoveryController : ControllerBase
+    [RequiredFeature(ApplicationFeature.PasswordRecovery)]
+    public class ForgottenPasswordController : ControllerBase
     {
         private ILogger _logger;
         private PortalSettings _portalSettings;
         private RecoverPasswordStory _recoverPasswordStory;
         private TokenVerifier _tokenVerifier;
-        public PasswordRecoveryController(
+        public ForgottenPasswordController(
             RecoverPasswordStory recoverPasswordStory,
             PortalSettings portalSettings,
             TokenVerifier tokenVerifier,
-            ILogger<PasswordRecoveryController> logger)
+            ILogger<ForgottenPasswordController> logger)
         {
             _recoverPasswordStory = recoverPasswordStory;
             _logger = logger;
@@ -37,9 +37,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [HttpPost]
         [VerifyCaptcha(CaptchaPlace.PasswordRecovery)]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(EnterIdentityForm form)
+        public async Task<IActionResult> Change(EnterIdentityForm form)
         {
-            return await _recoverPasswordStory.StartRecoverAsync(form);
+            try
+            {
+                return await _recoverPasswordStory.StartRecoverAsync(form);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(form);
+            }
         }
 
         [HttpPost]
@@ -72,7 +80,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View("Reset", form);
             }
-            var result = await _recoverPasswordStory.RecoverPasswordAsync(form);
+
+            try
+            {
+                await _recoverPasswordStory.RecoverPasswordAsync(form);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View("Reset", form);
+            }
+
             return RedirectToAction("Done");
         }
 
