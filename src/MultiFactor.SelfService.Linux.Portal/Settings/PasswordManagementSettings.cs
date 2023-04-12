@@ -2,14 +2,14 @@
 {
     public class PasswordManagementSettings
     {
-        public bool PasswordManagementEnabled { get; private init; }
-        public bool PasswordRecoveryEnabled { get; private init; }
-        public ChangePasswordMode ChangeValidPasswordMode { get; private init; } =
+        public bool Enabled { get; private set; }
+        public bool AllowPasswordRecovery { get; private set; }
+        public ChangePasswordMode ChangeValidPasswordMode { get; private set; } =
             ChangePasswordMode.AsUser;
-        public ChangePasswordMode ChangeExpiredPasswordMode { get; private init; } =
+        public ChangePasswordMode ChangeExpiredPasswordMode { get; private set; } =
             ChangePasswordMode.AsTechnicalAccount;
-        public TimeSpan? PwdChangingSessionLifetime { get; private init; }
-        public long? PwdChangingSessionCacheSize { get; private init; }
+        public TimeSpan? PwdChangingSessionLifetime { get; private set; }
+        public long? PwdChangingSessionCacheSize { get; private set; }
 
         public PasswordManagementSettings() { }
         public PasswordManagementSettings(
@@ -20,8 +20,8 @@
             TimeSpan? pwdChangingSessionLifetime,
             long? pwdChangingSessionCacheSize)
         {
-            PasswordManagementEnabled = isPasswordManagementEnabled;
-            PasswordRecoveryEnabled = isPasswordRecoveryEnabled;
+            Enabled = isPasswordManagementEnabled;
+            AllowPasswordRecovery = isPasswordRecoveryEnabled;
             ChangeValidPasswordMode = changeValidPwdMode;
             ChangeExpiredPasswordMode = changeExpiredPwdMode;
             PwdChangingSessionLifetime = pwdChangingSessionLifetime;
@@ -32,7 +32,7 @@
 
     public class PasswordChangingSessionSettings
     {
-        public TimeSpan? PwdChangingSessionLifetime { get; private set; }
-        public long? PwdChangingSessionCacheSize { get; private set; }
+        public TimeSpan? PwdChangingSessionLifetime { get; set; }
+        public long? PwdChangingSessionCacheSize { get; set; }
     }
 }

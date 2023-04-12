@@ -1,6 +1,3 @@
-using MultiFactor.SelfService.Linux.Portal.Extensions;
-using System.Reflection;
-
 namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
     public enum CaptchaType
@@ -8,19 +5,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         Google = 0,
         Yandex = 1,
     }
-    
-    [Flags]
-    public enum CaptchaPlace
-    {
-        Login = 1,
-        PasswordRecovery = 2
-    }
 
     public enum CaptchaRequired
     {
-        [CaptchaPlace(Place = CaptchaPlace.Login | CaptchaPlace.PasswordRecovery)]
-        Full = 0,
-        [CaptchaPlace(Place = CaptchaPlace.PasswordRecovery)]
+        Always = 0,
         PasswordRecovery = 1
     }
 
@@ -30,24 +18,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public bool Enabled { get; init; }
         public string Key { get; init; } = string.Empty;
         public string Secret { get; init; } = string.Empty;
-        public CaptchaRequired CaptchaRequired { get; init; } = CaptchaRequired.Full;
+        public CaptchaRequired CaptchaRequired { get; init; } = CaptchaRequired.Always;
 
-        public bool IsCaptchaEnabled(CaptchaType type, CaptchaPlace place) =>
-            Enabled && CaptchaType == type && IsCaptchaEnabled(place);
+        public bool IsCaptchaEnabled(CaptchaType type, CaptchaRequired mode) =>
+            Enabled && CaptchaType == type && IsCaptchaEnabled(mode);
 
-        public bool IsCaptchaEnabled(CaptchaPlace place)
+        public bool IsCaptchaEnabled(CaptchaRequired mode)
         {
-            var captchaRequiredMask = CaptchaRequired.GetEnumAttribute<CaptchaPlaceAttribute>();
-            return Enabled && captchaRequiredMask!.Place.HasFlag(place);
+            var placeEnabled = CaptchaRequired == CaptchaRequired.Always
+               || (CaptchaRequired == CaptchaRequired.PasswordRecovery && mode == CaptchaRequired.PasswordRecovery);
+            return Enabled && placeEnabled;
         }
 
         public bool IsCaptchaEnabled(CaptchaType type) =>
             Enabled && CaptchaType == type;
-
-    }
-
-    public class CaptchaPlaceAttribute : Attribute
-    {
-        public CaptchaPlace Place { get; init; }
     }
 }

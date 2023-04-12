@@ -74,7 +74,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
                 Policy = response.Policy,
 
-                EnablePasswordManagement = _settings.PasswordManagement.PasswordManagementEnabled,
+                EnablePasswordManagement = _settings.PasswordManagement.Enabled,
                 EnableExchangeActiveSyncDevicesManagement = _settings.EnableExchangeActiveSyncDevicesManagement
             };
         }

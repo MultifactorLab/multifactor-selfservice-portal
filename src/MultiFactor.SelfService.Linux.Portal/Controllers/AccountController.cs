@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
-        [VerifyCaptcha(CaptchaPlace.Login)]
+        [VerifyCaptcha]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, SingleSignOnDto sso, [FromServices] SignInStory signIn)
         {

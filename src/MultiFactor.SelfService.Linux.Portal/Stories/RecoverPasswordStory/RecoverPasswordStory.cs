@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging.ForgottenPassword;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -43,7 +43,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                     throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
                 }
             }
-            var callback = BuildCallbackUrl(form.MyUrl, "Reset", 1);
+            var callback = form.MyUrl.BuildRelativeUrl("Reset", 1);
             try
             {
                 var response = await _apiClient.StartResetPassword(form.Identity.Trim(), callback);
@@ -57,32 +57,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             }
         }
 
-        public async Task<IActionResult> RecoverPasswordAsync(ResetPasswordForm form)
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordForm form)
         {
-            var result = await _passwordChanger.ChangePassword(new ForgottenPasswordChangeRequest(form.Identity, form.NewPassword));
+            var result = await _passwordChanger.ChangePassword(form.Identity, form.NewPassword);
             if(!result.Success)
             {
                 throw new ModelStateErrorException(result.ErrorReason);
             }
             return new RedirectResult("Done");
-        }
-
-        public static string BuildCallbackUrl(string currentPath, string relPath, int removeSegments = 0)
-        {
-            if (currentPath is null) throw new ArgumentNullException(nameof(currentPath));
-            if (relPath is null) throw new ArgumentNullException(nameof(relPath));
-
-            // public url from browser if we behind nginx or other proxy
-            var currentUri = new Uri(currentPath);
-            var noLastSegment = string.Format("{0}://{1}", currentUri.Scheme, currentUri.Authority);
-
-            for (int i = 0; i < currentUri.Segments.Length - removeSegments; i++)
-            {
-                noLastSegment += currentUri.Segments[i];
-            }
-
-            // remove trailing
-            return $"{noLastSegment.Trim("/".ToCharArray())}/{relPath}";
         }
     }
 }

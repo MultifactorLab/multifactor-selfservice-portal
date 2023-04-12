@@ -12,7 +12,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
-        public PasswordManagementSettings PasswordManagement { get; set; } = new();
+        public PasswordManagementSettings PasswordManagement { get; set; }
         public bool RequiresUserPrincipalName { get; private set; } 
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }
@@ -24,7 +24,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public string LdapBaseDn { get; private set; } = string.Empty;
 
 
-        #region Obsolete 
         [Obsolete("Use PasswordChangingManagementSettings.EnablePassword property instead")]
         public bool EnablePasswordManagement { get; private set; }
         [Obsolete("Use PasswordChangingManagementSettings.ChangeValidPasswordMode property instead")]
@@ -37,7 +36,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public PasswordChangingSessionSettings PasswordChangingSessionSettings { get; private set; } = new();
         [Obsolete("Use CaptchaSettings property instead")]
         public GoogleReCaptchaSettings GoogleReCaptchaSettings { get; private set; } = new();
-        #endregion
     }
 
     public enum ChangePasswordMode

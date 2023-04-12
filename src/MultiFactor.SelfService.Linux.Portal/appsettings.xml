@@ -59,24 +59,18 @@
 			<CaptchaType>Yandex</CaptchaType>
 			<Key>key</Key>
 			<Secret>secret</Secret>
-			<!--CaptchaRequired attribute describes pages where Captcha is displayed: Full/PasswordRecovery -->
-			<CaptchaRequired>Full</CaptchaRequired>
+			<!--CaptchaRequired attribute describes pages where Captcha is displayed: Always/PasswordRecovery -->
+			<CaptchaRequired>Always</CaptchaRequired>
 		</CaptchaSettings>
 
 		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
 		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
-		<PasswordManagement passwordManagementEnabled="false" passwordRecoveryEnabled="false">
+		<PasswordManagement enabled="false" allowPasswordRecovery="false">
 			<!-- Life time changing session in hh:mm:ss (00:02:00 by default) -->
 			<!--PwdChangingSessionLifetime>00:00:30</PwdChangingSessionLifetime-->
 
 			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value)-->
 			<!--PwdChangingSessionCacheSize>1048576</PwdChangingSessionCacheSize-->
-			
-			<!-- Account to change a valid password. AsUser/AsTechnicalAccount -->
-			<!--ChangeValidPasswordMode>AsUser</ChangeValidPasswordMode-->
-
-			<!-- Account to change an expired password. AsUser/AsTechnicalAccount -->
-			<!--ChangeExpiredPasswordMode>AsTechnicalAccount</ChangeExpiredPasswordMode-->
 		</PasswordManagement>
 		
 		<!-- Only UPN user name format permitted -->

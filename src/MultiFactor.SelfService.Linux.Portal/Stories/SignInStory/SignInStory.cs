@@ -70,7 +70,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, sso);
             }
 
-            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.PasswordManagementEnabled)
+            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
             {
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());

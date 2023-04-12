@@ -35,7 +35,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
 
         [HttpPost]
-        [VerifyCaptcha(CaptchaPlace.PasswordRecovery)]
+        [VerifyCaptcha(CaptchaRequired.PasswordRecovery)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Change(EnterIdentityForm form)
         {
@@ -71,11 +71,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ConfirmReset(ResetPasswordForm form)
         {
-            if (string.IsNullOrWhiteSpace(form.Identity))
-            {
-                _logger.LogError("Invalid reset password form state: empty identity");
-            }
-
             if (!ModelState.IsValid)
             {
                 return View("Reset", form);
@@ -83,7 +78,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                await _recoverPasswordStory.RecoverPasswordAsync(form);
+                await _recoverPasswordStory.ResetPasswordAsync(form);
             }
             catch (ModelStateErrorException ex)
             {

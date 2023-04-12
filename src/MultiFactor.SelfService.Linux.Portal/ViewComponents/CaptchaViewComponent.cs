@@ -5,12 +5,9 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewComponents
 {
     public class CaptchaViewComponent : ViewComponent
     {
-        public CaptchaViewComponent()
+        public IViewComponentResult Invoke(CaptchaRequired mode)
         {
-        }
-        public IViewComponentResult Invoke(CaptchaPlace captchaPlace)
-        {
-            return View(captchaPlace);
+            return View(mode);
         }
     }
 }

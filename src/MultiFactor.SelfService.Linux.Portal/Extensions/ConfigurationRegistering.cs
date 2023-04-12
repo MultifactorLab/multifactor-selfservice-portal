@@ -45,9 +45,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 };
             }
 
-            if (settings.EnablePasswordManagement && !settings.PasswordManagement.PasswordManagementEnabled && 
-                !settings.PasswordManagement.PasswordRecoveryEnabled) {
-
+            if (settings.PasswordManagement == null)
+            {
                 settings.PasswordManagement = new PasswordManagementSettings(
                     settings.EnablePasswordManagement,
                     false,

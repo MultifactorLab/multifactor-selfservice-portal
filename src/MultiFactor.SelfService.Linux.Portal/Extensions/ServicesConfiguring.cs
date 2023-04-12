@@ -29,7 +29,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using System.Net;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging.ExpiredPasswordReset;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -67,9 +67,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                 .AddSingleton<PasswordAttributeChangerFactory>()
                 .AddSingleton(services => services.GetRequiredService<PasswordAttributeChangerFactory>().CreateChanger())
-                .AddSingleton<ADPasswordAttributeReplacer>()
+                .AddSingleton<IPasswordAttributeReplacer, ADPasswordAttributeReplacer>()
                 .AddSingleton<UserPasswordChanger>()
-                .AddSingleton<ExpiredPasswordChanger>()
                 .AddSingleton<ForgottenPasswordChanger>()
 
                 .AddSingleton<LdapProfileFilterProvider>()

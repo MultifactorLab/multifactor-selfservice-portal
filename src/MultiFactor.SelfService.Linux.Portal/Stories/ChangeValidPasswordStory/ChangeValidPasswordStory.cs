@@ -2,8 +2,6 @@
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging.ExpiredPasswordReset;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging.UserPasswordChange;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
@@ -26,13 +24,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
         {
             if (model is null) throw new ArgumentNullException(nameof(model));
 
-            if (!_settings.PasswordManagement.PasswordManagementEnabled)
+            if (!_settings.PasswordManagement.Enabled)
             {
                 return new RedirectToActionResult("Logout", "Account", new { });
             }
             var username = _claimsAccessor.GetTokenClaims().Identity;
+
             var res = await _passwordChanger.ChangePassword(
-                new UserPasswordChangeRequest(username, model.Password, model.NewPassword));
+                username,
+                model.Password,
+                model.NewPassword,
+                _settings.PasswordManagement.ChangeValidPasswordMode);
+
             if (!res.Success) throw new ModelStateErrorException(res.ErrorReason);
             
             return new LocalRedirectResult("/Password/Done");

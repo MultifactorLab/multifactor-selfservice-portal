@@ -1,6 +1,6 @@
 ﻿@using MultiFactor.SelfService.Linux.Portal.Core
 @{
-    var isCaptchaEnabled = Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaPlace.Login);
+    var isCaptchaEnabled = Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaRequired.Always);
 }
 
 @model MultiFactor.SelfService.Linux.Portal.ViewModels.LoginViewModel
@@ -34,14 +34,14 @@
                     @Html.ValidationSummary(true)
                     @if (isCaptchaEnabled) {
                         ViewBag.RenderCaptchaScripts = true;
-                        @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaPlace.Login })
-                    }
+                        @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaRequired.Always })
+                }
                 </div>
 
                 <div class="form-row">
                     <input type="hidden" name="myUrl" id="myUrl" />
                     <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
-                    @if (Settings.PasswordManagement.PasswordRecoveryEnabled)
+                    @if (Settings.PasswordManagement.AllowPasswordRecovery)
                     {
                         <div class="p-8 align-row-right">
                             <a href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>

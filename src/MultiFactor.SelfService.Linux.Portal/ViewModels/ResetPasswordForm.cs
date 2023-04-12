@@ -7,6 +7,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewModels
     public class ResetPasswordForm
     {
         [HiddenInput]
+        [Required]
         public string Identity { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]

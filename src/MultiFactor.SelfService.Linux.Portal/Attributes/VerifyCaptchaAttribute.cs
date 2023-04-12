@@ -7,10 +7,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
 {
     public class VerifyCaptchaAttribute : ActionFilterAttribute
     {
-        private CaptchaPlace _captchaPlace;
-        public VerifyCaptchaAttribute(CaptchaPlace captchaPlace)
+        private CaptchaRequired _captchaRequired;
+        public VerifyCaptchaAttribute(CaptchaRequired captchaRequired = CaptchaRequired.Always)
         {
-            _captchaPlace = captchaPlace;
+            _captchaRequired = captchaRequired;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -18,7 +18,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             var ctx = context.HttpContext;
 
             var config = ctx.RequestServices.GetRequiredService<PortalSettings>();
-            if (!config.CaptchaSettings.IsCaptchaEnabled(_captchaPlace))           
+            if (!config.CaptchaSettings.IsCaptchaEnabled(_captchaRequired))           
             {
                 await base.OnActionExecutionAsync(context, next);
                 return;
