@@ -108,7 +108,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddHttpClient<MultifactorHttpClientAdapterFactory>((services, client) =>
                 {
                     var settings = services.GetRequiredService<PortalSettings>();
-                    client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl);
+                    client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl!);
                 }).ConfigurePrimaryHttpMessageHandler(() =>
                 {
                     var handler = new HttpClientHandler();

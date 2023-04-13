@@ -12,13 +12,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
-        public PasswordManagementSettings PasswordManagement { get; set; }
+        public PasswordManagementSettings? PasswordManagement { get; set; }
         public bool RequiresUserPrincipalName { get; private set; } 
-        public string LoggingLevel { get; private set; }
-        public string LoggingFormat { get; private set; }
-        public string SyslogFormat { get; private set; }
-        public string SyslogFacility { get; private set; }
-        public string SyslogAppName { get; private set; }
+        public string? LoggingLevel { get; private set; }
+        public string? LoggingFormat { get; private set; }
+        public string? SyslogFormat { get; private set; }
+        public string? SyslogFacility { get; private set; }
+        public string? SyslogAppName { get; private set; }
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
         public string UICulture { get; private set; } = string.Empty;
         public string LdapBaseDn { get; private set; } = string.Empty;

@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessi
 
         public IActionResult Execute()
         {
-            if (!_settings.PasswordManagement.Enabled)
+            if (!_settings.PasswordManagement!.Enabled)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }

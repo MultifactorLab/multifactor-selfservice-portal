@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         {
             if (model is null) throw new ArgumentNullException(nameof(model));
 
-            if (!_settings.PasswordManagement.Enabled)
+            if (!_settings.PasswordManagement!.Enabled)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }

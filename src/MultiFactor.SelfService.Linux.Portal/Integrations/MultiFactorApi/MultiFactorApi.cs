@@ -60,10 +60,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         public async Task<UserProfileDto> GetUserProfileAsync()
         {
             var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
-            return new UserProfileDto
+            return new UserProfileDto(response.Id, response.Identity)
             {
-                Id = response.Id,
-                Identity = response.Identity,
                 Name = response.Name,
                 Email = response.Email,
 
@@ -74,7 +72,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
                 Policy = response.Policy,
 
-                EnablePasswordManagement = _settings.PasswordManagement.Enabled,
+                EnablePasswordManagement = _settings.PasswordManagement!.Enabled,
                 EnableExchangeActiveSyncDevicesManagement = _settings.EnableExchangeActiveSyncDevicesManagement
             };
         }
@@ -90,8 +88,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <param name="claims"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
-            string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
+        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string? displayName, string? email, 
+            string? phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
             if (username is null) throw new ArgumentNullException(nameof(username));
             if (claims is null) throw new ArgumentNullException(nameof(claims));        

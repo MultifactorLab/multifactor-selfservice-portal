@@ -54,7 +54,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 }
             }
 
-            var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+            var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
             if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
 
             // AD credential check
@@ -70,7 +70,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 return await RedirectToMfa(model.UserName, adValidationResult, model.MyUrl, sso);
             }
 
-            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
+            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement!.Enabled)
             {
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
