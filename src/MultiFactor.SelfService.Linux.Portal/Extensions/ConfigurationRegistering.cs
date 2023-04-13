@@ -52,11 +52,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     false,
                     settings.ChangeValidPasswordMode,
                     settings.ChangeExpiredPasswordMode,
-                    settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime ??
-                        settings.PasswordManagement.PwdChangingSessionLifetime,
-                    settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize ??
-                        settings.PasswordManagement.PwdChangingSessionCacheSize
-                    );
+                    settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
+                    settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
+                );
             }
 #pragma warning restore CS0612
         }
