@@ -67,7 +67,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                 .AddSingleton<PasswordAttributeChangerFactory>()
                 .AddSingleton(services => services.GetRequiredService<PasswordAttributeChangerFactory>().CreateChanger())
-                .AddSingleton<IPasswordAttributeReplacer, ADPasswordAttributeReplacer>()
+
+                .AddSingleton<PasswordAttributeReplacerFactory>()
+                .AddSingleton(services => services.GetRequiredService<PasswordAttributeReplacerFactory>().CreateChanger())
+
                 .AddSingleton<UserPasswordChanger>()
                 .AddSingleton<ForgottenPasswordChanger>()
 
