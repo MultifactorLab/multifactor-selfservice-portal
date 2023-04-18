@@ -59,6 +59,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
                 model.NewPassword,
                 _settings.PasswordManagement.ChangeExpiredPasswordMode
             );
+
             if (!pwdChangeResult.Success)
             {
                 throw new ModelStateErrorException(pwdChangeResult.ErrorReason);
