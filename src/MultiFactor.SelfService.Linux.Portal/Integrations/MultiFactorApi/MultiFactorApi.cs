@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
+using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
@@ -59,10 +60,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         public async Task<UserProfileDto> GetUserProfileAsync()
         {
             var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<UserProfileApiDto>>("self-service", GetBearerAuthHeaders()));
-            return new UserProfileDto
+            return new UserProfileDto(response.Id, response.Identity)
             {
-                Id = response.Id,
-                Identity = response.Identity,
                 Name = response.Name,
                 Email = response.Email,
 
@@ -73,7 +72,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
                 Policy = response.Policy,
 
-                EnablePasswordManagement = _settings.EnablePasswordManagement,
+                EnablePasswordManagement = _settings.PasswordManagement!.Enabled,
                 EnableExchangeActiveSyncDevicesManagement = _settings.EnableExchangeActiveSyncDevicesManagement
             };
         }
@@ -89,8 +88,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <param name="claims"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
-            string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
+        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string? displayName, string? email, 
+            string? phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
             if (username is null) throw new ArgumentNullException(nameof(username));
             if (claims is null) throw new ArgumentNullException(nameof(claims));        
@@ -140,6 +139,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             var payload = new { key, otp };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse>("self-service/totp", payload, GetBearerAuthHeaders()));
+        }
+
+        public Task<ResetPasswordDto> StartResetPassword(string identity, string callbackUrl)
+        {
+            if (identity is null) throw new ArgumentNullException(nameof(identity));
+            if (callbackUrl is null) throw new ArgumentNullException(nameof(callbackUrl));
+
+            // add netbios domain name to login if specified
+
+            var payload = new
+            {
+                Identity = identity,
+                CallbackUrl = callbackUrl,
+                Claims = new Dictionary<string, string>
+                {
+                    { MultiFactorClaims.ResetPassword, "true" }
+                }
+            };
+
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<ResetPasswordDto>>("self-service/start-reset-password", payload, GetBasicAuthHeaders()));
+
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse?>> method)

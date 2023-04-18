@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
         {
             var httpContext = context.HttpContext;
             var configuration = httpContext.RequestServices.GetRequiredService<PortalSettings>();
-            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordManagement) && !configuration.EnablePasswordManagement)
+            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordManagement) && !configuration.PasswordManagement!.Enabled)
             {
                 throw new FeatureNotEnabledException(ApplicationFeature.PasswordManagement.GetEnumDescription());
             }
@@ -31,6 +31,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
                 throw new FeatureNotEnabledException(ApplicationFeature.ExchangeActiveSyncDevicesManagement.GetEnumDescription());
             }
 
+            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordRecovery) && !configuration.PasswordManagement!.AllowPasswordRecovery)
+            {
+                throw new FeatureNotEnabledException(ApplicationFeature.PasswordRecovery.GetEnumDescription());
+            }
             await next();
         }
     }
@@ -42,8 +46,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
 
         [Description("Password Management")]
         PasswordManagement = 1,
-        
+
         [Description("Exchange Acitve Sync Device Management")]
         ExchangeActiveSyncDevicesManagement = 2,
+
+        [Description("Password Recovery")]
+        PasswordRecovery = 4,
     }
 }

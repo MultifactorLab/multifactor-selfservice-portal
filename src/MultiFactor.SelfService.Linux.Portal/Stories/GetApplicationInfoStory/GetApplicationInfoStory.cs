@@ -57,9 +57,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             var isProd = _env.IsEnvironment(Constants.PRODUCTION_ENV);
             var ok = apiStatus == ApplicationComponentStatus.Ok && ldapStatus == ApplicationComponentStatus.Ok;
 
-            return new ApplicationInfoDto 
+            return new ApplicationInfoDto(data.TimeStamp)
             {
-                TimeStamp = data.TimeStamp,
                 Environment = !isProd ? data.Environment : null,
                 Version = !isProd ? data.Version : null,
                 ApiStatus = !isProd ? data.ApiStatus : null,
@@ -86,9 +85,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         {
             try
             {
-                var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+                var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
                 using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, 
-                    _settings.TechnicalAccountSettings.Password,
+                    _settings.TechnicalAccountSettings.Password!,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
                 return ApplicationComponentStatus.Ok;
             }

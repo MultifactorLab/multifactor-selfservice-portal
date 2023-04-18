@@ -644,9 +644,22 @@ p {
     margin-bottom: 50px;
 }
 
-    .login .form-row:last-child {
-        margin-bottom: 0;
-    }
+.login .form-row:last-child {
+    margin-bottom: 0;
+}
+
+.mb-8 {
+    margin-bottom: 16px !important;
+}
+.p-8 {
+    padding: 8px;
+}
+
+.align-row-right {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+}
 
 input[type="submit"] {
     background: #4082BC;

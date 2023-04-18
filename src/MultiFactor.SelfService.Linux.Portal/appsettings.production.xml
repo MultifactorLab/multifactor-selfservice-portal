@@ -43,19 +43,26 @@
 			<CaptchaType>Google</CaptchaType>
 			<Key>key</Key>
 			<Secret>secret</Secret>
+			<!--CaptchaRequired attribute describes pages where Captcha is displayed: Always/PasswordRecovery -->
+			<CaptchaRequired>Always</CaptchaRequired>
 		</CaptchaSettings>
 		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
 
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
-		<EnablePasswordManagement>true</EnablePasswordManagement>
-		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
+		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
+		<!--PasswordManagement enabled="false" allowPasswordRecovery="false"-->
+			<!-- 
+				PasswordChangingSession attributes:
+					lifetime: Life time changing session in hh:mm:ss (00:02:00 by default)
+					cacheSize: Session storage size in `bytes` (5242880 by default, 1048576 is minimal value)
+			-->
+			<!-- PasswordChangingSession lifetime="00:02:00" cacheSize="1048576" /-->
+		<!--/PasswordManagement-->
 
-		<!--Syslog format: RFC3164 or RFC5424-->
-		<!--<SyslogFormat>RFC5424</SyslogFormat>-->
-		<!--<SyslogFacility>Auth</SyslogFacility>-->
-		<!--<SyslogAppName>multifactor-portal</SyslogAppName>-->
+		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
 
 		<!--<UICulture>auto:en</UICulture>-->
 

@@ -59,8 +59,21 @@
 			<CaptchaType>Yandex</CaptchaType>
 			<Key>key</Key>
 			<Secret>secret</Secret>
+			<!--CaptchaRequired attribute describes pages where Captcha is displayed: Always/PasswordRecovery -->
+			<CaptchaRequired>Always</CaptchaRequired>
 		</CaptchaSettings>
-		
+
+		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
+		<PasswordManagement enabled="false" allowPasswordRecovery="false">
+			<!-- 
+				PasswordChangingSession attributes:
+					lifetime: Life time changing session in hh:mm:ss (00:02:00 by default)
+					cacheSize: Session storage size in `bytes` (5242880 by default, 1048576 is minimal value)
+			-->
+			<!-- PasswordChangingSession lifetime="00:02:00" cacheSize="1048576" /-->
+		</PasswordManagement>
+
 		<!-- Only UPN user name format permitted -->
 		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
 		
@@ -68,15 +81,8 @@
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
-		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
-		<EnablePasswordManagement>true</EnablePasswordManagement>
 		<!-- Enable user Exchange AciveSync devices provisioning. Not works with Samba. -->
 		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
-
-		<!--Syslog format: RFC3164 or RFC5424-->
-		<!--<SyslogFormat>RFC5424</SyslogFormat>-->
-		<!--<SyslogFacility>Auth</SyslogFacility>-->
-		<!--<SyslogAppName>multifactor-portal</SyslogAppName>-->
 
 		<!--
 			UI languahe selection:
@@ -95,14 +101,5 @@
 
 		<!-- FreeIPA supporting -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
-
-		<!-- Expired Password Changing Session Settings-->
-		<!-- <PasswordChangingSessionSettings> -->
-			<!-- Life time changing session in hh:mm:ss (00:02:00 by default) -->
-			<!-- <PwdChangingSessionLifetime>00:02:00</PwdChangingSessionLifetime> -->
-			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value)-->
-			<!-- <PwdChangingSessionCacheSize>5242880</PwdChangingSessionCacheSize> -->
-		<!-- </PasswordChangingSessionSettings> -->
 	</PortalSettings>
-
 </configuration>

@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha.Dto
 {
@@ -15,13 +14,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCap
         /// Timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ).
         /// </summary>
         [JsonPropertyName("challenge_ts")]
-        public string ChallengeTs { get; set; }
+        public string? ChallengeTs { get; set; }
 
         /// <summary>
         /// The hostname of the site where the reCAPTCHA was solved.
         /// </summary>
         [JsonPropertyName("hostname")]
-        public string HostName { get; set; }
+        public string? HostName { get; set; }
         
         /// <summary>
         /// Optional.
