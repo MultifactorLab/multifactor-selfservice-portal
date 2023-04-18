@@ -63,15 +63,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     .NotNull().WithMessage(GetErrorMessage(portal => portal.PasswordManagement))
                     .ChildRules(portalValidation =>
                     {
-                        portalValidation.RuleFor(r => r!.PwdChangingSessionCacheSize)
+                        portalValidation.RuleFor(r => r!.PasswordChangingSession.CacheSize)
                             .Must((model, value) => value is null ||
                                                  value >= Constants.BYTES_IN_MB && value < (100L * Constants.BYTES_IN_MB /* 100 MB */))
-                            .WithMessage($"Invalid password changing session cache size. Please check '{GetPropPath(x => x.PasswordManagement!.PwdChangingSessionCacheSize)} property.'");
+                            .WithMessage($"Invalid password changing session cache size. Please check '{GetPropPath(x => x.PasswordManagement!.PasswordChangingSession.CacheSize)} property.'");
 
-                        portalValidation.RuleFor(r => r!.PwdChangingSessionLifetime)
+                        portalValidation.RuleFor(r => r!.PasswordChangingSession.Lifetime)
                             .Must((model, value) => value is null ||
                                                     value.Value < TimeSpan.FromDays(10))
-                            .WithMessage($"Invalid password changing session lifetime. Please check '{GetPropPath(x => x.PasswordManagement!.PwdChangingSessionLifetime)} property.'");
+                            .WithMessage($"Invalid password changing session lifetime. Please check '{GetPropPath(x => x.PasswordManagement!.PasswordChangingSession.Lifetime)} property.'");
                     });
                 
                 RuleFor(portal => portal)
