@@ -22,7 +22,7 @@
                 <p>@Localizer["Invitation"]</p>
                 <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
                     <div class="input">
-                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.RequiresUserPrincipalName
+                        @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
                             : Localizer.GetString("UserName") })
                         @Html.ValidationMessageFor(m => m.UserName)

@@ -10,14 +10,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
             services.AddMemoryCache(x =>
             {
                 // 5 Mb by default
-                x.SizeLimit = settings.PasswordChangingSession.CacheSize ?? 1024 * 1024 * 5;
+                x.SizeLimit = settings.PasswordChangingSessionCacheSize ?? 1024 * 1024 * 5;
             });
 
             services.Configure<ApplicationCacheConfig>(x =>
             {
-                if (settings.PasswordChangingSession.Lifetime != null)
+                if (settings.PasswordChangingSessionLifetime != null)
                 {
-                    x.AbsoluteExpiration = settings.PasswordChangingSession.Lifetime.Value;
+                    x.AbsoluteExpiration = settings.PasswordChangingSessionLifetime.Value;
                 }
             });
             services.AddSingleton<ApplicationCache>();

@@ -8,7 +8,8 @@
             ChangePasswordMode.AsUser;
         public ChangePasswordMode ChangeExpiredPasswordMode { get; private set; } =
             ChangePasswordMode.AsTechnicalAccount;
-        public PasswordChangingSessionSettings PasswordChangingSession { get; private set; } = new();
+        public TimeSpan? PasswordChangingSessionLifetime { get; set; }
+        public long? PasswordChangingSessionCacheSize { get; set; }
 
         public PasswordManagementSettings() { }
         public PasswordManagementSettings(
@@ -23,8 +24,8 @@
             AllowPasswordRecovery = isPasswordRecoveryEnabled;
             ChangeValidPasswordMode = changeValidPwdMode;
             ChangeExpiredPasswordMode = changeExpiredPwdMode;
-            PasswordChangingSession.Lifetime = pwdChangingSessionLifetime;
-            PasswordChangingSession.CacheSize = pwdChangingSessionCacheSize;
+            PasswordChangingSessionLifetime = pwdChangingSessionLifetime;
+            PasswordChangingSessionCacheSize = pwdChangingSessionCacheSize;
         }
     }
 

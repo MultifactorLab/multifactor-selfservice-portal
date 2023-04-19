@@ -56,6 +56,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
                 );
             }
+
+            if (settings.ExchangeActiveSyncDevicesManagement == null)
+            {
+                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement(
+                    settings.EnableExchangeActiveSyncDevicesManagement
+                );
+            }
+
+            if(settings.RequiresUserPrincipalName == true)
+            {
+                settings.ActiveDirectorySettings = new ActiveDirectorySettings(
+                    settings.ActiveDirectorySettings.SecondFactorGroup,
+                    settings.ActiveDirectorySettings.UseUserPhone,
+                    settings.ActiveDirectorySettings.UseMobileUserPhone,
+                    settings.ActiveDirectorySettings.NetBiosName,
+                    settings.RequiresUserPrincipalName
+                );
+            }
 #pragma warning restore CS0612
         }
 

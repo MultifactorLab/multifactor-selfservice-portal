@@ -24,7 +24,7 @@
 			<Password>password</Password>
 		</TechnicalAccountSettings>
 
-		<ActiveDirectorySettings>
+		<ActiveDirectorySettings requiresUserPrincipalName="false">
 			<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
 			<!--<UseUserPhone>true</UseUserPhone>-->
 			<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
@@ -37,35 +37,29 @@
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
 
-		<CaptchaSettings>
-			<Enabled>false</Enabled>
-			<!-- Google/Yandex-->
+		<CaptchaSettings enabled="false">
+			<!--Captcha provider: 'Google', 'Yandex'-->
 			<CaptchaType>Google</CaptchaType>
 			<Key>key</Key>
 			<Secret>secret</Secret>
-			<!--CaptchaRequired attribute describes pages where Captcha is displayed: Always/PasswordRecovery -->
+			<!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
 			<CaptchaRequired>Always</CaptchaRequired>
 		</CaptchaSettings>
-		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
 
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
 		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
 		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
-		<!--PasswordManagement enabled="false" allowPasswordRecovery="false"-->
+		<PasswordManagement enabled="false" allowPasswordRecovery="false">
+			<!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
+			<!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
+			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
+			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
+		</PasswordManagement>
 
-			<!-- 
-				Expired Password Changing Session Settings
-				PasswordChangingSession attributes:
-					lifetime: Life time changing session in hh:mm:ss (00:02:00 by default)
-					cacheSize: Session storage size in `bytes` (5242880 by default, 1048576 is minimal value)
-			-->
-			<!-- PasswordChangingSession lifetime="00:02:00" cacheSize="1048576" /-->
-
-		<!--/PasswordManagement-->
-
-		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
+		<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
+		<ExchangeActiveSyncDevicesManagement enabled="false" />
 
 		<!--<UICulture>auto:en</UICulture>-->
 
