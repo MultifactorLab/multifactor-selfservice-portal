@@ -30,8 +30,8 @@
 		   <Password>password</Password>
 		</TechnicalAccountSettings>
 
-
-		<ActiveDirectorySettings>
+		<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
+		<ActiveDirectorySettings requiresUserPrincipalName="false">
 			<!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
 			<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
 
@@ -53,42 +53,34 @@
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
 		
-		<CaptchaSettings>
-			<Enabled>false</Enabled>
-			<!-- Google/Yandex-->
+		<CaptchaSettings enabled="false">
+			<!--Captcha provider: 'Google', 'Yandex'-->
 			<CaptchaType>Yandex</CaptchaType>
 			<Key>key</Key>
 			<Secret>secret</Secret>
-			<!--CaptchaRequired attribute describes pages where Captcha is displayed: Always/PasswordRecovery -->
+			<!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
 			<CaptchaRequired>Always</CaptchaRequired>
 		</CaptchaSettings>
 
 		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
 		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
 		<PasswordManagement enabled="false" allowPasswordRecovery="false">
-			
-			<!-- 
-				Expired Password Changing Session Settings
-				PasswordChangingSession attributes:
-					lifetime: Life time changing session in hh:mm:ss (00:02:00 by default)
-					cacheSize: Session storage size in `bytes` (5242880 by default, 1048576 is minimal value)
-			-->
-			<!-- PasswordChangingSession lifetime="00:02:00" cacheSize="1048576" /-->
-		
+			<!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
+			<!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
+			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
+			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 		</PasswordManagement>
 
-		<!-- Only UPN user name format permitted -->
-		<!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
 		
 		<!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
-		<!-- Enable user Exchange AciveSync devices provisioning. Not works with Samba. -->
-		<EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
+		<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
+		<ExchangeActiveSyncDevicesManagement enabled="false" />
 
 		<!--
-			UI languahe selection:
+			UI language selection:
 			ru - Russian,
 			en - English,
 			auto:ru - check browser, default Russian,

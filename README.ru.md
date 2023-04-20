@@ -53,107 +53,73 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 Параметры работы портала хранятся в файле `appsettings.production.xml` в формате XML.
 
 ```xml
-<PortalSettings>		
+<PortalSettings>
 
-    <Company>		
-        <!-- Название вашей организации -->
+	<CompanySettings>
 		<Name>ACME</Name>
-
-		<!-- Название домена Active Directory для проверки логина и пароля пользователей -->
 		<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
-			
-		<!-- URL адрес логотипа организации -->
-		<LogoUrl>images/logo.svg</LogoUrl>	
-	</Company>
+		<LogoUrl>images/logo.svg</LogoUrl>
+	</CompanySettings>
 
-    <!-- Техническая учетная запись в Active Directory -->
-    <TechnicalAccount>
+	<TechnicalAccountSettings>
 		<User>user</User>
 		<Password>password</Password>
-	</TechnicalAccount
-
-    <ActiveDirectoryOptions>
-        <!--[Опционально] Запрашивать второй фактор только у пользователей из указанной группы для Single Sign On (второй фактор требуется всем, если удалить настройку) --> -->
+	</TechnicalAccountSettings>
+	
+	<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
+	<ActiveDirectorySettings requiresUserPrincipalName="false">
 		<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
-
-		<!-- [Опционально] Использовать номер телефона из Active Directory для отправки одноразового кода в СМС (не используется, если удалить настройку). -->
 		<!--<UseUserPhone>true</UseUserPhone>-->
 		<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
-	</ActiveDirectoryOptions>
+	</ActiveDirectorySettings>
 
-    <MultiFactorApi>
-		<!-- Адрес API Мультифактора -->
+	<MultiFactorApiSettings>
 		<ApiUrl>https://api.multifactor.ru</ApiUrl>
-
-		<!-- Параметр API KEY из личного кабинета Мультифактора. -->
 		<ApiKey>key</ApiKey>
-
-		<!-- Параметр API Secret из личного кабинета Мультифактора. -->
 		<ApiSecret>secret</ApiSecret>
-
-		<!-- [Опционально] Доступ к API Мультифактора через HTTP прокси.-->
 		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
-	</MultiFactorApi>
+	</MultiFactorApiSettings>
 
-    <GoogleReCaptchaSettings>
-		<!-- Включена проверка капчи Google reCaptcha2. -->
-		<Enabled>false</Enabled>
-			
-		<!-- Site Key из личного кабинета https://www.google.com/recaptcha/admin -->
-		<!--<Key>site key</Key>-->
-			
-		<!-- Secret Key из личного кабинета https://www.google.com/recaptcha/admin -->
-		<!--<Secret>secret</Secret>-->
-	</GoogleReCaptchaSettings>
+	<CaptchaSettings enabled="false">
+		<!--Captcha provider: 'Google', 'Yandex'-->
+		<CaptchaType>Google</CaptchaType>
+		<Key>key</Key>
+		<Secret>secret</Secret>
+		<!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
+		<CaptchaRequired>Always</CaptchaRequired>
+	</CaptchaSettings>
 
-    <CaptchaSettings>
-        <Enabled>false</Enabled>
-        <!-- Либо Google, либо Yandex-->
-        <CaptchaType>Yandex</CaptchaType>
-        <!-- Site Key из личного кабинета Google ReCaptcha или Yandex SmartCaptcha -->
-        <Key>key</Key>
-        <!-- Secret из личного кабинета Google ReCaptcha или Yandex SmartCaptcha -->
-        <Secret>secret</Secret>
-    </CaptchaSettings>
-    
-    <!-- Использовать UPN для входа в портал -->
-    <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
+	<!--<LoggingLevel>Info</LoggingLevel>-->
+	<!--<LoggingFormat>json</LoggingFormat>-->
 
-    <!-- Уровень логирования: 'Debug', 'Info', 'Warn', 'Error' -->
-    <LoggingLevel>Info</LoggingLevel>
+	<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+	<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
+	<PasswordManagement enabled="false" allowPasswordRecovery="false">
+		<!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
+		<!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
+		<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
+		<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
+	</PasswordManagement>
 
-    <!-- Управление паролями. Необходимо подключение к AD по SSL/TLS -->
-    <EnablePasswordManagement>true</EnablePasswordManagement>
-    <!-- Управление устройствами Exchange AciveSync. Не работает для Samba. -->
-    <EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
+	<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
+	<ExchangeActiveSyncDevicesManagement enabled="false" />
 
-    <!--
-        Язык интерфейса
-        ru - Русский,
-        en - English,
-        auto:ru - язык браузера, по умолчанию Русский,
-        auto:en - язык браузера, по умолчанию English.
-        Если настройку убрать или оставить пустой, бует использоваться English.
-        -->
-    <UICulture>auto:ru</UICulture>
-    <GroupPolicyPreset>
-      <!-- 
-        Новому пользователю при регистрации будут назначены эти группы. 
-        Формат ввода: имена групп из Админки, разделенные точкой с запятой. 
-        Например: Группа1;группа два;group3
-      -->
-      <!-- <SignUpGroups>group names</SignUpGroups>  -->
-	  </GroupPolicyPreset>
-    <!-- Для подключения к FreeIPA -->
-    <!--<LdapBaseDn></LdapBaseDn>-->
+	<!--<UICulture>auto:en</UICulture>-->
+
+	<!--<GroupPolicyPreset>-->
+		<!-- Groups to assign to the registered user -->
+		<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
+	<!--</GroupPolicyPreset>-->
+
+	<!--<LdapBaseDn></LdapBaseDn>-->
 </PortalSettings>
 ```
 
-При включении параметра `UseActiveDirectoryUserPhone` компонент будет использовать телефон, записанный на вкладке **General**. Формат телефона может быть любым.
+При включении параметра `ActiveDirectorySettings.UseUserPhone` компонент будет использовать телефон, записанный на вкладке **General**. Формат телефона может быть любым.
 
 <img src="https://multifactor.ru/img/radius-adapter/ra-ad-phone-source.png" width="400px">
 
-При включении параметра `UseActiveDirectoryMobileUserPhone` компонент будет использовать телефон, записанный на вкладке **Telephones** в поле **Mobile**. Формат телефона также может быть любым.
+При включении параметра `ActiveDirectorySettings.UseMobileUserPhone` компонент будет использовать телефон, записанный на вкладке **Telephones** в поле **Mobile**. Формат телефона также может быть любым.
 
 <img src="https://multifactor.ru/img/radius-adapter/ra-ad-mobile-phone-source.png" width="400">
 

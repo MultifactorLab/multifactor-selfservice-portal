@@ -2,9 +2,10 @@
 {
     public class ActiveDirectorySettings
     {
-        public string? SecondFactorGroup { get; private set; }
-        public bool UseUserPhone { get; private set; }
-        public bool UseMobileUserPhone { get; private set; }
-        public string? NetBiosName { get; private set; }
+        public string? SecondFactorGroup { get; init; }
+        public bool UseUserPhone { get; init; }
+        public bool UseMobileUserPhone { get; init; }
+        public string? NetBiosName { get; init; }
+        public bool RequiresUserPrincipalName { get; init; }
     }
 }

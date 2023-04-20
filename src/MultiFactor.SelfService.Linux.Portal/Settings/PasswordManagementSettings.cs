@@ -2,30 +2,14 @@
 {
     public class PasswordManagementSettings
     {
-        public bool Enabled { get; private set; }
-        public bool AllowPasswordRecovery { get; private set; }
-        public ChangePasswordMode ChangeValidPasswordMode { get; private set; } =
+        public bool Enabled { get; init; }
+        public bool AllowPasswordRecovery { get; init; }
+        public ChangePasswordMode ChangeValidPasswordMode { get; init; } =
             ChangePasswordMode.AsUser;
-        public ChangePasswordMode ChangeExpiredPasswordMode { get; private set; } =
+        public ChangePasswordMode ChangeExpiredPasswordMode { get; init; } =
             ChangePasswordMode.AsTechnicalAccount;
-        public PasswordChangingSessionSettings PasswordChangingSession { get; private set; } = new();
-
-        public PasswordManagementSettings() { }
-        public PasswordManagementSettings(
-            bool isPasswordManagementEnabled,
-            bool isPasswordRecoveryEnabled,
-            ChangePasswordMode changeValidPwdMode,
-            ChangePasswordMode changeExpiredPwdMode,
-            TimeSpan? pwdChangingSessionLifetime,
-            long? pwdChangingSessionCacheSize)
-        {
-            Enabled = isPasswordManagementEnabled;
-            AllowPasswordRecovery = isPasswordRecoveryEnabled;
-            ChangeValidPasswordMode = changeValidPwdMode;
-            ChangeExpiredPasswordMode = changeExpiredPwdMode;
-            PasswordChangingSession.Lifetime = pwdChangingSessionLifetime;
-            PasswordChangingSession.CacheSize = pwdChangingSessionCacheSize;
-        }
+        public TimeSpan? PasswordChangingSessionLifetime { get; init; }
+        public long? PasswordChangingSessionCacheSize { get; init; }
     }
 
     [Obsolete]
@@ -35,11 +19,5 @@
         public TimeSpan? PwdChangingSessionLifetime { get; set; }
         [Obsolete]
         public long? PwdChangingSessionCacheSize { get; set; }
-    }
-
-    public class PasswordChangingSessionSettings
-    {
-        public TimeSpan? Lifetime { get; set; }
-        public long? CacheSize { get; set; }
     }
 }

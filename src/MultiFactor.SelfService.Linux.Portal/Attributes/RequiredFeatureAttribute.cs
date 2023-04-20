@@ -26,7 +26,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
                 throw new FeatureNotEnabledException(ApplicationFeature.PasswordManagement.GetEnumDescription());
             }
 
-            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.ExchangeActiveSyncDevicesManagement) && !configuration.EnableExchangeActiveSyncDevicesManagement)
+            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.ExchangeActiveSyncDevicesManagement) && !configuration.ExchangeActiveSyncDevicesManagement!.Enabled)
             {
                 throw new FeatureNotEnabledException(ApplicationFeature.ExchangeActiveSyncDevicesManagement.GetEnumDescription());
             }
