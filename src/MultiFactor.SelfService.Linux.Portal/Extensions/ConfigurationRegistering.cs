@@ -47,32 +47,35 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
             if (settings.PasswordManagement == null)
             {
-                settings.PasswordManagement = new PasswordManagementSettings(
-                    settings.EnablePasswordManagement,
-                    false,
-                    settings.ChangeValidPasswordMode,
-                    settings.ChangeExpiredPasswordMode,
-                    settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
-                    settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
-                );
+                settings.PasswordManagement = new PasswordManagementSettings()
+                {
+                    Enabled = settings.EnablePasswordManagement,
+                    AllowPasswordRecovery = false,
+                    ChangeValidPasswordMode = settings.ChangeValidPasswordMode,
+                    ChangeExpiredPasswordMode = settings.ChangeExpiredPasswordMode,
+                    PasswordChangingSessionLifetime = settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
+                    PasswordChangingSessionCacheSize = settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
+                };
             }
 
-            if (settings.ExchangeActiveSyncDevicesManagement == null)
+            if (settings.ExchangeActiveSyncDevicesManagement == null || settings.EnableExchangeActiveSyncDevicesManagement)
             {
-                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement(
-                    settings.EnableExchangeActiveSyncDevicesManagement
-                );
+                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement()
+                {
+                    Enabled = settings.EnableExchangeActiveSyncDevicesManagement
+                };
             }
 
             if(settings.RequiresUserPrincipalName == true)
             {
-                settings.ActiveDirectorySettings = new ActiveDirectorySettings(
-                    settings.ActiveDirectorySettings.SecondFactorGroup,
-                    settings.ActiveDirectorySettings.UseUserPhone,
-                    settings.ActiveDirectorySettings.UseMobileUserPhone,
-                    settings.ActiveDirectorySettings.NetBiosName,
-                    settings.RequiresUserPrincipalName
-                );
+                settings.ActiveDirectorySettings = new ActiveDirectorySettings()
+                {
+                    SecondFactorGroup = settings.ActiveDirectorySettings.SecondFactorGroup,
+                    UseUserPhone = settings.ActiveDirectorySettings.UseUserPhone,
+                    UseMobileUserPhone = settings.ActiveDirectorySettings.UseMobileUserPhone,
+                    NetBiosName = settings.ActiveDirectorySettings.NetBiosName,
+                    RequiresUserPrincipalName = settings.RequiresUserPrincipalName
+                };
             }
 #pragma warning restore CS0612
         }

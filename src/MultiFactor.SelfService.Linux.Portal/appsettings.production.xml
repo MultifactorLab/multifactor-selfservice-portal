@@ -24,6 +24,7 @@
 			<Password>password</Password>
 		</TechnicalAccountSettings>
 
+		<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
 		<ActiveDirectorySettings requiresUserPrincipalName="false">
 			<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
 			<!--<UseUserPhone>true</UseUserPhone>-->
