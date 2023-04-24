@@ -76,7 +76,7 @@
 		<!--<LoggingLevel>Info</LoggingLevel>-->
 		<!--<LoggingFormat>json</LoggingFormat>-->
 
-		<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
+		<!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
 		<ExchangeActiveSyncDevicesManagement enabled="false" />
 
 		<!--
@@ -94,7 +94,7 @@
 			<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
 		<!--</GroupPolicyPreset>-->
 
-		<!-- FreeIPA supporting -->
+		<!-- FreeIPA support -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
 	</PortalSettings>
 </configuration>
