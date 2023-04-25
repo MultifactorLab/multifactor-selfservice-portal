@@ -59,7 +59,7 @@
 			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 		</PasswordManagement>
 
-		<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
+		<!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
 		<ExchangeActiveSyncDevicesManagement enabled="false" />
 
 		<!--<UICulture>auto:en</UICulture>-->
@@ -69,6 +69,7 @@
 			<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
 		<!--</GroupPolicyPreset>-->
 
+		<!-- FreeIPA support -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
 	</PortalSettings>
 
