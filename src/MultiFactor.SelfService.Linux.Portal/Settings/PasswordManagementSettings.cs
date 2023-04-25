@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Settings
+namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
     public class PasswordManagementSettings
     {

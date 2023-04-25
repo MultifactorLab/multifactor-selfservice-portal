@@ -1,4 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
 {
