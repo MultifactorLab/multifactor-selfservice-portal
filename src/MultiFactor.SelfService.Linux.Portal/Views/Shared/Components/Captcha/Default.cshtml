@@ -1,0 +1,45 @@
+﻿@model CaptchaRequired
+
+<input type="hidden" name="responseToken" id="responseToken" />
+
+@if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google, Model))
+{
+    <div class="g-recaptcha" 
+        data-sitekey="@Settings.CaptchaSettings.Key" 
+        data-callback="captchaCallback"
+        data-size="normal">
+    </div>
+}
+                    
+@if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex, Model))
+{
+    <div id="yandex-captcha-container"></div>
+}
+
+<script>
+    function enableSubmit() {
+        $("form").find(':submit').removeAttr('disabled');
+    }
+
+    function captchaCallback(token) {
+        $('#responseToken').val(token);
+        enableSubmit();
+    }
+
+    @if (Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Yandex, Model))
+    {
+        <text>
+            function yandexCaptchaLoadFunction() {
+                if (window.smartCaptcha) {
+                    const container = document.getElementById('yandex-captcha-container');
+                    window.smartCaptcha.render(container, {
+                        sitekey: '@Settings.CaptchaSettings.Key',
+                        callback:  captchaCallback,
+                        hl: '@ApplicationLanguageProvider.GetLanguage()'
+                    });
+                }
+            }
+        </text>
+    }
+</script>
+

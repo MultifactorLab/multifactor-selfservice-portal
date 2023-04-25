@@ -27,12 +27,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         {
             ValidateDeviceInfo(device);
 
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
 
             try
             {
                 using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, techUser, 
-                    _settings.TechnicalAccountSettings.Password, 
+                    _settings.TechnicalAccountSettings.Password!, 
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 // first, we need to update device state and state reason.

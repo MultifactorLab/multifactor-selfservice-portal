@@ -7,8 +7,8 @@
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>
             {
                 configBuilder.AddXmlFile("appsettings.xml", optional: true, reloadOnChange: true)
-                      .AddXmlFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml", optional: true, reloadOnChange: true)
-                      .AddEnvironmentVariables();
+                     .AddXmlFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml", optional: true, reloadOnChange: true)
+                     .AddEnvironmentVariables();
 
                 if (args.Any())
                 {

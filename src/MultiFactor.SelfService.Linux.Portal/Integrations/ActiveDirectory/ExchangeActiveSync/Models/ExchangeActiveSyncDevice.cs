@@ -2,14 +2,14 @@
 {
     public class ExchangeActiveSyncDevice
     {
-        public string MsExchDeviceId { get; private set; }
-        public string FriendlyName { get; private set; }
-        public string Model { get; private set; }
-        public string Type { get; private set; }
+        public string MsExchDeviceId { get; private set; } = string.Empty;
+        public string FriendlyName { get; private set; } = string.Empty;
+        public string Model { get; private set; } = string.Empty;
+        public string Type { get; private set; } = string.Empty;
         public DateTime WhenCreated { get; private set; }
         public ExchangeActiveSyncDeviceAccessState AccessState { get; private set; }
-        public string AccessStateName { get; private set; }
-        public string AccessStateReason { get; private set; }
+        public string AccessStateName { get; private set; } = string.Empty;
+        public string AccessStateReason { get; private set; } = string.Empty;
 
         /// <summary>
         /// FriendlyName / Model / Type

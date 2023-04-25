@@ -60,16 +60,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         {
             try
             {
-                var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+                var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
                 return await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain,
                     user,
-                    _settings.TechnicalAccountSettings.Password,
+                    _settings.TechnicalAccountSettings.Password!,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
             }
             catch (Exception ex)
             {
-                throw new TechnicalAccountErrorException(_settings.TechnicalAccountSettings.User, _settings.CompanySettings.Domain, ex);
+                throw new TechnicalAccountErrorException(_settings.TechnicalAccountSettings.User!, _settings.CompanySettings.Domain, ex);
             }
         }
 

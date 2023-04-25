@@ -58,16 +58,18 @@ app.Use(async (context, next) =>
 
     await next();
 });
-app.UseStatusCodePages(async context =>
+app.UseStatusCodePages(context =>
 {
     var request = context.HttpContext.Request;
-    if (request.IsAjaxCall()) return;
+    if (request.IsAjaxCall()) return Task.CompletedTask;
 
     var response = context.HttpContext.Response;
     if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
     {
         response.Redirect($"/account/logout{MultiFactorClaimsDtoBinder.FromRequest(request)}");
     }
+
+    return Task.CompletedTask;
 });
 
 app.UseAuthentication();

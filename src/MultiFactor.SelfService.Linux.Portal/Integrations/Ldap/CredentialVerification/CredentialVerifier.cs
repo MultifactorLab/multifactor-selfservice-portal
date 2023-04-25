@@ -34,6 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             try
             {
                 using var connection = await _connectionFactory.CreateAdapterAsync(username, password);
+                if (connection.BindedUser == null) throw new Exception("Binded user is not defined. Maybe anonymous connection?");
 
                 var user = connection.BindedUser;
                 var domain = await connection.WhereAmIAsync();

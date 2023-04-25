@@ -10,10 +10,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
     public class ChangeValidPasswordStory
     {
         private readonly PortalSettings _settings;
-        private readonly PasswordChanger _passwordChanger;
+        private readonly UserPasswordChanger _passwordChanger;
         private readonly TokenClaimsAccessor _claimsAccessor;
 
-        public ChangeValidPasswordStory(PortalSettings settings, PasswordChanger passwordChanger, TokenClaimsAccessor claimsAccessor)
+        public ChangeValidPasswordStory(PortalSettings settings, UserPasswordChanger passwordChanger, TokenClaimsAccessor claimsAccessor)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));
@@ -24,12 +24,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
         {
             if (model is null) throw new ArgumentNullException(nameof(model));
 
-            if (!_settings.EnablePasswordManagement)
+            if (!_settings.PasswordManagement!.Enabled)
             {
                 return new RedirectToActionResult("Logout", "Account", new { });
             }
             var username = _claimsAccessor.GetTokenClaims().Identity;
-            var res = await _passwordChanger.ChangeValidPasswordAsync(username, model.Password, model.NewPassword);
+
+            var res = await _passwordChanger.ChangePassword(
+                username,
+                model.Password,
+                model.NewPassword,
+                _settings.PasswordManagement.ChangeValidPasswordMode);
+
             if (!res.Success) throw new ModelStateErrorException(res.ErrorReason);
             
             return new LocalRedirectResult("/Password/Done");

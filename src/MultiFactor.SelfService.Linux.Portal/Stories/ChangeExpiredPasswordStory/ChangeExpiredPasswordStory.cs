@@ -15,12 +15,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         private readonly PortalSettings _settings;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly DataProtection _dataProtection;
-        private readonly PasswordChanger _passwordChanger;
+        private readonly UserPasswordChanger _passwordChanger;
         private readonly ApplicationCache _applicationCache;
         public ChangeExpiredPasswordStory(PortalSettings settings, 
             SafeHttpContextAccessor contextAccessor, 
-            DataProtection dataProtection, 
-            PasswordChanger passwordChanger,
+            DataProtection dataProtection,
+            UserPasswordChanger passwordChanger,
             ApplicationCache applicationCache)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         {
             if (model is null) throw new ArgumentNullException(nameof(model));
 
-            if (!_settings.EnablePasswordManagement)
+            if (!_settings.PasswordManagement!.Enabled)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
@@ -53,7 +53,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
             }
 
             var currentPassword = _dataProtection.Unprotect(encryptedPwd.Value);
-            var pwdChangeResult = await _passwordChanger.ResetExpiredPasswordAsync(userName.Value, currentPassword, model.NewPassword);
+            var pwdChangeResult = await _passwordChanger.ChangePassword(
+                userName.Value,
+                currentPassword,
+                model.NewPassword,
+                _settings.PasswordManagement.ChangeExpiredPasswordMode
+            );
+
             if (!pwdChangeResult.Success)
             {
                 throw new ModelStateErrorException(pwdChangeResult.ErrorReason);

@@ -33,7 +33,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                 return new TokenClaims(jwtSecurityToken.Id,
                     rawUserName ?? identity,
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword),
-                    jwtSecurityToken.ValidTo);
+                    jwtSecurityToken.ValidTo,
+                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword));
             }
             catch (Exception ex)
             {
