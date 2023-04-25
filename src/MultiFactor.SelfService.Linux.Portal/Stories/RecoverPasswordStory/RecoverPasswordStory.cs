@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
 
         public async Task<IActionResult> StartRecoverAsync(EnterIdentityForm form)
         {
-            if (_portalSettings.RequiresUserPrincipalName)
+            if (_portalSettings.ActiveDirectorySettings.RequiresUserPrincipalName)
             {
                 // AD requires UPN check
                 var userName = LdapIdentity.ParseUser(form.Identity);

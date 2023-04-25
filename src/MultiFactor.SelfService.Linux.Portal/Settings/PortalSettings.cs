@@ -8,19 +8,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
 
         public CompanySettings CompanySettings { get; private set; } = new();
         public TechnicalAccountSettings TechnicalAccountSettings { get; private set; } = new();
-        public ActiveDirectorySettings ActiveDirectorySettings { get; private set; } = new();
+        public ActiveDirectorySettings ActiveDirectorySettings { get; set; } = new();
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
         public PasswordManagementSettings? PasswordManagement { get; set; }
-        public bool RequiresUserPrincipalName { get; private set; } 
+        public ExchangeActiveSyncDevicesManagement? ExchangeActiveSyncDevicesManagement { get; set; }
         public string? LoggingLevel { get; private set; }
         public string? LoggingFormat { get; private set; }
-        public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
         public string UICulture { get; private set; } = string.Empty;
         public string LdapBaseDn { get; private set; } = string.Empty;
 
-        [Obsolete("Use PasswordChangingManagementSettings.EnablePassword property instead")]
+        [Obsolete("Use ExchangeActiveSyncDevicesManagement.Enable instead")]
+        public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
+        [Obsolete("Use PasswordChangingManagementSettings.Enable property instead")]
         public bool EnablePasswordManagement { get; private set; }
         [Obsolete("Use PasswordChangingManagementSettings.ChangeValidPasswordMode property instead")]
         public ChangePasswordMode ChangeValidPasswordMode { get; private set; } =
@@ -32,6 +33,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public PasswordChangingSessionSettingsObsolete PasswordChangingSessionSettings { get; private set; } = new();
         [Obsolete("Use CaptchaSettings property instead")]
         public GoogleReCaptchaSettings GoogleReCaptchaSettings { get; private set; } = new();
+        [Obsolete("Use ActiveDirectorySettings.RequiresUserPrincipalName")]
+        public bool RequiresUserPrincipalName { get; private set; }
     }
 
     public enum ChangePasswordMode

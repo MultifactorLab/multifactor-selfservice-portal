@@ -45,7 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model, SingleSignOnDto sso)
         {
             var userName = LdapIdentity.ParseUser(model.UserName);
-            if (_settings.RequiresUserPrincipalName)
+            if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName)
             {
                 // AD requires UPN check      
                 if (userName.Type != IdentityType.UserPrincipalName)

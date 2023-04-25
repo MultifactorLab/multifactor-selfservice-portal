@@ -15,7 +15,7 @@
                     <div class="input">
                         @Html.TextBoxFor(m => m.Identity, 
                             new { 
-                                placeholder = Settings.RequiresUserPrincipalName 
+                                placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName 
                                 ?  Localizer.GetString("UserNameUpn") 
                                 :  Localizer.GetString("UserName"),
                                 autocomplete = "off"

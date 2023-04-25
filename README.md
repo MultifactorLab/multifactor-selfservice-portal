@@ -54,97 +54,72 @@ The portal is designed to be installed and operated within the corporate network
 Portal settings are stored in the `appsettings.production.xml` file in XML format.
 
 ```xml
-<PortalSettings>			
-				
-    <Company>		
-        <!-- Name of your organization -->
+<PortalSettings>
+
+	<CompanySettings>
 		<Name>ACME</Name>
-
-		<!-- Name of your Active Directory domain to verify username and password -->
 		<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
-			
-		<!-- Company logo URL address: absolute or relative -->
-		<LogoUrl>images/logo.svg</LogoUrl>	
-	</Company>
+		<LogoUrl>images/logo.svg</LogoUrl>
+	</CompanySettings>
 
-    <!-- Technical Active Directory account -->
-	<TechnicalAccount>
+	<TechnicalAccountSettings>
 		<User>user</User>
 		<Password>password</Password>
-	</TechnicalAccount
-
-    <ActiveDirectoryOptions>
-        <!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
+	</TechnicalAccountSettings>
+	
+	<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
+	<ActiveDirectorySettings requiresUserPrincipalName="false">
 		<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
-
-		<!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
 		<!--<UseUserPhone>true</UseUserPhone>-->
-
-		<!-- [Optional] Use ActiveDirectory User Telephones properties mobile number. -->
 		<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
-	</ActiveDirectoryOptions>
+	</ActiveDirectorySettings>
 
-    <MultiFactorApi>
-		<!-- Multifactor API Address -->
+	<MultiFactorApiSettings>
 		<ApiUrl>https://api.multifactor.ru</ApiUrl>
-
-		<!-- API KEY parameter from the Multifactor personal account -->
 		<ApiKey>key</ApiKey>
-
-		<!-- API Secret parameter from the Multifactor personal account -->
 		<ApiSecret>secret</ApiSecret>
-
-		<!-- [Optional] Access the Multifactor API via the HTTP proxy -->
 		<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
-	</MultiFactorApi>
+	</MultiFactorApiSettings>
 
-    <CaptchaSettings>
-        <Enabled>false</Enabled>
-        <!-- Either Google or Yandex-->
-        <CaptchaType>Yandex</CaptchaType>
-        <!-- The Site Key from the admin panel of either Google ReCaptcha or Yandex SmartCaptcha -->
-        <Key>key</Key>
-        <!-- The Secret from the admin panel of either Google ReCaptcha or Yandex SmartCaptcha -->
-        <Secret>secret</Secret>
-    </CaptchaSettings>
-    
-    <!-- Only UPN user name format permitted -->
-    <!--<RequiresUserPrincipalName>true</RequiresUserPrincipalName>-->
+	<CaptchaSettings enabled="false">
+		<!--Captcha provider: 'Google', 'Yandex'-->
+		<CaptchaType>Google</CaptchaType>
+		<Key>key</Key>
+		<Secret>secret</Secret>
+		<!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
+		<CaptchaRequired>Always</CaptchaRequired>
+	</CaptchaSettings>
 
-    <!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
-    <LoggingLevel>Info</LoggingLevel>
+	<!--<LoggingLevel>Info</LoggingLevel>-->
+	<!--<LoggingFormat>json</LoggingFormat>-->
 
-    <!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
-    <EnablePasswordManagement>true</EnablePasswordManagement>
-    <!-- Enable user Exchange AciveSync devices provisioning. Not works with Samba. -->
-    <EnableExchangeActiveSyncDevicesManagement>false</EnableExchangeActiveSyncDevicesManagement>
+	<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+	<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
+	<PasswordManagement enabled="false" allowPasswordRecovery="false">
+		<!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
+		<!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
+		<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
+		<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
+	</PasswordManagement>
 
-    <!--
-       UI languahe selection:
-       ru - Russian,
-       en - English,
-       auto:ru - check browser, default Russian,
-       auto:en - check browser, default English.
-       If option not specefied - English.
-    -->
-    <UICulture>auto:en</UICulture>
-    <GroupPolicyPreset>
-      <!-- 
-        Groups to assign to the registered user. Specified groups will be assigned to a new user.
-        Syntax: group names (from your Management Portal) separated by semicolons.
-        Example: group1;Group Name Two;
-        -->
-      <!-- <SignUpGroups>group names</SignUpGroups>  -->
-	  </GroupPolicyPreset>
-    <!-- FreeIPA supporting -->
-    <!--<LdapBaseDn></LdapBaseDn>-->
+	<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
+	<ExchangeActiveSyncDevicesManagement enabled="false" />
+
+	<!--<UICulture>auto:en</UICulture>-->
+
+	<!--<GroupPolicyPreset>-->
+		<!-- Groups to assign to the registered user -->
+		<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
+	<!--</GroupPolicyPreset>-->
+
+	<!--<LdapBaseDn></LdapBaseDn>-->
 </PortalSettings>
 ```
-If the `UseActiveDirectoryUserPhone` option is enabled, the component will use the phone stored in the **General** tab. All phone number formats are supported.
+If the `ActiveDirectorySettings.UseUserPhone` option is enabled, the component will use the phone stored in the **General** tab. All phone number formats are supported.
 
 <img src="https://multifactor.pro/img/radius-adapter/ra-ad-phone-source.png" width="400">
 
-If the `UseActiveDirectoryMobileUserPhone` option is enabled, the component will use the phone stored in the **Telephones** tab in the **Mobile** field. All phone number formats are supported.
+If the `ActiveDirectorySettings.UseMobileUserPhone` option is enabled, the component will use the phone stored in the **Telephones** tab in the **Mobile** field. All phone number formats are supported.
 
 <img src="https://multifactor.pro/img/radius-adapter/ra-ad-mobile-phone-source.png" width="400">
 
