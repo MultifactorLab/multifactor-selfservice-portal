@@ -59,4 +59,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Stories\Password\" />
+  </ItemGroup>
+
 </Project>

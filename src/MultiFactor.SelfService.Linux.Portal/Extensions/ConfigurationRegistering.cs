@@ -44,6 +44,39 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     CaptchaType = CaptchaType.Google
                 };
             }
+
+            if (settings.PasswordManagement == null)
+            {
+                settings.PasswordManagement = new PasswordManagementSettings()
+                {
+                    Enabled = settings.EnablePasswordManagement,
+                    AllowPasswordRecovery = false,
+                    ChangeValidPasswordMode = settings.ChangeValidPasswordMode,
+                    ChangeExpiredPasswordMode = settings.ChangeExpiredPasswordMode,
+                    PasswordChangingSessionLifetime = settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
+                    PasswordChangingSessionCacheSize = settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
+                };
+            }
+
+            if (settings.ExchangeActiveSyncDevicesManagement == null || settings.EnableExchangeActiveSyncDevicesManagement)
+            {
+                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement()
+                {
+                    Enabled = settings.EnableExchangeActiveSyncDevicesManagement
+                };
+            }
+
+            if(settings.RequiresUserPrincipalName == true)
+            {
+                settings.ActiveDirectorySettings = new ActiveDirectorySettings()
+                {
+                    SecondFactorGroup = settings.ActiveDirectorySettings.SecondFactorGroup,
+                    UseUserPhone = settings.ActiveDirectorySettings.UseUserPhone,
+                    UseMobileUserPhone = settings.ActiveDirectorySettings.UseMobileUserPhone,
+                    NetBiosName = settings.ActiveDirectorySettings.NetBiosName,
+                    RequiresUserPrincipalName = settings.RequiresUserPrincipalName
+                };
+            }
 #pragma warning restore CS0612
         }
 

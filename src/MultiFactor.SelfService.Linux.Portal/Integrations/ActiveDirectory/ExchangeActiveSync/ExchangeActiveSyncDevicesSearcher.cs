@@ -37,14 +37,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             if (username is null) throw new ArgumentNullException(nameof(username));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
 
             try
             {
                 using var connection = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain, 
                     techUser, 
-                    _settings.TechnicalAccountSettings.Password,
+                    _settings.TechnicalAccountSettings.Password!,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 var domain = await connection.WhereAmIAsync();
@@ -88,14 +88,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             if (string.IsNullOrEmpty(deviceId)) throw new ArgumentException($"'{nameof(deviceId)}' cannot be null or empty.", nameof(deviceId));
 
             var user = LdapIdentity.ParseUser(username);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
 
             try
             {
                 using var connection = await LdapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain, 
                     techUser, 
-                    _settings.TechnicalAccountSettings.Password,
+                    _settings.TechnicalAccountSettings.Password!,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 var domain = await connection.WhereAmIAsync();
