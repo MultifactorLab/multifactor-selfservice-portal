@@ -53,7 +53,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to recover password for user '{u:l}': {m:l}", form.Identity, ex.Message);
-                throw new ModelStateErrorException(ex.Message);
+                throw new ModelStateErrorException(string.Format(_localizer.GetString("UnableToRecoverPassword"), form.Identity));
             }
         }
 
