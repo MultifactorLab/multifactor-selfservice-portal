@@ -154,7 +154,7 @@
     <value>Ожидает подтверждения</value>
   </data>
   <data name="UnableToRecoverPassword" xml:space="preserve">
-    <value>Невозможно восстановить пароль для пользователя {0}</value>
+    <value>Не удалось установить новый пароль</value>
   </data>
   <data name="UserNameUpnRequired" xml:space="preserve">
     <value>Пожалуйста, введите имя пользователя в формате user@domain.loc</value>

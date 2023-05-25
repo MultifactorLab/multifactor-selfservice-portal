@@ -8,26 +8,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
     /// </summary>
     public class DataProtection
     {
-        private const string _protectorName = "SSPL.Protector";
-
         private readonly IDataProtectionProvider _dataProtectionProvider;
-        private readonly PortalSettings _settings;
 
-        public DataProtection(IDataProtectionProvider dataProtectionProvider, PortalSettings settings)
+        public DataProtection(IDataProtectionProvider dataProtectionProvider)
         {
             _dataProtectionProvider = dataProtectionProvider;
-            _settings = settings;
         }
 
-        public string Protect(string data, string? protectorName = null)
+        public string Protect(string data, string protectorName)
         {
-            var protector = _dataProtectionProvider.CreateProtector(protectorName ?? _protectorName);
+            var protector = _dataProtectionProvider.CreateProtector(protectorName);
             return protector.Protect(data);
         }
 
-        public string Unprotect(string data, string? protectorName = null)
+        public string Unprotect(string data, string protectorName)
         {
-            var protector = _dataProtectionProvider.CreateProtector(protectorName ?? _protectorName);
+            var protector = _dataProtectionProvider.CreateProtector(protectorName);
             return protector.Unprotect(data);
         }
     }

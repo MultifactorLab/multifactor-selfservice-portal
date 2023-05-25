@@ -53,18 +53,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to recover password for user '{u:l}': {m:l}", form.Identity, ex.Message);
-                throw new ModelStateErrorException(string.Format(_localizer.GetString("UnableToRecoverPassword"), form.Identity));
+                throw new ModelStateErrorException(_localizer.GetString("AD.UnableToChangePassword"));
             }
         }
 
-        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordForm form)
+        public async Task ResetPasswordAsync(ResetPasswordForm form)
         {
             var result = await _passwordChanger.ChangePassword(form.Identity, form.NewPassword);
             if(!result.Success)
             {
                 throw new ModelStateErrorException(result.ErrorReason);
             }
-            return new RedirectResult("Done");
         }
     }
 }
