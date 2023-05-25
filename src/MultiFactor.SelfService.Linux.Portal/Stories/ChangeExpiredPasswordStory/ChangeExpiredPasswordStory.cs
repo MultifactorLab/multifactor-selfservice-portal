@@ -52,7 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
                 return new RedirectToActionResult("Login", "Account", new { });
             }
 
-            var currentPassword = _dataProtection.Unprotect(encryptedPwd.Value);
+            var currentPassword = _dataProtection.Unprotect(encryptedPwd.Value, Constants.PWD_RENEWAL_PURPOSE);
             var pwdChangeResult = await _passwordChanger.ChangePassword(
                 userName.Value,
                 currentPassword,

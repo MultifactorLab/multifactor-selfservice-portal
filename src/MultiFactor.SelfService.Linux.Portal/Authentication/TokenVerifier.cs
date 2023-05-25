@@ -21,7 +21,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
             try
             {
                 var validationParameters = TokenValidationParametersFactory.GetParameters(_config);
-
                 var handler = new JwtSecurityTokenHandler();
                 var claimsPrincipal = handler.ValidateToken(accessToken, validationParameters, out var securityToken);
                 var jwtSecurityToken = (JwtSecurityToken)securityToken;
