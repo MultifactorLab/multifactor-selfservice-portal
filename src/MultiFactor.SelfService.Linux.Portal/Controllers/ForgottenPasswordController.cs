@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
@@ -16,20 +17,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         private const string PASSWORD_COOKIE = "PSession";
 
         private ILogger _logger;
-        private PortalSettings _portalSettings;
+        private IStringLocalizer<SharedResource> _localizer;
         private RecoverPasswordStory _recoverPasswordStory;
         private TokenVerifier _tokenVerifier;
         private DataProtection _dataProtection;
+
         public ForgottenPasswordController(
             DataProtection dataProtection,
             RecoverPasswordStory recoverPasswordStory,
-            PortalSettings portalSettings,
+            IStringLocalizer<SharedResource> localizer,
             TokenVerifier tokenVerifier,
             ILogger<ForgottenPasswordController> logger)
         {
             _recoverPasswordStory = recoverPasswordStory;
             _logger = logger;
-            _portalSettings = portalSettings;
+            _localizer = localizer;
             _tokenVerifier = tokenVerifier;
             _dataProtection = dataProtection;
         }
@@ -65,6 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             if (!token.MustResetPassword)
             {
                 _logger.LogError("Invalid reset password session for user '{identity:l}': required claims not found", token.Identity);
+                TempData["reset-password-error"] = string.Format(_localizer.GetString("UnableToRecoverPassword"), token.Identity);
                 return RedirectToAction("Wrong");
             }
 
@@ -90,16 +93,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View("Reset", form);
             }
-            var sesionCookie  = Request.HttpContext.Request.Cookies[PASSWORD_COOKIE];
-            if(sesionCookie == null || _dataProtection.Unprotect(sesionCookie, PASSWORD_COOKIE) != form.Identity)
-            {
-                _logger.LogError("Invalid reset password session for user '{identity:l}': required claims not found", form.Identity);
-                ModelState.AddModelError("", "Invalid reset password session");
-                return RedirectToAction("Wrong");
-            }
+           
 
             try
             {
+                var sesionCookie = Request.HttpContext.Request.Cookies[PASSWORD_COOKIE];
+                if (sesionCookie == null || _dataProtection.Unprotect(sesionCookie, PASSWORD_COOKIE) != form.Identity)
+                {
+                    _logger.LogError("Invalid reset password session for user '{identity:l}': required claims not found", form.Identity);
+                    throw new ModelStateErrorException(string.Format(_localizer.GetString("UnableToRecoverPassword"), form.Identity));
+                }
                 await _recoverPasswordStory.ResetPasswordAsync(form);
             }
             catch (ModelStateErrorException ex)
@@ -111,7 +114,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             return RedirectToAction("Done");
         }
 
-        public ActionResult Wrong() => View();
+        public ActionResult Wrong()
+        {
+            var error = TempData["reset-password-error"];
+            return View(error); 
+        }
         public ActionResult Done() => View();
     }
 }
