@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
@@ -11,11 +13,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [RequiredFeature(ApplicationFeature.PasswordRecovery)]
     public class ForgottenPasswordController : ControllerBase
     {
+        private const string PASSWORD_COOKIE = "PSession";
+
         private ILogger _logger;
         private PortalSettings _portalSettings;
         private RecoverPasswordStory _recoverPasswordStory;
         private TokenVerifier _tokenVerifier;
+        private DataProtection _dataProtection;
         public ForgottenPasswordController(
+            DataProtection dataProtection,
             RecoverPasswordStory recoverPasswordStory,
             PortalSettings portalSettings,
             TokenVerifier tokenVerifier,
@@ -25,6 +31,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             _logger = logger;
             _portalSettings = portalSettings;
             _tokenVerifier = tokenVerifier;
+            _dataProtection = dataProtection;
         }
 
         [HttpGet]
@@ -61,6 +68,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return RedirectToAction("Wrong");
             }
 
+            Response.Cookies.Append(PASSWORD_COOKIE, _dataProtection.Protect(token.Identity, PASSWORD_COOKIE), new CookieOptions
+            {
+                Expires = DateTime.Now.AddHours(1),
+                Path = "/",
+                Secure = true
+            });
+
+
             return View(new ResetPasswordForm
             {
                 Identity = token.Identity
@@ -74,6 +89,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             if (!ModelState.IsValid)
             {
                 return View("Reset", form);
+            }
+            var sesionCookie  = Request.HttpContext.Request.Cookies[PASSWORD_COOKIE];
+            if(sesionCookie == null || _dataProtection.Unprotect(sesionCookie, PASSWORD_COOKIE) != form.Identity)
+            {
+                _logger.LogError("Invalid reset password session for user '{identity:l}': required claims not found", form.Identity);
+                ModelState.AddModelError("", "Invalid reset password session");
+                return RedirectToAction("Wrong");
             }
 
             try

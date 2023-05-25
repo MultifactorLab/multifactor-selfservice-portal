@@ -19,15 +19,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _settings = settings;
         }
 
-        public string Protect(string data)
+        public string Protect(string data, string? protectorName = null)
         {
-            var protector = _dataProtectionProvider.CreateProtector(_protectorName);
+            var protector = _dataProtectionProvider.CreateProtector(protectorName ?? _protectorName);
             return protector.Protect(data);
         }
 
-        public string Unprotect(string data)
+        public string Unprotect(string data, string? protectorName = null)
         {
-            var protector = _dataProtectionProvider.CreateProtector(_protectorName);
+            var protector = _dataProtectionProvider.CreateProtector(protectorName ?? _protectorName);
             return protector.Unprotect(data);
         }
     }
