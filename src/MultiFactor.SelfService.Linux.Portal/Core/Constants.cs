@@ -13,7 +13,8 @@
         public const string WORKING_DIRECTORY = "/opt/multifactor/ssp";
         public const string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
         public const string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";
-
+        public const string PWD_RECOVERY_COOKIE = "PSession";
+        public const string PWD_RENEWAL_PURPOSE = "PwdRenewal";
         /// <summary>
         /// Group 1; группа 2 ; ГРУППА_3;
         /// </summary>

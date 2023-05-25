@@ -72,7 +72,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement!.Enabled)
             {
-                var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
+                var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName), encryptedPassword);
 
