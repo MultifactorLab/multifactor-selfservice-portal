@@ -53,6 +53,16 @@
     <EmbeddedResource Update="Resources\Global.ru.resx">
       <Generator></Generator>
     </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Views\Error\Index.en.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Views\Error\Index.ru.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Stories\Password\" />
   </ItemGroup>
 
 </Project>

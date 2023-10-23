@@ -8,15 +8,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>
             {
-                XmlConfigurationExtensions.AddXmlFile(configBuilder, "appsettings.xml", 
-                    optional: true, 
-                    reloadOnChange: true);
-
-                XmlConfigurationExtensions.AddXmlFile(configBuilder, $"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml", 
-                    optional: true, 
-                    reloadOnChange: true);
-
-                configBuilder.AddEnvironmentVariables();
+                configBuilder.AddXmlFile("appsettings.xml", optional: true, reloadOnChange: true)
+                     .AddXmlFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.xml", optional: true, reloadOnChange: true)
+                     .AddEnvironmentVariables();
 
                 if (args.Any())
                 {

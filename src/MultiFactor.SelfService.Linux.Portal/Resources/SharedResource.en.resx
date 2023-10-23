@@ -153,6 +153,9 @@
   <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
     <value>Quarantined</value>
   </data>
+  <data name="UnableToRecoverPassword" xml:space="preserve">
+    <value>Unable to set the new password</value>
+  </data>
   <data name="UserNameUpnRequired" xml:space="preserve">
     <value>Please enter user name as user@domain.loc format</value>
   </data>

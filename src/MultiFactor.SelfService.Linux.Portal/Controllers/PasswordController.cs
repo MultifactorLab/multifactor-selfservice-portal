@@ -1,25 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [Authorize]
+    [IsAuthorized]
+    [RequiredFeature(ApplicationFeature.PasswordManagement)]
     public class PasswordController : ControllerBase
     {
         [HttpGet]
-        public IActionResult Change([FromServices] PortalSettings settings)
+        public IActionResult Change([FromServices] PortalSettings settings, [FromServices] SignOutStory signOutStory)
         {
-            if (settings.EnablePasswordManagement)
+            if (settings.PasswordManagement!.Enabled)
             {
                 return View();
             }
-
-            return SignOut();
+            return signOutStory.Execute();
         }
 
         [HttpPost]
@@ -43,6 +46,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
             }
+        }
+
+        public ActionResult Done()
+        {
+            return View();
         }
     }
 }

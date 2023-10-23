@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
@@ -8,7 +9,8 @@ using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [AllowAnonymous]
+    [IsAuthorized(skipPasswordVerification: true)]
+    [RequiredFeature(ApplicationFeature.PasswordManagement)]
     public class ExpiredPasswordController : ControllerBase
     {
         [HttpGet]

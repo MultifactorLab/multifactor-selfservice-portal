@@ -29,11 +29,14 @@ using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevic
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
-using System.Net;
-using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
+using System.Net;
+using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
+using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -44,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             builder.Services
                 .AddSession()
                 .AddHttpContextAccessor()
-
+                .AddPasswordChangingSessionCache()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
                 .AddSingleton<TokenClaimsAccessor>()
@@ -53,7 +56,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<JsonPayloadLogger>()
                 .AddSingleton<DeviceAccessStateNameLocalizer>()
                 .AddSingleton<CredentialVerifier>()
-                .AddSingleton<PasswordChanger>()
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
@@ -72,6 +74,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                 .AddSingleton<PasswordAttributeChangerFactory>()
                 .AddSingleton(services => services.GetRequiredService<PasswordAttributeChangerFactory>().CreateChanger())
+                .AddSingleton<IPasswordAttributeReplacer, ADPasswordAttributeReplacer>()
+                .AddSingleton<UserPasswordChanger>()
+                .AddSingleton<ForgottenPasswordChanger>()
 
                 .AddSingleton<LdapProfileFilterProvider>()
                 .AddSingleton<LdapProfileLoader>()
@@ -82,6 +87,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<SignInStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
+                .AddTransient<RecoverPasswordStory>()
                 .AddTransient<AuthenticateSessionStory>()
                 .AddTransient<RemoveAuthenticatorStory>()
                 .AddTransient<CreateYandexAuthKeyStory>()
@@ -97,7 +103,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureGoogleApi(builder);
             ConfigureYandexCaptchaApi(builder);
             ConfigureCaptchaVerifier(builder);
-            
+
             builder.Services.AddHostedService<ApplicationChecker>();
 
             builder.Services
@@ -123,7 +129,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddHttpClient<MultifactorHttpClientAdapterFactory>((services, client) =>
                 {
                     var settings = services.GetRequiredService<PortalSettings>();
-                    client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl);
+                    client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl!);
                 }).ConfigurePrimaryHttpMessageHandler(() =>
                 {
                     var handler = new HttpClientHandler();

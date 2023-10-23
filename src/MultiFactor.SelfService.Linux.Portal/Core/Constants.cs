@@ -17,17 +17,19 @@
         public const string WORKING_DIRECTORY = "/opt/multifactor/ssp";
         public const string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
         public const string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";
-
+        public const string PWD_RECOVERY_COOKIE = "PSession";
+        public const string PWD_RENEWAL_PURPOSE = "PwdRenewal";
         /// <summary>
         /// Group 1; группа 2 ; ГРУППА_3;
         /// </summary>
         public const string SIGN_UP_GROUPS_REGEX = @"([\wа-я\s\-]+)(\s*;\s*([\wа-я\s\-]+)*)*";
-
+        public const long BYTES_IN_MB = 1048576L;
         public static class MultiFactorClaims
         {
             public const string SamlSessionId = "samlSessionId";
             public const string OidcSessionId = "oidcSessionId";
             public const string ChangePassword = "changePassword";
+            public const string ResetPassword = "resetPassword";
             public const string RawUserName = "rawUserName";
         }
     }

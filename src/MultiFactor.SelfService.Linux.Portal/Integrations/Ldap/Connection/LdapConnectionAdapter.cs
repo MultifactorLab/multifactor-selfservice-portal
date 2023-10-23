@@ -29,7 +29,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         public async Task<LdapDomain> WhereAmIAsync()
         {
             var filter = LdapFilter.Create("objectclass", "*").Build();
-            var queryResult = await SearchQueryAsync("", filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
+            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
             var result = queryResult.SingleOrDefault() ?? throw new InvalidOperationException($"Unable to query {Uri} for current user");
 
             var defaultNamingContext = result.DirectoryAttributes["defaultNamingContext"].GetValue<string>();
@@ -137,7 +137,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
         public async Task<LdapServerInfo> GetServerInfoAsync()
         {
-            var result = await _connection.SearchAsync(null, "(objectclass=*)",
+            var result = await _connection.SearchAsync(string.Empty, "(objectclass=*)",
                         new[]
                         {
                         "namingContexts",
@@ -158,7 +158,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 return def;
             }
 
-            var rootDse = await _connection.SearchAsync(null, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);
+            var rootDse = await _connection.SearchAsync(string.Empty, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);
             foreach (var attribute in rootDse.First().DirectoryAttributes)
             {
                 entry.DirectoryAttributes.Remove(attribute.Name);

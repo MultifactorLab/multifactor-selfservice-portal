@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
@@ -22,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
         private readonly ILogger<SignInStory> _logger;
+        private readonly ApplicationCache _applicationCache;
         private readonly ClaimsProvider _claimsProvider;
 
         public SignInStory(CredentialVerifier credentialVerifier,
@@ -29,6 +31,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             MultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
+            ApplicationCache applicationCache,
             IStringLocalizer<SharedResource> localizer,
             ILogger<SignInStory> logger,
             ClaimsProvider claimsProvider)
@@ -40,13 +43,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(logger));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
         }
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
         {
             var userName = LdapIdentity.ParseUser(model.UserName);
-            if (_settings.RequiresUserPrincipalName)
+            if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName)
             {
                 if (userName.Type != IdentityType.UserPrincipalName)
                 {
@@ -54,30 +58,29 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 }
             }
 
-            var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User);
+            var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
             if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
 
-            var validationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
-            if (validationResult.IsAuthenticated)
+            var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
+            if (adValidationResult.IsAuthenticated)
             {
                 _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName, _settings.CompanySettings.Domain);
                 var sso = _contextAccessor.SafeGetSsoClaims();
-                if (sso.HasSamlSession() && validationResult.IsBypass)
+                if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
                     return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
-                return await RedirectToMfa(validationResult, model.MyUrl);
+                return await RedirectToMfa(adValidationResult, model.MyUrl);
             }
 
-            if (validationResult.UserMustChangePassword && _settings.EnablePasswordManagement)
+            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement!.Enabled)
             {
-                var encryptedPassword = _dataProtection.Protect(model.Password.Trim());
+                var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
+                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
+                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName), encryptedPassword);
 
-                _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_USER_KEY, model.UserName.Trim());
-                _contextAccessor.HttpContext.Session.SetString(Constants.SESSION_EXPIRED_PASSWORD_CIPHER_KEY, encryptedPassword);
-
-                return new RedirectToActionResult("Change", "ExpiredPassword", new { });
+                return await RedirectToMfa(adValidationResult, model.MyUrl);
             }
 
             return await WrongAsync();

@@ -35,7 +35,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
 
             if (verifiedToken.MustChangePassword)
             {
-                return new RedirectToActionResult("ChangePassword", "Home", new { });
+                return new RedirectToActionResult("Change", "ExpiredPassword", new { });
             }
 
             return new RedirectToActionResult("Index", "Home", new { });
