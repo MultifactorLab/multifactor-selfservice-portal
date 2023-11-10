@@ -22,8 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View();
             }
-            var claims = MultiFactorClaimsDtoBinder.FromRequest(HttpContext.Request);
-            return signOutStory.Execute(claims);
+            return signOutStory.Execute();
         }
 
         [HttpPost]
