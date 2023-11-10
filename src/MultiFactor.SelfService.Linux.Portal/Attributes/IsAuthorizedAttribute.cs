@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Attributes
@@ -27,8 +26,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             if (cookie is null)
             {
                 var signOutStory = context.HttpContext.RequestServices.GetRequiredService<SignOutStory>();
-                var singleSignOnDto = MultiFactorClaimsDtoBinder.FromRequest(context.HttpContext.Request);
-                signOutStory.Execute(singleSignOnDto);
+                signOutStory.Execute();
                 return;
             }
             var tokenClaims = tokenVerifier.Verify(cookie);

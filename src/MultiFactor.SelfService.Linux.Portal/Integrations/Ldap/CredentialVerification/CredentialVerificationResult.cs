@@ -2,7 +2,21 @@
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification
 {
-    public class CredentialVerificationResult
+    public interface ICredentialVerificationResult
+    {
+        bool IsAuthenticated { get; }
+        string? Reason { get; }
+
+        bool IsBypass { get; }
+        bool UserMustChangePassword { get; }
+
+        string? DisplayName { get; }
+        string? Email { get; }
+        string? Phone { get; }
+        string? Username { get; }
+    }
+
+    public class CredentialVerificationResult : ICredentialVerificationResult
     {
         public bool IsAuthenticated { get; }
         public string? Reason { get; init; }
@@ -13,6 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         public string? DisplayName { get; private set; }
         public string? Email { get; private set; }
         public string? Phone { get; private set; }
+        public string? Username { get; private set; }
 
         private CredentialVerificationResult(bool isAuthenticated)
         {
@@ -101,6 +116,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             public CredentialVerificationResultBuilder SetPhone(string? phone)
             {
                 _result.Phone = phone;
+                return this;
+            }
+            
+            public CredentialVerificationResultBuilder SetUsername(string? username)
+            {
+                _result.Username = username;
                 return this;
             }
 

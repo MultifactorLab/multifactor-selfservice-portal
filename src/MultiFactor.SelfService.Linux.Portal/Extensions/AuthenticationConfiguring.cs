@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication;
-using MultiFactor.SelfService.Linux.Portal.Core.Configuration;
+using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
@@ -17,9 +17,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>
             {
                 var provider = applicationBuilder.Services.BuildServiceProvider();
-                configBuilder.Add(new TokenValidationConfigurationSource(
+                configBuilder.Add(new TokenValidationConfigurationProvider(
                     provider.GetRequiredService<MultifactorHttpClientAdapterFactory>(), 
-                    provider.GetRequiredService<ILogger<TokenValidationConfigurationSource>>()));
+                    provider.GetRequiredService<ILogger<TokenValidationConfigurationProvider>>()));
             });
 
             applicationBuilder.Services

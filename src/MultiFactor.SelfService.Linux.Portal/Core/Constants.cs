@@ -10,6 +10,10 @@
         public const string PRODUCTION_ENV = "production";
         public const string CAPTCHA_TOKEN = "responseToken";
 
+        public const string CredentialVerificationResult = "CredentialVerificationResult";
+        public const string SsoClaims = "SsoClaims";
+        public const string LoadedLdapAttributes = "LoadedLdapAttributes";
+
         public const string WORKING_DIRECTORY = "/opt/multifactor/ssp";
         public const string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
         public const string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";

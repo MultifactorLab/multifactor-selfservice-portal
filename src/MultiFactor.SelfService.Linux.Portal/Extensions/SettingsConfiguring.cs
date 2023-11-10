@@ -1,4 +1,6 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Extensions
+﻿using XmlConfigurationExtensions = MultiFactor.SelfService.Linux.Portal.Core.Configuration.XmlConfig.XmlConfigurationExtensions;
+
+namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     internal static class SettingsConfiguring
     {

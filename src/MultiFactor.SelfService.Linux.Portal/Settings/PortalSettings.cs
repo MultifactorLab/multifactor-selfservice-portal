@@ -11,6 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public ActiveDirectorySettings ActiveDirectorySettings { get; set; } = new();
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
+        public AdditionalClaims AdditionalClaims { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
         public PasswordManagementSettings? PasswordManagement { get; set; }
         public ExchangeActiveSyncDevicesManagement? ExchangeActiveSyncDevicesManagement { get; set; }
