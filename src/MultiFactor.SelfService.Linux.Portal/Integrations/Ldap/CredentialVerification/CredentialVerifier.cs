@@ -97,10 +97,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             {
                 if (ex.Message != null)
                 {
-                    var result = CredentialVerificationResult.FromKnownError(ex.Message);
+                    var result = CredentialVerificationResult.FromKnownError(ex.Message, username);
+                    
                     _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {Reason:l}. Error message: {msg:l}",
                         username, _settings.CompanySettings.Domain, result.Reason, ex.Message);
-
+                    
                     _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
                     return result;
                 }

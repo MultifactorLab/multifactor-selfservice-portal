@@ -19,10 +19,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
     public class CredentialVerificationResult : ICredentialVerificationResult
     {
         public bool IsAuthenticated { get; }
-        public string? Reason { get; init; }
+        public string? Reason { get; private set; }
 
         public bool IsBypass { get; init; }
-        public bool UserMustChangePassword { get; init; }
+        public bool UserMustChangePassword { get; private set; }
 
         public string? DisplayName { get; private set; }
         public string? Email { get; private set; }
@@ -47,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             };
         }
 
-        public static CredentialVerificationResult FromKnownError(string errorMessage)
+        public static CredentialVerificationResult FromKnownError(string errorMessage, string? username = null)
         {
             if (string.IsNullOrEmpty(errorMessage))
             {
@@ -60,6 +60,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             if (match.Success && match.Groups.Count == 2)
             {
                 var data = match.Groups[1].Value;
+                
+                var resultBuilder = CreateBuilder(false);
+                if(username != null)
+                {
+                    resultBuilder.SetUsername(username);
+                }
 
                 switch (data)
                 {
@@ -72,13 +78,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     case "531":
                         return new CredentialVerificationResult(false) { Reason = "Not permitted to logon at this workstation​" };
                     case "532":
-                        return new CredentialVerificationResult(false) { Reason = "Password expired", UserMustChangePassword = true };
+                        return resultBuilder
+                            .SetReason("Password Expired")
+                            .SetUserMustChangePassword(true)
+                            .Build();
                     case "533":
                         return new CredentialVerificationResult(false) { Reason = "Account disabled" };
                     case "701":
                         return new CredentialVerificationResult(false) { Reason = "Account expired" };
                     case "773":
-                        return new CredentialVerificationResult(false) { Reason = "User must change password", UserMustChangePassword = true };
+                        return resultBuilder
+                            .SetReason("User must change password")
+                            .SetUserMustChangePassword(true)
+                            .Build();
                     case "775":
                         return new CredentialVerificationResult(false) { Reason = "User account locked" };
                 }
@@ -124,6 +136,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 _result.Username = username;
                 return this;
             }
+
+            public CredentialVerificationResultBuilder SetUserMustChangePassword(bool userMustChangePassword)
+            {
+                _result.UserMustChangePassword = userMustChangePassword;
+                return this;
+            }
+
+            public CredentialVerificationResultBuilder SetReason(string? reason)
+            {
+                _result.Reason = reason;
+                return this;
+            }
+
 
             public CredentialVerificationResult Build()
             {
