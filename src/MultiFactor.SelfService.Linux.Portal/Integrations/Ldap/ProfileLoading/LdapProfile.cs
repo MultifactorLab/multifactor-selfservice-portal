@@ -11,7 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         public string? Email => Attributes.GetValue("email");
         public string? Phone => Attributes.GetValue("telephoneNumber");
         public string? Mobile => Attributes.GetValue("mobile");
-
+        public string? Upn => Attributes.GetValue("userPrincipalName");
         public IReadOnlyList<string> MemberOf => Attributes.GetValues("memberOf");
 
         private readonly LdapAttributesCache _attributes = new ();

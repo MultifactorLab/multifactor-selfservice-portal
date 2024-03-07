@@ -25,7 +25,8 @@
 		</TechnicalAccountSettings>
 
 		<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
-		<ActiveDirectorySettings requiresUserPrincipalName="false">
+    <!-- useUpnAsIdentity: user name will be transformed to the UPN format automatically -->
+    <ActiveDirectorySettings requiresUserPrincipalName="false" useUpnAsIdentity="false">
 			<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
 			<!--<UseUserPhone>true</UseUserPhone>-->
 			<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->

@@ -7,5 +7,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public bool UseMobileUserPhone { get; init; }
         public string? NetBiosName { get; init; }
         public bool RequiresUserPrincipalName { get; init; }
+        public bool UseUpnAsIdentity { get; init; }
     }
 }

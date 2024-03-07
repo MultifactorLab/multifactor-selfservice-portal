@@ -2,6 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Metadata;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
@@ -12,6 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         private readonly LdapProfileFilterProvider _profileFilterProvider;
         private readonly ILogger<LdapProfileLoader> _logger;
         private readonly AdditionalClaimsMetadata _additionalClaimsMetadata;
+        private readonly PortalSettings _portalSettings;
 
         const string _memberOfAttr = "memberOf";
         private readonly string[] _queryAttributes = new[]
@@ -24,12 +26,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             _memberOfAttr
         };
 
-        public LdapProfileLoader(LdapProfileFilterProvider profileFilterProvider, ILogger<LdapProfileLoader> logger,
-            AdditionalClaimsMetadata additionalClaimsMetadata)
+        public LdapProfileLoader(
+            LdapProfileFilterProvider profileFilterProvider,
+            ILogger<LdapProfileLoader> logger,
+            AdditionalClaimsMetadata additionalClaimsMetadata,
+			PortalSettings settings
+			)
         {
             _profileFilterProvider = profileFilterProvider ?? throw new ArgumentNullException(nameof(profileFilterProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _additionalClaimsMetadata = additionalClaimsMetadata ?? throw new ArgumentNullException(nameof(additionalClaimsMetadata));
+            _portalSettings = settings;
         }
 
         public async Task<LdapProfile?> LoadProfileAsync(LdapDomain domain, LdapIdentity user,
@@ -41,8 +48,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             var allAttrs = _queryAttributes
                 .Concat(_additionalClaimsMetadata.RequiredAttributes)
                 .Distinct(new OrdinalIgnoreCaseStringComparer())
-                .ToArray();
-            var response = await connection.SearchQueryAsync(domain.Name, searchFilter.Build(), LdapSearchScope.LDAP_SCOPE_SUB, allAttrs);
+                .ToList();
+
+            if(_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity) {
+                allAttrs.Add("userPrincipalName");
+            }
+
+            var response = await connection.SearchQueryAsync(domain.Name, searchFilter.Build(), LdapSearchScope.LDAP_SCOPE_SUB, allAttrs.ToArray());
 
             var entry = response.SingleOrDefault();
             if (entry == null)
