@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         public string? Email { get; private set; }
         public string? Phone { get; private set; }
         public string? Username { get; private set; }
-
+        public string? UserPrincipalName { get; private set; }
         private CredentialVerificationResult(bool isAuthenticated)
         {
             IsAuthenticated = isAuthenticated;
@@ -146,6 +146,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             public CredentialVerificationResultBuilder SetReason(string? reason)
             {
                 _result.Reason = reason;
+                return this;
+            }
+
+            public CredentialVerificationResultBuilder SetUserPrincipalName(string? upn)
+            {
+                _result.UserPrincipalName = upn;
                 return this;
             }
 

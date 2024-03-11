@@ -86,6 +86,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 {
                     resultBuilder.SetPhone(profile.Mobile);
                 }
+                if(_settings.ActiveDirectorySettings.UseUpnAsIdentity) 
+                {
+                    resultBuilder.SetUserPrincipalName(profile.Upn);
+                }
                 resultBuilder.SetUsername(username);
                 
                 var result = resultBuilder.Build();

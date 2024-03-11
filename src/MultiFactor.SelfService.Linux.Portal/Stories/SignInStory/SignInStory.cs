@@ -11,6 +11,8 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerificat
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
+using System.Configuration;
+using System.Reflection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
@@ -25,6 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly ILogger<SignInStory> _logger;
         private readonly ApplicationCache _applicationCache;
         private readonly ClaimsProvider _claimsProvider;
+        private readonly PortalSettings _portalSettings;
 
         public SignInStory(CredentialVerifier credentialVerifier,
             DataProtection dataProtection,
@@ -34,7 +37,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             ApplicationCache applicationCache,
             IStringLocalizer<SharedResource> localizer,
             ILogger<SignInStory> logger,
-            ClaimsProvider claimsProvider)
+            ClaimsProvider claimsProvider,
+            PortalSettings portalSettings)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -45,7 +49,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(logger));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
-        }
+            _portalSettings = portalSettings;
+		}
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
         {
@@ -111,8 +116,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             var postbackUrl = noLastSegment + "/PostbackFromMfa";
             var claims = _claimsProvider.GetClaims();
+            var username = GetIdentity(verificationResult);
 
-            var accessPage = await _api.CreateAccessRequestAsync(verificationResult.Username,
+            var accessPage = await _api.CreateAccessRequestAsync(username,
                 verificationResult.DisplayName,
                 verificationResult.Email,
                 verificationResult.Phone,
@@ -120,6 +126,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 claims);
 
             return new RedirectResult(accessPage.Url, true);
+        }
+
+        private string GetIdentity(CredentialVerificationResult verificationResult)
+        {
+            var identity = verificationResult.Username;
+            if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
+            {
+                if (string.IsNullOrEmpty(verificationResult.UserPrincipalName))
+                {
+                    throw new InvalidOperationException($"Null UPN for user {verificationResult.Username}");
+                }
+                identity = verificationResult.UserPrincipalName;
+            }
+            if(identity == null)
+            {
+                throw new InvalidOperationException($"Null username, can't sign in");
+            }
+            return identity;
         }
     }
 }
