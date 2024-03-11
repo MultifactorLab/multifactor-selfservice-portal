@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         public string? Upn => Attributes.GetValue("userPrincipalName");
         public IReadOnlyList<string> MemberOf => Attributes.GetValues("memberOf");
 
-        private readonly LdapAttributesCache _attributes = new ();
+        private readonly LdapAttributesCache _attributes = new();
         public ILdapAttributesCache Attributes => _attributes;
 
         private LdapProfile(LdapIdentity baseDn, string distinguishedName)
@@ -38,7 +38,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             {
                 _profile = profile ?? throw new ArgumentNullException(nameof(profile));
             }
-            
+
             public LdapProfileBuilder AddAttribute(string attr, IEnumerable<string> values)
             {
                 _profile._attributes.AddAttribute(attr, values);

@@ -30,8 +30,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             LdapProfileFilterProvider profileFilterProvider,
             ILogger<LdapProfileLoader> logger,
             AdditionalClaimsMetadata additionalClaimsMetadata,
-			PortalSettings settings
-			)
+            PortalSettings settings
+            )
         {
             _profileFilterProvider = profileFilterProvider ?? throw new ArgumentNullException(nameof(profileFilterProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,7 +50,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 .Distinct(new OrdinalIgnoreCaseStringComparer())
                 .ToList();
 
-            if(_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity) {
+            if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
+            {
                 allAttrs.Add("userPrincipalName");
             }
 

@@ -11,6 +11,8 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerificat
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
+using System.Configuration;
+using System.Reflection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
@@ -114,13 +116,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             var postbackUrl = noLastSegment + "/PostbackFromMfa";
             var claims = _claimsProvider.GetClaims();
-            var username = _portalSettings.ActiveDirectorySettings.UseUpnAsIdentity
-                    ? (verificationResult.UserPrincipalName ?? verificationResult.Username)
-                    : verificationResult.Username;
-            if(username == null) 
-            {
-                throw new Exception("Can't find username");
-            }
+            var username = GetIdentity(verificationResult);
+
             var accessPage = await _api.CreateAccessRequestAsync(username,
                 verificationResult.DisplayName,
                 verificationResult.Email,
@@ -129,6 +126,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 claims);
 
             return new RedirectResult(accessPage.Url, true);
+        }
+
+        private string GetIdentity(CredentialVerificationResult verificationResult)
+        {
+            var identity = verificationResult.Username;
+            if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
+            {
+                if (string.IsNullOrEmpty(verificationResult.UserPrincipalName))
+                {
+                    throw new InvalidOperationException($"Null UPN for user {verificationResult.Username}");
+                }
+                identity = verificationResult.UserPrincipalName;
+            }
+            if(identity == null)
+            {
+                throw new InvalidOperationException($"Null username, can't sign in");
+            }
+            return identity;
         }
     }
 }
