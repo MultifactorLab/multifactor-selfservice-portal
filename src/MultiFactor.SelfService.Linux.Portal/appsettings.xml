@@ -1,85 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
 
-	<Environment></Environment>
+    <Environment></Environment>
 
-	<Logging>
-		<LogLevel>
-			<Default>Information</Default>
-			<Microsoft>Warning</Microsoft>
-		</LogLevel>
-	</Logging>
-	<AllowedHosts>*</AllowedHosts>
+    <Logging>
+        <LogLevel>
+            <Default>Information</Default>
+            <Microsoft>Warning</Microsoft>
+        </LogLevel>
+    </Logging>
+    <AllowedHosts>*</AllowedHosts>
 
-	<PortalSettings>
-		
-		<CompanySettings>		
-			 <!--Name of your organization--> 
-			<Name>ACME</Name>
+    <PortalSettings>
 
-			 <!--Name of your Active Directory domain to verify username and password-->
-			<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
-			
-			<!--Company logo URL address: absolute or relative--> 
-			<LogoUrl>images/logo.svg</LogoUrl>	
-		</CompanySettings>
+        <CompanySettings>
+            <!--Name of your organization-->
+            <Name>ACME</Name>
 
-		<!-- Technical Active Directory account -->
-		<TechnicalAccountSettings>
-		   <User>user</User>
-		   <Password>password</Password>
-		</TechnicalAccountSettings>
+            <!--Name of your Active Directory domain to verify username and password-->
+            <Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
 
-		<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
-		<ActiveDirectorySettings requiresUserPrincipalName="false">
-			<!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
-			<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
+            <!--Company logo URL address: absolute or relative-->
+            <LogoUrl>images/logo.svg</LogoUrl>
+        </CompanySettings>
 
-			<!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
-			<!--<UseUserPhone>true</UseUserPhone>-->
+        <!-- Technical Active Directory account -->
+        <TechnicalAccountSettings>
+            <User>user</User>
+            <Password>password</Password>
+        </TechnicalAccountSettings>
 
-			<!-- [Optional] Use ActiveDirectory User Telephones properties mobile number. -->
-			<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
-		</ActiveDirectorySettings>
+        <!-- requiresUserPrincipalName: Only UPN user name format permitted -->
+        <!-- useUpnAsIdentity: user name will be transformed to the UPN format automatically -->
+        <ActiveDirectorySettings requiresUserPrincipalName="false" useUpnAsIdentity="false">
+            <!--[Optional] Require second factor for users in specified group only (Single Sign-On users). Second-factor will be required for all users by default if setting is deleted. -->
+            <!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
 
-		<MultiFactorApiSettings>
-			<!-- Multifactor API Address -->
-			<ApiUrl>https://api.multifactor.ru</ApiUrl>
-			<!-- API KEY parameter from the Multifactor personal account. -->
-			<ApiKey>key</ApiKey>
-			<!-- API Secret parameter from the Multifactor personal account. -->
-			<ApiSecret>secret</ApiSecret>
-			<!-- [Optional] Access the Multifactor API via the HTTP proxy. -->
-			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
-		</MultiFactorApiSettings>
-		
-		<CaptchaSettings enabled="false">
-			<!--Captcha provider: 'Google', 'Yandex'-->
-			<CaptchaType>Yandex</CaptchaType>
-			<Key>key</Key>
-			<Secret>secret</Secret>
-			<!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
-			<CaptchaRequired>Always</CaptchaRequired>
-		</CaptchaSettings>
+            <!-- [Optional] Use your users' phone numbers contained in Active Directory to automatically enroll your users and start send one-time SMS codes. Option is not used if settings are removed. -->
+            <!--<UseUserPhone>true</UseUserPhone>-->
 
-		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
-		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
-		<PasswordManagement enabled="false" allowPasswordRecovery="false">
-			<!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
-			<!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
-			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
-			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
-		</PasswordManagement>
+            <!-- [Optional] Use ActiveDirectory User Telephones properties mobile number. -->
+            <!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
+        </ActiveDirectorySettings>
 
-		
-		<!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
-		<!--<LoggingLevel>Info</LoggingLevel>-->
-		<!--<LoggingFormat>json</LoggingFormat>-->
+        <MultiFactorApiSettings>
+            <!-- Multifactor API Address -->
+            <ApiUrl>https://api.multifactor.ru</ApiUrl>
+            <!-- API KEY parameter from the Multifactor personal account. -->
+            <ApiKey>key</ApiKey>
+            <!-- API Secret parameter from the Multifactor personal account. -->
+            <ApiSecret>secret</ApiSecret>
+            <!-- [Optional] Access the Multifactor API via the HTTP proxy. -->
+            <!--<ApiProxy>http://proxy:3128</ApiProxy>-->
+        </MultiFactorApiSettings>
 
-		<!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
-		<ExchangeActiveSyncDevicesManagement enabled="false" />
+        <CaptchaSettings enabled="false">
+            <!--Captcha provider: 'Google', 'Yandex'-->
+            <CaptchaType>Yandex</CaptchaType>
+            <Key>key</Key>
+            <Secret>secret</Secret>
+            <!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
+            <CaptchaRequired>Always</CaptchaRequired>
+        </CaptchaSettings>
 
-		<!--
+        <!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+        <!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
+        <PasswordManagement enabled="false" allowPasswordRecovery="false">
+            <!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
+            <!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
+            <!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
+            <!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
+        </PasswordManagement>
+
+
+        <!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
+        <!--<LoggingLevel>Info</LoggingLevel>-->
+        <!--<LoggingFormat>json</LoggingFormat>-->
+
+        <!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
+        <ExchangeActiveSyncDevicesManagement enabled="false" />
+
+        <!--
 			UI language selection:
 			ru - Russian,
 			en - English,
@@ -87,14 +88,14 @@
 			auto:en - check browser, default English.
 			If option not specefied - English.
 		-->
-		<!--<UICulture>auto:en</UICulture>-->
+        <!--<UICulture>auto:en</UICulture>-->
 
-		<!--<GroupPolicyPreset>-->
-			<!-- Groups to assign to the registered user -->
-			<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
-		<!--</GroupPolicyPreset>-->
+        <!--<GroupPolicyPreset>-->
+        <!-- Groups to assign to the registered user -->
+        <!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
+        <!--</GroupPolicyPreset>-->
 
-		<!-- FreeIPA support -->
-		<!--<LdapBaseDn></LdapBaseDn>-->
-	</PortalSettings>
+        <!-- FreeIPA support -->
+        <!--<LdapBaseDn></LdapBaseDn>-->
+    </PortalSettings>
 </configuration>
