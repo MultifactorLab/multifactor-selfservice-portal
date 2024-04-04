@@ -63,25 +63,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     .NotNull().WithMessage(GetErrorMessage(portal => portal.PasswordManagement))
                     .ChildRules(portalValidation =>
                     {
-                        portalValidation.RuleFor(r => r!.PasswordChangingSessionCacheSize)
+                        portalValidation.RuleFor(r => r.PasswordChangingSessionCacheSize)
                             .Must((model, value) => value is null ||
                                                  value >= Constants.BYTES_IN_MB && value < (100L * Constants.BYTES_IN_MB /* 100 MB */))
-                            .WithMessage($"Invalid password changing session cache size. Please check '{GetPropPath(x => x.PasswordManagement!.PasswordChangingSessionCacheSize)} property.'");
+                            .WithMessage($"Invalid password changing session cache size. Please check '{GetPropPath(x => x.PasswordManagement.PasswordChangingSessionCacheSize)} property.'");
 
-                        portalValidation.RuleFor(r => r!.PasswordChangingSessionLifetime)
+                        portalValidation.RuleFor(r => r.PasswordChangingSessionLifetime)
                             .Must((model, value) => value is null ||
                                                     value.Value < TimeSpan.FromDays(10))
-                            .WithMessage($"Invalid password changing session lifetime. Please check '{GetPropPath(x => x.PasswordManagement!.PasswordChangingSessionLifetime)} property.'");
+                            .WithMessage($"Invalid password changing session lifetime. Please check '{GetPropPath(x => x.PasswordManagement.PasswordChangingSessionLifetime)} property.'");
                     });
                 
                 RuleFor(portal => portal)
-                    .Must((model, value) => model.CaptchaSettings.Enabled && model.PasswordManagement!.AllowPasswordRecovery || 
-                        !model.PasswordManagement!.AllowPasswordRecovery)
+                    .Must((model, value) => model.CaptchaSettings.Enabled && model.PasswordManagement.AllowPasswordRecovery || 
+                        !model.PasswordManagement.AllowPasswordRecovery)
                     .WithMessage("Captcha must be enabled for PasswordRecovery page to enable Password Recovery." +
-                                 $"Please, either enabe the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement!.AllowPasswordRecovery)}')");
+                                 $"Please, either enabe the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement.AllowPasswordRecovery)}')");
                 
                 RuleFor(portal => portal).Must((model, value) => {
-                    if (!model.PasswordManagement!.Enabled) return true;
+                    if (!model.PasswordManagement.Enabled) return true;
                     if (string.IsNullOrWhiteSpace(model.CompanySettings?.Domain)) return false;
                     if (!Uri.IsWellFormedUriString(model.CompanySettings.Domain, UriKind.Absolute)) return false;
                     var uri = new Uri(model.CompanySettings.Domain);
@@ -89,9 +89,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 }).WithMessage($"Need secure connection for password management. Please check '{GetPropPath(x => x.CompanySettings.Domain)}' settings property or disable password management ('{nameof(PortalSettings.PasswordManagement.Enabled)}' property).");
 
                 RuleFor(portal => portal)
-                    .Must((model, value) => !model.PasswordManagement!.AllowPasswordRecovery
+                    .Must((model, value) => !model.PasswordManagement.AllowPasswordRecovery
                                           || model.PasswordManagement.AllowPasswordRecovery && model.PasswordManagement.Enabled)
-                    .WithMessage($"Password management must be enabled before password recovery. Please, check '{GetPropPath(x => x.PasswordManagement!.Enabled)}' property");
+                    .WithMessage($"Password management must be enabled before password recovery. Please, check '{GetPropPath(x => x.PasswordManagement.Enabled)}' property");
             }
 
             private static string GetErrorMessage<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)

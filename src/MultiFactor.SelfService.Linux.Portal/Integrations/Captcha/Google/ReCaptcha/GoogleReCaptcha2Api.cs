@@ -19,12 +19,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCap
         /// <param name="secret">Required. The shared key between your site and reCAPTCHA.</param>
         /// <param name="responseToken">Required. The user response token provided by the reCAPTCHA client-side integration on your site.</param>
         /// <param name="remoteIp">Optional. The user's IP address.</param>
-        public async Task<GoogleVerifyCaptchaResponseDto> SiteverifyAsync(string secret, string responseToken, string? remoteIp = null)
+        public async Task<GoogleVerifyCaptchaResponseDto> SiteverifyAsync(string secret, string responseToken, string remoteIp = null)
         {
             if (string.IsNullOrWhiteSpace(secret)) throw new ArgumentNullException(nameof(secret));
             if (string.IsNullOrWhiteSpace(responseToken)) throw new ArgumentNullException(nameof(responseToken));
 
-            var param = new Dictionary<string, string?>
+            var param = new Dictionary<string, string>
             { 
                 { "secret", secret },
                 { "response", responseToken }

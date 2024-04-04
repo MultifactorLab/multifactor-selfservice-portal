@@ -5,7 +5,7 @@
         private readonly List<LdapAttribute> _attributes = new();
         public IReadOnlyList<LdapAttribute> Entries => _attributes.AsReadOnly();
 
-        public string? GetValue(string name) =>
+        public string GetValue(string name) =>
             _attributes.FirstOrDefault(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Values.FirstOrDefault();
 
         public IReadOnlyList<string> GetValues(string name) =>

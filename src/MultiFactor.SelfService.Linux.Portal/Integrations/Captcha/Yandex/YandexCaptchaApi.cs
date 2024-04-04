@@ -13,12 +13,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex
             _client = factory?.CreateClientAdapter() ?? throw new ArgumentNullException(nameof(factory));
         }
         
-        public async Task<YandexVerifyCaptchaResponseDto> VerifyAsync(string secret, string responseToken, string? remoteIp = null)
+        public async Task<YandexVerifyCaptchaResponseDto> VerifyAsync(string secret, string responseToken, string remoteIp = null)
         {
             if (string.IsNullOrWhiteSpace(secret)) throw new ArgumentNullException(nameof(secret));
             if (string.IsNullOrWhiteSpace(responseToken)) throw new ArgumentNullException(nameof(responseToken));
 
-            var param = new Dictionary<string, string?>
+            var param = new Dictionary<string, string>
             { 
                 { "secret", secret },
                 { "token", responseToken }

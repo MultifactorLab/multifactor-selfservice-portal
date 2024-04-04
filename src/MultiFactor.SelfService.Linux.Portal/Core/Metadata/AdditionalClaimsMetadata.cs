@@ -8,8 +8,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Metadata
     /// </summary>
     public class AdditionalClaimsMetadata
     {
-        private IReadOnlyList<AdditionalClaimDescriptor>? _additionalClaims;
-        private IReadOnlyList<string>? _requiredAttributes;
+        private IReadOnlyList<AdditionalClaimDescriptor> _additionalClaims;
+        private IReadOnlyList<string> _requiredAttributes;
         private readonly AdditionalClaimDescriptorsProvider _descriptorsProvider;
 
         /// <summary>

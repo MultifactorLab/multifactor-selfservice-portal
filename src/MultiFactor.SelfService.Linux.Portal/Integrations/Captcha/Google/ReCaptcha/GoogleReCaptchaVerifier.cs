@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCap
             _captcha2Api = captcha2Api ?? throw new ArgumentNullException(nameof(captcha2Api));
         }
 
-        protected override async Task<bool> VerifyTokenAsync(string token, string? ip = null)
+        protected override async Task<bool> VerifyTokenAsync(string token, string ip = null)
         { 
             _responseDto = await _captcha2Api.SiteverifyAsync(_settings.CaptchaSettings.Secret, token, ip);
             return _responseDto.Success;
