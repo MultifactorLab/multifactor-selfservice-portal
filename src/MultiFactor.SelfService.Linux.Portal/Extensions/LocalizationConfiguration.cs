@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             AddControllersWithViewsAndLocalization(applicationBuilder, null);
         }
 
-        public static void AddControllersWithViewsAndLocalization(this WebApplicationBuilder applicationBuilder, Action<MvcOptions>? configure)
+        public static void AddControllersWithViewsAndLocalization(this WebApplicationBuilder applicationBuilder, Action<MvcOptions> configure)
         {
             applicationBuilder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
             applicationBuilder.Services.Configure<RequestLocalizationOptions>(options =>

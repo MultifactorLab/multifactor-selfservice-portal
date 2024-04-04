@@ -82,7 +82,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             }
         }
 
-        public async Task<ExchangeActiveSyncDeviceInfo?> FindByUserAndDeviceIdAsync(string username, string deviceId)
+        public async Task<ExchangeActiveSyncDeviceInfo> FindByUserAndDeviceIdAsync(string username, string deviceId)
         {
             if (string.IsNullOrEmpty(username)) throw new ArgumentException($"'{nameof(username)}' cannot be null or empty.", nameof(username));
             if (string.IsNullOrEmpty(deviceId)) throw new ArgumentException($"'{nameof(deviceId)}' cannot be null or empty.", nameof(deviceId));
@@ -130,7 +130,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             }
         }
 
-        private ExchangeActiveSyncDevice? ParseDevice(LdapEntry entry)
+        private ExchangeActiveSyncDevice ParseDevice(LdapEntry entry)
         {
             var attributes = entry.DirectoryAttributes;
 

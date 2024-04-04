@@ -72,8 +72,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
                 Policy = response.Policy,
 
-                EnablePasswordManagement = _settings.PasswordManagement!.Enabled,
-                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement!.Enabled
+                EnablePasswordManagement = _settings.PasswordManagement.Enabled,
+                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled
             };
         }
 
@@ -88,8 +88,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <param name="claims"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string? displayName, string? email, 
-            string? phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
+        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
+            string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
             if (username is null) throw new ArgumentNullException(nameof(username));
             if (claims is null) throw new ArgumentNullException(nameof(claims));        
@@ -162,7 +162,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         }
 
-        private static async Task ExecuteAsync(Func<Task<ApiResponse?>> method)
+        private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
         {
             var response = await method();
 
@@ -176,7 +176,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             }
         }
 
-        private static async Task<T> ExecuteAsync<T>(Func<Task<ApiResponse<T>?>> method)
+        private static async Task<T> ExecuteAsync<T>(Func<Task<ApiResponse<T>>> method)
         {
             var response = await method();
 

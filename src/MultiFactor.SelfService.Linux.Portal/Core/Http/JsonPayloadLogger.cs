@@ -27,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
         /// </summary>
         /// <param name="payload">JSON payload string.</param>
         /// <param name="logPrefix">Log entry prefix (tag).</param>
-        public void LogPayload(string payload, string? logPrefix = null)
+        public void LogPayload(string payload, string logPrefix = null)
         {
             // remove totp key from log
             if (_logger.IsEnabled(LogLevel.Debug))

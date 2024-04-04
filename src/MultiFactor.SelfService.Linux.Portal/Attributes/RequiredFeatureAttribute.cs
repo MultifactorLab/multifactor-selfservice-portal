@@ -21,17 +21,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
         {
             var httpContext = context.HttpContext;
             var configuration = httpContext.RequestServices.GetRequiredService<PortalSettings>();
-            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordManagement) && !configuration.PasswordManagement!.Enabled)
+            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordManagement) && !configuration.PasswordManagement.Enabled)
             {
                 throw new FeatureNotEnabledException(ApplicationFeature.PasswordManagement.GetEnumDescription());
             }
 
-            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.ExchangeActiveSyncDevicesManagement) && !configuration.ExchangeActiveSyncDevicesManagement!.Enabled)
+            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.ExchangeActiveSyncDevicesManagement) && !configuration.ExchangeActiveSyncDevicesManagement.Enabled)
             {
                 throw new FeatureNotEnabledException(ApplicationFeature.ExchangeActiveSyncDevicesManagement.GetEnumDescription());
             }
 
-            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordRecovery) && !configuration.PasswordManagement!.AllowPasswordRecovery)
+            if (_requiredFeatureFlags.HasFlag(ApplicationFeature.PasswordRecovery) && !configuration.PasswordManagement.AllowPasswordRecovery)
             {
                 throw new FeatureNotEnabledException(ApplicationFeature.PasswordRecovery.GetEnumDescription());
             }

@@ -20,9 +20,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
         /// <summary>
         /// Object described condition that can be evaluated.
         /// </summary>
-        public ClaimCondition? Condition { get; }
+        public ClaimCondition Condition { get; }
 
-        public AdditionalClaimDescriptor(string name, IClaimValueSource source, ClaimCondition? condition)
+        public AdditionalClaimDescriptor(string name, IClaimValueSource source, ClaimCondition condition)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Source = source ?? throw new ArgumentNullException(nameof(source));

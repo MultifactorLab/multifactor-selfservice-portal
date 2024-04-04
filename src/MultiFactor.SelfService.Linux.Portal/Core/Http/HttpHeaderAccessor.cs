@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             _httpContext = httpContext;
         }
         
-        public T? GetHeaderValueAs<T>(string headerName) 
+        public T GetHeaderValueAs<T>(string headerName) 
         {
             var headers = _httpContext?.Request?.Headers;
             if (headers == null)

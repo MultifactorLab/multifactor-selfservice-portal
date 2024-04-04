@@ -48,7 +48,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                
         }
 
-        private async Task<LdapIdentity?> GetExistedUserAsync(string username)
+        private async Task<LdapIdentity> GetExistedUserAsync(string username)
         {
             using var technicalConn = await CreateAdapterAsTechnicalAccAsync();
             var domain = await technicalConn.WhereAmIAsync();
@@ -73,7 +73,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             }
         }
 
-        private static async Task<LdapIdentity?> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)
+        private static async Task<LdapIdentity> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)
         {
             var user = LdapIdentity.ParseUser(username);
             var filter = LdapFilter.Create("objectclass", "user").Or("objectclass", "person")
@@ -91,7 +91,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return LdapIdentity.ParseUser(attrValue);
         }
 
-        private static string? GetAnyAttrValue(LdapEntry entry, params string[] attributes)
+        private static string GetAnyAttrValue(LdapEntry entry, params string[] attributes)
         {
             foreach (var attr in attributes)
             {

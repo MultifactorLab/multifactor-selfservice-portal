@@ -13,7 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        protected abstract Task<bool> VerifyTokenAsync(string token, string? ip = null);
+        protected abstract Task<bool> VerifyTokenAsync(string token, string ip = null);
 
         protected virtual string GetResponseAggregatedErrors()
         {

@@ -32,7 +32,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             return applicationBuilder;
         }
 
-        private static LogEventLevel GetLogMinimalLevel(string? level)
+        private static LogEventLevel GetLogMinimalLevel(string level)
         {
             switch (level)
             {
@@ -58,7 +58,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
         }
 
-        private static ITextFormatter? GetLogFormatter(WebApplicationBuilder applicationBuilder)
+        private static ITextFormatter GetLogFormatter(WebApplicationBuilder applicationBuilder)
         {
             var loggingFormat = applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingFormat);
             switch (loggingFormat?.ToLower())

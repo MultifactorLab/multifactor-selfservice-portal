@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<string?> GetAsync(string uri, IReadOnlyDictionary<string, string>? headers = null)
+        public async Task<string> GetAsync(string uri, IReadOnlyDictionary<string, string> headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
@@ -27,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             return await resp.Content.ReadAsStringAsync();
         }
 
-        public async Task<T?> GetAsync<T>(string uri, IReadOnlyDictionary<string, string>? headers = null)
+        public async Task<T> GetAsync<T>(string uri, IReadOnlyDictionary<string, string> headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
@@ -38,7 +38,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             return await _jsonDataSerializer.Deserialize<T>(resp.Content, "Response from API");
         }
 
-        public async Task<T?> PostAsync<T>(string uri, object? data = null, IReadOnlyDictionary<string, string>? headers = null)
+        public async Task<T> PostAsync<T>(string uri, object data = null, IReadOnlyDictionary<string, string> headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
@@ -53,7 +53,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             return await _jsonDataSerializer.Deserialize<T>(resp.Content, "Response from API");
         }
 
-        public async Task<T?> DeleteAsync<T>(string uri, IReadOnlyDictionary<string, string>? headers = null)
+        public async Task<T> DeleteAsync<T>(string uri, IReadOnlyDictionary<string, string> headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);

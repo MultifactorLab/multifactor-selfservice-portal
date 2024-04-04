@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             return attr?.Description ?? str;
         }
 
-        public static T? GetEnumAttribute<T>(this Enum enumValue) where T : Attribute
+        public static T GetEnumAttribute<T>(this Enum enumValue) where T : Attribute
         {
             var str = enumValue.ToString();
             var fieldInfo = enumValue.GetType().GetField(str);

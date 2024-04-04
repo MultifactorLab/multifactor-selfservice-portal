@@ -39,7 +39,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             _portalSettings = settings;
         }
 
-        public async Task<LdapProfile?> LoadProfileAsync(LdapDomain domain, LdapIdentity user,
+        public async Task<LdapProfile> LoadProfileAsync(LdapDomain domain, LdapIdentity user,
             LdapConnectionAdapter connection)
         {
             var searchFilter = _profileFilterProvider.GetProfileSearchFilter(user);
@@ -64,7 +64,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 return null;
             }
 
-            var builder = LdapProfile.CreateBuilder(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
+            var builder = LdapProfile.Create(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
             var attributes = entry.DirectoryAttributes;
 
 

@@ -5,30 +5,30 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
     public interface ICredentialVerificationResult
     {
         bool IsAuthenticated { get; }
-        string? Reason { get; }
+        string Reason { get; }
 
         bool IsBypass { get; }
         bool UserMustChangePassword { get; }
 
-        string? DisplayName { get; }
-        string? Email { get; }
-        string? Phone { get; }
-        string? Username { get; }
+        string DisplayName { get; }
+        string Email { get; }
+        string Phone { get; }
+        string Username { get; }
     }
 
     public class CredentialVerificationResult : ICredentialVerificationResult
     {
         public bool IsAuthenticated { get; }
-        public string? Reason { get; private set; }
+        public string Reason { get; private set; }
 
         public bool IsBypass { get; init; }
         public bool UserMustChangePassword { get; private set; }
 
-        public string? DisplayName { get; private set; }
-        public string? Email { get; private set; }
-        public string? Phone { get; private set; }
-        public string? Username { get; private set; }
-        public string? UserPrincipalName { get; private set; }
+        public string DisplayName { get; private set; }
+        public string Email { get; private set; }
+        public string Phone { get; private set; }
+        public string Username { get; private set; }
+        public string UserPrincipalName { get; private set; }
         private CredentialVerificationResult(bool isAuthenticated)
         {
             IsAuthenticated = isAuthenticated;
@@ -47,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             };
         }
 
-        public static CredentialVerificationResult FromKnownError(string errorMessage, string? username = null)
+        public static CredentialVerificationResult FromKnownError(string errorMessage, string username = null)
         {
             if (string.IsNullOrEmpty(errorMessage))
             {
@@ -99,7 +99,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             return FromUnknowError(errorMessage);
         }
 
-        public static CredentialVerificationResult FromUnknowError(string? errorMessage = null)
+        public static CredentialVerificationResult FromUnknowError(string errorMessage = null)
         {
             return new CredentialVerificationResult(false) { Reason = errorMessage ?? "Unknown error" };
         }
@@ -113,25 +113,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 _result = result ?? throw new ArgumentNullException(nameof(result));
             }
 
-            public CredentialVerificationResultBuilder SetDisplayName(string? displayName)
+            public CredentialVerificationResultBuilder SetDisplayName(string displayName)
             {
                 _result.DisplayName = displayName;
                 return this;
             }
 
-            public CredentialVerificationResultBuilder SetEmail(string? email)
+            public CredentialVerificationResultBuilder SetEmail(string email)
             {
                 _result.Email = email;
                 return this;
             }
 
-            public CredentialVerificationResultBuilder SetPhone(string? phone)
+            public CredentialVerificationResultBuilder SetPhone(string phone)
             {
                 _result.Phone = phone;
                 return this;
             }
             
-            public CredentialVerificationResultBuilder SetUsername(string? username)
+            public CredentialVerificationResultBuilder SetUsername(string username)
             {
                 _result.Username = username;
                 return this;
@@ -143,13 +143,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 return this;
             }
 
-            public CredentialVerificationResultBuilder SetReason(string? reason)
+            public CredentialVerificationResultBuilder SetReason(string reason)
             {
                 _result.Reason = reason;
                 return this;
             }
 
-            public CredentialVerificationResultBuilder SetUserPrincipalName(string? upn)
+            public CredentialVerificationResultBuilder SetUserPrincipalName(string upn)
             {
                 _result.UserPrincipalName = upn;
                 return this;
