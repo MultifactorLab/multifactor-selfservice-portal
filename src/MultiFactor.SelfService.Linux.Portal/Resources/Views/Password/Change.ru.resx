@@ -129,6 +129,9 @@
   <data name="Invitation" xml:space="preserve">
     <value>Пожалуйста, поменяйте пароль для продолжения работы. Обратите внимание, новый пароль:</value>
   </data>
+  <data name="InvitationShort" xml:space="preserve">
+    <value>Пожалуйста, поменяйте пароль для продолжения работы</value>
+  </data>
   <data name="NewPassword" xml:space="preserve">
     <value>Новый пароль</value>
   </data>

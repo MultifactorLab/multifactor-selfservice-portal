@@ -10,13 +10,8 @@
         {
         <fieldset>
             @Html.AntiForgeryToken()
-            <p>@Localizer["Invitation"]</p>
-            <ul class="list">
-                <li>@Localizer["Req1"]</li>
-                <li>@Localizer["Req2"]</li>
-                <li>@Localizer["Req3"]</li>
-                <li>@Localizer["Req4"]</li>
-            </ul>
+            @await Html.PartialAsync("_PasswordRequirementsPartial")
+
             <br />
             <div>
                 @Html.ValidationSummary(true)

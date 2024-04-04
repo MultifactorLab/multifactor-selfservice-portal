@@ -14,9 +14,9 @@
         public const string SsoClaims = "SsoClaims";
         public const string LoadedLdapAttributes = "LoadedLdapAttributes";
 
-        public const string WORKING_DIRECTORY = "/opt/multifactor/ssp";
-        public const string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
-        public const string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";
+        public static readonly string WORKING_DIRECTORY = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+        public static readonly string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
+        public static readonly string KEY_STORAGE_DIRECTORY = $"{WORKING_DIRECTORY}/key-storage";
         public const string PWD_RECOVERY_COOKIE = "PSession";
         public const string PWD_RENEWAL_PURPOSE = "PwdRenewal";
         /// <summary>

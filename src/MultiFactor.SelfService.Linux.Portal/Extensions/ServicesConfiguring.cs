@@ -119,6 +119,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             builder.Services.AddSingleton<ApplicationGlobalValuesProvider>();
             builder.Services.AddSingleton<ClaimConditionEvaluator>();
 
+            builder.Services.AddSingleton<ContentCache>();
+
             return builder;
         }
 

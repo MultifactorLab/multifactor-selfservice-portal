@@ -17,5 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewModels
         [Compare("NewPassword", ErrorMessage = "PasswordsDoNotMatch")]
         [DataType(DataType.Password)]
         public string NewPasswordAgain { get; set; }
+
+        public string[] Requirements { get; set; } = Array.Empty<string>();
     }
 }
