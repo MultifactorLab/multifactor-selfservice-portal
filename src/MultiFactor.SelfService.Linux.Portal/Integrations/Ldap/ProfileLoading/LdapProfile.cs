@@ -7,11 +7,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         public LdapIdentity BaseDn { get; }
         public string DistinguishedName { get; }
 
-        public string? DisplayName => Attributes.GetValue("displayName");
-        public string? Email => Attributes.GetValue("email");
-        public string? Phone => Attributes.GetValue("telephoneNumber");
-        public string? Mobile => Attributes.GetValue("mobile");
-        public string? Upn => Attributes.GetValue("userPrincipalName");
+        public string DisplayName => Attributes.GetValue("displayName");
+        public string Email => Attributes.GetValue("email");
+        public string Phone => Attributes.GetValue("telephoneNumber");
+        public string Mobile => Attributes.GetValue("mobile");
+        public string Upn => Attributes.GetValue("userPrincipalName");
         public IReadOnlyList<string> MemberOf => Attributes.GetValues("memberOf");
 
         private readonly LdapAttributesCache _attributes = new();
@@ -25,7 +25,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             DistinguishedName = distinguishedName;
         }
 
-        public static LdapProfileBuilder CreateBuilder(LdapIdentity baseDn, string distinguishedName)
+        public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName)
         {
             return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName));
         }

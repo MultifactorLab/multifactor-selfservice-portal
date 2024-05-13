@@ -6,19 +6,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory.D
         public string TimeStamp { get; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Environment { get; init; }
+        public string Environment { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Version { get; init; }
+        public string Version { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? ApiStatus { get; init; }
+        public string ApiStatus { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? LdapServicesStatus { get; init; }
+        public string LdapServicesStatus { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Message { get; init; }
+        public string Message { get; init; }
 
         public ApplicationInfoDto(string timeStamp)
         {

@@ -24,8 +24,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
     [Serializable]
     internal class InvalidClaimDescriptionException : Exception
     {
-        public InvalidClaimDescriptionException(string? claimName) : base($"Invalid claim '{claimName}' description") { }
-        public InvalidClaimDescriptionException(string? claimName, Exception inner) : base($"Invalid claim '{claimName}' description", inner) { }
+        public InvalidClaimDescriptionException(string claimName) : base($"Invalid claim '{claimName}' description") { }
+        public InvalidClaimDescriptionException(string claimName, Exception inner) : base($"Invalid claim '{claimName}' description", inner) { }
         protected InvalidClaimDescriptionException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }

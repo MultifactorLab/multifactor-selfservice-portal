@@ -15,7 +15,7 @@
             FeatureDescription = featureName;
         }
 
-        public FeatureNotEnabledException(string featureName, string message, Exception? innerException) : base(message, innerException)
+        public FeatureNotEnabledException(string featureName, string message, Exception innerException) : base(message, innerException)
         {
             FeatureDescription = featureName;
         }

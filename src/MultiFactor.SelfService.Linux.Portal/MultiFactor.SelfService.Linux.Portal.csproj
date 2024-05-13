@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<UserSecretsId>82773833-20bc-4a63-a6d5-7c8dde9a2385</UserSecretsId>
@@ -13,18 +12,26 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="appsettings.production.xml" />
-		<None Remove="appsettings.xml" />
-	</ItemGroup>
+    <None Remove="appsettings.production.xml" />
+    <None Remove="appsettings.xml" />
+    <None Remove="Content\pwd.en.content" />
+    <None Remove="Content\pwd.ru.content" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="appsettings.production.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="appsettings.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.production.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\pwd.en.content">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\pwd.ru.content">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 	<ItemGroup>
 		<None Include="wwwroot\favicon.ico" />

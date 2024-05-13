@@ -12,7 +12,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ModelBinding
             _binderPairs = binderPairs;
         }
 
-        public IModelBinder? GetBinder(ModelBinderProviderContext context)
+        public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
             if (context == null) return null;
 

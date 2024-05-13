@@ -16,9 +16,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         /// <summary>
         /// Returns user that has been successfully binded with LDAP directory.
         /// </summary>
-        public LdapIdentity? BindedUser { get; }
+        public LdapIdentity BindedUser { get; }
 
-        private LdapConnectionAdapter(string uri, LdapIdentity? user, LdapConnectionAdapterConfig config)
+        private LdapConnectionAdapter(string uri, LdapIdentity user, LdapConnectionAdapterConfig config)
         {
             _connection = new LdapConnection();
             Uri = uri;
@@ -60,7 +60,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         }
 
         public static async Task<LdapConnectionAdapter> CreateAsync(string uri, LdapIdentity user, string password,
-            Action<LdapConnectionAdapterConfigBuilder>? configure)
+            Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
             if (user is null) throw new ArgumentNullException(nameof(user));
@@ -103,7 +103,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         }
 
         public static LdapConnectionAdapter CreateAnonymous(string uri, 
-            Action<LdapConnectionAdapterConfigBuilder>? configure = null)
+            Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
 

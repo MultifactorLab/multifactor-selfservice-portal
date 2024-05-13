@@ -2,7 +2,7 @@
 {
     public class TechnicalAccountSettings
     {
-        public string? User { get; private set; }
-        public string? Password { get; private set; }
+        public string User { get; private set; }
+        public string Password { get; private set; }
     }
 }

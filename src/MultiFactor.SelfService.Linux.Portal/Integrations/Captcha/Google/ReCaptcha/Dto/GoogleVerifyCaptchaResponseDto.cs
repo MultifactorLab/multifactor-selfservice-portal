@@ -14,18 +14,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCap
         /// Timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ).
         /// </summary>
         [JsonPropertyName("challenge_ts")]
-        public string? ChallengeTs { get; set; }
+        public string ChallengeTs { get; set; }
 
         /// <summary>
         /// The hostname of the site where the reCAPTCHA was solved.
         /// </summary>
         [JsonPropertyName("hostname")]
-        public string? HostName { get; set; }
+        public string HostName { get; set; }
         
         /// <summary>
         /// Optional.
         /// </summary>
         [JsonPropertyName("error-codes")]
-        public IReadOnlyList<string>? ErrorCodes { get; set; }
+        public IReadOnlyList<string> ErrorCodes { get; set; }
     }
 }

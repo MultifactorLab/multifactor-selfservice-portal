@@ -12,7 +12,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewModels
 
         [DataType(DataType.Password)]
         [Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Validation))]
-        [MinLength(7, ErrorMessageResourceName = "Minimum7", ErrorMessageResourceType = typeof(Validation))]
+        [MinLength(1, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Validation))]
         public string NewPassword { get; set; } = string.Empty;
 
         [Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Validation))]
