@@ -6,7 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewModels
     {
         [Required(ErrorMessage = "Required")]
         [DataType(DataType.Password)]
-        [MinLength(7, ErrorMessage = "Minimum7")]
+        [MinLength(1, ErrorMessage = "Required")]
         public string NewPassword { get; set; }
 
         [Required(ErrorMessage = "Required")]

@@ -33,7 +33,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void MapObsoleteSections(PortalSettings settings)
         {
-#pragma warning disable CS0612
             if (settings.GoogleReCaptchaSettings.Enabled && !settings.CaptchaSettings.Enabled)
             {
                 settings.CaptchaSettings = new CaptchaSettings()
@@ -45,7 +44,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 };
             }
 
-            if (settings.PasswordManagement == null)
+        if (settings.PasswordManagement == null)
             {
                 settings.PasswordManagement = new PasswordManagementSettings()
                 {
@@ -77,7 +76,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     RequiresUserPrincipalName = settings.RequiresUserPrincipalName
                 };
             }
-#pragma warning restore CS0612
         }
 
         private static PortalSettings GetSettings(IConfigurationRoot config)

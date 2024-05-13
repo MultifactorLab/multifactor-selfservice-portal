@@ -4,7 +4,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 {
     public static class HttpClientUtils
     {
-        public static void AddHeadersIfExist(HttpRequestMessage message, IReadOnlyDictionary<string, string>? headers)
+        public static void AddHeadersIfExist(HttpRequestMessage message, IReadOnlyDictionary<string, string> headers)
         {
             if (headers != null)
             {
@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             }
         }
 
-        public static async Task<string?> TryGetContent(HttpResponseMessage response)
+        public static async Task<string> TryGetContent(HttpResponseMessage response)
         {
             if (response.Content == null)
             {

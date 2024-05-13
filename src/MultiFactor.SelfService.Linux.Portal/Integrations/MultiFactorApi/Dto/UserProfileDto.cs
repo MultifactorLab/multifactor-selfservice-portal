@@ -4,8 +4,8 @@
     {
         public string Id { get; }
         public string Identity { get; }
-        public string? Name { get; init; }
-        public string? Email { get; init; }
+        public string Name { get; init; }
+        public string Email { get; init; }
 
         public IReadOnlyList<UserProfileAuthenticatorDto> TotpAuthenticators { get; init; } = new List<UserProfileAuthenticatorDto>();
         public IReadOnlyList<UserProfileAuthenticatorDto> TelegramAuthenticators { get; init; } = new List<UserProfileAuthenticatorDto>();

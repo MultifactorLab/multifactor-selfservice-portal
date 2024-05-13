@@ -10,7 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
         /// <param name="expression">Claim condition string representation.</param>
         /// <returns>Claim condition.</returns>
         /// <exception cref="InvalidClaimConditionException"></exception>
-        public static ClaimCondition Parse(string? expression)
+        public static ClaimCondition Parse(string expression)
         {
             if (string.IsNullOrWhiteSpace(expression)) throw new InvalidClaimConditionException(expression);
 
@@ -39,8 +39,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
     [Serializable]
     internal class InvalidClaimConditionException : Exception
     {
-        public InvalidClaimConditionException(string? expression) : base($"Invalid expression: {expression}") { }
-        public InvalidClaimConditionException(string? expression, Exception inner) : base($"Invalid expression: {expression}", inner) { }
+        public InvalidClaimConditionException(string expression) : base($"Invalid expression: {expression}") { }
+        public InvalidClaimConditionException(string expression, Exception inner) : base($"Invalid expression: {expression}", inner) { }
         protected InvalidClaimConditionException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }

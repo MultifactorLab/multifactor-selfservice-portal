@@ -8,7 +8,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex
     {
         private readonly YandexCaptchaApi _captchaApi;
         private readonly PortalSettings _settings;
-        private YandexVerifyCaptchaResponseDto? _captchaResponse;
+        private YandexVerifyCaptchaResponseDto _captchaResponse;
         
         public YandexCaptchaVerifier(ILogger<YandexCaptchaVerifier> logger, YandexCaptchaApi captchaApi, PortalSettings settings) : base(logger)
         {
@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        protected override async Task<bool> VerifyTokenAsync(string token, string? ip = null)
+        protected override async Task<bool> VerifyTokenAsync(string token, string ip = null)
         {
             _captchaResponse = await _captchaApi.VerifyAsync(_settings.CaptchaSettings.Secret, token, ip);
             return _captchaResponse?.Status.Equals("Ok", StringComparison.OrdinalIgnoreCase) ?? false;

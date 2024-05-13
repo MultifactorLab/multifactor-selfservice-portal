@@ -24,7 +24,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
         {
             if (model is null) throw new ArgumentNullException(nameof(model));
 
-            if (!_settings.PasswordManagement!.Enabled)
+            if (!_settings.PasswordManagement.Enabled)
             {
                 return new RedirectToActionResult("Logout", "Account", new { });
             }

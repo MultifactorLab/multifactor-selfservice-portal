@@ -4,7 +4,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
 {
     public class OrdinalIgnoreCaseStringComparer : IEqualityComparer<string>
     {
-        public bool Equals(string? x, string? y)
+        public bool Equals(string x, string y)
         {
             if (x == null && y == null) return true;
             if (x == null || y == null) return false;

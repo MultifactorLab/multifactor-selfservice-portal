@@ -79,7 +79,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 return await RedirectToMfa(adValidationResult, model.MyUrl);
             }
 
-            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement!.Enabled)
+            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
             {
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
