@@ -16,8 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         private readonly PortalSettings _portalSettings;
 
         const string _memberOfAttr = "memberOf";
-        private readonly string[] _queryAttributes = new[]
-        {
+        private readonly string[] _queryAttributes = {
             "DistinguishedName",
             "displayName",
             "mail",
@@ -78,7 +77,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
             if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr))
             {
-                var val = memberOfAttr.GetValues<string>().Select(entry => LdapIdentity.DnToCn(entry)).ToArray();
+                var val = memberOfAttr.GetValues<string>().Select(LdapIdentity.DnToCn).ToArray();
                 builder.AddAttribute(_memberOfAttr, val);
             }
             else

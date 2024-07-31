@@ -19,7 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         private readonly LdapProfileLoader _profileLoader;
         private readonly SafeHttpContextAccessor _httpContextAccessor;
 
-        public CredentialVerifier(LdapConnectionAdapterFactory connectionFactory, 
+        public CredentialVerifier(LdapConnectionAdapterFactory connectionFactory,
             PortalSettings settings,
             ILogger<CredentialVerifier> logger, LdapProfileLoader profileLoader,
             SafeHttpContextAccessor httpContextAccessor)
@@ -44,13 +44,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             if (password is null)
             {
                 _logger.LogError("Empty password provided for user '{user:l}'", username);
-                return CredentialVerificationResult.FromUnknowError("Invalid credentials");
-            };
+                return CredentialVerificationResult.FromUnknownError("Invalid credentials");
+            }
 
             try
             {
+                if (_settings.ActiveDirectorySettings.NeedPrebindInfo())
+                {
+                    await VerifyCredentialOnlyAsync(username, password);
+                    return await VerifyMembership(username);
+                }
+                
                 using var connection = await _connectionFactory.CreateAdapterAsync(username, password);
-                if (connection.BindedUser == null) throw new Exception("Binded user is not defined. Maybe anonymous connection?");
+                if (connection.BindedUser == null)
+                    throw new Exception("Binded user is not defined. Maybe anonymous connection?");
 
                 var user = connection.BindedUser;
                 var domain = await connection.WhereAmIAsync();
@@ -58,7 +65,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
                 if (profile == null)
                 {
-                    return CredentialVerificationResult.FromUnknowError("Unable to load profile");
+                    return CredentialVerificationResult.FromUnknownError("Unable to load profile");
                 }
 
                 _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
@@ -67,11 +74,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 {
                     if (!IsMemberOf(profile, _settings.ActiveDirectorySettings.SecondFactorGroup))
                     {
-                        _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user, _settings.ActiveDirectorySettings.SecondFactorGroup);
+                        _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
+                            _settings.ActiveDirectorySettings.SecondFactorGroup);
                         _logger.LogInformation("Bypass second factor for user '{user:l}'", user);
                         return CredentialVerificationResult.ByPass();
                     }
-                    _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user, _settings.ActiveDirectorySettings.SecondFactorGroup);
+
+                    _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user,
+                        _settings.ActiveDirectorySettings.SecondFactorGroup);
                 }
 
                 var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
@@ -82,16 +92,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 {
                     resultBuilder.SetPhone(profile.Phone);
                 }
+
                 if (_settings.ActiveDirectorySettings.UseMobileUserPhone)
                 {
                     resultBuilder.SetPhone(profile.Mobile);
                 }
-                if(_settings.ActiveDirectorySettings.UseUpnAsIdentity) 
+
+                if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
                 {
                     resultBuilder.SetUserPrincipalName(profile.Upn);
                 }
+
                 resultBuilder.SetUsername(username);
-                
+
                 var result = resultBuilder.Build();
                 _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
 
@@ -102,39 +115,107 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 if (ex.Message != null)
                 {
                     var result = CredentialVerificationResult.FromKnownError(ex.Message, username);
-                    
-                    _logger.LogWarning("Verification user '{user:l}' at {Domain:l} failed: {Reason:l}. Error message: {msg:l}",
+
+                    _logger.LogWarning(
+                        "Verification user '{user:l}' at {Domain:l} failed: {Reason:l}. Error message: {msg:l}",
                         username, _settings.CompanySettings.Domain, result.Reason, ex.Message);
-                    
+
                     _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
                     return result;
                 }
 
-                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}", 
+                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}",
                     username, _settings.CompanySettings.Domain, ex.Message);
 
-                var res = CredentialVerificationResult.FromUnknowError(ex.Message);
+                var res = CredentialVerificationResult.FromUnknownError(ex.Message);
                 _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = res;
                 return res;
             }
-            catch (Exception ex) when (ex is TechnicalAccountErrorException || ex is LdapUserNotFoundException)
+            catch (Exception ex) when (ex is TechnicalAccountErrorException or LdapUserNotFoundException)
             {
-                _logger.LogError(ex, "Verification user '{user}' at {Domain:l} failed: {msg:l}", 
+                _logger.LogError(ex, "Verification user '{user}' at {Domain:l} failed: {msg:l}",
                     username, _settings.CompanySettings.Domain, ex.Message);
 
-                var res = CredentialVerificationResult.FromUnknowError("Invalid credentials");
+                var res = CredentialVerificationResult.FromUnknownError("Invalid credentials");
                 _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = res;
                 return res;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}", 
+                _logger.LogError(ex, "Verification user '{user:l}' at {Domain:l} failed: {msg:l}",
                     username, _settings.CompanySettings.Domain, ex.Message);
 
-                var res = CredentialVerificationResult.FromUnknowError(ex.Message);
+                var res = CredentialVerificationResult.FromUnknownError(ex.Message);
                 _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = res;
                 return res;
             }
+        }
+
+        public async Task VerifyCredentialOnlyAsync(string username, string password)
+        {
+            _logger.LogDebug("Verifying user '{User:l}' credential and status", username);
+
+            using var connection = await _connectionFactory.CreateAdapterAsync(username, password);
+            var user = connection.BindedUser;
+            var domain = await connection.WhereAmIAsync();
+            _logger.LogInformation("User '{User:l}' credential and status verified successfully in {Domain:l}",
+                username, domain);
+        }
+
+        public async Task<CredentialVerificationResult> VerifyMembership(string username)
+        {
+            using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
+
+            var user = LdapIdentity.ParseUser(username);
+            var domain = await connection.WhereAmIAsync();
+
+            var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
+            if (profile == null)
+            {
+                return CredentialVerificationResult.FromUnknownError("Unable to load profile");
+            }
+
+            _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
+
+            if (!string.IsNullOrEmpty(_settings.ActiveDirectorySettings.SecondFactorGroup))
+            {
+                if (!IsMemberOf(profile, _settings.ActiveDirectorySettings.SecondFactorGroup))
+                {
+                    _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
+                        _settings.ActiveDirectorySettings.SecondFactorGroup);
+                    _logger.LogInformation("Bypass second factor for user '{user:l}'", user);
+                    return CredentialVerificationResult.ByPass();
+                }
+
+                _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user,
+                    _settings.ActiveDirectorySettings.SecondFactorGroup);
+            }
+
+            var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
+                .SetDisplayName(profile.DisplayName)
+                .SetEmail(profile.Email);
+
+            if (_settings.ActiveDirectorySettings.UseUserPhone)
+            {
+                resultBuilder.SetPhone(profile.Phone);
+            }
+
+            if (_settings.ActiveDirectorySettings.UseMobileUserPhone)
+            {
+                resultBuilder.SetPhone(profile.Mobile);
+            }
+
+            if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
+            {
+                resultBuilder.SetUserPrincipalName(profile.Upn);
+            }
+
+            resultBuilder.SetUsername(username);
+
+            var result = resultBuilder.Build();
+            _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
+
+            return result;
         }
 
         private bool IsMemberOf(LdapProfile profile, string group)

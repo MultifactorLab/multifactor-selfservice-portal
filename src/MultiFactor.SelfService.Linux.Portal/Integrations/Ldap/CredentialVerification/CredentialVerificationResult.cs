@@ -2,26 +2,12 @@
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification
 {
-    public interface ICredentialVerificationResult
-    {
-        bool IsAuthenticated { get; }
-        string Reason { get; }
-
-        bool IsBypass { get; }
-        bool UserMustChangePassword { get; }
-
-        string DisplayName { get; }
-        string Email { get; }
-        string Phone { get; }
-        string Username { get; }
-    }
-
-    public class CredentialVerificationResult : ICredentialVerificationResult
+    public class CredentialVerificationResult
     {
         public bool IsAuthenticated { get; }
         public string Reason { get; private set; }
 
-        public bool IsBypass { get; init; }
+        public bool IsBypass { get; private init; }
         public bool UserMustChangePassword { get; private set; }
 
         public string DisplayName { get; private set; }
@@ -47,11 +33,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             };
         }
 
+        public static CredentialVerificationResult BeforeAuthn(string username)
+        {
+            return new CredentialVerificationResult(false)
+            {
+                Username = username,
+            };
+        }
+        
         public static CredentialVerificationResult FromKnownError(string errorMessage, string username = null)
         {
             if (string.IsNullOrEmpty(errorMessage))
             {
-                return FromUnknowError();
+                return FromUnknownError();
             }
 
             var pattern = @"data ([0-9a-e]{3})";
@@ -96,10 +90,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 }
             }
 
-            return FromUnknowError(errorMessage);
+            return FromUnknownError(errorMessage);
         }
 
-        public static CredentialVerificationResult FromUnknowError(string errorMessage = null)
+        public static CredentialVerificationResult FromUnknownError(string errorMessage = null)
         {
             return new CredentialVerificationResult(false) { Reason = errorMessage ?? "Unknown error" };
         }

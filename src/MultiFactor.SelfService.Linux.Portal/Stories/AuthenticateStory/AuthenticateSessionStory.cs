@@ -33,12 +33,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
                 Expires = verifiedToken.ValidTo
             });
 
-            if (verifiedToken.MustChangePassword)
-            {
-                return new RedirectToActionResult("Change", "ExpiredPassword", new { });
-            }
-
-            return new RedirectToActionResult("Index", "Home", new { });
+            return verifiedToken.MustChangePassword 
+                ? new RedirectToActionResult("Change", "ExpiredPassword", default) 
+                : new RedirectToActionResult("Index", "Home", default);
         }
     }
 }

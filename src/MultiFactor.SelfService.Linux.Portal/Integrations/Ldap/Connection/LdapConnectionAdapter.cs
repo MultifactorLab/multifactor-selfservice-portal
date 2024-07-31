@@ -10,7 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
     public class LdapConnectionAdapter : IDisposable
     {
         private readonly LdapConnection _connection;
-        public string Uri { get; }
+        private string Uri { get; }
         private readonly LdapConnectionAdapterConfig _config;
 
         /// <summary>

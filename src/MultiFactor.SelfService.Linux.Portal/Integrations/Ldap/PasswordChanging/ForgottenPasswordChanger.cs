@@ -36,7 +36,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
                 using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
                 var profile = await _profileLoader.GetLdapProfile(connection, username);
                 await _passwordAttributeReplacer.ExecuteReplaceCommandAsync(profile.DistinguishedName, newPassword, connection);
-                _logger.LogInformation($"Password changed/reset for user '{username}'");
+                _logger.LogInformation("Password changed/reset for user '{username}'", username);
                 return new PasswordChangingResult(true, string.Empty);
             }
             catch (LdapUnwillingToPerformException ex)

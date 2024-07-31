@@ -144,4 +144,10 @@
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Wrong user name or password</value>
   </data>
+  <data name="IdentityInvitation" xml:space="preserve">
+    <value>Please enter your username</value>
+  </data>
+  <data name="AuthnInvitation" xml:space="preserve">
+    <value>Please enter password for account</value>
+  </data>
 </root>

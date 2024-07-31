@@ -28,10 +28,10 @@
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-            var portIndex = name.IndexOf(":");
+            var portIndex = name.IndexOf(":", StringComparison.Ordinal);
             if (portIndex > 0)
             {
-                name = name.Substring(0, portIndex);
+                name = name[..portIndex];
             }
 
             var domains = name.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
@@ -93,10 +93,10 @@
             var identity = name.ToLower();
 
             //remove DOMAIN\\ prefix
-            var index = identity.IndexOf("\\");
+            var index = identity.IndexOf("\\", StringComparison.Ordinal);
             if (index > 0)
             {
-                identity = identity.Substring(index + 1);
+                identity = identity[(index + 1)..];
             }
 
             if (identity.Contains('='))

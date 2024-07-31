@@ -80,13 +80,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     .WithMessage("Captcha must be enabled for PasswordRecovery page to enable Password Recovery." +
                                  $"Please, either enabe the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement.AllowPasswordRecovery)}')");
                 
-                RuleFor(portal => portal).Must((model, value) => {
-                    if (!model.PasswordManagement.Enabled) return true;
-                    if (string.IsNullOrWhiteSpace(model.CompanySettings?.Domain)) return false;
-                    if (!Uri.IsWellFormedUriString(model.CompanySettings.Domain, UriKind.Absolute)) return false;
-                    var uri = new Uri(model.CompanySettings.Domain);
-                    return uri.Scheme == "ldaps";
-                }).WithMessage($"Need secure connection for password management. Please check '{GetPropPath(x => x.CompanySettings.Domain)}' settings property or disable password management ('{nameof(PortalSettings.PasswordManagement.Enabled)}' property).");
+                // RuleFor(portal => portal).Must((model, value) => {
+                //     if (!model.PasswordManagement.Enabled) return true;
+                //     if (string.IsNullOrWhiteSpace(model.CompanySettings?.Domain)) return false;
+                //     if (!Uri.IsWellFormedUriString(model.CompanySettings.Domain, UriKind.Absolute)) return false;
+                //     var uri = new Uri(model.CompanySettings.Domain);
+                //     return uri.Scheme == "ldaps";
+                // }).WithMessage($"Need secure connection for password management. Please check '{GetPropPath(x => x.CompanySettings.Domain)}' settings property or disable password management ('{nameof(PortalSettings.PasswordManagement.Enabled)}' property).");
 
                 RuleFor(portal => portal)
                     .Must((model, value) => !model.PasswordManagement.AllowPasswordRecovery

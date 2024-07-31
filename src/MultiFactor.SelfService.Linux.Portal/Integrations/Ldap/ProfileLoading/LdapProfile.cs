@@ -19,10 +19,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
         private LdapProfile(LdapIdentity baseDn, string distinguishedName)
         {
-            if (baseDn is null) throw new ArgumentNullException(nameof(baseDn));
-            if (distinguishedName is null) throw new ArgumentNullException(nameof(distinguishedName));
-            BaseDn = baseDn;
-            DistinguishedName = distinguishedName;
+            BaseDn = baseDn ?? throw new ArgumentNullException(nameof(baseDn));
+            DistinguishedName = distinguishedName ?? throw new ArgumentNullException(nameof(distinguishedName));
         }
 
         public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName)

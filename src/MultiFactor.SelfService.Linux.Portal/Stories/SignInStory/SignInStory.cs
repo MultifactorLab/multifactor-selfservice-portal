@@ -47,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(logger));
+            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
             _portalSettings = portalSettings;
 		}
@@ -81,6 +81,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
             {
+                // because if we here - bind throw exception, so need verify
+                adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName), encryptedPassword);
