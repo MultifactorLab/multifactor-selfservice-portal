@@ -66,6 +66,14 @@
 		<EmbeddedResource Update="Resources\Views\Error\Index.ru.resx">
 			<SubType>Designer</SubType>
 		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Views\Account\Identity.resx">
+		  <Generator>ResXFileCodeGenerator</Generator>
+		  <LastGenOutput>Identity.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Views\Account\Authn.resx">
+		  <Generator>ResXFileCodeGenerator</Generator>
+		  <LastGenOutput>Authn.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -82,6 +90,19 @@
 	  <None Update="libs\LdapForNet.dll">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Resources\Views\Account\Identity.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Identity.resx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Resources\Views\Account\Authn.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Authn.resx</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 </Project>

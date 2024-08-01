@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
@@ -15,11 +14,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [RequiredFeature(ApplicationFeature.PasswordRecovery)]
     public class ForgottenPasswordController : ControllerBase
     {
-        private ILogger _logger;
-        private IStringLocalizer<SharedResource> _localizer;
-        private RecoverPasswordStory _recoverPasswordStory;
-        private TokenVerifier _tokenVerifier;
-        private DataProtection _dataProtection;
+        private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly RecoverPasswordStory _recoverPasswordStory;
+        private readonly TokenVerifier _tokenVerifier;
+        private readonly DataProtection _dataProtection;
+        private readonly ILogger _logger;
 
         public ForgottenPasswordController(
             DataProtection dataProtection,

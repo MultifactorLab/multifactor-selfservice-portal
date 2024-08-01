@@ -54,7 +54,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     await VerifyCredentialOnlyAsync(username, password);
                     return await VerifyMembership(username);
                 }
-                
+
                 using var connection = await _connectionFactory.CreateAdapterAsync(username, password);
                 if (connection.BindedUser == null)
                     throw new Exception("Binded user is not defined. Maybe anonymous connection?");
@@ -162,7 +162,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 username, domain);
         }
 
-        public async Task<CredentialVerificationResult> VerifyMembership(string username)
+        public async Task<CredentialVerificationResult> VerifyMembership(string username,
+            bool userMustChangePassword = false)
         {
             using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
 
@@ -212,6 +213,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
             resultBuilder.SetUsername(username);
 
+            if (userMustChangePassword)
+            {
+                resultBuilder.SetUserMustChangePassword(true);
+            }
+            
             var result = resultBuilder.Build();
             _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
 

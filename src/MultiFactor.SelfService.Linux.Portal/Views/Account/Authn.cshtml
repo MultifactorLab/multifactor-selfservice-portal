@@ -8,31 +8,32 @@
     </div>
     <div class="form-column">
         <h2>@Localizer["Title"]</h2>
-        @using (Html.BeginForm("Login", "Account", new Dictionary<string, string>
-        {
-            [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty,
-            [Constants.MultiFactorClaims.OidcSessionId] = Context.Request.Query[Constants.MultiFactorClaims.OidcSessionId].FirstOrDefault() ?? string.Empty
-        }, FormMethod.Post))
+        @using (Html.BeginForm("Identity", "Account", new Dictionary<string, string>
+                {
+                    [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty,
+                    [Constants.MultiFactorClaims.OidcSessionId] = Context.Request.Query[Constants.MultiFactorClaims.OidcSessionId].FirstOrDefault() ?? string.Empty
+                }, FormMethod.Post))
         {
             <fieldset>
                 @Html.AntiForgeryToken()
-                <p>@Localizer["AuthnInvitation"] <b>@Model.UserName</b></p>
+                <p>
+                    @Localizer["AuthnInvitation"] <b>@Model.UserName</b>
+                </p>
                 <div class="form-row">
                     <div class="input">
                         @Html.PasswordFor(m => m.Password, new { placeholder = Localizer.GetString("Password"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @{
-                    @Html.HiddenFor(m => m.UserName) ;
-                    @Html.HiddenFor(m => m.AccessToken) ;
+                        @Html.HiddenFor(m => m.UserName)
+                        @Html.HiddenFor(m => m.AccessToken)
                     }
                     @Html.ValidationSummary(true)
-                }
                 </div>
 
                 <div class="form-row">
-                    <input type="hidden" name="myUrl" id="myUrl" />
-                    <input type="submit" class="btn" value="@Localizer["Submit"]" id="submit" />
+                    <input type="hidden" name="myUrl" id="myUrl"/>
+                    <input type="submit" class="btn" value="@Localizer["Submit"]" id="submit"/>
                     @if (Settings.PasswordManagement.AllowPasswordRecovery)
                     {
                         <div class="p-8 align-row-right">
@@ -45,8 +46,9 @@
         }
     </div>
 </div>
- @section Scripts  {
-    <partial name="_ValidationScriptsPartial" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -58,4 +60,4 @@
             });
         });
     </script>
- }
+}

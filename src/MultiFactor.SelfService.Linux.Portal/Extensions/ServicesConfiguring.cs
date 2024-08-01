@@ -85,6 +85,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()
 
                 .AddTransient<SignInStory>()
+                .AddTransient<IdentityStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
                 .AddTransient<RecoverPasswordStory>()

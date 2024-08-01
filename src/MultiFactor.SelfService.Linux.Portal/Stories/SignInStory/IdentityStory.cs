@@ -72,9 +72,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             {
                 var identity = model.UserName;
                 var sso = _contextAccessor.SafeGetSsoClaims();
-                if (_settings.ActiveDirectorySettings.NeedPrebindInfo())
+                if (!_settings.ActiveDirectorySettings.NeedPrebindInfo())
                 {
                     var credResult = CredentialVerificationResult.BeforeAuthn(model.UserName);
+                    _contextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = credResult;
                     return await RedirectToMfa(credResult, model.MyUrl);
                 }
 
@@ -114,7 +115,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 // because if we here - bind throw exception, so need verify
                 if (_settings.ActiveDirectorySettings.NeedPrebindInfo())
                 {
-                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
+                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName, true);
                 }
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName),

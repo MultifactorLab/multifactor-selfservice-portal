@@ -26,7 +26,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         public IActionResult Login()
         {
-            if (_settings.PreAuthnMode)
+            if (_settings.PreAuthenticationMethod)
             {
                 return RedirectToAction("Identity");
             }
@@ -64,7 +64,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <returns></returns>
         public ActionResult Identity(string requestId)
         {
-            if (_settings.PreAuthnMode)
+            if (!_settings.PreAuthenticationMethod)
             {
                 return RedirectToAction("Login");
             }

@@ -11,7 +11,7 @@
     </div>
     <div class="form-column">
         <h2>@Localizer["Title"]</h2>
-        @using (Html.BeginForm("Login", "Account", new Dictionary<string, string>
+        @using (Html.BeginForm("Identity", "Account", new Dictionary<string, string>
                 {
                     [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty,
                     [Constants.MultiFactorClaims.OidcSessionId] = Context.Request.Query[Constants.MultiFactorClaims.OidcSessionId].FirstOrDefault() ?? string.Empty

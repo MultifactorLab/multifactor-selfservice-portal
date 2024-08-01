@@ -82,7 +82,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
             {
                 // because if we here - bind throw exception, so need verify
-                adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
+                if (_settings.ActiveDirectorySettings.NeedPrebindInfo())
+                {
+                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName, true);
+                }
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName), encryptedPassword);

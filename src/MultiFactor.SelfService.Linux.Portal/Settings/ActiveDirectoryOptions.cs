@@ -17,7 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         /// <returns></returns>
         public bool NeedPrebindInfo()
         {
-            return UseUpnAsIdentity || string.IsNullOrEmpty(SecondFactorGroup);
+            return UseUpnAsIdentity || !string.IsNullOrEmpty(SecondFactorGroup);
         }
     }
 }

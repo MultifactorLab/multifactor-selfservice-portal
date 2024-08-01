@@ -1,8 +1,6 @@
-﻿using LdapForNet;
+﻿using System.Diagnostics;
+using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
-using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding.Abstractions;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
@@ -29,14 +27,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         public async Task<LdapDomain> WhereAmIAsync()
         {
             var filter = LdapFilter.Create("objectclass", "*").Build();
-            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
-            var result = queryResult.SingleOrDefault() ?? throw new InvalidOperationException($"Unable to query {Uri} for current user");
+            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT,
+                "defaultNamingContext");
+            var result = queryResult.SingleOrDefault() ??
+                         throw new InvalidOperationException($"Unable to query {Uri} for current user");
 
             var defaultNamingContext = result.DirectoryAttributes["defaultNamingContext"].GetValue<string>();
             return LdapDomain.Parse(defaultNamingContext);
         }
 
-        public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
+        public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope,
+            params string[] attributes)
         {
             if (_config.Logger == null)
             {
@@ -48,7 +49,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
             if (sw.Elapsed.TotalSeconds > 2)
             {
-                _config.Logger.LogWarning("Slow response while querying {baseDn:l}. Time elapsed {elapsed}", baseDn, sw.Elapsed);
+                _config.Logger.LogWarning("Slow response while querying {baseDn:l}. Time elapsed {elapsed}", baseDn,
+                    sw.Elapsed);
             }
 
             return searchResult;
@@ -71,13 +73,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
             var instance = new LdapConnectionAdapter(uri, user, config);
 
-            // fix for tests running.
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // trust self-signed certificates on ldap server
-                instance._connection.TrustAllCertificates();
-            }
-
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
                 var ldapUri = new Uri(uri);
@@ -88,11 +83,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 instance._connection.Connect(uri, 389);
             }
 
+            // MUST set BEFORE TrustAllCertificates
             instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
-
             // do not follow chase referrals
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
-
+            // trust self-signed certificates on ldap server
+            instance._connection.TrustAllCertificates();
+            
             var bindDn = config.BindIdentityFormatter.FormatIdentity(user, uri);
             await instance._connection.BindAsync(LdapAuthType.Simple, new LdapCredential
             {
@@ -102,7 +99,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return instance;
         }
 
-        public static LdapConnectionAdapter CreateAnonymous(string uri, 
+        public static LdapConnectionAdapter CreateAnonymous(string uri,
             Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
@@ -111,11 +108,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
 
             var instance = new LdapConnectionAdapter(uri, null, config);
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // trust self-signed certificates on ldap server
-                instance._connection.TrustAllCertificates();
-            }
 
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
@@ -126,9 +118,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             {
                 instance._connection.Connect(uri, 389);
             }
-
+            
+            // MUST set BEFORE TrustAllCertificates
             instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
+            // trust self-signed certificates on ldap server
+            instance._connection.TrustAllCertificates();
 
             instance._connection.Bind(LdapAuthType.Anonymous, new LdapCredential());
 
@@ -138,18 +133,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         public async Task<LdapServerInfo> GetServerInfoAsync()
         {
             var result = await _connection.SearchAsync(string.Empty, "(objectclass=*)",
-                        new[]
-                        {
-                        "namingContexts",
-                        "subschemaSubentry",
-                        "supportedLDAPVersion",
-                        "supportedSASLMechanisms",
-                        "supportedExtension",
-                        "supportedControl",
-                        "supportedFeatures",
-                        "vendorName",
-                        "vendorVersion"
-                        }, LdapSearchScope.LDAP_SCOPE_BASE);
+                new[]
+                {
+                    "namingContexts",
+                    "subschemaSubentry",
+                    "supportedLDAPVersion",
+                    "supportedSASLMechanisms",
+                    "supportedExtension",
+                    "supportedControl",
+                    "supportedFeatures",
+                    "vendorName",
+                    "vendorVersion"
+                }, LdapSearchScope.LDAP_SCOPE_BASE);
             var entry = result.FirstOrDefault();
             if (entry == null)
             {
@@ -158,7 +153,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 return def;
             }
 
-            var rootDse = await _connection.SearchAsync(string.Empty, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);
+            var rootDse = await _connection.SearchAsync(string.Empty, "(objectclass=*)",
+                scope: LdapSearchScope.LDAP_SCOPE_BASE);
             foreach (var attribute in rootDse.First().DirectoryAttributes)
             {
                 entry.DirectoryAttributes.Remove(attribute.Name);
