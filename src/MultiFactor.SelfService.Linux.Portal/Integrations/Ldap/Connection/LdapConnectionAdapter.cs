@@ -71,13 +71,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
             var instance = new LdapConnectionAdapter(uri, user, config);
 
-            // fix for tests running.
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // trust self-signed certificates on ldap server
-                instance._connection.TrustAllCertificates();
-            }
-
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
                 var ldapUri = new Uri(uri);
@@ -87,8 +80,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             {
                 instance._connection.Connect(uri, 389);
             }
-
             instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
+            // fix for tests running.
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // trust self-signed certificates on ldap server
+                instance._connection.TrustAllCertificates();
+            }
+
+
 
             // do not follow chase referrals
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
@@ -111,12 +111,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
 
             var instance = new LdapConnectionAdapter(uri, null, config);
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // trust self-signed certificates on ldap server
-                instance._connection.TrustAllCertificates();
-            }
-
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
                 var ldapUri = new Uri(uri);
@@ -126,8 +120,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             {
                 instance._connection.Connect(uri, 389);
             }
-
             instance._connection.SetOption(LdapOption.LDAP_OPT_PROTOCOL_VERSION, (int)LdapVersion.LDAP_VERSION3);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // trust self-signed certificates on ldap server
+                instance._connection.TrustAllCertificates();
+            }
+
+
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
 
             instance._connection.Bind(LdapAuthType.Anonymous, new LdapCredential());
