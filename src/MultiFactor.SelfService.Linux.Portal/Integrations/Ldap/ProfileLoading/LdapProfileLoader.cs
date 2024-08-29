@@ -21,6 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             "DistinguishedName",
             "displayName",
             "mail",
+            "email",
             "telephoneNumber",
             "mobile",
             _memberOfAttr
