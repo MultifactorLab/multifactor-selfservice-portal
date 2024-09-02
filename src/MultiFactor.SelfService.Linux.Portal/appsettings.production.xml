@@ -62,7 +62,10 @@
 
         <!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
         <ExchangeActiveSyncDevicesManagement enabled="false" />
-
+        
+        <!-- Load Nested Groups during the profile loading -->
+        <!--LoadActiveDirectoryNestedGroups>false</LoadActiveDirectoryNestedGroups-->
+        
         <!--<UICulture>auto:en</UICulture>-->
 
         <!--<GroupPolicyPreset>-->
