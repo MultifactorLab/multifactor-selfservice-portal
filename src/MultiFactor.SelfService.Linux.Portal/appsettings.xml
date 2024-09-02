@@ -80,7 +80,7 @@
         <!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
         <ExchangeActiveSyncDevicesManagement enabled="false" />
         
-        <!-- Load Nested Groups while Profile loading -->
+        <!-- Load Nested Groups during the profile loading -->
         <!--LoadActiveDirectoryNestedGroups>false</LoadActiveDirectoryNestedGroups-->
         
         <!--

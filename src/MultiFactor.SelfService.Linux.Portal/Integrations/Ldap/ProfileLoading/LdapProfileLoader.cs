@@ -77,7 +77,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 }
             }
 
-            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr) && !_portalSettings.LoadActiveDirectoryNestedGroup)
+            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr) && !_portalSettings.LoadActiveDirectoryNestedGroups)
             {
                 var val = memberOfAttr.GetValues<string>().Select(entry => LdapIdentity.DnToCn(entry)).ToArray();
                 builder.AddAttribute(_memberOfAttr, val);
