@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
         public ILdapFilter GetProfileSearchFilter(LdapIdentity user)
         {
-            var searchFilter = LdapFilter.Create("objectClass", "user", "person");
+            var searchFilter = LdapFilter.Create("objectClass", "user", "person", "memberof");
             switch (_serverInfo.Implementation)
             {
                 case LdapImplementation.FreeIPA:
