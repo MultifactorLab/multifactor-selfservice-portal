@@ -8,7 +8,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         public string DistinguishedName { get; }
 
         public string DisplayName => Attributes.GetValue("displayName");
-        public string Email => Attributes.GetValue("email");
+
+        public string Email
+        {
+            get
+            {
+                var email = Attributes.GetValue("email");
+                if (string.IsNullOrEmpty(email))
+                {
+                    email = Attributes.GetValue("mail");
+                }
+
+                return email;
+            }
+        }
+
         public string Phone => Attributes.GetValue("telephoneNumber");
         public string Mobile => Attributes.GetValue("mobile");
         public string Upn => Attributes.GetValue("userPrincipalName");

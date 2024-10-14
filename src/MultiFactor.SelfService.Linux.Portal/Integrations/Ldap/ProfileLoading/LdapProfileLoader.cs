@@ -20,6 +20,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             "DistinguishedName",
             "displayName",
             "mail",
+            "email",
             "telephoneNumber",
             "mobile",
             _memberOfAttr
@@ -75,13 +76,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 }
             }
 
-            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr))
+            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr) && !_portalSettings.LoadActiveDirectoryNestedGroups)
             {
                 var val = memberOfAttr.GetValues<string>().Select(LdapIdentity.DnToCn).ToArray();
                 builder.AddAttribute(_memberOfAttr, val);
             }
             else
             {
+                _logger.LogDebug("LoadActiveDirectoryNestedGroups is true or memberof is empty. Loading groups...");
                 var allGroups = await GetAllUserGroups(domain, entry.Dn, connection);
                 var val = allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray();
                 builder.AddAttribute(_memberOfAttr, val);
@@ -96,6 +98,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         {
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
             var searchFilter = $"(member:1.2.840.113556.1.4.1941:={escaped})";
+            _logger.LogDebug($"GetAllUserGroups. {searchFilter}");
             return connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, "DistinguishedName");
         }
 

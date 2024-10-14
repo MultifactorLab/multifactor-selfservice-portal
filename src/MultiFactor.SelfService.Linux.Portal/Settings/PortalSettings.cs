@@ -17,6 +17,7 @@
         public string LoggingFormat { get; private set; }
         public string UICulture { get; private set; } = string.Empty;
         public string LdapBaseDn { get; private set; } = string.Empty;
+        public bool LoadActiveDirectoryNestedGroups { get; private set; } = false;
         public bool PreAuthenticationMethod { get; private set; }
 
         [Obsolete("Use ExchangeActiveSyncDevicesManagement.Enable instead")]

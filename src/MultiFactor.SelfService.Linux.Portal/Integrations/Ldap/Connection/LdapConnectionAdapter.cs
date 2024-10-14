@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
-using LdapForNet;
+﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
+using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding.Abstractions;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
@@ -8,7 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
     public class LdapConnectionAdapter : IDisposable
     {
         private readonly LdapConnection _connection;
-        private string Uri { get; }
+        public string Uri { get; }
         private readonly LdapConnectionAdapterConfig _config;
 
         /// <summary>
