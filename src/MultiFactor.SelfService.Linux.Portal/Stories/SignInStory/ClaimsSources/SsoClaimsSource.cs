@@ -1,17 +1,21 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using System.Configuration;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
 {
     public class SsoClaimsSource : IClaimsSource
     {
         private readonly SafeHttpContextAccessor _httpContextAccessor;
+        private readonly PortalSettings _portalSettings;
 
-        public SsoClaimsSource(SafeHttpContextAccessor httpContextAccessor)
+        public SsoClaimsSource(SafeHttpContextAccessor httpContextAccessor, PortalSettings portalSettings)
         {
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _portalSettings = portalSettings;
         }
 
         public IReadOnlyDictionary<string, string> GetClaims()
@@ -29,6 +33,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
                 claims.Add(Constants.MultiFactorClaims.OidcSessionId, sso.OidcSessionId);
             }
 
+            if (_portalSettings.PreAuthenticationMethod && (sso.OidcSessionId != null || sso.SamlSessionId != null))
+            {
+                
+                claims.Add(Constants.MultiFactorClaims.AdditionSsoStep, "true");
+            }
             return claims;
         }
     }

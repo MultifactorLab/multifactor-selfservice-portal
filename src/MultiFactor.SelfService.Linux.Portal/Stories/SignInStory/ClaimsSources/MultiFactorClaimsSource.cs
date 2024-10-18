@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using System.Globalization;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
@@ -27,6 +28,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
                 claims.Add(Constants.MultiFactorClaims.ChangePassword, "true");
                 return claims;
             }
+
+            claims.Add(Constants.MultiFactorClaims.PasswordExpirationDate,
+                result.PasswordExpirationDate.ToString(CultureInfo.InvariantCulture));
 
             return claims;
         }

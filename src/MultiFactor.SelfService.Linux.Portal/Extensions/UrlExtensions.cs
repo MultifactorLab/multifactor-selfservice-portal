@@ -9,7 +9,7 @@
 
             // public url from browser if we behind nginx or other proxy
             var currentUri = new Uri(currentPath);
-            var noLastSegment = string.Format("{0}://{1}", currentUri.Scheme, currentUri.Authority);
+            var noLastSegment = $"{currentUri.Scheme}://{currentUri.Authority}";
 
             for (int i = 0; i < currentUri.Segments.Length - removeSegments; i++)
             {
@@ -18,6 +18,24 @@
 
             // remove trailing
             return $"{noLastSegment.Trim("/".ToCharArray())}/{relPath}";
+        }
+        
+        public static string BuildPostbackUrl(this string documentUrl)
+        {
+            // public url from browser if we behind nginx or other proxy
+            var currentUri = new Uri(documentUrl);
+            var noLastSegment = $"{currentUri.Scheme}://{currentUri.Authority}";
+
+            for (int i = 0; i < currentUri.Segments.Length - 1; i++)
+            {
+                noLastSegment += currentUri.Segments[i];
+            }
+
+            // remove trailing /
+            noLastSegment = noLastSegment.Trim("/".ToCharArray());
+
+            var postbackUrl = noLastSegment + "/PostbackFromMfa";
+            return postbackUrl;
         }
     }
 }

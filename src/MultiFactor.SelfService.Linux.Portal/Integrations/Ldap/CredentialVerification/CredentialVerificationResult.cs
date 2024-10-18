@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
         public bool IsBypass { get; private init; }
         public bool UserMustChangePassword { get; private set; }
-
+        public DateTime PasswordExpirationDate { get; private set; }
         public string DisplayName { get; private set; }
         public string Email { get; private set; }
         public string Phone { get; private set; }
@@ -137,6 +137,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 return this;
             }
 
+            public CredentialVerificationResultBuilder SetPasswordExpirationDate(DateTime dt)
+            {
+                _result.PasswordExpirationDate = dt;
+                return this;
+            }
+            
             public CredentialVerificationResultBuilder SetReason(string reason)
             {
                 _result.Reason = reason;

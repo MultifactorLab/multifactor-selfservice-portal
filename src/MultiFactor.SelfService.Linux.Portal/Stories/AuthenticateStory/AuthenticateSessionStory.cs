@@ -36,12 +36,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
             
             if (_portalSettings.PreAuthenticationMethod)
             {
-                var claims = verifiedToken.Identity;
+                var identity = verifiedToken.Identity;
                 var requestId = verifiedToken.Id;
                 _applicationCache.SetIdentity(requestId,
                     new IdentityViewModel
-                        { UserName = claims, AccessToken = accessToken });
-                var cachedUser = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(claims));
+                        { UserName = identity, AccessToken = accessToken });
+                var cachedUser = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(identity));
                 
                 _contextAccessor.HttpContext.Response.Cookies.Append(Constants.COOKIE_NAME, accessToken, new CookieOptions
                 {

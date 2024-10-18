@@ -49,7 +49,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
             try
             {
-                if (_settings.ActiveDirectorySettings.NeedPrebindInfo())
+                if (_settings.NeedPrebindInfo())
                 {
                     await VerifyCredentialOnlyAsync(username, password);
                     return await VerifyMembership(username);
@@ -86,7 +86,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
                 var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
                     .SetDisplayName(profile.DisplayName)
-                    .SetEmail(profile.Email);
+                    .SetEmail(profile.Email)
+                    .SetUserMustChangePassword(profile.UserMustChangePassword())
+                    .SetPasswordExpirationDate(profile.PasswordExpirationDate());
 
                 if (_settings.ActiveDirectorySettings.UseUserPhone)
                 {
@@ -194,7 +196,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
             var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
                 .SetDisplayName(profile.DisplayName)
-                .SetEmail(profile.Email);
+                .SetEmail(profile.Email)
+                .SetUserMustChangePassword(profile.UserMustChangePassword())
+                .SetPasswordExpirationDate(profile.PasswordExpirationDate());
 
             if (_settings.ActiveDirectorySettings.UseUserPhone)
             {
@@ -212,11 +216,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             }
 
             resultBuilder.SetUsername(username);
-
-            if (userMustChangePassword)
-            {
-                resultBuilder.SetUserMustChangePassword(true);
-            }
             
             var result = resultBuilder.Build();
             _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;

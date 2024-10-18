@@ -19,6 +19,17 @@
         public string LdapBaseDn { get; private set; } = string.Empty;
         public bool LoadActiveDirectoryNestedGroups { get; private set; } = false;
         public bool PreAuthenticationMethod { get; private set; }
+        
+        /// <summary>
+        /// The legitimate user's bind may fail (e.g. expired password).
+        /// However, sometimes we STILL need to get some information from the LDAP-directory.
+        /// So we'll get it from under the technical account
+        /// </summary>
+        /// <returns></returns>
+        public bool NeedPrebindInfo()
+        {
+            return ActiveDirectorySettings.UseUpnAsIdentity || !string.IsNullOrEmpty(ActiveDirectorySettings.SecondFactorGroup) || PasswordManagement.Enabled;
+        }
 
         [Obsolete("Use ExchangeActiveSyncDevicesManagement.Enable instead")]
         public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }

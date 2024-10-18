@@ -1,7 +1,8 @@
-﻿using System.Configuration;
+﻿using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
@@ -16,17 +17,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [AllowAnonymous]
     public class AccountController : ControllerBase
     {
-        private readonly PortalSettings _settings;
+        private readonly PortalSettings _portalSettings;
         private readonly ApplicationCache _applicationCache;
-        public AccountController(PortalSettings settings, ApplicationCache applicationCache)
+
+        public AccountController(PortalSettings portalSettings,
+            ApplicationCache applicationCache)
         {
-            _settings = settings;
+            _portalSettings = portalSettings;
             _applicationCache = applicationCache;
         }
 
         public IActionResult Login()
         {
-            if (_settings.PreAuthenticationMethod)
+            if (_portalSettings.PreAuthenticationMethod)
             {
                 return RedirectToAction("Identity");
             }
@@ -64,7 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <returns></returns>
         public ActionResult Identity(string requestId)
         {
-            if (!_settings.PreAuthenticationMethod)
+            if (!_portalSettings.PreAuthenticationMethod)
             {
                 return RedirectToAction("Login");
             }
@@ -75,21 +78,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 : View(new IdentityViewModel());
         }
 
-        
+
         [HttpPost]
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStory identityModel)
+        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStory identityStoryHandler)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-        
+
             try
             {
-                return await identityModel.ExecuteAsync(model);
+                return await identityStoryHandler.ExecuteAsync(model);
             }
             catch (ModelStateErrorException ex)
             {
@@ -97,13 +100,52 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return View(model);
             }
         }
+
+        [HttpPost]
+        [ConsumeSsoClaims]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Authn(IdentityViewModel model, [FromServices] AuthnStory authnStoryHandler)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            if (!_portalSettings.PreAuthenticationMethod)
+            {
+                return RedirectToAction("Login");
+            }
+            
+            try
+            {
+                return await authnStoryHandler.ExecuteAsync(model);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+        }
+
         [ConsumeSsoClaims]
         public IActionResult Logout([FromServices] SignOutStory signOut) => signOut.Execute();
 
         [HttpPost]
         public IActionResult PostbackFromMfa(string accessToken,
-            [FromServices] AuthenticateSessionStory authenticateSession)
-            => authenticateSession.Execute(accessToken);
+            [FromServices] AuthenticateSessionStory authenticateSession,
+            [FromServices] RedirectToCredValidationAfter2faStory redirectToCredValidationAfter2FaStory)
+        {
+            // 2fa before authn enable
+            if (_portalSettings.PreAuthenticationMethod)
+            {
+                // hence continue authentication flow 
+                return redirectToCredValidationAfter2FaStory.Execute(accessToken);
+            }
+
+            // otherwise flow is (almost) finished
+            authenticateSession.Execute(accessToken);
+            return RedirectToAction("Index", "Home");
+        }
 
         [HttpPost]
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,

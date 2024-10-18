@@ -38,4 +38,7 @@
   <data name="AuthnInvitation" xml:space="preserve">
     <value>Введите пароль для учетной записи</value>
   </data>
+  <data name="Invitation" xml:space="preserve">
+    <value>Введите данные для входа</value>
+  </data>
 </root>

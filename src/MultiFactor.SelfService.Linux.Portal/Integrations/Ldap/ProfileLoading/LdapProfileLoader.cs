@@ -23,6 +23,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             "email",
             "telephoneNumber",
             "mobile",
+            "pwdLastSet",
+            "msDS-UserPasswordExpiryTimeComputed",
             _memberOfAttr
         };
 
@@ -85,7 +87,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             {
                 _logger.LogDebug("LoadActiveDirectoryNestedGroups is true or memberof is empty. Loading groups...");
                 var allGroups = await GetAllUserGroups(domain, entry.Dn, connection);
-                var val = allGroups.Select(entry => LdapIdentity.DnToCn(entry.Dn)).ToArray();
+                var val = allGroups.Select(group => LdapIdentity.DnToCn(group.Dn)).ToArray();
                 builder.AddAttribute(_memberOfAttr, val);
             }
 
@@ -97,8 +99,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         private Task<IList<LdapEntry>> GetAllUserGroups(LdapDomain domain, string distinguishedName, LdapConnectionAdapter connection)
         {
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
-            var searchFilter = $"(member:1.2.840.113556.1.4.1941:={escaped})";
-            _logger.LogDebug($"GetAllUserGroups. {searchFilter}");
+            var searchFilter = $"(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:={escaped})";
+            _logger.LogDebug("GetAllUserGroups. {searchFilter}", searchFilter);
             return connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, "DistinguishedName");
         }
 
