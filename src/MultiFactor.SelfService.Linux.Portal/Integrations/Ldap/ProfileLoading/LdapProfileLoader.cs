@@ -23,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             "email",
             "telephoneNumber",
             "mobile",
+            "userPrincipalName",
             "pwdLastSet",
             "msDS-UserPasswordExpiryTimeComputed",
             _memberOfAttr

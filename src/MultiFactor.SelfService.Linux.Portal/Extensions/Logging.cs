@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using Elastic.CommonSchema.Serilog;
+using MultiFactor.SelfService.Linux.Portal.Core.Serialization;
+using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -61,13 +63,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         private static ITextFormatter GetLogFormatter(WebApplicationBuilder applicationBuilder)
         {
             var loggingFormat = applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingFormat);
-            switch (loggingFormat?.ToLower())
+
+            if (string.IsNullOrEmpty(loggingFormat))
             {
-                case "json":
-                    return new RenderedCompactJsonFormatter();
-                default:
-                    return null;
+                return null;
             }
+
+            if (!Enum.TryParse<SerilogJsonFormatterTypes>(loggingFormat, true, out var formatterType))
+            {
+                return null;
+            }
+
+            return formatterType switch
+            {
+                SerilogJsonFormatterTypes.Json or SerilogJsonFormatterTypes.JsonUtc => new RenderedCompactJsonFormatter(),
+                SerilogJsonFormatterTypes.JsonTz => new CustomCompactJsonFormatter("yyyy-MM-dd HH:mm:ss.fff zzz"),
+                SerilogJsonFormatterTypes.ElasticCommonSchema => new EcsTextFormatter(),
+                _ => null,
+            };
         }
     }
 }

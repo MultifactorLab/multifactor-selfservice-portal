@@ -63,22 +63,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             if (settings.ExchangeActiveSyncDevicesManagement == null ||
                 settings.EnableExchangeActiveSyncDevicesManagement)
             {
-                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement()
+                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement
                 {
                     Enabled = settings.EnableExchangeActiveSyncDevicesManagement
                 };
             }
 
-            if (settings.RequiresUserPrincipalName == true)
+            if (settings.RequiresUserPrincipalName)
             {
-                settings.ActiveDirectorySettings = new ActiveDirectorySettings()
-                {
-                    SecondFactorGroup = settings.ActiveDirectorySettings.SecondFactorGroup,
-                    UseUserPhone = settings.ActiveDirectorySettings.UseUserPhone,
-                    UseMobileUserPhone = settings.ActiveDirectorySettings.UseMobileUserPhone,
-                    NetBiosName = settings.ActiveDirectorySettings.NetBiosName,
-                    RequiresUserPrincipalName = settings.RequiresUserPrincipalName
-                };
+                settings.ActiveDirectorySettings = new ActiveDirectorySettings(
+                    // dirt so as not to break the encapsulation and not to write a separate mapper
+                    string.Join(';', settings.ActiveDirectorySettings.SecondFactorGroups),
+                    settings.ActiveDirectorySettings.UseUserPhone,
+                    settings.ActiveDirectorySettings.UseMobileUserPhone,
+                    settings.ActiveDirectorySettings.NetBiosName,
+                    settings.RequiresUserPrincipalName);
+                // {
+                //     SecondFactorGroup = string.Join(';', settings.ActiveDirectorySettings.SecondFactorGroups),
+                //     UseUserPhone = settings.ActiveDirectorySettings.UseUserPhone,
+                //     UseMobileUserPhone = settings.ActiveDirectorySettings.UseMobileUserPhone,
+                //     NetBiosName = settings.ActiveDirectorySettings.NetBiosName,
+                //     RequiresUserPrincipalName = settings.RequiresUserPrincipalName
+                // };
             }
         }
 

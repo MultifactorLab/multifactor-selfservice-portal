@@ -28,7 +28,7 @@
         /// <returns></returns>
         public bool NeedPrebindInfo()
         {
-            return ActiveDirectorySettings.UseUpnAsIdentity || !string.IsNullOrEmpty(ActiveDirectorySettings.SecondFactorGroup) || PasswordManagement.Enabled;
+            return ActiveDirectorySettings.UseUpnAsIdentity || ActiveDirectorySettings.SecondFactorGroups.Any() || PasswordManagement.Enabled;
         }
 
         [Obsolete("Use ExchangeActiveSyncDevicesManagement.Enable instead")]

@@ -71,7 +71,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 var sso = _contextAccessor.SafeGetSsoClaims();
                 if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
                 return await RedirectToMfa(adValidationResult, model.MyUrl);

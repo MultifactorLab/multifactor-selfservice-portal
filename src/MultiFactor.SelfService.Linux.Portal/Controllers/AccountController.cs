@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
@@ -19,19 +21,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     {
         private readonly PortalSettings _portalSettings;
         private readonly ApplicationCache _applicationCache;
+        private readonly SafeHttpContextAccessor _safeHttpContextAccessor;
+        
 
         public AccountController(PortalSettings portalSettings,
-            ApplicationCache applicationCache)
+            ApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
         {
             _portalSettings = portalSettings;
             _applicationCache = applicationCache;
+            _safeHttpContextAccessor = safeHttpContextAccessor;
         }
 
+        [ConsumeSsoClaims]
         public IActionResult Login()
         {
             if (_portalSettings.PreAuthenticationMethod)
             {
-                return RedirectToAction("Identity");
+                return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
             }
 
             return View(new LoginViewModel());
@@ -65,6 +71,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <param name="sso">Model for sso integration. Can be empty.</param>
         /// <param name="requestId">State for continuation user verification.</param>
         /// <returns></returns>
+        [ConsumeSsoClaims]
         public ActionResult Identity(string requestId)
         {
             if (!_portalSettings.PreAuthenticationMethod)
@@ -147,7 +154,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
             [FromServices] MultiFactorApi api)
         {

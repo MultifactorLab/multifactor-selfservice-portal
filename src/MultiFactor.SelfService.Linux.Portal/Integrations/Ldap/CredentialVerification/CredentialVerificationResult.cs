@@ -25,11 +25,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             return new CredentialVerificationResultBuilder(new CredentialVerificationResult(isAuthenticated));
         }
 
-        public static CredentialVerificationResult ByPass()
+        /// <summary>
+        /// Result for bypass second factor (only ssp+sso)
+        /// </summary>
+        /// <param name="username">Raw username that was entered into the form when logging in</param>
+        /// <param name="upn">UPN from LDAP profile</param>
+        /// <returns></returns>
+        public static CredentialVerificationResult ByPass(string username, string upn, bool mustChangePassword)
         {
             return new CredentialVerificationResult(true)
             {
-                IsBypass = true
+                IsBypass = true,
+                Username = username,
+                UserPrincipalName = upn,
+                UserMustChangePassword = mustChangePassword
             };
         }
 
@@ -98,6 +107,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             return new CredentialVerificationResult(false) { Reason = errorMessage ?? "Unknown error" };
         }
 
+        
+        
         public class CredentialVerificationResultBuilder
         {
             private readonly CredentialVerificationResult _result;

@@ -70,18 +70,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
                 _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
 
-                if (!string.IsNullOrEmpty(_settings.ActiveDirectorySettings.SecondFactorGroup))
+                if (_settings.ActiveDirectorySettings.SecondFactorGroups.Any())
                 {
-                    if (!IsMemberOf(profile, _settings.ActiveDirectorySettings.SecondFactorGroup))
+                    var mfaGroup = _settings.ActiveDirectorySettings.SecondFactorGroups.FirstOrDefault(group => IsMemberOf(profile, group));
+
+                    if (mfaGroup == null)
                     {
                         _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
-                            _settings.ActiveDirectorySettings.SecondFactorGroup);
-                        _logger.LogInformation("Bypass second factor for user '{user:l}'", user);
-                        return CredentialVerificationResult.ByPass();
+                            _settings.ActiveDirectorySettings.SecondFactorGroups);
+                        _logger.LogInformation("Bypass second factor for user '{@user:l}'", user);
+                        return CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
                     }
 
                     _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user,
-                        _settings.ActiveDirectorySettings.SecondFactorGroup);
+                        _settings.ActiveDirectorySettings.SecondFactorGroups);
                 }
 
                 var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
@@ -180,18 +182,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
             _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
 
-            if (!string.IsNullOrEmpty(_settings.ActiveDirectorySettings.SecondFactorGroup))
+            if (_settings.ActiveDirectorySettings.SecondFactorGroups.Any())
             {
-                if (!IsMemberOf(profile, _settings.ActiveDirectorySettings.SecondFactorGroup))
+                var mfaGroup = _settings.ActiveDirectorySettings.SecondFactorGroups.FirstOrDefault(group => IsMemberOf(profile, group));
+                if (mfaGroup == null)
                 {
                     _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
-                        _settings.ActiveDirectorySettings.SecondFactorGroup);
+                        _settings.ActiveDirectorySettings.SecondFactorGroups);
                     _logger.LogInformation("Bypass second factor for user '{user:l}'", user);
-                    return CredentialVerificationResult.ByPass();
+                    return CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
                 }
 
                 _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user,
-                    _settings.ActiveDirectorySettings.SecondFactorGroup);
+                    _settings.ActiveDirectorySettings.SecondFactorGroups);
             }
 
             var resultBuilder = CredentialVerificationResult.CreateBuilder(true)

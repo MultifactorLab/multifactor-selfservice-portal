@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
@@ -66,7 +68,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             }
 
             var adResult = await _credentialVerifier.VerifyMembership(model.UserName.Trim());
-
+            _contextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = adResult;
             if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
             {
                 identity = adResult.UserPrincipalName;
@@ -75,7 +77,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             // sso session can skip 2fa, so go to pass entered
             if (adResult.IsBypass && sso.HasSamlSession())
             {
-                return await ByPassSamlSession(identity, sso.SamlSessionId);
+                var res = new ViewResult
+                {
+                    ViewName = "Authn",
+                    ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                    {
+                        Model = model
+                    }
+                };
+                return res;
+                //return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
             }
 
             return await RedirectToMfa(adResult, model.MyUrl);

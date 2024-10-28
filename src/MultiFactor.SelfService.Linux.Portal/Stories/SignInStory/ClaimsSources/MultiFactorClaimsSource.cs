@@ -17,7 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
 
         public IReadOnlyDictionary<string, string> GetClaims()
         {
-            var result = _httpContextAccessor.SafeGetGredVerificationResult();
+            var result = _httpContextAccessor.SafeGetCredVerificationResult();
             var claims = new Dictionary<string, string>
             {
                 { Constants.MultiFactorClaims.RawUserName, result.Username }

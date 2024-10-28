@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 ?? new SingleSignOnDto(string.Empty, string.Empty);
         }
 
-        public static CredentialVerificationResult SafeGetGredVerificationResult(this SafeHttpContextAccessor accessor)
+        public static CredentialVerificationResult SafeGetCredVerificationResult(this SafeHttpContextAccessor accessor)
         {
             return accessor.HttpContext.Items[Constants.CredentialVerificationResult] as CredentialVerificationResult 
                 ?? CredentialVerificationResult.CreateBuilder(false).Build();
