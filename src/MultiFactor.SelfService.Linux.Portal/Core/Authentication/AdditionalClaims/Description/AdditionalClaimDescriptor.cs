@@ -1,10 +1,12 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description.Conditions;
+﻿using System.Diagnostics;
+using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description.Conditions;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description
 {
     /// <summary>
     /// Object that describes additional claim properties.
     /// </summary>
+    [DebuggerDisplay("Name = {Name}")]
     public class AdditionalClaimDescriptor
     {
         /// <summary>

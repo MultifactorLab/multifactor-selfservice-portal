@@ -17,7 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
             NetBiosName = netBiosName;
             RequiresUserPrincipalName = requiresUserPrincipalName;
         }
-        public string[] SecondFactorGroups => SecondFactorGroup?.Split(';');
+        public string[] SecondFactorGroups => SecondFactorGroup?.Split(';') ?? Array.Empty<string>();
 
         /// old setting with single group. we must split in and use <see cref="SecondFactorGroups"/> 
         private string SecondFactorGroup { get; init; }

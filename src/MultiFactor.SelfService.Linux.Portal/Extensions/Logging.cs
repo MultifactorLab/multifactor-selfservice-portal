@@ -1,7 +1,7 @@
 ﻿using Elastic.CommonSchema.Serilog;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Serialization;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Compact;
@@ -51,7 +51,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
             var formatter = GetLogFormatter(applicationBuilder);
-            var path = $"{Core.Constants.LOG_DIRECTORY}/sspl-log-.txt";
+            var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
                 loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);

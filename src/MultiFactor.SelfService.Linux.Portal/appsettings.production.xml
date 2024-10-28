@@ -1,80 +1,79 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
 
-    <Environment>production</Environment>
+	<Environment>production</Environment>
 
-    <Logging>
-        <LogLevel>
-            <Default>Information</Default>
-            <Microsoft>Warning</Microsoft>
-        </LogLevel>
-    </Logging>
-    <AllowedHosts>*</AllowedHosts>
+	<Logging>
+		<LogLevel>
+			<Default>Information</Default>
+			<Microsoft>Warning</Microsoft>
+		</LogLevel>
+	</Logging>
+	<AllowedHosts>*</AllowedHosts>
 
-    <PortalSettings>
+	<PortalSettings>
 
-        <CompanySettings>
-            <Name>ACME</Name>
-            <Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
-            <LogoUrl>images/logo.svg</LogoUrl>
-        </CompanySettings>
+		<CompanySettings>
+			<Name>ACME</Name>
+			<Domain>ldaps://dc.domain.local/dc=domain,dc=local</Domain>
+			<LogoUrl>images/logo.svg</LogoUrl>
+		</CompanySettings>
 
-        <TechnicalAccountSettings>
-            <User>user</User>
-            <Password>password</Password>
-        </TechnicalAccountSettings>
+		<TechnicalAccountSettings>
+			<User>user</User>
+			<Password>password</Password>
+		</TechnicalAccountSettings>
 
-        <!-- requiresUserPrincipalName: Only UPN user name format permitted -->
-        <!-- useUpnAsIdentity: user name will be transformed to the UPN format automatically -->
-        <ActiveDirectorySettings requiresUserPrincipalName="false" useUpnAsIdentity="false">
-            <!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
-            <!--<UseUserPhone>true</UseUserPhone>-->
-            <!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
-        </ActiveDirectorySettings>
+		<!-- requiresUserPrincipalName: Only UPN user name format permitted -->
+		<!-- useUpnAsIdentity: user name will be transformed to the UPN format automatically -->
+		<ActiveDirectorySettings requiresUserPrincipalName="false" useUpnAsIdentity="false">
+			<!--<SecondFactorGroup>2FA Users</SecondFactorGroup>-->
+			<!--<UseUserPhone>true</UseUserPhone>-->
+			<!--<UseMobileUserPhone>true</UseMobileUserPhone>-->
+		</ActiveDirectorySettings>
 
-        <MultiFactorApiSettings>
-            <ApiUrl>https://api.multifactor.ru</ApiUrl>
-            <ApiKey>key</ApiKey>
-            <ApiSecret>secret</ApiSecret>
-            <!--<ApiProxy>http://proxy:3128</ApiProxy>-->
-        </MultiFactorApiSettings>
+		<MultiFactorApiSettings>
+			<ApiUrl>https://api.multifactor.ru</ApiUrl>
+			<!-- API KEY parameter from the Multifactor personal account. -->
+			<ApiKey>key</ApiKey>
+			<!-- API Secret parameter from the Multifactor personal account. -->
+			<ApiSecret>secret</ApiSecret>
+			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
+		</MultiFactorApiSettings>
 
-        <CaptchaSettings enabled="false">
-            <!--Captcha provider: 'Google', 'Yandex'-->
-            <CaptchaType>Google</CaptchaType>
-            <Key>key</Key>
-            <Secret>secret</Secret>
-            <!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
-            <CaptchaRequired>Always</CaptchaRequired>
-        </CaptchaSettings>
+		<CaptchaSettings enabled="false">
+			<!--Captcha provider: 'Google', 'Yandex'-->
+			<CaptchaType>Google</CaptchaType>
+			<Key>key</Key>
+			<Secret>secret</Secret>
+			<!--When Captcha is displayed: 'Always', 'PasswordRecovery' -->
+			<CaptchaRequired>Always</CaptchaRequired>
+		</CaptchaSettings>
 
-        <!--<LoggingLevel>Info</LoggingLevel>-->
-        <!--<LoggingFormat>json</LoggingFormat>-->
+		<!--<LoggingLevel>Info</LoggingLevel>-->
+		<!--<LoggingFormat>json</LoggingFormat>-->
 
-        <!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
-        <!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
-        <PasswordManagement enabled="false" allowPasswordRecovery="false">
-            <!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
-            <!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
-            <!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
-            <!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
-        </PasswordManagement>
+		<!-- Enable user password change. AD connection must be secure (SSL/TLS) -->
+		<!-- To Enable password recovery, Captcha on PasswordRecovery page must be enabled -->
+		<PasswordManagement enabled="false" allowPasswordRecovery="false">
+			<!-- Changing session duration in hh:mm:ss (00:02:00 by default) -->
+			<!-- <PasswordChangingSessionLifetime>00:02:00</PasswordChangingSessionLifetime> -->
+			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
+			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
+		</PasswordManagement>
 
-        <!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
-        <ExchangeActiveSyncDevicesManagement enabled="false" />
-        
-        <!-- Load Nested Groups during the profile loading -->
-        <!--LoadActiveDirectoryNestedGroups>false</LoadActiveDirectoryNestedGroups-->
-        
-        <!--<UICulture>auto:en</UICulture>-->
+		<!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
+		<ExchangeActiveSyncDevicesManagement enabled="false" />
 
-        <!--<GroupPolicyPreset>-->
-        <!-- Groups to assign to the registered user -->
-        <!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
-        <!--</GroupPolicyPreset>-->
+		<!--<UICulture>auto:en</UICulture>-->
 
-        <!-- FreeIPA support -->
-        <!--<LdapBaseDn></LdapBaseDn>-->
-    </PortalSettings>
+		<!--<GroupPolicyPreset>-->
+		<!-- Groups to assign to the registered user -->
+		<!--<SignUpGroups>group name 1;group 2</SignUpGroups> -->
+		<!--</GroupPolicyPreset>-->
+
+		<!-- FreeIPA support -->
+		<!--<LdapBaseDn></LdapBaseDn>-->
+	</PortalSettings>
 
 </configuration>
