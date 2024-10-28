@@ -12,12 +12,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     {
         public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder applicationBuilder)
         {
-            var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingLevel));
-            var levelSwitch = new LoggingLevelSwitch(logLevel);
-            var loggerConfiguration = new LoggerConfiguration().MinimumLevel.ControlledBy(levelSwitch);
-
+            var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetConfigValue<string>("Logging:LogLevel:Default"));
+            var loggerConfiguration = new LoggerConfiguration().MinimumLevel.Is(logLevel);
+            var msOverride = applicationBuilder.Configuration.GetConfigValue<string>("Logging:LogLevel:Microsoft");
+            if (!string.IsNullOrEmpty(msOverride))
+            {
+                loggerConfiguration.MinimumLevel.Override("Microsoft", GetLogMinimalLevel(msOverride));
+            }
+            
             var isLocalhost = applicationBuilder.Environment.IsEnvironment("localhost");
-            loggerConfiguration.WriteTo.Console(isLocalhost ? levelSwitch.MinimumLevel : LogEventLevel.Warning);
+            loggerConfiguration.WriteTo.Console(isLocalhost ? logLevel : LogEventLevel.Warning);
 
             ConfigureFileLog(loggerConfiguration, applicationBuilder);
 
@@ -34,17 +38,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             return applicationBuilder;
         }
 
-        private static LogEventLevel GetLogMinimalLevel(string level)
-        {
-            switch (level)
+        private static LogEventLevel GetLogMinimalLevel(string level) =>
+            level switch
             {
-                case "Debug": return LogEventLevel.Debug;
-                case "Info": return LogEventLevel.Information;
-                case "Warn": return LogEventLevel.Warning;
-                case "Error": return LogEventLevel.Error;
-                default: return LogEventLevel.Information;
-            }
-        }
+                "Debug" => LogEventLevel.Debug,
+                "Info" => LogEventLevel.Information,
+                "Warn" => LogEventLevel.Warning,
+                "Error" => LogEventLevel.Error,
+                _ => LogEventLevel.Information
+            };
 
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
