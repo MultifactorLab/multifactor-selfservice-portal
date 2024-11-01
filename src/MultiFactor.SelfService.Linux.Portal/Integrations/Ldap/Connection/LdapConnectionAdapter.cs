@@ -12,7 +12,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly LdapConnection _connection;
         public string Uri { get; }
         private readonly LdapConnectionAdapterConfig _config;
-
+        private readonly string[] _namingContextAttributeNames = new string[] { "defaultNamingContext", "namingContexts" };
+        
         /// <summary>
         /// Returns user that has been successfully binded with LDAP directory.
         /// </summary>
@@ -28,18 +29,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
         public async Task<LdapDomain> WhereAmIAsync()
         {
+            var serverInfo = await GetServerInfoAsync();
             var filter = LdapFilter.Create("objectclass", "*").Build();
-            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT,
-                "defaultNamingContext");
-            var result = queryResult.SingleOrDefault() ??
-                         throw new InvalidOperationException($"Unable to query {Uri} for current user");
-
-            var defaultNamingContext = result.DirectoryAttributes["defaultNamingContext"].GetValue<string>();
+            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, _namingContextAttributeNames);
+            var result = queryResult.SingleOrDefault() ?? throw new InvalidOperationException($"Unable to query {Uri} for current user");
+            
+            string defaultNamingContext = string.Empty;
+            foreach (var contextName in _namingContextAttributeNames)
+            {
+                if (result.DirectoryAttributes.TryGetValue(contextName, out var searchResultAttribute))
+                {
+                    defaultNamingContext = searchResultAttribute.GetValue<string>();
+                    break;
+                }
+            }
+            
             return LdapDomain.Parse(defaultNamingContext);
         }
 
-        public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope,
-            params string[] attributes)
+        public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
         {
             if (_config.Logger == null)
             {
@@ -51,8 +59,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
             if (sw.Elapsed.TotalSeconds > 2)
             {
-                _config.Logger.LogWarning("Slow response while querying {baseDn:l}. Time elapsed {elapsed}", baseDn,
-                    sw.Elapsed);
+                _config.Logger.LogWarning("Slow response while querying {baseDn:l}. Time elapsed {elapsed}", baseDn, sw.Elapsed);
             }
 
             return searchResult;
@@ -101,7 +108,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return instance;
         }
 
-        public static LdapConnectionAdapter CreateAnonymous(string uri,
+        public static LdapConnectionAdapter CreateAnonymous(string uri, 
             Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             if (uri is null) throw new ArgumentNullException(nameof(uri));
@@ -110,7 +117,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
 
             var instance = new LdapConnectionAdapter(uri, null, config);
-
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
                 var ldapUri = new Uri(uri);
@@ -155,8 +161,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 return def;
             }
 
-            var rootDse = await _connection.SearchAsync(string.Empty, "(objectclass=*)",
-                scope: LdapSearchScope.LDAP_SCOPE_BASE);
+            var rootDse = await _connection.SearchAsync(string.Empty, "(objectclass=*)", scope: LdapSearchScope.LDAP_SCOPE_BASE);
             foreach (var attribute in rootDse.First().DirectoryAttributes)
             {
                 entry.DirectoryAttributes.Remove(attribute.Name);
