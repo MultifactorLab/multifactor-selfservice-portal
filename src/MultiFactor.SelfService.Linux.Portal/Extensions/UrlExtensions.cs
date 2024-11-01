@@ -4,8 +4,8 @@
     {
         public static string BuildRelativeUrl(this string currentPath, string relPath, int removeSegments = 0)
         {
-            if (currentPath is null) throw new ArgumentNullException(nameof(currentPath));
-            if (relPath is null) throw new ArgumentNullException(nameof(relPath));
+            ArgumentNullException.ThrowIfNull(currentPath);
+            ArgumentNullException.ThrowIfNull(relPath);
 
             // public url from browser if we behind nginx or other proxy
             var currentUri = new Uri(currentPath);

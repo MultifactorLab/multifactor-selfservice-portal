@@ -91,12 +91,6 @@ public class AuthnStory
 
         if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
         {
-            // because if we here - bind throw exception, so need verify
-            if (_settings.NeedPrebindInfo())
-            {
-                adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName, true);
-            }
-
             var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
             _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName),
                 model.UserName.Trim());

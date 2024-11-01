@@ -9,9 +9,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     {
         /// <summary>
         /// Configures authentication services and rules using ServiceProvider.
-        /// Must be called after the applicaton services are configured (ConfigureApplicationServices());
+        /// Must be called after the application services are configured (ConfigureApplicationServices());
         /// </summary>
-        /// <param name="applicationBuilder">A builder for web a pplication and services.</param>
+        /// <param name="applicationBuilder">A builder for web application and services.</param>
         public static WebApplicationBuilder ConfigureAuthentication(this WebApplicationBuilder applicationBuilder)
         {
             applicationBuilder.Host.ConfigureAppConfiguration((hostingContext, configBuilder) =>

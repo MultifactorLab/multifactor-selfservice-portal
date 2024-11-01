@@ -40,7 +40,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<CredentialVerificationResult> VerifyCredentialAsync(string username, string password)
         {
-            if (username is null) throw new ArgumentNullException(nameof(username));
+            ArgumentNullException.ThrowIfNull(username);
             if (password is null)
             {
                 _logger.LogError("Empty password provided for user '{user:l}'", username);
@@ -70,7 +70,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
                 _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
 
-                if (_settings.ActiveDirectorySettings.SecondFactorGroups.Any())
+                if (_settings.ActiveDirectorySettings.SecondFactorGroups.Length != 0)
                 {
                     var mfaGroup = _settings.ActiveDirectorySettings.SecondFactorGroups.FirstOrDefault(group => IsMemberOf(profile, group));
 
@@ -78,7 +78,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     {
                         _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
                             _settings.ActiveDirectorySettings.SecondFactorGroups);
-                        _logger.LogInformation("Bypass second factor for user '{@user:l}'", user);
                         return CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
                     }
 
@@ -166,8 +165,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 username, domain);
         }
 
-        public async Task<CredentialVerificationResult> VerifyMembership(string username,
-            bool userMustChangePassword = false)
+        public async Task<CredentialVerificationResult> VerifyMembership(string username)
         {
             using var connection = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();
 
@@ -182,14 +180,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
             _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
 
-            if (_settings.ActiveDirectorySettings.SecondFactorGroups.Any())
+            if (_settings.ActiveDirectorySettings.SecondFactorGroups.Length != 0)
             {
                 var mfaGroup = _settings.ActiveDirectorySettings.SecondFactorGroups.FirstOrDefault(group => IsMemberOf(profile, group));
                 if (mfaGroup == null)
                 {
                     _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
                         _settings.ActiveDirectorySettings.SecondFactorGroups);
-                    _logger.LogInformation("Bypass second factor for user '{user:l}'", user);
                     return CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
                 }
 
@@ -228,7 +225,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
 
         private bool IsMemberOf(LdapProfile profile, string group)
         {
-            return profile.MemberOf.Any(g => g.ToLower() == group.ToLower().Trim());
+            return profile.MemberOf.Any(g => g.Equals(group.ToLower(), StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

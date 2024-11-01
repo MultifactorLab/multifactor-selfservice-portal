@@ -27,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
 
         public IActionResult Execute(string accessToken)
         {
-            if (accessToken is null) throw new ArgumentNullException(nameof(accessToken));
+            ArgumentNullException.ThrowIfNull(accessToken);
             _logger.LogDebug("Received MFA token: {accessToken:l}", accessToken);
 
             var verifiedToken = _tokenVerifier.Verify(accessToken);

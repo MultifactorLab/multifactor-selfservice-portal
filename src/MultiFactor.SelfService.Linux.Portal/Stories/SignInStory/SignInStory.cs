@@ -71,6 +71,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 var sso = _contextAccessor.SafeGetSsoClaims();
                 if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
+                    _logger.LogInformation("Bypass second factor for user '{@user:l}'", userName);
                     return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
@@ -82,7 +83,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 // because if we here - bind throw exception, so need verify
                 if (_settings.NeedPrebindInfo())
                 {
-                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName, true);
+                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
                 }
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());

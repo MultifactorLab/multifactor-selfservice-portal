@@ -95,8 +95,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
            
             try
             {
-                var sesionCookie = Request.Cookies[Constants.PWD_RECOVERY_COOKIE];
-                if (sesionCookie == null || _dataProtection.Unprotect(sesionCookie, Constants.PWD_RECOVERY_COOKIE) != form.Identity)
+                var sessionCookie = Request.Cookies[Constants.PWD_RECOVERY_COOKIE];
+                if (sessionCookie == null || _dataProtection.Unprotect(sessionCookie, Constants.PWD_RECOVERY_COOKIE) != form.Identity)
                 {
                     _logger.LogError("Invalid reset password session for user '{identity:l}': session not found", form.Identity);
                     throw new ModelStateErrorException(_localizer.GetString("UnableToRecoverPassword"));

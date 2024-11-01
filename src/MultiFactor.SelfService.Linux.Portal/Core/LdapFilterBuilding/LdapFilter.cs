@@ -55,8 +55,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
         {
             if (string.IsNullOrEmpty(attribute))
                 throw new ArgumentException($"'{nameof(attribute)}' cannot be null or empty.", nameof(attribute));
-            if (values is null) throw new ArgumentNullException(nameof(values));
-            if (!values.Any()) throw new ArgumentException($"'nameof(values)' collection cannot be empty.");
+            ArgumentNullException.ThrowIfNull(values);
+            if (values.Length == 0) throw new ArgumentException($"'nameof(values)' collection cannot be empty.");
 
             var group = LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.Or);
             foreach (var value in values)

@@ -21,8 +21,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceSta
 
         public async Task ApproveAsync(string deviceId)
         {
-            if (deviceId is null) throw new ArgumentNullException(nameof(deviceId));
-            
+            ArgumentNullException.ThrowIfNull(deviceId);
+
             var username = _claimsAccessor.GetTokenClaims().Identity;
             var device = await _searcher.FindByUserAndDeviceIdAsync(username, deviceId);
             if (device == null) return;
@@ -32,7 +32,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceSta
 
         public async Task RejectAsync(string deviceId)
         {
-            if (deviceId is null) throw new ArgumentNullException(nameof(deviceId));
+            ArgumentNullException.ThrowIfNull(deviceId);
 
             var username = _claimsAccessor.GetTokenClaims().Identity;
             var device = await _searcher.FindByUserAndDeviceIdAsync(username, deviceId);

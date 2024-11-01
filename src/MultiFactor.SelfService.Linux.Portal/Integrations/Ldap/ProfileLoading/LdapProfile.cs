@@ -45,9 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             if (userMustChangePasswordHasValue && pwdLastSet == 0)
                 return true;
             
-            if (PasswordExpirationDate() < DateTime.Now)
-                return true;
-            return false;
+            return PasswordExpirationDate() < DateTime.Now;
         }
         
         public DateTime PasswordExpirationDate()

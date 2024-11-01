@@ -5,6 +5,10 @@
         public string Name { get; }
         public IdentityType Type { get; }
 
+        private static readonly char[] DnSeparator = ['='];
+        private static readonly char[] DotSeparator = ['.'];
+        private static readonly char[] CommaSeparator = [','];
+
         public LdapIdentity(string name, IdentityType type)
         {
             Name = name;
@@ -28,13 +32,13 @@
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-            var portIndex = name.IndexOf(":", StringComparison.Ordinal);
+            var portIndex = name.IndexOf(':');
             if (portIndex > 0)
             {
                 name = name[..portIndex];
             }
 
-            var domains = name.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            var domains = name.Split(DotSeparator, StringSplitOptions.RemoveEmptyEntries);
             var dn = domains.Select(p => $"DC={p}").ToArray();
 
             return new LdapIdentity(string.Join(",", dn), IdentityType.DistinguishedName);
@@ -45,10 +49,10 @@
         /// </summary>
         public static LdapIdentity BaseDn(string dn)
         {
-            if (dn is null) throw new ArgumentNullException(nameof(dn));
+            ArgumentNullException.ThrowIfNull(dn);
 
-            var ncs = dn.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            var baseDn = ncs.Where(nc => nc.ToLower().StartsWith("dc="));
+            var ncs = dn.Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+            var baseDn = ncs.Where(nc => nc.StartsWith("dc=", StringComparison.CurrentCultureIgnoreCase));
 
             return new LdapIdentity(string.Join(",", baseDn), IdentityType.DistinguishedName);
         }
@@ -58,10 +62,10 @@
         /// </summary>
         public static string DnToFqdn(string dn)
         {
-            if (dn is null) throw new ArgumentNullException(nameof(dn));
+            ArgumentNullException.ThrowIfNull(dn);
 
-            var ncs = dn.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            var fqdn = ncs.Select(nc => nc.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries)[1].TrimEnd(','));
+            var ncs = dn.Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+            var fqdn = ncs.Select(nc => nc.Split(DnSeparator, StringSplitOptions.RemoveEmptyEntries)[1].TrimEnd(','));
             return string.Join(".", fqdn);
         }
 
@@ -70,7 +74,7 @@
         /// </summary>
         public static string DnToCn(string dn)
         {
-            if (dn is null) throw new ArgumentNullException(nameof(dn));
+            ArgumentNullException.ThrowIfNull(dn);
 
             return dn.Split(',')[0].Split("=")[1];
         }
@@ -82,7 +86,7 @@
 
         public bool IsChildOf(LdapIdentity parent)
         {
-            if (parent is null) throw new ArgumentNullException(nameof(parent));
+            ArgumentNullException.ThrowIfNull(parent);
             return Name.EndsWith(parent.Name);
         }
 
@@ -93,7 +97,7 @@
             var identity = name.ToLower();
 
             //remove DOMAIN\\ prefix
-            var index = identity.IndexOf("\\", StringComparison.Ordinal);
+            var index = identity.IndexOf('\\');
             if (index > 0)
             {
                 identity = identity[(index + 1)..];
@@ -149,7 +153,7 @@
             var index = upn.IndexOf('@');
             if (index == -1) throw new InvalidOperationException("Identity should be of UPN type");
 
-            return upn.Substring(0, index);
+            return upn[..index];
         }
     }
 }

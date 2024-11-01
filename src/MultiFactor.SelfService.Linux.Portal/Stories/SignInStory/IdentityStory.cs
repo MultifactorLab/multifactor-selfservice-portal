@@ -82,9 +82,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                     ViewName = "Authn",
                     ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
                     {
-                        Model = model
+                        // create new model in order to pass new identity - it may be upn instead samAccountName
+                        Model = new IdentityViewModel
+                        {
+                            UserName = identity,
+                            Password = model.Password,
+                            MyUrl = model.MyUrl,
+                            AccessToken = model.AccessToken
+                        }
                     }
                 };
+                _logger.LogInformation("Bypass second factor for user '{user:l}'", identity);
                 return res;
                 //return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
             }

@@ -14,7 +14,7 @@ public class RequiredIfNotNullAttribute : ValidationAttribute
 
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        if (validationContext == null) throw new ArgumentNullException(nameof(validationContext));
+        ArgumentNullException.ThrowIfNull(validationContext);
         var property = validationContext.ObjectType.GetProperty(_propertyName);
 
         if (property == null)

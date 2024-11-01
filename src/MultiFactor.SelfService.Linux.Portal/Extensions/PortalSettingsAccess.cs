@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         public static TProperty GetPortalSettingsValue<TProperty>(this IConfiguration config, 
             Expression<Func<PortalSettings, TProperty>> propertySelector)
         {
-            if (propertySelector is null) throw new ArgumentNullException(nameof(propertySelector));
+            ArgumentNullException.ThrowIfNull(propertySelector);
 
             var key = ClassPropertyAccessor.GetPropertyPath(propertySelector, ":");
             return GetConfigValue<TProperty>(config, $"{PortalSettings.SectionName}:{key}");
@@ -17,8 +17,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         public static TProperty GetConfigValue<TProperty>(this IConfiguration config, string path)
         {
-            if (config is null) throw new ArgumentNullException(nameof(config));
-            if (path is null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(path);
 
             return config.GetValue<TProperty>(path);
         }
