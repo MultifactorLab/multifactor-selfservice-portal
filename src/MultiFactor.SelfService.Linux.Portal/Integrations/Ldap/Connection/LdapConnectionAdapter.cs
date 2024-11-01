@@ -1,6 +1,5 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
-using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding.Abstractions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
@@ -12,7 +11,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly LdapConnection _connection;
         public string Uri { get; }
         private readonly LdapConnectionAdapterConfig _config;
-
+        private readonly string[] _namingContextAttributeNames = new string[] { "defaultNamingContext", "namingContexts" };
+        
         /// <summary>
         /// Returns user that has been successfully binded with LDAP directory.
         /// </summary>
@@ -28,11 +28,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
         public async Task<LdapDomain> WhereAmIAsync()
         {
+            var serverInfo = await GetServerInfoAsync();
             var filter = LdapFilter.Create("objectclass", "*").Build();
-            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, "defaultNamingContext");
+            var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT, _namingContextAttributeNames);
             var result = queryResult.SingleOrDefault() ?? throw new InvalidOperationException($"Unable to query {Uri} for current user");
-
-            var defaultNamingContext = result.DirectoryAttributes["defaultNamingContext"].GetValue<string>();
+            
+            string defaultNamingContext = string.Empty;
+            foreach (var contextName in _namingContextAttributeNames)
+            {
+                if (result.DirectoryAttributes.TryGetValue(contextName, out var searchResultAttribute))
+                {
+                    defaultNamingContext = searchResultAttribute.GetValue<string>();
+                    break;
+                }
+            }
+            
             return LdapDomain.Parse(defaultNamingContext);
         }
 
