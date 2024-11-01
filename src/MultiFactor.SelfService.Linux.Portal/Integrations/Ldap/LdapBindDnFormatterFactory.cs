@@ -19,7 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap
 
         public IBindIdentityFormatter CreateFormatter()
         {
-            if (_serverInfo.Implementation == LdapImplementation.FreeIPA)
+            if (_serverInfo.Implementation == LdapImplementation.FreeIPA || _serverInfo.Implementation == LdapImplementation.OpenLdap)
             {
                 return new IpaBindIdentityFormatter(_settings);
             }

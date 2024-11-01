@@ -19,6 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             switch (_serverInfo.Implementation)
             {
                 case LdapImplementation.FreeIPA:
+                case LdapImplementation.OpenLdap:
                     {
                         return searchFilter.And(LdapFilter.Create("uid", $"{user.GetUid()}"));
                     }
