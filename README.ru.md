@@ -124,7 +124,7 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 <img src="https://multifactor.ru/img/radius-adapter/ra-ad-mobile-phone-source.png" width="400">
 
 ## Установка портала на примере Debian 11 и Nginx
-Портал – это веб-приложение. Для запуска и работы портала используется веб-сервер Kestrel. Веб-сервер не нуждается в установке и входит в состав <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">сборки</a>. Типовая схема работы веб-приложений на стеке .NET 6 для Linux следующая:
+Портал – это веб-приложение. Для запуска и работы портала используется веб-сервер Kestrel. Веб-сервер не нуждается в установке и входит в состав <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">сборки</a>. Типовая схема работы веб-приложений на стеке .NET 8 для Linux следующая:
 1. Приложение запускается на веб-сервере Kestrel. Веб-сервер слушает запросы на определенный порт (пусть 5000) локального хоста по схеме `http`.
 2. Реверс-прокси, настроенный на Linux-сервере, слушает запросы на внешний порт сервера по схеме `https` и перенаправляет их на локальный порт 5000.
 3. Веб-сервер Kestrel обрабатывает входящие запросы и отправляет их на обработку в приложение.
@@ -132,7 +132,7 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 Таким образом приложение портала располагается за реверс-прокси и обрабатывает запросы только от него.  
 
 ### 1. Настройка среды
-Для работы портала необходимы пакеты .NET 6 runtime.  
+Для работы портала необходимы пакеты .NET 8 runtime.  
 > Дополнительную информацию можно найти <a href="https://docs.microsoft.com/ru-ru/dotnet/core/install/linux#microsoft-packages" target="_blank">здесь</a>. 
 
 Добавьте ключ подписывания пакета в список доверенных ключей, затем добавьте репозиторий пакетов:
@@ -144,7 +144,7 @@ rm packages-microsoft-prod.deb
 Установите среду выполнения:
 ```
 sudo apt-get update && \
-  sudo apt-get install -y aspnetcore-runtime-6.0
+  sudo apt-get install -y aspnetcore-runtime-8.0
 ```  
 
 Создайте директории:

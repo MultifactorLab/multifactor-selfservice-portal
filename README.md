@@ -125,7 +125,7 @@ If the `ActiveDirectorySettings.UseMobileUserPhone` option is enabled, the compo
 
 ## Installation (Debian 11, Nginx)
 This is a web application. The Kestrel web server is used to launch it. The web server does not need to be installed and is included in the <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">relese</a>. 
-A typical scheme for running .NET 6 web application on the Linux server is as follows:
+A typical scheme for running .NET 8 web application on the Linux server is as follows:
 1. The application is deployed to the Kestrel web server. The Kestrel listens for requests on a specific port (5000) of the local host using the `http` scheme.
 2. The reverse proxy configured on the Linux server listens to requests on the server's external port using the `https` scheme and redirects them to the local port 5000.
 3. The Kestrel web server processes incoming requests and sends them to the web application.
@@ -133,7 +133,7 @@ A typical scheme for running .NET 6 web application on the Linux server is as fo
 Therefore, the Portal application is behind a reverse proxy and processes requests only from it.
 
 ### 1. Setup environment
-The application requires .NET 6 runtime packages.  
+The application requires .NET 8 runtime packages.  
 > More information <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux#microsoft-packages" target="_blank">here</a>.
 
 Run the following commands to add the Microsoft package signing key to your list of trusted keys and add the package repository:
@@ -145,7 +145,7 @@ rm packages-microsoft-prod.deb
 Install the runtime:
 ```
 sudo apt-get update && \
-  sudo apt-get install -y aspnetcore-runtime-6.0
+  sudo apt-get install -y aspnetcore-runtime-8.0
 ```  
 Create directories:
 ```
