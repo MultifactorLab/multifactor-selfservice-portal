@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
         public async Task<IReadOnlyList<ExchangeActiveSyncDevice>> FindAllByUserAsync(string username)
         {
-            if (username is null) throw new ArgumentNullException(nameof(username));
+            ArgumentNullException.ThrowIfNull(username);
 
             var user = LdapIdentity.ParseUser(username);
             var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);

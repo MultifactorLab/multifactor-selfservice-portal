@@ -41,28 +41,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Metadata
             if (_requiredAttributes == null)
             {
                 _requiredAttributes = GetDescriptors()
-                .Select(x => x.Source)
-                .Concat(GetDescriptors()
-                    .Where(x => x.Condition != null)
-                    .SelectMany(x => new[] { x.Condition.LeftOperand, x.Condition.RightOperand }))
-                .OfType<AttributeClaimValueSource>()
-                .Select(x => x.Attribute)
-                .Distinct(new OrdinalIgnoreCaseStringComparer())
-                .ToList()
-                .AsReadOnly();
+                    .Select(x => x.Source)
+                    .Concat(GetDescriptors()
+                        .Where(x => x.Condition != null)
+                        .SelectMany(x => new[] { x.Condition.LeftOperand, x.Condition.RightOperand }))
+                    .OfType<AttributeClaimValueSource>()
+                    .Select(x => x.Attribute)
+                    .Distinct(new OrdinalIgnoreCaseStringComparer())
+                    .ToList()
+                    .AsReadOnly();
             }
 
             return _requiredAttributes;
         }
 
-        private IReadOnlyList<AdditionalClaimDescriptor> GetDescriptors()
-        {
-            if (_additionalClaims == null)
-            {
-                _additionalClaims = _descriptorsProvider.GetDescriptors();
-            }
-
-            return _additionalClaims;
-        }
+        private IReadOnlyList<AdditionalClaimDescriptor> GetDescriptors() => _additionalClaims ??= _descriptorsProvider.GetDescriptors();
     }
 }

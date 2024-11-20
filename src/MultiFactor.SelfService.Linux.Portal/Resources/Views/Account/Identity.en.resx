@@ -1,0 +1,41 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="ForgotPassword" xml:space="preserve">
+    <value>Forgot password?</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+    <data name="PleaseWait" xml:space="preserve">
+    <value>Please wait...</value>
+  </data>
+    <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+    <data name="Title" xml:space="preserve">
+    <value>Portal Login</value>
+  </data>
+    <data name="UserName" xml:space="preserve">
+    <value>User name</value>
+  </data>
+    <data name="UserNameUpn" xml:space="preserve">
+    <value>user@domain.loc</value>
+  </data>
+    <data name="WrongUserNameOrPassword" xml:space="preserve">
+    <value>Wrong user name or password</value>
+  </data>
+    <data name="IdentityInvitation" xml:space="preserve">
+    <value>Please enter your username</value>
+  </data>
+</root>

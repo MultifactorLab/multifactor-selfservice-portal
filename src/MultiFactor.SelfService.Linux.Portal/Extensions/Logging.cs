@@ -1,5 +1,7 @@
-﻿using Serilog;
-using Serilog.Core;
+﻿using Elastic.CommonSchema.Serilog;
+using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Serialization;
+using Serilog;
 using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Compact;
@@ -10,12 +12,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
     {
         public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder applicationBuilder)
         {
-            var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingLevel));
-            var levelSwitch = new LoggingLevelSwitch(logLevel);
-            var loggerConfiguration = new LoggerConfiguration().MinimumLevel.ControlledBy(levelSwitch);
-
+            var logLevel = GetLogMinimalLevel(applicationBuilder.Configuration.GetConfigValue<string>("Logging:LogLevel:Default"));
+            var loggerConfiguration = new LoggerConfiguration().MinimumLevel.Is(logLevel);
+            var msOverride = applicationBuilder.Configuration.GetConfigValue<string>("Logging:LogLevel:Microsoft");
+            if (!string.IsNullOrEmpty(msOverride))
+            {
+                loggerConfiguration.MinimumLevel.Override("Microsoft", GetLogMinimalLevel(msOverride));
+            }
+            
             var isLocalhost = applicationBuilder.Environment.IsEnvironment("localhost");
-            loggerConfiguration.WriteTo.Console(isLocalhost ? levelSwitch.MinimumLevel : LogEventLevel.Warning);
+            loggerConfiguration.WriteTo.Console(isLocalhost ? logLevel : LogEventLevel.Warning);
 
             ConfigureFileLog(loggerConfiguration, applicationBuilder);
 
@@ -32,22 +38,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             return applicationBuilder;
         }
 
-        private static LogEventLevel GetLogMinimalLevel(string level)
-        {
-            switch (level)
+        private static LogEventLevel GetLogMinimalLevel(string level) =>
+            level switch
             {
-                case "Debug": return LogEventLevel.Debug;
-                case "Info": return LogEventLevel.Information;
-                case "Warn": return LogEventLevel.Warning;
-                case "Error": return LogEventLevel.Error;
-                default: return LogEventLevel.Information;
-            }
-        }
+                "Debug" => LogEventLevel.Debug,
+                "Info" => LogEventLevel.Information,
+                "Warn" => LogEventLevel.Warning,
+                "Error" => LogEventLevel.Error,
+                _ => LogEventLevel.Information
+            };
 
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
             var formatter = GetLogFormatter(applicationBuilder);
-            var path = $"{Core.Constants.LOG_DIRECTORY}/sspl-log-.txt";
+            var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
                 loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);
@@ -61,13 +65,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         private static ITextFormatter GetLogFormatter(WebApplicationBuilder applicationBuilder)
         {
             var loggingFormat = applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingFormat);
-            switch (loggingFormat?.ToLower())
+
+            if (string.IsNullOrEmpty(loggingFormat))
             {
-                case "json":
-                    return new RenderedCompactJsonFormatter();
-                default:
-                    return null;
+                return null;
             }
+
+            if (!Enum.TryParse<SerilogJsonFormatterTypes>(loggingFormat, true, out var formatterType))
+            {
+                return null;
+            }
+
+            return formatterType switch
+            {
+                SerilogJsonFormatterTypes.Json or SerilogJsonFormatterTypes.JsonUtc => new RenderedCompactJsonFormatter(),
+                SerilogJsonFormatterTypes.JsonTz => new CustomCompactJsonFormatter("yyyy-MM-dd HH:mm:ss.fff zzz"),
+                SerilogJsonFormatterTypes.ElasticCommonSchema => new EcsTextFormatter(),
+                _ => null,
+            };
         }
     }
 }

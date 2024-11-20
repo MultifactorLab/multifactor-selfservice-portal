@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
@@ -15,11 +14,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     [RequiredFeature(ApplicationFeature.PasswordRecovery)]
     public class ForgottenPasswordController : ControllerBase
     {
-        private ILogger _logger;
-        private IStringLocalizer<SharedResource> _localizer;
-        private RecoverPasswordStory _recoverPasswordStory;
-        private TokenVerifier _tokenVerifier;
-        private DataProtection _dataProtection;
+        private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly RecoverPasswordStory _recoverPasswordStory;
+        private readonly TokenVerifier _tokenVerifier;
+        private readonly DataProtection _dataProtection;
+        private readonly ILogger _logger;
 
         public ForgottenPasswordController(
             DataProtection dataProtection,
@@ -96,8 +95,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
            
             try
             {
-                var sesionCookie = Request.Cookies[Constants.PWD_RECOVERY_COOKIE];
-                if (sesionCookie == null || _dataProtection.Unprotect(sesionCookie, Constants.PWD_RECOVERY_COOKIE) != form.Identity)
+                var sessionCookie = Request.Cookies[Constants.PWD_RECOVERY_COOKIE];
+                if (sessionCookie == null || _dataProtection.Unprotect(sessionCookie, Constants.PWD_RECOVERY_COOKIE) != form.Identity)
                 {
                     _logger.LogError("Invalid reset password session for user '{identity:l}': session not found", form.Identity);
                     throw new ModelStateErrorException(_localizer.GetString("UnableToRecoverPassword"));

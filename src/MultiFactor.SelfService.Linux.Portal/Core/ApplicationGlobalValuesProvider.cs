@@ -18,7 +18,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core
             switch (key)
             {
                 case ApplicationGlobalValue.UserName:
-                    return new[] { _httpContextAccessor.SafeGetGredVerificationResult().Username ?? string.Empty };
+                    return new[] { _httpContextAccessor.SafeGetCredVerificationResult().Username ?? string.Empty };
 
                 case ApplicationGlobalValue.UserGroup:
                     return _httpContextAccessor.SafeGetLdapAttributes().GetValues("memberOf");

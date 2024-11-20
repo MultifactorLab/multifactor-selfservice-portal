@@ -21,6 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            
             var tokenVerifier = context.HttpContext.RequestServices.GetRequiredService<TokenVerifier>();
             var cookie = context.HttpContext.Request.Cookies[Constants.COOKIE_NAME];
             if (cookie is null)

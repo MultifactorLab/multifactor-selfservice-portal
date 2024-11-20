@@ -94,7 +94,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
         private static void ValidateDeviceInfo(ExchangeActiveSyncDeviceInfo deviceInfo)
         {
-            if (deviceInfo is null) throw new ArgumentNullException(nameof(deviceInfo));
+            ArgumentNullException.ThrowIfNull(deviceInfo);
 
             var result = new DeviceInfoValidator().Validate(deviceInfo);
             if (result.IsValid) return;

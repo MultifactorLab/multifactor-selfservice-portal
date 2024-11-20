@@ -1,0 +1,70 @@
+﻿@using MultiFactor.SelfService.Linux.Portal.Core
+@{
+    var isCaptchaEnabled = Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaRequired.Always);
+}
+
+@model MultiFactor.SelfService.Linux.Portal.ViewModels.IdentityViewModel
+
+<div action="#" class="login">
+    <div class="form-bg">
+        <img src="~/images/login.svg" width="352" height="396" alt="Multifactor">
+    </div>
+    <div class="form-column">
+        <h2>@Localizer["Title"]</h2>
+        @using (Html.BeginForm("Identity", "Account", new Dictionary<string, string>
+                {
+                    [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty,
+                    [Constants.MultiFactorClaims.OidcSessionId] = Context.Request.Query[Constants.MultiFactorClaims.OidcSessionId].FirstOrDefault() ?? string.Empty
+                }, FormMethod.Post))
+        {
+            <fieldset>
+                @Html.AntiForgeryToken()
+                <p>@Localizer["IdentityInvitation"]</p>
+                <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
+                    <div class="input">
+                        @Html.TextBoxFor(m => m.UserName, new
+                        {
+                            placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
+                                ? Localizer.GetString("UserNameUpn")
+                                : Localizer.GetString("UserName")
+                        })
+                        @Html.ValidationMessageFor(m => m.UserName)
+                    </div>
+                    @Html.ValidationSummary(true)
+                    @if (isCaptchaEnabled)
+                    {
+                        ViewBag.RenderCaptchaScripts = true;
+                        @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaRequired.Always })
+                    }
+                </div>
+
+                <div class="form-row">
+                    <input type="hidden" name="myUrl" id="myUrl"/>
+                    <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn" value="@Localizer["Submit"]" id="submit"/>
+                    @if (Settings.PasswordManagement.AllowPasswordRecovery)
+                    {
+                        <div class="p-8 align-row-right">
+                            <a href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>
+                        </div>
+                    }
+                </div>
+
+            </fieldset>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#myUrl').val(document.location);
+        $("form").submit(function () {
+            if ($(this).valid()) {
+                $(this).find(':submit').attr('disabled', 'disabled').val('@Localizer["PleaseWait"]');
+            }
+        });
+    });
+</script>
+}

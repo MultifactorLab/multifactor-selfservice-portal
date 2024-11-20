@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
 
         public async Task<IActionResult> ExecuteAsync(ChangePasswordViewModel model)
         {
-            if (model is null) throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             if (!_settings.PasswordManagement.Enabled)
             {

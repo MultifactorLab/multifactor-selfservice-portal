@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            if (bindingContext == null) throw new ArgumentNullException(nameof(bindingContext));
+            ArgumentNullException.ThrowIfNull(bindingContext);
 
             var saml = bindingContext.ValueProvider.GetValue(Constants.MultiFactorClaims.SamlSessionId);
             var oidc = bindingContext.ValueProvider.GetValue(Constants.MultiFactorClaims.OidcSessionId);
@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders
         
         public static SingleSignOnDto FromRequest(HttpRequest request)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));
+            ArgumentNullException.ThrowIfNull(request);
 
             request.Query.TryGetValue(Constants.MultiFactorClaims.SamlSessionId, out StringValues saml);
             request.Query.TryGetValue(Constants.MultiFactorClaims.OidcSessionId, out StringValues oidc);

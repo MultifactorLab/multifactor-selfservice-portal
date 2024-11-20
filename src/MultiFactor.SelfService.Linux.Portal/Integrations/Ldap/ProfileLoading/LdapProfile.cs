@@ -23,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             }
         }
 
+        
         public string Phone => Attributes.GetValue("telephoneNumber");
         public string Mobile => Attributes.GetValue("mobile");
         public string Upn => Attributes.GetValue("userPrincipalName");
@@ -33,12 +34,41 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
         private LdapProfile(LdapIdentity baseDn, string distinguishedName)
         {
-            if (baseDn is null) throw new ArgumentNullException(nameof(baseDn));
-            if (distinguishedName is null) throw new ArgumentNullException(nameof(distinguishedName));
-            BaseDn = baseDn;
-            DistinguishedName = distinguishedName;
+            BaseDn = baseDn ?? throw new ArgumentNullException(nameof(baseDn));
+            DistinguishedName = distinguishedName ?? throw new ArgumentNullException(nameof(distinguishedName));
         }
 
+        public bool UserMustChangePassword()
+        {
+            // = "User must change password at next logon" setting
+            var userMustChangePasswordHasValue = int.TryParse(Attributes.GetValue("pwdLastSet"), out var pwdLastSet);
+            if (userMustChangePasswordHasValue && pwdLastSet == 0)
+                return true;
+            
+            return PasswordExpirationDate() < DateTime.Now;
+        }
+        
+        public DateTime PasswordExpirationDate()
+        {
+            if (PasswordExpirationRawValue == null ||
+                !long.TryParse(PasswordExpirationRawValue, out var passwordExpirationInt))
+            {
+                return DateTime.MaxValue;
+            }
+            
+            try
+            {
+                return DateTime.FromFileTime(passwordExpirationInt);
+            }
+            catch (ArgumentOutOfRangeException aore)
+            {
+                // inconsistency between the parsing function and AD value
+                return DateTime.MaxValue;
+            }
+        }
+
+        private string PasswordExpirationRawValue => Attributes.GetValue("msDS-UserPasswordExpiryTimeComputed");
+        
         public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName)
         {
             return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName));

@@ -19,7 +19,7 @@
             {
                 _logger.LogInformation("Checking tech user credentials...");
                 using var connection = await _connectionAdapterFactory.CreateAdapterAsTechnicalAccAsync();
-                _logger.LogInformation("Tech user redentials are OK");
+                _logger.LogInformation("Tech user credentials are OK");
             }
             catch (Exception ex)
             {

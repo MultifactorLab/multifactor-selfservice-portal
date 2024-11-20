@@ -30,7 +30,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
 
                 // use raw user name when possible couse multifactor may transform identity depend by settings
                 return new TokenClaims(jwtSecurityToken.Id,
-                    rawUserName ?? identity,
+                    !string.IsNullOrEmpty(rawUserName) ? rawUserName : identity,
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword),
                     jwtSecurityToken.ValidTo,
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword));

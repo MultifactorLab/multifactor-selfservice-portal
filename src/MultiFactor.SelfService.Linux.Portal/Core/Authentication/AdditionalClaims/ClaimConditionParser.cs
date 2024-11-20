@@ -35,14 +35,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalCla
             throw new InvalidClaimConditionException(expression);
         }
     }
-
-    [Serializable]
+    
     internal class InvalidClaimConditionException : Exception
     {
         public InvalidClaimConditionException(string expression) : base($"Invalid expression: {expression}") { }
         public InvalidClaimConditionException(string expression, Exception inner) : base($"Invalid expression: {expression}", inner) { }
-        protected InvalidClaimConditionException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }
