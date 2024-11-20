@@ -29,15 +29,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
         /// <returns>New LDAP filter.</returns>
         public static ILdapFilter Create(string attribute, string value)
         {
-            if (string.IsNullOrEmpty(attribute))
-            {
-                throw new ArgumentException($"'{nameof(attribute)}' cannot be null or empty.", nameof(attribute));
-            }
-
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentException($"'{nameof(value)}' cannot be null or empty.", nameof(value));
-            }
+            ArgumentException.ThrowIfNullOrWhiteSpace(attribute);
+            ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
             return new LdapFilter(attribute, value);
         }
@@ -53,9 +46,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding
         /// <returns>New LDAP filter group.</returns>
         public static ILdapFilter Create(string attribute, params string[] values)
         {
-            if (string.IsNullOrEmpty(attribute))
-                throw new ArgumentException($"'{nameof(attribute)}' cannot be null or empty.", nameof(attribute));
+            ArgumentException.ThrowIfNullOrWhiteSpace(attribute);
             ArgumentNullException.ThrowIfNull(values);
+            
             if (values.Length == 0) throw new ArgumentException($"'nameof(values)' collection cannot be empty.");
 
             var group = LdapFilterGroup.Create(LdapFilterGroup.LdapFilterOperator.Or);

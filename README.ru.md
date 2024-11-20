@@ -123,7 +123,7 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 
 <img src="https://multifactor.ru/img/radius-adapter/ra-ad-mobile-phone-source.png" width="400">
 
-## Установка портала на примере Debian 11 и Nginx
+## Установка портала на примере Debian 12 и Nginx
 Портал – это веб-приложение. Для запуска и работы портала используется веб-сервер Kestrel. Веб-сервер не нуждается в установке и входит в состав <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">сборки</a>. Типовая схема работы веб-приложений на стеке .NET 8 для Linux следующая:
 1. Приложение запускается на веб-сервере Kestrel. Веб-сервер слушает запросы на определенный порт (пусть 5000) локального хоста по схеме `http`.
 2. Реверс-прокси, настроенный на Linux-сервере, слушает запросы на внешний порт сервера по схеме `https` и перенаправляет их на локальный порт 5000.
@@ -137,7 +137,7 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 
 Добавьте ключ подписывания пакета в список доверенных ключей, затем добавьте репозиторий пакетов:
 ```
-wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 ``` 

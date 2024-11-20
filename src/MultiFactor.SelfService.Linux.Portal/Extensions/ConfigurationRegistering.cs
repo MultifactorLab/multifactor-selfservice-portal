@@ -78,13 +78,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     settings.ActiveDirectorySettings.UseMobileUserPhone,
                     settings.ActiveDirectorySettings.NetBiosName,
                     settings.RequiresUserPrincipalName);
-                // {
-                //     SecondFactorGroup = string.Join(';', settings.ActiveDirectorySettings.SecondFactorGroups),
-                //     UseUserPhone = settings.ActiveDirectorySettings.UseUserPhone,
-                //     UseMobileUserPhone = settings.ActiveDirectorySettings.UseMobileUserPhone,
-                //     NetBiosName = settings.ActiveDirectorySettings.NetBiosName,
-                //     RequiresUserPrincipalName = settings.RequiresUserPrincipalName
-                // };
             }
         }
 

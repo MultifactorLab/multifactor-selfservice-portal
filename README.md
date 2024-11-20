@@ -123,8 +123,8 @@ If the `ActiveDirectorySettings.UseMobileUserPhone` option is enabled, the compo
 
 <img src="https://multifactor.pro/img/radius-adapter/ra-ad-mobile-phone-source.png" width="400">
 
-## Installation (Debian 11, Nginx)
-This is a web application. The Kestrel web server is used to launch it. The web server does not need to be installed and is included in the <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">relese</a>. 
+## Installation (Debian 12, Nginx)
+This is a web application. The Kestrel web server is used to launch it. The web server does not need to be installed and is included in the <a href="https://github.com/MultifactorLab/multifactor-selfservice-portal/releases" target="_blank">release</a>. 
 A typical scheme for running .NET 8 web application on the Linux server is as follows:
 1. The application is deployed to the Kestrel web server. The Kestrel listens for requests on a specific port (5000) of the local host using the `http` scheme.
 2. The reverse proxy configured on the Linux server listens to requests on the server's external port using the `https` scheme and redirects them to the local port 5000.
@@ -138,7 +138,7 @@ The application requires .NET 8 runtime packages.
 
 Run the following commands to add the Microsoft package signing key to your list of trusted keys and add the package repository:
 ```
-wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 ``` 
@@ -318,7 +318,7 @@ Response example:
 
 
 ## LDAP implementations supporting
-Self Service Portal has been tesed with the folowing implementations:
+Self Service Portal has been tested with the following implementations:
  - ActiveDirectory
  - Samba4
  - FreeIPA

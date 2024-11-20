@@ -6,7 +6,6 @@ RUN ln -s libldap-2.5.so.0 /usr/lib/x86_64-linux-gnu/libldap.so.2
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
-EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
