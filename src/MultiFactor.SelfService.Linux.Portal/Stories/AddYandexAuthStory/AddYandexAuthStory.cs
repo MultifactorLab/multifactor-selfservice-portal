@@ -19,8 +19,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory
 
         public async Task<IActionResult> ExecuteAsync(string key, string otp)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
-            if (otp is null) throw new ArgumentNullException(nameof(otp));
+            ArgumentNullException.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(otp);
 
             try
             {

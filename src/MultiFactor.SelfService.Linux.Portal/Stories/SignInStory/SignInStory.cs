@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
@@ -11,8 +11,6 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerificat
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
-using System.Configuration;
-using System.Reflection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 {
@@ -47,7 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(logger));
+            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
             _portalSettings = portalSettings;
 		}
@@ -73,7 +71,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 var sso = _contextAccessor.SafeGetSsoClaims();
                 if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "account", new { username = model.UserName, samlSession = sso.SamlSessionId });
+                    _logger.LogInformation("Bypass second factor for user '{@user:l}'", userName);
+                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
                 return await RedirectToMfa(adValidationResult, model.MyUrl);
@@ -81,6 +80,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
             {
+                // because if we here - bind throw exception, so need verify
+                if (_settings.NeedPrebindInfo())
+                {
+                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
+                }
                 var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName), encryptedPassword);
@@ -102,19 +106,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
         private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl)
         {
-            // public url from browser if we behind nginx or other proxy
-            var currentUri = new Uri(documentUrl);
-            var noLastSegment = $"{currentUri.Scheme}://{currentUri.Authority}";
-
-            for (int i = 0; i < currentUri.Segments.Length - 1; i++)
-            {
-                noLastSegment += currentUri.Segments[i];
-            }
-
-            // remove trailing /
-            noLastSegment = noLastSegment.Trim("/".ToCharArray());
-
-            var postbackUrl = noLastSegment + "/PostbackFromMfa";
+            var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
             var username = GetIdentity(verificationResult);
 

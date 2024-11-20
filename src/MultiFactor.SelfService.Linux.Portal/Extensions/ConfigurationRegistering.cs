@@ -13,7 +13,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             try
             {
-                var settings = GetSettings(applicationBuilder.Configuration) ?? throw new Exception("Can't find PortalSettings section in appsettings");
+                var settings = GetSettings(applicationBuilder.Configuration) ??
+                               throw new Exception("Can't find PortalSettings section in appsettings");
                 MapObsoleteSections(settings);
                 Validate(settings);
 
@@ -44,7 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 };
             }
 
-        if (settings.PasswordManagement == null)
+            if (settings.PasswordManagement == null)
             {
                 settings.PasswordManagement = new PasswordManagementSettings()
                 {
@@ -52,39 +53,38 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     AllowPasswordRecovery = false,
                     ChangeValidPasswordMode = settings.ChangeValidPasswordMode,
                     ChangeExpiredPasswordMode = settings.ChangeExpiredPasswordMode,
-                    PasswordChangingSessionLifetime = settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
-                    PasswordChangingSessionCacheSize = settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
+                    PasswordChangingSessionLifetime =
+                        settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
+                    PasswordChangingSessionCacheSize =
+                        settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
                 };
             }
 
-            if (settings.ExchangeActiveSyncDevicesManagement == null || settings.EnableExchangeActiveSyncDevicesManagement)
+            if (settings.ExchangeActiveSyncDevicesManagement == null ||
+                settings.EnableExchangeActiveSyncDevicesManagement)
             {
-                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement()
+                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement
                 {
                     Enabled = settings.EnableExchangeActiveSyncDevicesManagement
                 };
             }
 
-            if(settings.RequiresUserPrincipalName == true)
+            if (settings.RequiresUserPrincipalName)
             {
-                settings.ActiveDirectorySettings = new ActiveDirectorySettings()
-                {
-                    SecondFactorGroup = settings.ActiveDirectorySettings.SecondFactorGroup,
-                    UseUserPhone = settings.ActiveDirectorySettings.UseUserPhone,
-                    UseMobileUserPhone = settings.ActiveDirectorySettings.UseMobileUserPhone,
-                    NetBiosName = settings.ActiveDirectorySettings.NetBiosName,
-                    RequiresUserPrincipalName = settings.RequiresUserPrincipalName
-                };
+                settings.ActiveDirectorySettings = new ActiveDirectorySettings(
+                    // dirt so as not to break the encapsulation and not to write a separate mapper
+                    string.Join(';', settings.ActiveDirectorySettings.SecondFactorGroups),
+                    settings.ActiveDirectorySettings.UseUserPhone,
+                    settings.ActiveDirectorySettings.UseMobileUserPhone,
+                    settings.ActiveDirectorySettings.NetBiosName,
+                    settings.RequiresUserPrincipalName);
             }
         }
 
         private static PortalSettings GetSettings(IConfigurationRoot config)
         {
             var section = config.GetSection(nameof(PortalSettings));
-            return section.Get<PortalSettings>(o =>
-            {
-                o.BindNonPublicProperties = true;
-            });
+            return section.Get<PortalSettings>(o => { o.BindNonPublicProperties = true; });
         }
 
         private static void Validate(PortalSettings settings)
@@ -92,7 +92,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             var result = new PortalSettingsValidator().Validate(settings);
             if (result.IsValid) return;
 
-            var aggregatedMsg = result.Errors.Select(x => x.ErrorMessage).Aggregate((acc, cur) => $"{acc}{Environment.NewLine}{cur}");
+            var aggregatedMsg = result.Errors.Select(x => x.ErrorMessage)
+                .Aggregate((acc, cur) => $"{acc}{Environment.NewLine}{cur}");
             throw new Exception($"Configuration errors: {Environment.NewLine}{aggregatedMsg}");
         }
     }

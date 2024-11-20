@@ -14,7 +14,7 @@
         {
             // To deal with a single element binding to array issue, we should map a single claim manually 
             // See: https://github.com/dotnet/runtime/issues/57325
-            if (!Claims.Any() && !string.IsNullOrEmpty(SingleClaim.Name))
+            if (Claims.Count == 0 && !string.IsNullOrEmpty(SingleClaim.Name))
             {
                 Claims.Add(SingleClaim);
             }

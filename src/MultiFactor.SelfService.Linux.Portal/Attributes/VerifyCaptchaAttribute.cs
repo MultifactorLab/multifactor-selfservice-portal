@@ -7,7 +7,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
 {
     public class VerifyCaptchaAttribute : ActionFilterAttribute
     {
-        private CaptchaRequired _captchaRequired;
+        private readonly CaptchaRequired _captchaRequired;
         public VerifyCaptchaAttribute(CaptchaRequired captchaRequired = CaptchaRequired.Always)
         {
             _captchaRequired = captchaRequired;

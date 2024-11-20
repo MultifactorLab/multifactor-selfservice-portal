@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier
         }
         public async Task<CaptchaVerificationResult> VerifyCaptchaAsync(HttpRequest request)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));     
+            ArgumentNullException.ThrowIfNull(request);
             try
             {
                 var token = request.Form[Constants.CAPTCHA_TOKEN].FirstOrDefault();

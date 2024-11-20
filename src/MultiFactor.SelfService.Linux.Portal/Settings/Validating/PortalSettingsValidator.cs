@@ -78,7 +78,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     .Must((model, value) => model.CaptchaSettings.Enabled && model.PasswordManagement.AllowPasswordRecovery || 
                         !model.PasswordManagement.AllowPasswordRecovery)
                     .WithMessage("Captcha must be enabled for PasswordRecovery page to enable Password Recovery." +
-                                 $"Please, either enabe the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement.AllowPasswordRecovery)}')");
+                                 $"Please, either enable the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement.AllowPasswordRecovery)}')");
                 
                 RuleFor(portal => portal).Must((model, value) => {
                     if (!model.PasswordManagement.Enabled) return true;

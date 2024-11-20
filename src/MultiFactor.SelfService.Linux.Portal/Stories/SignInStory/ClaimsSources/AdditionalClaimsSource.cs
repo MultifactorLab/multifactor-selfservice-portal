@@ -50,7 +50,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
                     Log($"Claim {{Type: '{descriptor.Name}', Value: '{value}'}} was added");
                 }           
             }
-
+            
             return claims;
         }
 

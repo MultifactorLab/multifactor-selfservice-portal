@@ -7,8 +7,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication
     {
         public static TokenValidationParameters GetParameters(IConfiguration config)
         {
-            if (config is null) throw new ArgumentNullException(nameof(config));
-            
+            ArgumentNullException.ThrowIfNull(config);
+
             return new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

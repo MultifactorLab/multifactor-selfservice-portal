@@ -17,8 +17,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         private readonly DataProtection _dataProtection;
         private readonly UserPasswordChanger _passwordChanger;
         private readonly ApplicationCache _applicationCache;
-        public ChangeExpiredPasswordStory(PortalSettings settings, 
-            SafeHttpContextAccessor contextAccessor, 
+
+        public ChangeExpiredPasswordStory(PortalSettings settings,
+            SafeHttpContextAccessor contextAccessor,
             DataProtection dataProtection,
             UserPasswordChanger passwordChanger,
             ApplicationCache applicationCache)
@@ -27,23 +28,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
             _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));
-            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(passwordChanger));
+            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
         }
 
         public async Task<IActionResult> ExecuteAsync(ChangeExpiredPasswordViewModel model)
         {
-            if (model is null) throw new ArgumentNullException(nameof(model));
+            ArgumentNullException.ThrowIfNull(model);
 
             if (!_settings.PasswordManagement.Enabled)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
-            var rawUserName = _contextAccessor.HttpContext.User.Claims.SingleOrDefault(
-                claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
+
+            var rawUserName = _contextAccessor.HttpContext.User.Claims
+                .SingleOrDefault(claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
             if (rawUserName is null)
             {
                 return new RedirectToActionResult("Login", "Account", new { });
             }
+
             var userName = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(rawUserName));
             var encryptedPwd = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(rawUserName));
 
@@ -64,6 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
             {
                 throw new ModelStateErrorException(pwdChangeResult.ErrorReason);
             }
+
             _applicationCache.Remove(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(rawUserName));
             _applicationCache.Remove(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(rawUserName));
 

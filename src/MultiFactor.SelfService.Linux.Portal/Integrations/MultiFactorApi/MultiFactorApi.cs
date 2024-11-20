@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         public MultiFactorApi(MultifactorHttpClientAdapterFactory clientFactory, HttpClientTokenProvider tokenProvider, PortalSettings settings)
         {
-            if (clientFactory is null) throw new ArgumentNullException(nameof(clientFactory));
+            ArgumentNullException.ThrowIfNull(clientFactory);
             _clientAdapter = clientFactory.CreateClientAdapter();
 
             _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
@@ -47,8 +47,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <exception cref="UnsuccessfulResponseException"></exception>
         public Task RemoveAuthenticatorAsync(string authenticator, string id)
         {
-            if (authenticator is null)  throw new ArgumentNullException(nameof(authenticator));
-            if (id is null) throw new ArgumentNullException(nameof(id));
+            ArgumentNullException.ThrowIfNull(authenticator);
+            ArgumentNullException.ThrowIfNull(id);
 
             return ExecuteAsync(() => _clientAdapter.DeleteAsync<ApiResponse>($"self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
         }
@@ -91,8 +91,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
             string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
-            if (username is null) throw new ArgumentNullException(nameof(username));
-            if (claims is null) throw new ArgumentNullException(nameof(claims));        
+            ArgumentNullException.ThrowIfNull(username);
+            ArgumentNullException.ThrowIfNull(claims);
 
             var payload = new
             {
@@ -133,8 +133,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <exception cref="UnsuccessfulResponseException"></exception>
         public Task AddTotpAuthenticatorAsync(string key, string otp)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
-            if (otp is null) throw new ArgumentNullException(nameof(otp));
+            ArgumentNullException.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(otp);
 
             var payload = new { key, otp };
 
@@ -143,8 +143,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         public Task<ResetPasswordDto> StartResetPassword(string identity, string callbackUrl)
         {
-            if (identity is null) throw new ArgumentNullException(nameof(identity));
-            if (callbackUrl is null) throw new ArgumentNullException(nameof(callbackUrl));
+            ArgumentNullException.ThrowIfNull(identity);
+            ArgumentNullException.ThrowIfNull(callbackUrl);
 
             // add netbios domain name to login if specified
 
