@@ -305,6 +305,53 @@ less /var/log/syslog
 sudo journalctl -fu ssp.service
 ```
 
+Журналирование может вестись в формате json:
+
+```
+<LoggingFormat>format</LoggingFormat>
+```
+
+Для этого формата можно выбрать один из следующих предустановленных форматтеров. Далее приведены возможные значения параметра ```format``` (регистр не важен):
+
+* ```Json``` или ```JsonUtc```. Компактное представление логов, время в UTC.
+
+   ```json
+   {"@t":"2016-06-07T03:44:57.8532799Z","@m":"Hello, \"nblumhardt\"","@i":"7a8b9c0d","User":"nblumhardt"}
+   ```
+
+* ```JsonTz```. Компактное представление логов, отличается от ```JsonUtc``` форматом времени. В данном форматтере указано локальное время с часовым поясом.
+
+   ```Json
+   {"@t":"2023-11-23 17:16:29.919 +03:00","@m":"Hello, \"nblumhardt\"","@i":"7a8b9c0d","User":"nblumhardt"}
+   ```
+
+* ```Ecs```. Форматирует логи в соответствии с Elastic Common Schema.
+
+   ```json
+   {
+     "@timestamp": "2019-11-22T14:59:02.5903135+11:00",
+     "log.level": "Information",
+     "message": "Log message",
+     "ecs": {
+       "version": "1.4.0"
+     },
+     "event": {
+       "severity": 0,
+       "timezone": "AUS Eastern Standard Time",
+       "created": "2019-11-22T14:59:02.5903135+11:00"
+     },
+     "log": {
+       "logger": "Elastic.CommonSchema.Serilog"
+     },
+     "process": {
+       "thread": {
+         "id": 1
+       },
+       "executable": "System.Threading.ExecutionContext"
+     }
+   }
+   ```
+  
 ## Доступ к порталу
 
 Портал доступен по адресу `https://ssp.domain.org`.

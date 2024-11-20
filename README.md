@@ -303,6 +303,53 @@ To view the ssp.service logs use this command:
 sudo journalctl -fu ssp.service
 ```
 
+Logging can be provided in json:
+
+```
+<LoggingFormat>format</LoggingFormat>
+```
+
+It's possible to choose ```format``` from predefined formats. Here are possible values of the ```format``` parametr (register is not case-sensitive).
+
+* ```Json``` or ```JsonUtc```. Compact logging, times in UTC.
+
+   ```json
+   {"@t":"2016-06-07T03:44:57.8532799Z","@m":"Hello, \"nblumhardt\"","@i":"7a8b9c0d","User":"nblumhardt"}
+   ```
+
+* ```JsonTz```. Compact logging, differs from ```JsonUtc``` by the time format. In this kind of format the local time with time zone is indicated.
+
+  ```Json
+   {"@t":"2023-11-23 17:16:29.919 +03:00","@m":"Hello, \"nblumhardt\"","@i":"7a8b9c0d","User":"nblumhardt"}
+   ```
+
+* ```Ecs```. Ecs formats logs according to elastic common schema.
+
+   ```json
+   {
+     "@timestamp": "2019-11-22T14:59:02.5903135+11:00",
+     "log.level": "Information",
+     "message": "Log message",
+     "ecs": {
+       "version": "1.4.0"
+     },
+     "event": {
+       "severity": 0,
+       "timezone": "AUS Eastern Standard Time",
+       "created": "2019-11-22T14:59:02.5903135+11:00"
+     },
+     "log": {
+       "logger": "Elastic.CommonSchema.Serilog"
+     },
+     "process": {
+       "thread": {
+         "id": 1
+       },
+       "executable": "System.Threading.ExecutionContext"
+     }
+   }
+   ```
+
 ## Access Portal
 
 The portal can be accessed at `https://yourdomain.com/mfa`
