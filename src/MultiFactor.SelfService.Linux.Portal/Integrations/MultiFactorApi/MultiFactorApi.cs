@@ -37,20 +37,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
         }
-
+        
         /// <summary>
-        /// Removes specified authenticator from user profile.
+        /// Sends a request to create an enrollment request for the self-service portal.
         /// </summary>
-        /// <param name="authenticator">Name</param>
-        /// <param name="id">Id</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task RemoveAuthenticatorAsync(string authenticator, string id)
+        /// <returns>
+        /// A task that represents the asynchronous operation, containing an <see cref="ApiResponse{EnrollmentPageDto}"/> object.
+        /// </returns>
+        public Task<ApiResponse<EnrollmentPageDto>> CreateEnrollmentRequest()
         {
-            ArgumentNullException.ThrowIfNull(authenticator);
-            ArgumentNullException.ThrowIfNull(id);
-
-            return ExecuteAsync(() => _clientAdapter.DeleteAsync<ApiResponse>($"self-service/{authenticator}/{id}", GetBearerAuthHeaders()));
+             return _clientAdapter.PostAsync<ApiResponse<EnrollmentPageDto>>(
+                 $"/self-service/create-enrollment-request?dcCode={_settings.CompanySettings.Domain}",
+                 data: null,
+                 GetBearerAuthHeaders());
         }
 
         /// <summary>
@@ -116,29 +115,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
-        }
-
-        /// <summary>
-        /// Returns new Time-based One Time Password.
-        /// </summary>
-        /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task<TotpKeyDto> CreateTotpKey() => ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<TotpKeyDto>>("self-service/totp/new", GetBearerAuthHeaders()));
-
-        /// <summary>
-        /// Adds new Time-based One Time Password authenticator to the user profile.
-        /// </summary>
-        /// <param name="key">Totp identifier</param>
-        /// <param name="otp">Password</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task AddTotpAuthenticatorAsync(string key, string otp)
-        {
-            ArgumentNullException.ThrowIfNull(key);
-            ArgumentNullException.ThrowIfNull(otp);
-
-            var payload = new { key, otp };
-
-            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse>("self-service/totp", payload, GetBearerAuthHeaders()));
         }
 
         public Task<ResetPasswordDto> StartResetPassword(string identity, string callbackUrl)
