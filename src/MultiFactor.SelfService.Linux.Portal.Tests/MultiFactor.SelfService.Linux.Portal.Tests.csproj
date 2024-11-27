@@ -26,5 +26,58 @@
   <ItemGroup>
     <ProjectReference Include="..\MultiFactor.SelfService.Linux.Portal\MultiFactor.SelfService.Linux.Portal.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="Assets\Settings\minimal-settings.xml" />
+    <None Remove="Assets\Settings\full-company-settings.xml" />
+    <None Remove="Assets\Settings\nested-groups-base-dn.xml" />
+    <None Remove="Assets\Settings\no-ldap-bind-timeout.xml" />
+    <None Remove="Assets\Settings\no-load-active-directory-nested-groups.xml" />
+    <None Remove="Assets\Settings\full-active-directory-settings.xml" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Assets\Settings\minimal-settings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Assets\Settings\full-company-settings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Assets\Settings\nested-groups-base-dn.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Assets\Settings\no-ldap-bind-timeout.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Assets\Settings\no-load-active-directory-nested-groups.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Assets\Settings\full-active-directory-settings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Assets\Settings\no-active-directory-groups.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="LdapForNet">
+      <HintPath>..\MultiFactor.SelfService.Linux.Portal\libs\LdapForNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>

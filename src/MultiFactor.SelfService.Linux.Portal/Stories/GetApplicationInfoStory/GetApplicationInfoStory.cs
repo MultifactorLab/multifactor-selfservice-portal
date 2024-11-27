@@ -21,20 +21,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         private readonly IConfiguration _config;
         private readonly ILogger<GetApplicationInfoStory> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
+        private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
 
         public GetApplicationInfoStory(MultiFactorApi api, 
             IWebHostEnvironment env,
             PortalSettings settings, 
             IConfiguration config, 
             ILogger<GetApplicationInfoStory> logger,
-            IBindIdentityFormatter bindDnFormatter)
+            IBindIdentityFormatter bindDnFormatter,
+            ILdapConnectionAdapter ldapConnectionAdapter)
         {
-            _api = api ?? throw new ArgumentNullException(nameof(api));
-            _env = env ?? throw new ArgumentNullException(nameof(env));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
+            _api = api;
+            _env = env;
+            _settings = settings;
+            _config = config;
+            _logger = logger;
+            _bindDnFormatter = bindDnFormatter;
+            _ldapConnectionAdapter = ldapConnectionAdapter;
         }
 
         public async Task<ApplicationInfoDto> ExecuteAsync()
@@ -86,7 +89,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             try
             {
                 var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
-                using var conn = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, 
+                using var conn = await _ldapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, 
                     _settings.TechnicalAccountSettings.Password!,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
                 return ApplicationComponentStatus.Ok;
