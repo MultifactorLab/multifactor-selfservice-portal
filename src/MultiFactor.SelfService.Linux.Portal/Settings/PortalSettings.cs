@@ -17,9 +17,16 @@
         public string LoggingFormat { get; private set; }
         public string UICulture { get; private set; } = string.Empty;
         public string LdapBaseDn { get; private set; } = string.Empty;
-        public bool LoadActiveDirectoryNestedGroups { get; private set; } = false;
         public bool PreAuthenticationMethod { get; private set; }
+
+        public PortalSettings(){}
         
+        public PortalSettings(CompanySettings companySettings, ActiveDirectorySettings activeDirectorySettings)
+        {
+            CompanySettings = companySettings;
+            ActiveDirectorySettings = activeDirectorySettings;
+        }
+
         /// <summary>
         /// The legitimate user's bind may fail (e.g. expired password).
         /// However, sometimes we STILL need to get some information from the LDAP-directory.
@@ -28,7 +35,11 @@
         /// <returns></returns>
         public bool NeedPrebindInfo()
         {
-            return ActiveDirectorySettings.UseUpnAsIdentity || ActiveDirectorySettings.SecondFactorGroups.Length != 0 || PasswordManagement.Enabled;
+            return
+                ActiveDirectorySettings.UseUpnAsIdentity
+                || ActiveDirectorySettings.SecondFactorGroups.Length != 0
+                || ActiveDirectorySettings.SplittedActiveDirectoryGroups.Length != 0
+                || PasswordManagement.Enabled;
         }
 
         [Obsolete("Use ExchangeActiveSyncDevicesManagement.Enable instead")]

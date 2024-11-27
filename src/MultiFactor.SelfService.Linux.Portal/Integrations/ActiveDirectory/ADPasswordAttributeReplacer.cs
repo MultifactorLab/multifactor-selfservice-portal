@@ -9,7 +9,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory
 {
     public class ADPasswordAttributeReplacer : IPasswordAttributeReplacer
     {
-        public async Task<PasswordChangingResult> ExecuteReplaceCommandAsync(string dn, string newPassword, LdapConnectionAdapter connection)
+        public async Task<PasswordChangingResult> ExecuteReplaceCommandAsync(string dn, string newPassword, ILdapConnectionAdapter connection)
         {
             var newPasswordAttribute = new DirectoryModificationAttribute
             {

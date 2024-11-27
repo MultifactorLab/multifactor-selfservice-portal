@@ -4,6 +4,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap
 {
     public interface IPasswordAttributeChanger
     {
-        Task ExecuteChangeCommandAsync(string dn, string oldPassword, string newPassword, LdapConnectionAdapter connection);
+        Task ExecuteChangeCommandAsync(string dn, string oldPassword, string newPassword, ILdapConnectionAdapter connection);
     }
 }

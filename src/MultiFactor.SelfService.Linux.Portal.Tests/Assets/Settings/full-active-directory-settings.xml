@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+
+    <Environment></Environment>
+
+    <Logging>
+        <LogLevel>
+            <Default>Information</Default>
+            <Microsoft>Warning</Microsoft>
+        </LogLevel>
+    </Logging>
+    <AllowedHosts>*</AllowedHosts>
+
+    <PortalSettings>
+        <CompanySettings>
+            <Name>Name</Name>
+            <Domain>Domain</Domain>
+            <LogoUrl>logo.svg</LogoUrl>
+        </CompanySettings>
+
+        <!-- Technical Active Directory account -->
+        <TechnicalAccountSettings>
+            <User>user</User>
+            <Password>password</Password>
+        </TechnicalAccountSettings>
+
+        <ActiveDirectorySettings requiresUserPrincipalName="true" useUpnAsIdentity="true">
+            <SecondFactorGroup>SecondFactorGroup1;SecondFactorGroup2</SecondFactorGroup>
+            <ActiveDirectoryGroup>ActiveDirectoryGroup1;ActiveDirectoryGroup2</ActiveDirectoryGroup>
+            <UseUserPhone>true</UseUserPhone>
+            <UseMobileUserPhone>true</UseMobileUserPhone>
+            <NetBiosName>NetBiosName</NetBiosName>
+        </ActiveDirectorySettings>
+
+        <MultiFactorApiSettings>
+            <ApiUrl>ApiUrl</ApiUrl>
+            <ApiKey>ApiKey</ApiKey>
+            <ApiSecret>Secret</ApiSecret>
+        </MultiFactorApiSettings>
+
+        <CaptchaSettings enabled="true">
+            <CaptchaType>Yandex</CaptchaType>
+            <Key>key</Key>
+            <Secret>secret</Secret>
+            <CaptchaRequired>Always</CaptchaRequired>
+        </CaptchaSettings>
+
+        <PasswordManagement enabled="false" allowPasswordRecovery="false">
+        </PasswordManagement>
+
+        <ExchangeActiveSyncDevicesManagement enabled="false" />
+    </PortalSettings>
+</configuration>

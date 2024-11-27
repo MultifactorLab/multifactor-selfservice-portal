@@ -6,7 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
     public static class LdapExtensions
     {
-        public static async Task<LdapProfile> GetLdapProfile(this LdapProfileLoader profileLoader, LdapConnectionAdapter connection, string username)
+        public static async Task<LdapProfile> GetLdapProfile(this LdapProfileLoader profileLoader, ILdapConnectionAdapter connection, string username)
         {
             var user = LdapIdentity.ParseUser(username);
             var domain = await connection.WhereAmIAsync();
