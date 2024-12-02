@@ -47,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         public Task<ApiResponse<EnrollmentPageDto>> CreateEnrollmentRequest()
         {
              return _clientAdapter.PostAsync<ApiResponse<EnrollmentPageDto>>(
-                 $"/self-service/create-enrollment-request?dcCode={_settings.CompanySettings.Domain}",
+                 "/self-service/create-enrollment-request",
                  data: null,
                  GetBearerAuthHeaders());
         }
