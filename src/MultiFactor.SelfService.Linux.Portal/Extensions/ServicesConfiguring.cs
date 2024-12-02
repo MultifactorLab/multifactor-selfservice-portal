@@ -15,16 +15,13 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
-using MultiFactor.SelfService.Linux.Portal.Stories.AddYandexAuthStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.CreateYandexAuthKeyStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.RemoveAuthenticator;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources;
@@ -92,9 +89,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<LoadProfileStory>()
                 .AddTransient<RecoverPasswordStory>()
                 .AddTransient<AuthenticateSessionStory>()
-                .AddTransient<RemoveAuthenticatorStory>()
-                .AddTransient<CreateYandexAuthKeyStory>()
-                .AddTransient<AddYandexAuthStory>()
                 .AddTransient<GetApplicationInfoStory>()
                 .AddTransient<CheckExpiredPasswordSessionStory>()
                 .AddTransient<ChangeExpiredPasswordStory>()

@@ -13,7 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
         /// <summary>
         /// Creates instance of attribute.
         /// </summary>
-        /// <param name="validateUserSession">true: validate cookies, JWT claims and that user is authenticated. false: validate that user is authenticated only.</param>
+        /// <param name="skipPasswordVerification">true: validate cookies, JWT claims and that user is authenticated. false: validate that user is authenticated only.</param>
         public IsAuthorizedAttribute(bool skipPasswordVerification = false)
         {
             _skipPasswordVerification = skipPasswordVerification;
