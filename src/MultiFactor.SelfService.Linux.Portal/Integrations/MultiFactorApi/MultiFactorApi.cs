@@ -63,14 +63,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             {
                 Name = response.Name,
                 Email = response.Email,
-
-                TotpAuthenticators = response.TotpAuthenticators,
-                TelegramAuthenticators = response.TelegramAuthenticators,
-                MobileAppAuthenticators = response.MobileAppAuthenticators,
-                PhoneAuthenticators = response.PhoneAuthenticators,
-
-                Policy = response.Policy,
-
                 EnablePasswordManagement = _settings.PasswordManagement.Enabled,
                 EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled
             };
