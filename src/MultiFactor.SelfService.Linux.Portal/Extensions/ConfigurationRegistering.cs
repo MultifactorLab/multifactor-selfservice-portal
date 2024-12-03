@@ -1,4 +1,5 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Settings.PrivacyMode;
 using Serilog;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
@@ -16,6 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 var settings = GetSettings(applicationBuilder.Configuration) ??
                                throw new Exception("Can't find PortalSettings section in appsettings");
                 MapObsoleteSections(settings);
+                MapMultifactorApiSetting(settings);
                 Validate(settings);
 
                 applicationBuilder.Services.AddSingleton(settings);
@@ -79,6 +81,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     settings.ActiveDirectorySettings.NetBiosName,
                     settings.RequiresUserPrincipalName);
             }
+        }
+
+        private static void MapMultifactorApiSetting(PortalSettings settings)
+        {
+            var multifactorApiSetting = settings.MultiFactorApiSettings;
+            multifactorApiSetting.PrivacyModeDescriptor = PrivacyModeDescriptor.Create(multifactorApiSetting.PrivacyMode);
         }
 
         private static PortalSettings GetSettings(IConfigurationRoot config)
