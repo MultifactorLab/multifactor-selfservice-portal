@@ -109,11 +109,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
             var username = GetIdentity(verificationResult);
-
-            var accessPage = await _api.CreateAccessRequestAsync(username,
+            
+            var personalData = new PersonalData(
                 verificationResult.DisplayName,
                 verificationResult.Email,
                 verificationResult.Phone,
+                _settings.MultiFactorApiSettings.PrivacyModeDescriptor);
+            
+            var accessPage = await _api.CreateAccessRequestAsync(username,
+                personalData.Name,
+                personalData.Email,
+                personalData.Phone,
                 postbackUrl,
                 claims);
 
