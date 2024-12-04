@@ -79,7 +79,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     settings.ActiveDirectorySettings.UseUserPhone,
                     settings.ActiveDirectorySettings.UseMobileUserPhone,
                     settings.ActiveDirectorySettings.NetBiosName,
-                    settings.RequiresUserPrincipalName);
+                    settings.RequiresUserPrincipalName,
+                    settings.ActiveDirectorySettings.ActiveDirectoryGroup);
             }
         }
 

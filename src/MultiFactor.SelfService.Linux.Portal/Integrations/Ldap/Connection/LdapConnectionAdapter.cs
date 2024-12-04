@@ -1,13 +1,29 @@
 ﻿using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
-using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding.Abstractions;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using static LdapForNet.Native.Native;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 {
-    public class LdapConnectionAdapter : IDisposable
+    public interface ILdapConnectionAdapter: IDisposable
+    {
+        LdapIdentity BindedUser { get; }
+        Task<LdapDomain> WhereAmIAsync();
+        Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes);
+        Task<DirectoryResponse> SendRequestAsync(DirectoryRequest request);
+        Task<LdapServerInfo> GetServerInfoAsync();
+        Task<ILdapConnectionAdapter> CreateAsync(
+            string uri,
+            LdapIdentity user,
+            string password,
+            Action<LdapConnectionAdapterConfigBuilder> configure = null);
+
+        ILdapConnectionAdapter CreateAnonymous(
+            string uri,
+            Action<LdapConnectionAdapterConfigBuilder> configure = null);
+    }
+
+    public class LdapConnectionAdapter : ILdapConnectionAdapter
     {
         private readonly LdapConnection _connection;
         private string Uri { get; }
@@ -18,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         /// <summary>
         /// Returns user that has been successfully binded with LDAP directory.
         /// </summary>
-        public LdapIdentity BindedUser { get; }
+        public LdapIdentity BindedUser { get; private set; }
 
         private static readonly string[] Attributes =
         [
@@ -39,6 +55,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             Uri = uri;
             BindedUser = user;
             _config = config;
+        }
+
+        public LdapConnectionAdapter()
+        {
         }
 
         public async Task<LdapDomain> WhereAmIAsync()
@@ -63,8 +83,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return LdapDomain.Parse(defaultNamingContext);
         }
 
-        public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope,
-            params string[] attributes)
+        public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
         {
             if (_config.Logger == null)
             {
@@ -88,7 +107,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return _connection.SendRequestAsync(request);
         }
 
-        public static async Task<LdapConnectionAdapter> CreateAsync(string uri, LdapIdentity user, string password,
+        public async Task<ILdapConnectionAdapter> CreateAsync(
+            string uri,
+            LdapIdentity user,
+            string password,
             Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             ArgumentNullException.ThrowIfNull(uri);
@@ -126,7 +148,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return instance;
         }
 
-        public static LdapConnectionAdapter CreateAnonymous(string uri,
+        public ILdapConnectionAdapter CreateAnonymous(
+            string uri,
             Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             ArgumentNullException.ThrowIfNull(uri);
@@ -150,7 +173,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             instance._connection.SetOption(LdapOption.LDAP_OPT_REFERRALS, IntPtr.Zero);
             // trust self-signed certificates on ldap server
             instance._connection.TrustAllCertificates();
-
             instance._connection.Bind(LdapAuthType.Anonymous, new LdapCredential());
 
             return instance;

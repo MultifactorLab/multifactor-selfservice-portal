@@ -48,6 +48,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSession()
                 .AddHttpContextAccessor()
                 .AddPasswordChangingSessionCache()
+                .AddSingleton<ILdapConnectionAdapter, LdapConnectionAdapter>()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
                 .AddSingleton<TokenClaimsAccessor>()
@@ -59,7 +60,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
-
                 .AddSingleton<LdapServerInfoFactory>()
                 .AddSingleton(services =>
                 {
@@ -78,7 +78,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<UserPasswordChanger>()
                 .AddSingleton<ForgottenPasswordChanger>()
 
-                .AddSingleton<LdapProfileFilterProvider>()
+                .AddSingleton<ILdapProfileFilterProvider, LdapProfileFilterProvider>()
                 .AddSingleton<LdapProfileLoader>()
                 
                 .AddTransient<HttpMessageInterceptor>()
