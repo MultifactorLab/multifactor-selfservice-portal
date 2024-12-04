@@ -10,7 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 {
     public class LdapProfileLoader
     {
-        private readonly LdapProfileFilterProvider _profileFilterProvider;
+        private readonly ILdapProfileFilterProvider _profileFilterProvider;
         private readonly ILogger<LdapProfileLoader> _logger;
         private readonly AdditionalClaimsMetadata _additionalClaimsMetadata;
         private readonly PortalSettings _portalSettings;
@@ -30,11 +30,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         };
 
         public LdapProfileLoader(
-            LdapProfileFilterProvider profileFilterProvider,
+            ILdapProfileFilterProvider profileFilterProvider,
             ILogger<LdapProfileLoader> logger,
             AdditionalClaimsMetadata additionalClaimsMetadata,
-            PortalSettings settings
-            )
+            PortalSettings settings)
         {
             _profileFilterProvider = profileFilterProvider ?? throw new ArgumentNullException(nameof(profileFilterProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,8 +41,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             _portalSettings = settings;
         }
 
-        public async Task<LdapProfile> LoadProfileAsync(LdapDomain domain, LdapIdentity user,
-            LdapConnectionAdapter connection)
+        public async Task<LdapProfile> LoadProfileAsync(LdapDomain domain, LdapIdentity user, ILdapConnectionAdapter connection)
         {
             var searchFilter = _profileFilterProvider.GetProfileSearchFilter(user);
 
@@ -69,8 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
             var builder = LdapProfile.Create(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
             var attributes = entry.DirectoryAttributes;
-
-
+            
             foreach (var attr in allAttrs.Where(x => !x.Equals(_memberOfAttr, StringComparison.OrdinalIgnoreCase)))
             {
                 if (attributes.TryGetValue(attr, out var attrValue))
@@ -79,30 +76,49 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 }
             }
 
-            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr) && !_portalSettings.LoadActiveDirectoryNestedGroups)
+            var userGroups = new List<string>();
+            if (attributes.TryGetValue(_memberOfAttr, out var memberOfAttr))
             {
                 var val = memberOfAttr.GetValues<string>().Select(LdapIdentity.DnToCn).ToArray();
-                builder.AddAttribute(_memberOfAttr, val);
+                userGroups.AddRange(val);
             }
             else
             {
-                _logger.LogDebug("LoadActiveDirectoryNestedGroups is true or memberof is empty. Loading groups...");
-                var allGroups = await GetAllUserGroups(domain, entry.Dn, connection);
-                var val = allGroups.Select(group => LdapIdentity.DnToCn(group.Dn)).ToArray();
-                builder.AddAttribute(_memberOfAttr, val);
+                _logger.LogWarning("The MemberOf attribute is empty.");
             }
+            
+            if(_portalSettings.CompanySettings.LoadActiveDirectoryNestedGroups)
+            {
+                _logger.LogDebug("The LoadActiveDirectoryNestedGroups setting is set to true. Loading nested groups...");
+                var allGroups = await GetAllUserGroups(domain, entry.Dn, connection, _portalSettings.CompanySettings.SplittedNestedGroupsDomain);
+                var val = allGroups.Select(group => LdapIdentity.DnToCn(group.Dn)).ToArray();
+                userGroups.AddRange(val);
 
+            }
+            builder.AddAttribute(_memberOfAttr, userGroups.Distinct(StringComparer.OrdinalIgnoreCase));
             _logger.LogDebug("User '{user:l}' profile loaded. DN: '{DN:l}'", user, entry.Dn);
 
             return builder.Build();
         }
 
-        private Task<IList<LdapEntry>> GetAllUserGroups(LdapDomain domain, string distinguishedName, LdapConnectionAdapter connection)
+        private async Task<IList<LdapEntry>> GetAllUserGroups(LdapDomain domain, string distinguishedName, ILdapConnectionAdapter connection, string[] nestedGroups = null)
         {
+            var allUserGroupsNames = new List<LdapEntry>();
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
-            var searchFilter = $"(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:={escaped})";
+            var searchFilter = $"(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:={escaped}))";
             _logger.LogDebug("GetAllUserGroups. {searchFilter}", searchFilter);
-            return connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, "DistinguishedName");
+            var baseDnsForSearch = nestedGroups?.Length > 0 ? nestedGroups : new[] { domain.Name };
+            foreach (var baseDn in baseDnsForSearch)
+            {
+                var searchResult = await connection.SearchQueryAsync(
+                    baseDn,
+                    searchFilter,
+                    LdapSearchScope.LDAP_SCOPE_SUB,
+                    "DistinguishedName");
+                
+                allUserGroupsNames.AddRange(searchResult.Select(x => x));
+            }
+            return allUserGroupsNames;
         }
 
         private string GetDistinguishedNameEscaped(string distinguishedName)
