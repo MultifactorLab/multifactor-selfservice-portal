@@ -100,7 +100,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         private Task<IList<LdapEntry>> GetAllUserGroups(LdapDomain domain, string distinguishedName, LdapConnectionAdapter connection)
         {
             var escaped = GetDistinguishedNameEscaped(distinguishedName);
-            var searchFilter = $"(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:={escaped})";
+            var searchFilter = $"(&(objectCategory=group)(member:1.2.840.113556.1.4.1941:={escaped}))";
             _logger.LogDebug("GetAllUserGroups. {searchFilter}", searchFilter);
             return connection.SearchQueryAsync(domain.Name, searchFilter, LdapSearchScope.LDAP_SCOPE_SUB, "DistinguishedName");
         }
