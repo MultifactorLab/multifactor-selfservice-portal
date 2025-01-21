@@ -4,7 +4,12 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 {
-    public class LdapProfileFilterProvider
+    public interface ILdapProfileFilterProvider
+    {
+        ILdapFilter GetProfileSearchFilter(LdapIdentity user);
+    }
+
+    public class LdapProfileFilterProvider :ILdapProfileFilterProvider
     {
         private readonly LdapServerInfo _serverInfo;
 

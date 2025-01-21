@@ -14,13 +14,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         private readonly PortalSettings _settings;
         private readonly ILogger<ExchangeActiveSyncDeviceStateChanger> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
-
-        public ExchangeActiveSyncDeviceStateChanger(PortalSettings settings, ILogger<ExchangeActiveSyncDeviceStateChanger> logger,
-            IBindIdentityFormatter bindDnFormatter)
+        private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        
+        public ExchangeActiveSyncDeviceStateChanger(
+            PortalSettings settings,
+            ILogger<ExchangeActiveSyncDeviceStateChanger> logger,
+            IBindIdentityFormatter bindDnFormatter,
+            ILdapConnectionAdapter ldapConnectionAdapter)
         {
             _settings = settings;
             _logger = logger;
-            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
+            _bindDnFormatter = bindDnFormatter;
+            _ldapConnectionAdapter = ldapConnectionAdapter;
         }
 
         public async Task ChangeStateAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state)
@@ -31,7 +36,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, techUser, 
+                using var connection = await _ldapConnectionAdapter.CreateAsync(
+                    _settings.CompanySettings.Domain,
+                    techUser, 
                     _settings.TechnicalAccountSettings.Password!, 
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
@@ -50,7 +57,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             }
         }
 
-        private static async Task UpdateDeviceAttributesAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state, LdapConnectionAdapter connection)
+        private static async Task UpdateDeviceAttributesAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state, ILdapConnectionAdapter connection)
         {
             var stateModificator = new DirectoryModificationAttribute
             {
@@ -69,7 +76,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             await connection.SendRequestAsync(new ModifyRequest(device.DeviceDistinguishedName, stateModificator, stateReasonModificator));
         }
 
-        private static async Task UpdateUserAttributesAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state, LdapConnectionAdapter connection)
+        private static async Task UpdateUserAttributesAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state, ILdapConnectionAdapter connection)
         {
             var allowedModificator = new DirectoryModificationAttribute
             {

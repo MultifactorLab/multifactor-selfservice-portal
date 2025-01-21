@@ -19,9 +19,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         private readonly LdapProfileLoader _profileLoader;
         private readonly SafeHttpContextAccessor _httpContextAccessor;
 
-        public CredentialVerifier(LdapConnectionAdapterFactory connectionFactory,
+        public CredentialVerifier(
+            LdapConnectionAdapterFactory connectionFactory,
             PortalSettings settings,
-            ILogger<CredentialVerifier> logger, LdapProfileLoader profileLoader,
+            ILogger<CredentialVerifier> logger,
+            LdapProfileLoader profileLoader,
             SafeHttpContextAccessor httpContextAccessor)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
@@ -46,7 +48,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 _logger.LogError("Empty password provided for user '{user:l}'", username);
                 return CredentialVerificationResult.FromUnknownError("Invalid credentials");
             }
-
+            
             try
             {
                 if (_settings.NeedPrebindInfo())
@@ -55,7 +57,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     return await VerifyMembership(username);
                 }
 
-                using var connection = await _connectionFactory.CreateAdapterAsync(username, password);
+                using var connection = await _connectionFactory.CreateAdapterAsync(
+                    username,
+                    password);
+                
                 if (connection.BindedUser == null)
                     throw new Exception("Binded user is not defined. Maybe anonymous connection?");
 
@@ -69,6 +74,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 }
 
                 _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
+
+                if (_settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups?.Length > 0)
+                {
+                    if (IsMemberOfActiveDirectorGroups(profile, out var accessGroup))
+                    {
+                        _logger.LogDebug(
+                            "User '{user:l}' is a member of the access group '{group:l}' in {domain:l}",
+                            user.Name,
+                            accessGroup.Trim(),
+                            profile.BaseDn.Name);
+                    }
+                    else
+                    {
+                        _logger.LogWarning(
+                            "User '{user:l}' is not a member of any access group ({accGroups:l}) in '{domain:l}'",
+                            user.Name,
+                            string.Join(", ", _settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups),
+                            profile.BaseDn.Name);
+                        return CredentialVerificationResult.CreateBuilder(false).Build();
+                    }
+                }
 
                 if (_settings.ActiveDirectorySettings.SecondFactorGroups.Length != 0)
                 {
@@ -179,7 +205,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             }
 
             _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
-
+            
+            if (_settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups?.Length > 0)
+            {
+                if (IsMemberOfActiveDirectorGroups(profile, out var accessGroup))
+                {
+                    _logger.LogDebug(
+                        "User '{user:l}' is a member of the access group '{group:l}' in {domain:l}",
+                        user.Name,
+                        accessGroup.Trim(),
+                        profile.BaseDn.Name);
+                }
+                else
+                {
+                    _logger.LogWarning(
+                        "User '{user:l}' is not a member of any access group ({accGroups:l}) in '{domain:l}'",
+                        user.Name,
+                        string.Join(", ", _settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups),
+                        profile.BaseDn.Name);
+                    return CredentialVerificationResult.CreateBuilder(false).Build();
+                }
+            }
+            
             if (_settings.ActiveDirectorySettings.SecondFactorGroups.Length != 0)
             {
                 var mfaGroup = _settings.ActiveDirectorySettings.SecondFactorGroups.FirstOrDefault(group => IsMemberOf(profile, group));
@@ -223,6 +270,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             return result;
         }
 
+        private bool IsMemberOfActiveDirectorGroups(LdapProfile profile, out string accessGroup)
+        {
+            accessGroup = _settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups.FirstOrDefault(x => IsMemberOf(profile, x));
+            
+            return !string.IsNullOrEmpty(accessGroup);
+        }
+        
         private bool IsMemberOf(LdapProfile profile, string group)
         {
             return profile.MemberOf.Any(g => g.Equals(group.ToLower(), StringComparison.CurrentCultureIgnoreCase));
