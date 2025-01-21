@@ -1,6 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.AdditionalClaimValueSources;
-using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description;
-using MultiFactor.SelfService.Linux.Portal.Core.Metadata.GlobalValues;
+﻿using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.Description;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims
