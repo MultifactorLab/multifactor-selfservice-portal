@@ -18,8 +18,10 @@
 
         /// <summary>
         /// Creates new filter and grouped it with the current filter using AND operator then returns new filter group.
-        /// <code>Representation examples:
+        /// <code>
+        /// Representation examples:
         /// (current) -> (&amp;(current)(new))
+        /// </code>
         /// </summary>
         /// <param name="attribute">Attribute name</param>
         /// <param name="value">Attribute value.</param>
