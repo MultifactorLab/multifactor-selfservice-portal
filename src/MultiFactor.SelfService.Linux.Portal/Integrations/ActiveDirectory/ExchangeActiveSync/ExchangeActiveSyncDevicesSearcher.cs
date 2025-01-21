@@ -17,19 +17,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         private readonly DeviceAccessStateNameLocalizer _stateNameLocalizer;
         private readonly ILogger<ExchangeActiveSyncDevicesSearcher> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
+        private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
         private readonly LdapProfileLoader _profileLoader;
 
         public ExchangeActiveSyncDevicesSearcher(PortalSettings settings, 
             DeviceAccessStateNameLocalizer stateNameLocalizer, 
             ILogger<ExchangeActiveSyncDevicesSearcher> logger,
             IBindIdentityFormatter bindDnFormatter,
+            ILdapConnectionAdapter ldapConnectionAdapter,
             LdapProfileLoader profileLoader)
         {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _stateNameLocalizer = stateNameLocalizer ?? throw new ArgumentNullException(nameof(stateNameLocalizer));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _settings = settings;
+            _stateNameLocalizer = stateNameLocalizer;
+            _logger = logger;
             _bindDnFormatter = bindDnFormatter;
-            _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
+            _profileLoader = profileLoader;
+            _ldapConnectionAdapter = ldapConnectionAdapter;
         }
 
         public async Task<IReadOnlyList<ExchangeActiveSyncDevice>> FindAllByUserAsync(string username)
@@ -41,7 +44,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(
+                using var connection = await _ldapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain, 
                     techUser, 
                     _settings.TechnicalAccountSettings.Password!,
@@ -92,7 +95,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
 
             try
             {
-                using var connection = await LdapConnectionAdapter.CreateAsync(
+                using var connection = await _ldapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain, 
                     techUser, 
                     _settings.TechnicalAccountSettings.Password!,

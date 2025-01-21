@@ -11,14 +11,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly PortalSettings _settings;
         private readonly ILogger<LdapConnectionAdapterFactory> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
-
-        public LdapConnectionAdapterFactory(PortalSettings settings, 
+        private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        
+        public LdapConnectionAdapterFactory(
+            PortalSettings settings, 
             ILogger<LdapConnectionAdapterFactory> logger, 
-            IBindIdentityFormatter bindDnFormatter)
+            IBindIdentityFormatter bindDnFormatter,
+            ILdapConnectionAdapter ldapConnectionAdapter)
         {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
+            _settings = settings;
+            _logger = logger;
+            _bindDnFormatter = bindDnFormatter;
+            _ldapConnectionAdapter = ldapConnectionAdapter;
         }
 
         /// <summary>
@@ -29,7 +33,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         /// <returns>Ldap connection adapter.</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="LdapUserNotFoundException"></exception>
-        public async Task<LdapConnectionAdapter> CreateAdapterAsync(string username, string password)
+        public async Task<ILdapConnectionAdapter> CreateAdapterAsync(string username, string password)
         {
             if (string.IsNullOrEmpty(username)) throw new ArgumentException($"'{nameof(username)}' cannot be null or empty.", nameof(username));
             if (string.IsNullOrEmpty(password)) throw new ArgumentException($"'{nameof(password)}' cannot be null or empty.", nameof(password));
@@ -37,15 +41,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var parsed = LdapIdentity.ParseUser(username);
             if (parsed.Type == IdentityType.UserPrincipalName)
             {
-                return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, parsed, password,
+                return await _ldapConnectionAdapter.CreateAsync(
+                    _settings.CompanySettings.Domain,
+                    parsed,
+                    password,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter));
             }
 
             var existedUser = await GetExistedUserAsync(username);
             if (existedUser == null) throw new LdapUserNotFoundException(username, _settings.CompanySettings.Domain);
 
-            return await LdapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, existedUser, password, config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
-               
+            return await _ldapConnectionAdapter.CreateAsync(
+                _settings.CompanySettings.Domain,
+                existedUser,
+                password,
+                config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
         }
 
         private async Task<LdapIdentity> GetExistedUserAsync(string username)
@@ -56,12 +66,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             return existedUser;
         } 
 
-        public async Task<LdapConnectionAdapter> CreateAdapterAsTechnicalAccAsync()
+        public async Task<ILdapConnectionAdapter> CreateAdapterAsTechnicalAccAsync()
         {
             try
             {
                 var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
-                return await LdapConnectionAdapter.CreateAsync(
+                return await _ldapConnectionAdapter.CreateAsync(
                     _settings.CompanySettings.Domain,
                     user,
                     _settings.TechnicalAccountSettings.Password!,
@@ -73,7 +83,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             }
         }
 
-        private static async Task<LdapIdentity> FindUserByUidAsync(string username, LdapDomain domain, LdapConnectionAdapter connection)
+        private static async Task<LdapIdentity> FindUserByUidAsync(string username, LdapDomain domain, ILdapConnectionAdapter connection)
         {
             var user = LdapIdentity.ParseUser(username);
             var filter = LdapFilter.Create("objectclass", "user").Or("objectclass", "person")

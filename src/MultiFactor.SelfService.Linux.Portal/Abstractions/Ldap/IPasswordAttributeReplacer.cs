@@ -6,6 +6,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap
 {
     public interface IPasswordAttributeReplacer
     {
-        Task<PasswordChangingResult> ExecuteReplaceCommandAsync(string dn, string newPassword, LdapConnectionAdapter connection);
+        Task<PasswordChangingResult> ExecuteReplaceCommandAsync(string dn, string newPassword, ILdapConnectionAdapter connection);
     }
 }

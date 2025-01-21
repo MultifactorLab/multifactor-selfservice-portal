@@ -8,8 +8,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA
 {
     public class IpaPasswordAttributeChanger : IPasswordAttributeChanger
     {
-        public async Task ExecuteChangeCommandAsync(string dn, string oldPassword, 
-            string newPassword, LdapConnectionAdapter connection)
+        public async Task ExecuteChangeCommandAsync(
+            string dn,
+            string oldPassword, 
+            string newPassword,
+            ILdapConnectionAdapter connection)
         {
             var oldPasswordAttribute = new DirectoryModificationAttribute
             {
