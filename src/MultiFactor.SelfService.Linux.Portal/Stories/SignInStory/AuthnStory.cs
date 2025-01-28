@@ -35,7 +35,8 @@ public class AuthnStory
         ApplicationCache applicationCache,
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
-        AuthenticateSessionStory authenticateSessionStory, IHttpClientFactory httpFactory)
+        AuthenticateSessionStory authenticateSessionStory,
+        IHttpClientFactory httpFactory)
     {
         _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
         _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -122,7 +123,7 @@ public class AuthnStory
                     "accessToken"
                 }
             };
-            HttpClient httpClient = _httpFactory.CreateClient();
+            HttpClient httpClient = _httpFactory.CreateClient(Constants.HttpClients.MultifactorIdpApi);
             var res = await httpClient.PostAsync(idpUrl, multipartContent);
             var jsonResponse = await res.Content.ReadAsStringAsync();
             
