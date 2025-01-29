@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
+﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
@@ -8,9 +9,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         private readonly JsonDataSerializer _jsonDataSerializer;
         private readonly ILogger<HttpClientAdapter> _logger;
 
-        public MultifactorHttpClientAdapterFactory(HttpClient client, JsonDataSerializer jsonDataSerializer, ILogger<HttpClientAdapter> logger)
+        public MultifactorHttpClientAdapterFactory(IHttpClientFactory httpClientFactory, JsonDataSerializer jsonDataSerializer, ILogger<HttpClientAdapter> logger)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _client = httpClientFactory.CreateClient(Constants.HttpClients.MultifactorApi);
             _jsonDataSerializer = jsonDataSerializer ?? throw new ArgumentNullException(nameof(jsonDataSerializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

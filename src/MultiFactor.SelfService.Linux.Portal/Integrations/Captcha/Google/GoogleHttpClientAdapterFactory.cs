@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
+﻿using MultiFactor.SelfService.Linux.Portal.Core;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google
 {
@@ -8,9 +9,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google
         private readonly JsonDataSerializer _jsonDataSerializer;
         private readonly ILogger<HttpClientAdapter> _logger;
 
-        public GoogleHttpClientAdapterFactory(HttpClient client, JsonDataSerializer jsonDataSerializer, ILogger<HttpClientAdapter> logger)
+        public GoogleHttpClientAdapterFactory(IHttpClientFactory httpClientFactory, JsonDataSerializer jsonDataSerializer, ILogger<HttpClientAdapter> logger)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _client = httpClientFactory.CreateClient(Constants.HttpClients.GoogleCaptcha);
             _jsonDataSerializer = jsonDataSerializer ?? throw new ArgumentNullException(nameof(jsonDataSerializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
