@@ -142,7 +142,7 @@
     <value>Устройства не найдены</value>
   </data>
   <data name="Ok" xml:space="preserve">
-    <value>Готово</value>
+    <value>Назад</value>
   </data>
   <data name="State" xml:space="preserve">
     <value>Статус</value>
