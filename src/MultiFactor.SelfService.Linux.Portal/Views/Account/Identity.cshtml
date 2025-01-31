@@ -6,22 +6,20 @@
 @model MultiFactor.SelfService.Linux.Portal.ViewModels.IdentityViewModel
 
 <div action="#" class="login">
-    <div class="form-bg">
-        <img src="~/images/login.svg" width="352" height="396" alt="Multifactor">
-    </div>
     <div class="form-column">
         <h2>@Localizer["Title"]</h2>
         @using (Html.BeginForm("Identity", "Account", new Dictionary<string, string>
                 {
                     [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty,
                     [Constants.MultiFactorClaims.OidcSessionId] = Context.Request.Query[Constants.MultiFactorClaims.OidcSessionId].FirstOrDefault() ?? string.Empty
-                }, FormMethod.Post))
+        }, FormMethod.Post, true, new { @class = "login-form" }))
         {
             <fieldset>
                 @Html.AntiForgeryToken()
                 <p>@Localizer["IdentityInvitation"]</p>
                 <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
                     <div class="input">
+                        <span>@Localizer["UserName"]</span>
                         @Html.TextBoxFor(m => m.UserName, new
                         {
                             placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
@@ -36,19 +34,18 @@
                         ViewBag.RenderCaptchaScripts = true;
                         @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaRequired.Always })
                     }
-                </div>
-
-                <div class="form-row">
-                    <input type="hidden" name="myUrl" id="myUrl"/>
-                    <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn" value="@Localizer["Submit"]" id="submit"/>
                     @if (Settings.PasswordManagement.AllowPasswordRecovery)
                     {
-                        <div class="p-8 align-row-right">
+                        <div class="bottom-field-link-r pb-4">
                             <a href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>
                         </div>
                     }
                 </div>
 
+                <div class="form-row">
+                    <input type="hidden" name="myUrl" id="myUrl"/>
+                    <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" id="submit" />
+                </div>
             </fieldset>
         }
     </div>

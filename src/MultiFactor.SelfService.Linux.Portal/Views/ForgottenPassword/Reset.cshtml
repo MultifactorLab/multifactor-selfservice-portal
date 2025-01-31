@@ -2,8 +2,9 @@
 @{
     ViewBag.Title = Localizer["Title"];
 }
-<div class="login change-pwd">
+<div class="login">
     <div class="form-column">
+        <h2>@Localizer["Title"]</h2>
         @using (Html.BeginForm("ConfirmReset", "ForgottenPassword", FormMethod.Post))
         {
             <fieldset>
@@ -28,7 +29,7 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <input type="submit" value="@Localizer["Submit"]" />
+                    <input type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" />
                 </div>
             </fieldset>
         }
