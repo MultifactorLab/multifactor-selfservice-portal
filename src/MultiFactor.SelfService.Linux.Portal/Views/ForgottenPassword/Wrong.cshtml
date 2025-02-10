@@ -2,8 +2,12 @@
 @{
     ViewBag.Title = @Localizer["Title"];
 }
-<div class="login change-pwd">
-    <hgroup>
-        <h2>@Html.Raw(Model)</h2>
-    </hgroup>
+
+<div class="login">
+    <div class="form-column">
+        <h2>@Localizer["Title"]</h2>
+        <hgroup>
+            <h2>@Html.Raw(Model)</h2>
+        </hgroup>
+    </div>
 </div>
