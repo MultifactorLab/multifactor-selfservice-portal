@@ -852,14 +852,14 @@ table.authenticators tr {
     }
 }
 
-@media screen and (max-width: 535px) {
+@media screen and (max-width: 540px) {
     .login {
-        padding: 0;
+        width: 100%;
+        display: block;
     }
 
     .login .form-column {
-        width: 400px !important;
-        max-width: 100%;
+        width: unset !important;
     }
 }
 
