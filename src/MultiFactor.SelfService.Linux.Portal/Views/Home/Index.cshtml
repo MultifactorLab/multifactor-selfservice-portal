@@ -1,26 +1,28 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
-@{ 
-    var indexer = 1;
-}
 
-<div class="block">
-    <div class="container">
-        <p>@Localizer["Greetings"] @(Model.Name ?? Model.Identity).</p>
-
-        <p>&nbsp;</p>
+<div class="login">
+    <div class="form-column">
+        <div class="success-mark"></div>
+        <div class="auth-details">
+            <h2>@Localizer["Title"]</h2>
+            <div class="auth-username">
+                <p>@Localizer["Welcome"]</p>
+                <p class="user-login">@(Model.Name ?? Model.Identity)</p>
+            </div>
+        </div>
         <ul class="action">
             <li>
-                @Html.ActionLink(Localizer["Configure2FA"].Value, "Index", "Configure2Fa", new { }, new { target = "_blank", @class = "btn" })
+                @Html.ActionLink(Localizer["Configure2FA"].Value, "Index", "Configure2Fa", new { }, new { target = "_blank", @class = "btn btn-secondary" })
             </li>
             @if (Model.EnablePasswordManagement)
             {
-                <li><a href="~/password/change" class="btn">@Localizer["ChangePassword"]</a></li>
+                <li><a href="~/password/change" class="btn btn-secondary">@Localizer["ChangePassword"]</a></li>
             }
             @if (Model.EnableExchangeActiveSyncDevicesManagement)
             {
-                <li><a href="~/ExchangeActiveSyncDevices" class="btn">@Localizer["ManageActiveSyncDevices"]</a></li>
+                <li><a href="~/ExchangeActiveSyncDevices" class="btn btn-secondary">@Localizer["ManageActiveSyncDevices"]</a></li>
             }
-            <li><a href="~/account/logout" class="btn">@Localizer["Exit"]</a></li>
+            <li><a href="~/account/logout" class="btn btn-secondary">@Localizer["Exit"]</a></li>
         </ul>
     </div>
 </div>
