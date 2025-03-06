@@ -95,10 +95,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ChangeValidPasswordStory>()
                 .AddTransient<SearchExchangeActiveSyncDevicesStory>()
                 .AddTransient<ChangeActiveSyncDeviceStateStory>();
-
+            
+            ConfigureHttpClients(builder);
+           
             ConfigureMultifactorApi(builder);
             ConfigureGoogleApi(builder);
             ConfigureYandexCaptchaApi(builder);
+
             ConfigureCaptchaVerifier(builder);
 
             builder.Services.AddHostedService<ApplicationChecker>();
@@ -121,36 +124,58 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             return builder;
         }
 
-        private static void ConfigureMultifactorApi(WebApplicationBuilder builder)
+        private static void ConfigureHttpClients(WebApplicationBuilder builder)
         {
-            builder.Services.AddTransient<MultiFactorApi>()
-                .AddTransient<MultifactorHttpClientAdapterFactory>()
-                .AddHttpClient<MultifactorHttpClientAdapterFactory>((services, client) =>
+            var handler = new HttpClientHandler();
+            var proxySetting = builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiSettings.ApiProxy);
+            if (!string.IsNullOrWhiteSpace(proxySetting))
+            {
+                handler.Proxy = BuildProxy(proxySetting);
+            }
+
+            builder.Services
+                .AddHttpClient(Constants.HttpClients.MultifactorApi, (services, client) =>
                 {
                     var settings = services.GetRequiredService<PortalSettings>();
                     client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl!);
-                }).ConfigurePrimaryHttpMessageHandler(() =>
+                    
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .AddHttpMessageHandler<HttpMessageInterceptor>();
+            
+            builder.Services
+                .AddHttpClient(Constants.HttpClients.GoogleCaptcha, client =>
                 {
-                    var handler = new HttpClientHandler();
+                    client.BaseAddress = new Uri("https://www.google.com/recaptcha/api/");
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .AddHttpMessageHandler<HttpMessageInterceptor>();
+            
+            builder.Services
+                .AddHttpClient(Constants.HttpClients.YandexCaptcha, client =>
+                {
+                    client.BaseAddress = new Uri("https://captcha-api.yandex.ru/");
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .AddHttpMessageHandler<HttpMessageInterceptor>();
+            
+            builder.Services
+                .AddHttpClient(Constants.HttpClients.MultifactorIdpApi)
+                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .AddHttpMessageHandler<HttpMessageInterceptor>();
+        }
+        
 
-                    var proxySetting = builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiSettings.ApiProxy);
-                    if (!string.IsNullOrEmpty(proxySetting))
-                    {
-                        handler.Proxy = BuildProxy(proxySetting);
-                    }
-
-                    return handler;
-                }).AddHttpMessageHandler<HttpMessageInterceptor>();
+        private static void ConfigureMultifactorApi(WebApplicationBuilder builder)
+        {
+            builder.Services.AddTransient<MultiFactorApi>()
+                .AddTransient<MultifactorHttpClientAdapterFactory>();
         }
 
         private static void ConfigureGoogleApi(WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<GoogleReCaptcha2Api>()
-                .AddTransient<GoogleHttpClientAdapterFactory>()
-                .AddHttpClient<GoogleHttpClientAdapterFactory>((services, client) =>
-                {
-                    client.BaseAddress = new Uri("https://www.google.com/recaptcha/api/");
-                }).AddHttpMessageHandler<HttpMessageInterceptor>();
+                .AddTransient<GoogleHttpClientAdapterFactory>();
         }
 
         private static void ConfigureCaptchaVerifier(WebApplicationBuilder builder)
@@ -173,18 +198,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         private static void ConfigureYandexCaptchaApi(WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<YandexCaptchaApi>()
-                .AddTransient<YandexHttpClientAdapterFactory>()
-                .AddHttpClient<YandexHttpClientAdapterFactory>((services, client) =>
-                {
-                    client.BaseAddress = new Uri("https://captcha-api.yandex.ru/");
-                }).AddHttpMessageHandler<HttpMessageInterceptor>();
+                .AddTransient<YandexHttpClientAdapterFactory>();
         }
 
         private static WebProxy BuildProxy(string proxyUri)
         {
             var uri = new Uri(proxyUri);
             var proxy = new WebProxy(uri);
-            if (!string.IsNullOrEmpty(uri.UserInfo))
+            if (!string.IsNullOrWhiteSpace(uri.UserInfo))
             {
                 var credentials = uri.UserInfo.Split(new[] { ':' }, 2);
                 proxy.Credentials = new NetworkCredential(credentials[0], credentials[1]);

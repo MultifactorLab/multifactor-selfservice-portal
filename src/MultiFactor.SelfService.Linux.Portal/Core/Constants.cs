@@ -34,5 +34,13 @@
             public const string ResetPassword = "resetPassword";
             public const string RawUserName = "rawUserName";
         }
+
+        public static class HttpClients
+        {
+            public const string YandexCaptcha = "yandexCaptcha";
+            public const string MultifactorApi = "mfApi";
+            public const string GoogleCaptcha = "googleCaptcha";
+            public const string MultifactorIdpApi = "mfIdp";
+        }
     }
 }
