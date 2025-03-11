@@ -65,9 +65,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 return null;
             }
 
-            var builder = LdapProfile.Create(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
+            var builder = LdapProfile.Create(LdapIdentity.BaseDn(entry.Dn), entry.Dn, _portalSettings.UseAttributeAsIdentity);
             var attributes = entry.DirectoryAttributes;
-            
+
             foreach (var attr in allAttrs.Where(x => !x.Equals(_memberOfAttr, StringComparison.OrdinalIgnoreCase)))
             {
                 if (attributes.TryGetValue(attr, out var attrValue))
@@ -86,7 +86,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             {
                 _logger.LogWarning("The MemberOf attribute is empty.");
             }
-            
+
             if(_portalSettings.CompanySettings.LoadActiveDirectoryNestedGroups)
             {
                 _logger.LogDebug("The LoadActiveDirectoryNestedGroups setting is set to true. Loading nested groups...");
@@ -115,7 +115,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                     searchFilter,
                     LdapSearchScope.LDAP_SCOPE_SUB,
                     "DistinguishedName");
-                
+
                 allUserGroupsNames.AddRange(searchResult.Select(x => x));
             }
             return allUserGroupsNames;

@@ -13,6 +13,7 @@
         public CaptchaSettings CaptchaSettings { get; set; } = new();
         public PasswordManagementSettings PasswordManagement { get; set; }
         public ExchangeActiveSyncDevicesManagement ExchangeActiveSyncDevicesManagement { get; set; }
+        public string UseAttributeAsIdentity { get; private set; } = string.Empty;
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }
         public string UICulture { get; private set; } = string.Empty;
@@ -20,7 +21,7 @@
         public bool PreAuthenticationMethod { get; private set; }
 
         public PortalSettings(){}
-        
+
         public PortalSettings(CompanySettings companySettings, ActiveDirectorySettings activeDirectorySettings)
         {
             CompanySettings = companySettings;
