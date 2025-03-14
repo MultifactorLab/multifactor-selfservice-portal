@@ -4,14 +4,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 {
     public class LdapProfile
     {
-        private string _secondFactorIdentityAttr;
-
         public LdapIdentity BaseDn { get; }
         public string DistinguishedName { get; }
 
         public string DisplayName => Attributes.GetValue("displayName");
-
-        public string SecondFactorIdentity => string.IsNullOrWhiteSpace(_secondFactorIdentityAttr) ? null : Attributes.GetValue(_secondFactorIdentityAttr);
 
         public string Email
         {
@@ -36,11 +32,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         private readonly LdapAttributesCache _attributes = new();
         public ILdapAttributesCache Attributes => _attributes;
 
-        private LdapProfile(LdapIdentity baseDn, string distinguishedName, string secondFactorIdentityAttr)
+        private LdapProfile(LdapIdentity baseDn, string distinguishedName)
         {
             BaseDn = baseDn ?? throw new ArgumentNullException(nameof(baseDn));
             DistinguishedName = distinguishedName ?? throw new ArgumentNullException(nameof(distinguishedName));
-            _secondFactorIdentityAttr = secondFactorIdentityAttr;
         }
 
         public bool UserMustChangePassword()
@@ -74,9 +69,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
         private string PasswordExpirationRawValue => Attributes.GetValue("msDS-UserPasswordExpiryTimeComputed");
 
-        public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName, string secondFactorIdentityAttr)
+        public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName)
         {
-            return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName, secondFactorIdentityAttr));
+            return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName));
         }
 
         public class LdapProfileBuilder

@@ -85,7 +85,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("Search for user '{user:l}' failed: {ex}", userName.Name, ex);
+                _logger.LogWarning("Search for user '{user:l}' failed: {ex}", userName.Name, ex.Message);
                 return await WrongAsync();
             }
 
@@ -181,11 +181,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
         private string GetIdentity(CredentialVerificationResult verificationResult, LdapProfile profile)
         {
-            if (_settings.ActiveDirectorySettings.UseUpnAsIdentity && !string.IsNullOrWhiteSpace(_settings.UseAttributeAsIdentity))
-            {
-                throw new InvalidConfigurationException("UseUpnAsIdentity and UseAttributeAsIdentity settings cannot be specified together.");
-            }
-
             if (!string.IsNullOrWhiteSpace(_settings.UseAttributeAsIdentity))
             {
                 return profile.Attributes.GetValue(_settings.UseAttributeAsIdentity.Trim());

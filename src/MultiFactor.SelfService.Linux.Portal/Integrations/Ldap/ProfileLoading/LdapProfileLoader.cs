@@ -65,7 +65,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 return null;
             }
 
-            var builder = LdapProfile.Create(LdapIdentity.BaseDn(entry.Dn), entry.Dn, _portalSettings.UseAttributeAsIdentity);
+            var builder = LdapProfile.Create(LdapIdentity.BaseDn(entry.Dn), entry.Dn);
             var attributes = entry.DirectoryAttributes;
 
             foreach (var attr in allAttrs.Where(x => !x.Equals(_memberOfAttr, StringComparison.OrdinalIgnoreCase)))

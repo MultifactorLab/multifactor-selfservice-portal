@@ -52,7 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                         x.RuleFor(r => r.CaptchaRequired).IsInEnum().WithMessage($"{GetPropPath(x => x.CaptchaSettings.CaptchaRequired)} contains wrong value.");
                     });
-                
+
                 RuleFor(x => x.GroupPolicyPreset).Must((model, value) =>
                 {
                     if (value == null || string.IsNullOrWhiteSpace(value.SignUpGroups)) return true;
@@ -73,13 +73,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                                                     value.Value < TimeSpan.FromDays(10))
                             .WithMessage($"Invalid password changing session lifetime. Please check '{GetPropPath(x => x.PasswordManagement.PasswordChangingSessionLifetime)} property.'");
                     });
-                
+
                 RuleFor(portal => portal)
-                    .Must((model, value) => model.CaptchaSettings.Enabled && model.PasswordManagement.AllowPasswordRecovery || 
+                    .Must((model, value) => model.CaptchaSettings.Enabled && model.PasswordManagement.AllowPasswordRecovery ||
                         !model.PasswordManagement.AllowPasswordRecovery)
                     .WithMessage("Captcha must be enabled for PasswordRecovery page to enable Password Recovery." +
                                  $"Please, either enable the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement.AllowPasswordRecovery)}')");
-                
+
+                RuleFor(portal => portal)
+                    .Must((model, value) => !model.ActiveDirectorySettings.UseUpnAsIdentity || string.IsNullOrWhiteSpace(model.UseAttributeAsIdentity))
+                    .WithMessage("UseUpnAsIdentity and UseAttributeAsIdentity settings cannot be specified together.");
+
                 RuleFor(portal => portal).Must((model, value) => {
                     if (!model.PasswordManagement.Enabled) return true;
                     if (string.IsNullOrWhiteSpace(model.CompanySettings?.Domain)) return false;
