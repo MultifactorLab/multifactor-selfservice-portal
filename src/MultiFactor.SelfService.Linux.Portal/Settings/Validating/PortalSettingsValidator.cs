@@ -81,7 +81,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                                  $"Please, either enable the captcha ('{GetPropPath(x => x.CaptchaSettings)}') or disable Password Recovery ('{GetPropPath(x => x.PasswordManagement.AllowPasswordRecovery)}')");
 
                 RuleFor(portal => portal)
-                    .Must((model, value) => !model.ActiveDirectorySettings.UseUpnAsIdentity || string.IsNullOrWhiteSpace(model.UseAttributeAsIdentity))
+                    .Must((model, value) => !model.ActiveDirectorySettings.UseUpnAsIdentity || string.IsNullOrWhiteSpace(model.ActiveDirectorySettings.UseAttributeAsIdentity))
                     .WithMessage("UseUpnAsIdentity and UseAttributeAsIdentity settings cannot be specified together.");
 
                 RuleFor(portal => portal).Must((model, value) => {

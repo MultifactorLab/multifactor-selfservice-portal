@@ -66,8 +66,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
         {
             var userName = LdapIdentity.ParseUser(model.UserName);
-            var techUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
-            LdapProfile profile;
 
             if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName)
             {
@@ -79,15 +77,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
             var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
             if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
-            try
-            {
-                profile = await LoadLdapProfile(techUser, userName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Search for user '{user:l}' failed: {ex}", userName.Name, ex.Message);
-                return await WrongAsync();
-            }
 
             var adValidationResult =
                 await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
@@ -103,7 +92,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                         new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
-                return await RedirectToMfa(adValidationResult, model.MyUrl, profile);
+                return await RedirectToMfa(adValidationResult, model.MyUrl, adValidationResult.OverriddenIdentity);
             }
 
             if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
@@ -121,31 +110,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
                     encryptedPassword);
 
-                return await RedirectToMfa(adValidationResult, model.MyUrl, profile);
+                return await RedirectToMfa(adValidationResult, model.MyUrl, adValidationResult.OverriddenIdentity);
             }
 
             return await WrongAsync();
 
-        }
-
-        private async Task<LdapProfile> LoadLdapProfile(LdapIdentity techUser, LdapIdentity user)
-        {
-            using var connection = await _ldapConnectionAdapter.CreateAsync(
-                _settings.CompanySettings.Domain,
-                techUser,
-                _settings.TechnicalAccountSettings.Password!,
-                config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
-
-            var domain = await connection.WhereAmIAsync();
-            var profile = await _profileLoader.LoadProfileAsync(domain, user, connection);
-            if (profile == null)
-            {
-                _logger.LogError("Unable to load profile for user '{user:l}'", user.Name);
-                throw new Exception($"Unable to load profile for user '{user.Name}'");
-            }
-
-            _logger.LogDebug("Searching Exchange ActiveSync devices for user '{user:l}' in {fqdn:l}", user.Name, profile.BaseDn.DnToFqdn());
-            return profile;
         }
 
         private async Task<IActionResult> WrongAsync()
@@ -157,11 +126,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl, LdapProfile profile)
+        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl, string overriddenIdentity)
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult, profile);
+            var username = GetIdentity(verificationResult, overriddenIdentity);
 
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
@@ -179,11 +148,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             return new RedirectResult(accessPage.Url, true);
         }
 
-        private string GetIdentity(CredentialVerificationResult verificationResult, LdapProfile profile)
+        private string GetIdentity(CredentialVerificationResult verificationResult, string overriddenIdentity)
         {
-            if (!string.IsNullOrWhiteSpace(_settings.UseAttributeAsIdentity))
+            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && !string.IsNullOrWhiteSpace(overriddenIdentity))
             {
-                return profile.Attributes.GetValue(_settings.UseAttributeAsIdentity.Trim());
+                return overriddenIdentity;
             }
 
             var identity = verificationResult.Username;

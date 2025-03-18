@@ -48,7 +48,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 _logger.LogError("Empty password provided for user '{user:l}'", username);
                 return CredentialVerificationResult.FromUnknownError("Invalid credentials");
             }
-            
+
             try
             {
                 if (_settings.NeedPrebindInfo())
@@ -60,7 +60,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 using var connection = await _connectionFactory.CreateAdapterAsync(
                     username,
                     password);
-                
+
                 if (connection.BindedUser == null)
                     throw new Exception("Binded user is not defined. Maybe anonymous connection?");
 
@@ -130,6 +130,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
                 {
                     resultBuilder.SetUserPrincipalName(profile.Upn);
+                }
+
+                var identityAttribute = _settings.ActiveDirectorySettings.UseAttributeAsIdentity;
+                if (!string.IsNullOrWhiteSpace(identityAttribute))
+                {
+                    resultBuilder.OverrideIdentity(profile.Attributes.GetValue(identityAttribute));
                 }
 
                 resultBuilder.SetUsername(username);
@@ -205,7 +211,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             }
 
             _httpContextAccessor.HttpContext.Items[Constants.LoadedLdapAttributes] = profile.Attributes;
-            
+
             if (_settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups?.Length > 0)
             {
                 if (IsMemberOfActiveDirectorGroups(profile, out var accessGroup))
@@ -226,7 +232,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     return CredentialVerificationResult.CreateBuilder(false).Build();
                 }
             }
-            
+
             if (_settings.ActiveDirectorySettings.SecondFactorGroups.Length != 0)
             {
                 var mfaGroup = _settings.ActiveDirectorySettings.SecondFactorGroups.FirstOrDefault(group => IsMemberOf(profile, group));
@@ -262,8 +268,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 resultBuilder.SetUserPrincipalName(profile.Upn);
             }
 
+            var identityAttribute = _settings.ActiveDirectorySettings.UseAttributeAsIdentity;
+            if (!string.IsNullOrWhiteSpace(identityAttribute))
+            {
+                resultBuilder.OverrideIdentity(profile.Attributes.GetValue(identityAttribute));
+            }
+
             resultBuilder.SetUsername(username);
-            
+
             var result = resultBuilder.Build();
             _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
 
@@ -273,10 +285,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         private bool IsMemberOfActiveDirectorGroups(LdapProfile profile, out string accessGroup)
         {
             accessGroup = _settings.ActiveDirectorySettings.SplittedActiveDirectoryGroups.FirstOrDefault(x => IsMemberOf(profile, x));
-            
+
             return !string.IsNullOrEmpty(accessGroup);
         }
-        
+
         private bool IsMemberOf(LdapProfile profile, string group)
         {
             return profile.MemberOf.Any(g => g.Equals(group.ToLower(), StringComparison.CurrentCultureIgnoreCase));

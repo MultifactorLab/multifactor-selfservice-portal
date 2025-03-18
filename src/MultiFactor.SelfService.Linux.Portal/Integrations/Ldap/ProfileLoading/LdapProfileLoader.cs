@@ -56,6 +56,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
                 allAttrs.Add("userPrincipalName");
             }
 
+            var identityAttribute = _portalSettings.ActiveDirectorySettings.UseAttributeAsIdentity;
+            if (!string.IsNullOrWhiteSpace(identityAttribute))
+            {
+                allAttrs.Add(identityAttribute);
+            }
+
             var response = await connection.SearchQueryAsync(domain.Name, searchFilter.Build(), LdapSearchScope.LDAP_SCOPE_SUB, allAttrs.ToArray());
 
             var entry = response.SingleOrDefault();
