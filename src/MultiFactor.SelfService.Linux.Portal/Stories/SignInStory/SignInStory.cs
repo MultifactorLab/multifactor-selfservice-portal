@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using Microsoft.IdentityModel.Protocols.Configuration;
-using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
@@ -9,9 +7,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -21,12 +17,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
     public class SignInStory
     {
         private readonly CredentialVerifier _credentialVerifier;
-        private readonly LdapProfileLoader _profileLoader;
         private readonly DataProtection _dataProtection;
         private readonly MultiFactorApi _api;
         private readonly SafeHttpContextAccessor _contextAccessor;
-        private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
-        private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
         private readonly ILogger<SignInStory> _logger;
@@ -43,10 +36,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             IStringLocalizer<SharedResource> localizer,
             ILogger<SignInStory> logger,
             ClaimsProvider claimsProvider,
-            PortalSettings portalSettings,
-            LdapProfileLoader profileLoader,
-            ILdapConnectionAdapter ldapConnectionAdapter,
-            IBindIdentityFormatter bindDnFormatter)
+            PortalSettings portalSettings)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -58,9 +48,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
             _portalSettings = portalSettings;
-            _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
-            _ldapConnectionAdapter = ldapConnectionAdapter ?? throw new ArgumentNullException(nameof(ldapConnectionAdapter));
-            _bindDnFormatter = bindDnFormatter ?? throw new ArgumentNullException(nameof(bindDnFormatter));
         }
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
