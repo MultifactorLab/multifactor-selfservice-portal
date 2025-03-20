@@ -61,7 +61,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             var identity = model.UserName;
             var sso = _contextAccessor.SafeGetSsoClaims();
             // in common case
-            if (!_settings.NeedPrebindInfo() && string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity))
+            if (!_settings.NeedPrebindInfo())
             {
                 var credResult = CredentialVerificationResult.BeforeAuthn(model.UserName);
                 _contextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = credResult;
