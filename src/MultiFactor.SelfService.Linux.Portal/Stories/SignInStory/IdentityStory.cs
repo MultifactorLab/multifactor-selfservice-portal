@@ -65,7 +65,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             {
                 var credResult = CredentialVerificationResult.BeforeAuthn(model.UserName);
                 _contextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = credResult;
-                return await RedirectToMfa(credResult, model.MyUrl, credResult.OverriddenIdentity);
+                return await RedirectToMfa(credResult, model.MyUrl);
             }
 
             var adResult = await _credentialVerifier.VerifyMembership(model.UserName.Trim());
@@ -98,7 +98,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 //return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
             }
 
-            return await RedirectToMfa(adResult, model.MyUrl, adResult.OverriddenIdentity);
+            return await RedirectToMfa(adResult, model.MyUrl);
         }
 
         private async Task<IActionResult> WrongAsync()
@@ -110,11 +110,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl, string overriddenIdentity)
+        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl)
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult.Username, verificationResult.UserPrincipalName, overriddenIdentity);
+            var username = GetIdentity(verificationResult.Username, verificationResult.UserPrincipalName, verificationResult.OverriddenIdentity);
 
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
@@ -134,7 +134,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
         private string GetIdentity(string username, string upn, string overriddenIdentity)
         {
-            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && !string.IsNullOrWhiteSpace(overriddenIdentity))
+            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && string.IsNullOrWhiteSpace(overriddenIdentity))
+            {
+                throw new InvalidOperationException($"Failed to get overridden identity attribute '{_settings.ActiveDirectorySettings.UseAttributeAsIdentity}' for {username}.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity))
             {
                 return overriddenIdentity;
             }

@@ -79,7 +79,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                         new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
-                return await RedirectToMfa(adValidationResult, model.MyUrl, adValidationResult.OverriddenIdentity);
+                return await RedirectToMfa(adValidationResult, model.MyUrl);
             }
 
             if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
@@ -97,7 +97,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
                     encryptedPassword);
 
-                return await RedirectToMfa(adValidationResult, model.MyUrl, adValidationResult.OverriddenIdentity);
+                return await RedirectToMfa(adValidationResult, model.MyUrl);
             }
 
             return await WrongAsync();
@@ -113,11 +113,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl, string overriddenIdentity)
+        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl)
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult, overriddenIdentity);
+            var username = GetIdentity(verificationResult, verificationResult.OverriddenIdentity);
 
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
@@ -137,6 +137,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
 
         private string GetIdentity(CredentialVerificationResult verificationResult, string overriddenIdentity)
         {
+            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && string.IsNullOrWhiteSpace(overriddenIdentity))
+            {
+                throw new InvalidOperationException($"Failed to get overridden identity attribute '{_settings.ActiveDirectorySettings.UseAttributeAsIdentity}' for {verificationResult.Username}.");
+            }
+
             if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && !string.IsNullOrWhiteSpace(overriddenIdentity))
             {
                 return overriddenIdentity;
