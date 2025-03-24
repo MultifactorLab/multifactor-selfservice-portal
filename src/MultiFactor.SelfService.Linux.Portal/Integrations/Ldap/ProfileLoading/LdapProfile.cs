@@ -23,7 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             }
         }
 
-        
+
         public string Phone => Attributes.GetValue("telephoneNumber");
         public string Mobile => Attributes.GetValue("mobile");
         public string Upn => Attributes.GetValue("userPrincipalName");
@@ -44,10 +44,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             var userMustChangePasswordHasValue = int.TryParse(Attributes.GetValue("pwdLastSet"), out var pwdLastSet);
             if (userMustChangePasswordHasValue && pwdLastSet == 0)
                 return true;
-            
+
             return PasswordExpirationDate() < DateTime.Now;
         }
-        
+
         public DateTime PasswordExpirationDate()
         {
             if (PasswordExpirationRawValue == null ||
@@ -55,7 +55,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             {
                 return DateTime.MaxValue;
             }
-            
+
             try
             {
                 return DateTime.FromFileTime(passwordExpirationInt);
@@ -68,7 +68,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         }
 
         private string PasswordExpirationRawValue => Attributes.GetValue("msDS-UserPasswordExpiryTimeComputed");
-        
+
         public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName)
         {
             return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName));

@@ -48,11 +48,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
             _portalSettings = portalSettings;
-		}
+        }
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
         {
             var userName = LdapIdentity.ParseUser(model.UserName);
+
             if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName)
             {
                 if (userName.Type != IdentityType.UserPrincipalName)
@@ -64,15 +65,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
             if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
 
-            var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
+            var adValidationResult =
+                await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
             if (adValidationResult.IsAuthenticated)
             {
-                _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName, _settings.CompanySettings.Domain);
+                _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
+                    _settings.CompanySettings.Domain);
                 var sso = _contextAccessor.SafeGetSsoClaims();
                 if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
                     _logger.LogInformation("Bypass second factor for user '{@user:l}'", userName);
-                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = model.UserName, samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account",
+                        new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
                 return await RedirectToMfa(adValidationResult, model.MyUrl);
@@ -85,14 +89,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 {
                     adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
                 }
-                var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
-                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName), model.UserName.Trim());
-                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName), encryptedPassword);
+
+                var encryptedPassword =
+                    _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
+                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName),
+                    model.UserName.Trim());
+                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
+                    encryptedPassword);
 
                 return await RedirectToMfa(adValidationResult, model.MyUrl);
             }
 
             return await WrongAsync();
+
         }
 
         private async Task<IActionResult> WrongAsync()
@@ -108,14 +117,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult);
-            
+            var username = GetIdentity(verificationResult, verificationResult.OverriddenIdentity);
+
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
                 verificationResult.Email,
                 verificationResult.Phone,
                 _settings.MultiFactorApiSettings.PrivacyModeDescriptor);
-            
+
             var accessPage = await _api.CreateAccessRequestAsync(username,
                 personalData.Name,
                 personalData.Email,
@@ -126,8 +135,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             return new RedirectResult(accessPage.Url, true);
         }
 
-        private string GetIdentity(CredentialVerificationResult verificationResult)
+        private string GetIdentity(CredentialVerificationResult verificationResult, string overriddenIdentity)
         {
+            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && string.IsNullOrWhiteSpace(overriddenIdentity))
+            {
+                throw new InvalidOperationException($"Failed to get overridden identity attribute '{_settings.ActiveDirectorySettings.UseAttributeAsIdentity}' for {verificationResult.Username}.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && !string.IsNullOrWhiteSpace(overriddenIdentity))
+            {
+                return overriddenIdentity;
+            }
+
             var identity = verificationResult.Username;
             if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
             {
