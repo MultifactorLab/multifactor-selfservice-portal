@@ -126,11 +126,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void ConfigureHttpClients(WebApplicationBuilder builder)
         {
-            var handler = new HttpClientHandler();
+            WebProxy proxy = null;
             var proxySetting = builder.Configuration.GetPortalSettingsValue(x => x.MultiFactorApiSettings.ApiProxy);
             if (!string.IsNullOrWhiteSpace(proxySetting))
             {
-                handler.Proxy = BuildProxy(proxySetting);
+                proxy = BuildProxy(proxySetting);
             }
 
             builder.Services
@@ -140,7 +140,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     client.BaseAddress = new Uri(settings.MultiFactorApiSettings.ApiUrl!);
                     
                 })
-                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
             
             builder.Services
@@ -148,7 +148,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 {
                     client.BaseAddress = new Uri("https://www.google.com/recaptcha/api/");
                 })
-                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
             
             builder.Services
@@ -156,12 +156,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 {
                     client.BaseAddress = new Uri("https://captcha-api.yandex.ru/");
                 })
-                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
             
             builder.Services
                 .AddHttpClient(Constants.HttpClients.MultifactorIdpApi)
-                .ConfigurePrimaryHttpMessageHandler(() => handler)
+                .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
         }
         
@@ -199,6 +199,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             builder.Services.AddTransient<YandexCaptchaApi>()
                 .AddTransient<YandexHttpClientAdapterFactory>();
+        }
+
+        private static HttpClientHandler CreateHttpClientHandler(WebProxy webProxy = null)
+        {
+            var handler = new HttpClientHandler();
+            handler.Proxy = webProxy;
+            return handler;
         }
 
         private static WebProxy BuildProxy(string proxyUri)
