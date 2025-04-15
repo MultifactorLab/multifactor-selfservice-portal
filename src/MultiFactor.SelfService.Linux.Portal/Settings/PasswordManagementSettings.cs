@@ -10,6 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
             ChangePasswordMode.AsTechnicalAccount;
         public TimeSpan? PasswordChangingSessionLifetime { get; init; }
         public long? PasswordChangingSessionCacheSize { get; init; }
+        public bool AllowUserUnlock { get; init; }
     }
 
     [Obsolete]

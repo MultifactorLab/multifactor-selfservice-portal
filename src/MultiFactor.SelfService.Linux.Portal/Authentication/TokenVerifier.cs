@@ -27,13 +27,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
 
                 var identity = jwtSecurityToken.Subject;
                 var rawUserName = claimsPrincipal.Claims.SingleOrDefault(claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
-
+                var unlockUser = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.UnlockUser)?.Value?.ToLower() == "true";
                 // use raw user name when possible couse multifactor may transform identity depend by settings
                 return new TokenClaims(jwtSecurityToken.Id,
                     !string.IsNullOrEmpty(rawUserName) ? rawUserName : identity,
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword),
                     jwtSecurityToken.ValidTo,
-                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword));
+                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword),
+                    MustUnlockUser: unlockUser);
             }
             catch (Exception ex)
             {
