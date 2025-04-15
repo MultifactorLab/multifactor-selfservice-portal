@@ -54,6 +54,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                 identity = adValidationResult.UserPrincipalName;
             }
 
+            if (!string.IsNullOrWhiteSpace(_portalSettings.ActiveDirectorySettings.UseAttributeAsIdentity))
+            {
+                var adValidationResult = await _credentialVerifier.VerifyMembership(identity);
+                identity = adValidationResult.OverriddenIdentity;
+            }
+
             var callback = form.MyUrl.BuildRelativeUrl("Reset", 1);
             try
             {
