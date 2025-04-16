@@ -132,10 +132,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     resultBuilder.SetUserPrincipalName(profile.Upn);
                 }
 
-                var identityAttribute = _settings.ActiveDirectorySettings.UseAttributeAsIdentity;
-                if (!string.IsNullOrWhiteSpace(identityAttribute))
+                if (profile.UseCustomIdentity)
                 {
-                    resultBuilder.OverrideIdentity(profile.Attributes.GetValue(identityAttribute));
+                    resultBuilder.SetCustomIdentity(profile.CustomIdentity);
                 }
 
                 resultBuilder.SetUsername(username);
@@ -268,10 +267,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 resultBuilder.SetUserPrincipalName(profile.Upn);
             }
 
-            var identityAttribute = _settings.ActiveDirectorySettings.UseAttributeAsIdentity;
-            if (!string.IsNullOrWhiteSpace(identityAttribute))
+            if (profile.UseCustomIdentity)
             {
-                resultBuilder.OverrideIdentity(profile.Attributes.GetValue(identityAttribute));
+                resultBuilder.SetCustomIdentity(profile.CustomIdentity);
             }
 
             resultBuilder.SetUsername(username);

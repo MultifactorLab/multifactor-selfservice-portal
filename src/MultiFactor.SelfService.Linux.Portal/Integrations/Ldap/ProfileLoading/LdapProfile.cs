@@ -1,9 +1,12 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Core.LdapAttributesCaching;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 {
     public class LdapProfile
     {
+        private readonly PortalSettings _settings;
+
         public LdapIdentity BaseDn { get; }
         public string DistinguishedName { get; }
 
@@ -27,15 +30,40 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         public string Phone => Attributes.GetValue("telephoneNumber");
         public string Mobile => Attributes.GetValue("mobile");
         public string Upn => Attributes.GetValue("userPrincipalName");
+        public bool UseCustomIdentity => !string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) || _settings.ActiveDirectorySettings.UseUpnAsIdentity;
+
+        public string CustomIdentity
+        {
+            get
+            {
+                if (!UseCustomIdentity)
+                {
+                    return null;
+                }
+
+                if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity))
+                {
+                    return Attributes.GetValue(_settings.ActiveDirectorySettings.UseAttributeAsIdentity);
+                }
+
+                if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
+                {
+                    return Upn;
+                }
+
+                throw new InvalidOperationException("Empty custom identity.");
+            }
+        }
         public IReadOnlyList<string> MemberOf => Attributes.GetValues("memberOf");
 
         private readonly LdapAttributesCache _attributes = new();
         public ILdapAttributesCache Attributes => _attributes;
 
-        private LdapProfile(LdapIdentity baseDn, string distinguishedName)
+        private LdapProfile(LdapIdentity baseDn, string distinguishedName, PortalSettings settings)
         {
             BaseDn = baseDn ?? throw new ArgumentNullException(nameof(baseDn));
             DistinguishedName = distinguishedName ?? throw new ArgumentNullException(nameof(distinguishedName));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         public bool UserMustChangePassword()
@@ -69,9 +97,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
         private string PasswordExpirationRawValue => Attributes.GetValue("msDS-UserPasswordExpiryTimeComputed");
 
-        public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName)
+        public static LdapProfileBuilder Create(LdapIdentity baseDn, string distinguishedName, PortalSettings settings)
         {
-            return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName));
+            return new LdapProfileBuilder(new LdapProfile(baseDn, distinguishedName, settings));
         }
 
         public class LdapProfileBuilder

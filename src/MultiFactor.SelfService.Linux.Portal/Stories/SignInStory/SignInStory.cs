@@ -117,7 +117,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult, verificationResult.OverriddenIdentity);
+            var username = GetIdentity(verificationResult);
 
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
@@ -135,32 +135,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             return new RedirectResult(accessPage.Url, true);
         }
 
-        private string GetIdentity(CredentialVerificationResult verificationResult, string overriddenIdentity)
+        private string GetIdentity(CredentialVerificationResult verificationResult)
         {
-            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && string.IsNullOrWhiteSpace(overriddenIdentity))
-            {
-                throw new InvalidOperationException($"Failed to get overridden identity attribute '{_settings.ActiveDirectorySettings.UseAttributeAsIdentity}' for {verificationResult.Username}.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && !string.IsNullOrWhiteSpace(overriddenIdentity))
-            {
-                return overriddenIdentity;
-            }
-
-            var identity = verificationResult.Username;
-            if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
-            {
-                if (string.IsNullOrEmpty(verificationResult.UserPrincipalName))
-                {
-                    throw new InvalidOperationException($"Null UPN for user {verificationResult.Username}");
-                }
-                identity = verificationResult.UserPrincipalName;
-            }
-            if(identity == null)
-            {
-                throw new InvalidOperationException($"Null username, can't sign in");
-            }
-            return identity;
+            return !string.IsNullOrWhiteSpace(verificationResult.CustomIdentity)
+                ? verificationResult.CustomIdentity
+                : verificationResult.Username;
         }
     }
 }

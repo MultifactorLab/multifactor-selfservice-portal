@@ -114,7 +114,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult.Username, verificationResult.UserPrincipalName, verificationResult.OverriddenIdentity);
+            var username = GetIdentity(verificationResult);
 
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
@@ -132,35 +132,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             return new RedirectResult(accessPage.Url, true);
         }
 
-        private string GetIdentity(string username, string upn, string overriddenIdentity)
+        private string GetIdentity(CredentialVerificationResult verificationResult)
         {
-            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity) && string.IsNullOrWhiteSpace(overriddenIdentity))
-            {
-                throw new InvalidOperationException($"Failed to get overridden identity attribute '{_settings.ActiveDirectorySettings.UseAttributeAsIdentity}' for {username}.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(_settings.ActiveDirectorySettings.UseAttributeAsIdentity))
-            {
-                return overriddenIdentity;
-            }
-
-            var identity = username;
-            if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
-            {
-                if (string.IsNullOrEmpty(upn))
-                {
-                    throw new InvalidOperationException($"Null UPN for user {username}");
-                }
-
-                identity = upn;
-            }
-
-            if (identity == null)
-            {
-                throw new InvalidOperationException($"Null username, can't sign in");
-            }
-
-            return identity;
+            return !string.IsNullOrWhiteSpace(verificationResult.CustomIdentity)
+                ? verificationResult.CustomIdentity
+                : verificationResult.Username;
         }
 
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession)

@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         public string Phone { get; private set; }
         public string Username { get; private set; }
         public string UserPrincipalName { get; private set; }
-        public string OverriddenIdentity { get; private set; }
+        public string CustomIdentity { get; private set; }
         private CredentialVerificationResult(bool isAuthenticated)
         {
             IsAuthenticated = isAuthenticated;
@@ -143,9 +143,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 return this;
             }
 
-            public CredentialVerificationResultBuilder OverrideIdentity(string identity)
+            public CredentialVerificationResultBuilder SetCustomIdentity(string identity)
             {
-                _result.OverriddenIdentity = identity;
+                _result.CustomIdentity = identity;
                 return this;
             }
 
