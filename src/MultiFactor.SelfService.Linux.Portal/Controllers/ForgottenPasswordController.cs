@@ -54,7 +54,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 if (form.UnlockUser)
                 {
-                    return await _unlockUserStory.CallSecondFactor(form);
+                    return await _unlockUserStory.CallSecondFactorAsync(form);
                 }
 
                 return await _recoverPasswordStory.StartRecoverAsync(form);

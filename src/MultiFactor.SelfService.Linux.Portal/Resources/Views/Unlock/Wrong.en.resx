@@ -138,9 +138,6 @@
   <data name="Next" xml:space="preserve">
     <value>Reset password</value>
   </data>
-  <data name="Ok" xml:space="preserve">
-    <value>Ok</value>
-  </data>
   <data name="PleaseWait" xml:space="preserve">
     <value>Please, wait...</value>
   </data>

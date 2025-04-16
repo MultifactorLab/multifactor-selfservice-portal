@@ -30,10 +30,12 @@
 
                     @if (Settings.PasswordManagement.AllowUserUnlock)
                     {
-                        <div class="form-row">
-                            @Html.CheckBoxFor(x => x.UnlockUser)
-                            <label>@Localizer["UnlockUser"]</label>
-                        </div>
+                        <label class ="c-container">
+                            @Localizer["UnlockUser"]
+                         
+                            <input type="checkbox" asp-for="@Model.UnlockUser">
+                            <span class="c-checkmark"></span>
+                        </label>
                     }
 
                     @await Component.InvokeAsync("Captcha", new { Mode = CaptchaRequired.PasswordRecovery })

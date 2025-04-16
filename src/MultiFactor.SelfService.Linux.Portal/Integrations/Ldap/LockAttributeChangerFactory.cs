@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.FreeIPA;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
+using MultiFactor.SelfService.Linux.Portal.Integrations.OpenLdap;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 
@@ -38,13 +39,13 @@ public class LockAttributeChangerFactory
                     _ldapConnectionAdapterFactory,
                     _ldapProfileLoader,
                     _logger);
-            case LdapImplementation.Samba:
             case LdapImplementation.OpenLdap:
                 return new OpenLdapLockAttributeChanger(
                     _userAttributeChanger,
                     _ldapConnectionAdapterFactory,
                     _ldapProfileLoader,
                     _logger);
+            case LdapImplementation.Samba:
             case LdapImplementation.ActiveDirectory:
                 return new AdLockAttributeChanger(
                     _userAttributeChanger,

@@ -13,7 +13,10 @@ public class UnlockController : ControllerBase
     private readonly UnlockUserStory _unlockUserStory;
     private readonly ILogger _logger;
 
-    public UnlockController(UnlockUserStory unlockUserStory, TokenVerifier tokenVerifier, ILogger<UnlockController> logger)
+    public UnlockController(
+        UnlockUserStory unlockUserStory,
+        TokenVerifier tokenVerifier,
+        ILogger<UnlockController> logger)
     {
         _logger = logger;
         _tokenVerifier = tokenVerifier;
@@ -31,7 +34,7 @@ public class UnlockController : ControllerBase
             return RedirectToAction("Wrong");
         }
 
-        if (!await _unlockUserStory.UnlockUser(token.Identity))
+        if (!await _unlockUserStory.UnlockUserAsync(token.Identity))
         {
             return RedirectToAction("Wrong");
         }

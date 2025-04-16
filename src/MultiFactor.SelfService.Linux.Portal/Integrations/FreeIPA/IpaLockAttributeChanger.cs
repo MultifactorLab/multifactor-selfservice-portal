@@ -27,8 +27,13 @@ public class IpaLockAttributeChanger : ILockAttributeChanger
         _logger = logger;
     }
     
-    public async Task<bool> ChangeLockAttributeValue(string userName, object value)
+    public async Task<bool> ChangeLockAttributeValueAsync(string userName, object value)
     {
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            throw new ArgumentNullException(nameof(userName));
+        }
+        
         try
         {
             var connectionAdapter = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();

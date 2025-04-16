@@ -4,7 +4,7 @@ using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 
-namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.OpenLdap;
 
 public class OpenLdapLockAttributeChanger : ILockAttributeChanger
 {
@@ -27,8 +27,13 @@ public class OpenLdapLockAttributeChanger : ILockAttributeChanger
         _logger = logger;
     }
     
-    public async Task<bool> ChangeLockAttributeValue(string userName, object value)
+    public async Task<bool> ChangeLockAttributeValueAsync(string userName, object value)
     {
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            throw new ArgumentNullException(nameof(userName));
+        }
+        
         try
         {
             var connectionAdapter = await _connectionFactory.CreateAdapterAsTechnicalAccAsync();

@@ -14,6 +14,13 @@ public class UserAttributeChanger : IUserAttributeChanger
         object attributeValue,
         ILdapConnectionAdapter connection)
     {
+        if (string.IsNullOrWhiteSpace(dn))
+            throw new ArgumentNullException(nameof(dn));
+        if (string.IsNullOrWhiteSpace(attributeName))
+            throw new ArgumentNullException(nameof(attributeName));
+        if (connection is null)
+            throw new ArgumentNullException(nameof(connection));
+
         var request = BuildModifyRequest(dn, attributeName, attributeValue);
         var response = await connection.SendRequestAsync(request);
 
