@@ -853,13 +853,29 @@ table.authenticators tr {
     }
 }
 
+@media screen and (max-width: 340px) {
+    .login .form-column {
+        padding: 20px;
+    }
+}
+
+@media screen and (max-width: 465px) {
+    .login {
+        margin: unset !important;
+    }
+
+    .login .form-column {
+        width: 100% !important;
+    }
+}
+
 @media screen and (max-width: 535px) {
     .login {
         padding: 0;
     }
 
     .login .form-column {
-        width: 400px !important;
+        width: 400px;
         max-width: 100%;
     }
 }
