@@ -159,4 +159,7 @@
   <data name="UserNameUpn" xml:space="preserve">
     <value>user@domain.loc</value>
   </data>
+  <data name="UnlockUser" xml:space="preserve">
+    <value>Разблокировать пользователя без смены пароля</value>
+  </data>
 </root>

@@ -138,9 +138,6 @@
   <data name="Next" xml:space="preserve">
     <value>Reset password</value>
   </data>
-  <data name="Ok" xml:space="preserve">
-    <value>Ok</value>
-  </data>
   <data name="PleaseWait" xml:space="preserve">
     <value>Please, wait...</value>
   </data>
@@ -159,7 +156,7 @@
   <data name="UserNameUpn" xml:space="preserve">
     <value>user@domain.loc</value>
   </data>
-  <data name="UnlockUser" xml:space="preserve">
-    <value>Unlock user without changing password</value>
+  <data name="UnlockUserError" xml:space="preserve">
+    <value>User unlocking failed</value>
   </data>
 </root>

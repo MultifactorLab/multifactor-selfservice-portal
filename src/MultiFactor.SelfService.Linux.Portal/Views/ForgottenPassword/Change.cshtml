@@ -17,8 +17,8 @@
                         @Html.TextBoxFor(m => m.Identity, 
                             new { 
                                 placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName 
-                                ?  Localizer.GetString("UserNameUpn") 
-                                :  Localizer.GetString("UserName"),
+                                    ?  Localizer.GetString("UserNameUpn") 
+                                    :  Localizer.GetString("UserName"),
                                 autocomplete = "off"
                             })
                         @Html.ValidationMessageFor(m => m.Identity)
@@ -27,8 +27,21 @@
                     @{
                         ViewBag.RenderCaptchaScripts = true;
                     }
+
+                    @if (Settings.PasswordManagement.AllowUserUnlock)
+                    {
+                        <label class ="c-container">
+                            @Localizer["UnlockUser"]
+                         
+                            <input type="checkbox" asp-for="@Model.UnlockUser">
+                            <span class="c-checkmark"></span>
+                        </label>
+                    }
+
                     @await Component.InvokeAsync("Captcha", new { Mode = CaptchaRequired.PasswordRecovery })
+
                 </div>
+
                 <div class="form-row">
                     <input type="hidden" name="myUrl" id="myUrl" />
                     <input disabled type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" id="submit" />

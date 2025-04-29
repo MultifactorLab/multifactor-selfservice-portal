@@ -58,7 +58,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     PasswordChangingSessionLifetime =
                         settings.PasswordChangingSessionSettings?.PwdChangingSessionLifetime,
                     PasswordChangingSessionCacheSize =
-                        settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize
+                        settings.PasswordChangingSessionSettings?.PwdChangingSessionCacheSize,
+                    AllowUserUnlock = settings.PasswordManagement?.AllowUserUnlock ?? false
                 };
             }
 

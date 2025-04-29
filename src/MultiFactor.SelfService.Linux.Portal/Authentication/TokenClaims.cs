@@ -5,5 +5,6 @@
         string Identity, 
         bool MustChangePassword, 
         DateTime ValidTo,
-        bool MustResetPassword);
+        bool MustResetPassword,
+        bool MustUnlockUser = false);
 }

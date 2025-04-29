@@ -33,6 +33,7 @@
             public const string PasswordExpirationDate = "passwordExpirationDate";
             public const string ResetPassword = "resetPassword";
             public const string RawUserName = "rawUserName";
+            public const string UnlockUser = "unlockUser";
         }
 
         public static class HttpClients
