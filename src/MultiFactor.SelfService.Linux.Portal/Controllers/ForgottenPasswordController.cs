@@ -5,6 +5,7 @@ using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Stories;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -16,6 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     {
         private readonly IStringLocalizer<SharedResource> _localizer;
         private readonly RecoverPasswordStory _recoverPasswordStory;
+        private readonly UnlockUserStory _unlockUserStory;
         private readonly TokenVerifier _tokenVerifier;
         private readonly DataProtection _dataProtection;
         private readonly ILogger _logger;
@@ -23,6 +25,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         public ForgottenPasswordController(
             DataProtection dataProtection,
             RecoverPasswordStory recoverPasswordStory,
+            UnlockUserStory unlockUserStory,
             IStringLocalizer<SharedResource> localizer,
             TokenVerifier tokenVerifier,
             ILogger<ForgottenPasswordController> logger)
@@ -32,6 +35,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             _localizer = localizer;
             _tokenVerifier = tokenVerifier;
             _dataProtection = dataProtection;
+            _unlockUserStory = unlockUserStory;
         }
 
         [HttpGet]
@@ -48,6 +52,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             try
             {
+                if (form.UnlockUser)
+                {
+                    return await _unlockUserStory.CallSecondFactorAsync(form);
+                }
+
                 return await _recoverPasswordStory.StartRecoverAsync(form);
             }
             catch (ModelStateErrorException ex)
@@ -77,7 +86,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 HttpOnly = true
             });
 
-
             return View(new ResetPasswordForm
             {
                 Identity = token.Identity
@@ -92,7 +100,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View("Reset", form);
             }
-           
+
             try
             {
                 var sessionCookie = Request.Cookies[Constants.PWD_RECOVERY_COOKIE];
