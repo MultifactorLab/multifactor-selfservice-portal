@@ -12,6 +12,7 @@
         public AdditionalClaims AdditionalClaims { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
         public PasswordManagementSettings PasswordManagement { get; set; }
+        public ShowcaseLinks ShowcaseLinks { get; set; } = new();
         public ExchangeActiveSyncDevicesManagement ExchangeActiveSyncDevicesManagement { get; set; }
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }
