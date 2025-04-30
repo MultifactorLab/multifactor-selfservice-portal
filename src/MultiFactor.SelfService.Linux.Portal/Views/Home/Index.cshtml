@@ -1,7 +1,7 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
 
 <div class="login">
-    <div class="form-column">
+    <div class="form-column @(Settings.ShowcaseLinks.GetLinks().Count > 0 ? "showcase-no-top-padding" : "") ">
         <div class="auth-details">
             @if (Settings.ShowcaseLinks != null)
             {
