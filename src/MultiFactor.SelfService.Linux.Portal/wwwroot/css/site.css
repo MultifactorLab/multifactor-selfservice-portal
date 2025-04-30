@@ -5,7 +5,6 @@
  * -------------------------------------------------------------------
  */
 html {
-    height: 100%;
     font-family: sans-serif;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
@@ -356,7 +355,6 @@ textarea {
 */
 html {
     font-size: 100%;
-    height: 100%;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
@@ -365,7 +363,6 @@ html {
 
 body {
     min-width: 320px;
-    height: 100%;
     margin: 0;
     color: #32454D;
     font: 15px/17px "SF UI Text", "Arial", "Helvetica", sans-serif;
@@ -611,11 +608,10 @@ p {
 }
 
 .login .form-column .auth-details .showcase {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: space-between;
-    max-height: 15em;
+    display: grid;
+    grid-template-columns: 110px 110px 110px;
+    margin: 0 auto;
+    max-height: 12em;
     overflow: auto;
     scroll-behavior: smooth;
     scrollbar-width: thin;
@@ -624,6 +620,16 @@ p {
 
 .showcase-link {
     padding: 1em;
+}
+
+.showcase-link-image {
+    max-width: 4em;
+    max-height: 4em;
+    margin-bottom: 0.5em;
+}
+
+.showcase-no-top-padding {
+    padding-top: 0 !important;
 }
 
 .login .form-column .auth-details .auth-username p {
@@ -862,6 +868,12 @@ table.authenticators tr {
             color: #4082BC;
         }
 
+@media screen and (min-width: 1870px) {
+    html, body {
+        height: 100%;
+    }
+}
+
 @media screen and (max-width: 933px) {
     .login {
         position: relative;
@@ -893,12 +905,6 @@ table.authenticators tr {
     .login .form-column {
         width: 400px;
         max-width: 100%;
-    }
-}
-
-@media screen and (max-height: 730px) {
-    html {
-        height: unset !important;
     }
 }
 
