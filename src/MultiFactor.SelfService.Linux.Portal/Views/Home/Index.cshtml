@@ -2,8 +2,25 @@
 
 <div class="login">
     <div class="form-column">
-        <div class="success-mark"></div>
         <div class="auth-details">
+            @if (Settings.ShowcaseLinks != null)
+            {
+                <div class="showcase">
+                    @foreach (var link in Settings.ShowcaseLinks.GetLinks())
+                    {
+                        <a href="@link.Url" @(link.OpenInNewTab ? "target=_blank" : "")>
+                            <div class="showcase-link">
+                                <img class="showcase-link-image" src="~/content/images/@link.Image" />
+
+                                <div class="link-title">
+                                    @link.Title
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            <div class="success-mark"></div>
             <h2>@Localizer["Title"]</h2>
             <div class="auth-username">
                 <p>@Localizer["Welcome"]</p>

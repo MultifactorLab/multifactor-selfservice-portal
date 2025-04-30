@@ -45,11 +45,11 @@
 
 		<MultiFactorApiSettings>
 			<!-- Multifactor API Address -->
-			<ApiUrl>https://api.multifactor.ru</ApiUrl>
+			<ApiUrl>https://api.multifactor.dev</ApiUrl>
 			<!-- API KEY parameter from the Multifactor personal account. -->
-			<ApiKey>key</ApiKey>
+			<ApiKey>rs_a4c1b83e692a2e8531cd716b7bb96</ApiKey>
 			<!-- API Secret parameter from the Multifactor personal account. -->
-			<ApiSecret>secret</ApiSecret>
+			<ApiSecret>c161041eee4afdd7e8c3aa54297cf71b</ApiSecret>
 			<!-- [Optional] Access the Multifactor API via the HTTP proxy. -->
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
@@ -71,7 +71,15 @@
 			<!-- Session storage size in `bytes` (5242880 by default, 1048576 is minimal value) -->
 			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 		</PasswordManagement>
-
+		
+		<ShowcaseLinks>
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+		</ShowcaseLinks>
 
 		<!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
 		<!--<LoggingLevel>Info</LoggingLevel>-->
