@@ -45,11 +45,11 @@
 
 		<MultiFactorApiSettings>
 			<!-- Multifactor API Address -->
-			<ApiUrl>https://api.multifactor.dev</ApiUrl>
+			<ApiUrl>https://api.multifactor.ru</ApiUrl>
 			<!-- API KEY parameter from the Multifactor personal account. -->
-			<ApiKey>rs_a4c1b83e692a2e8531cd716b7bb96</ApiKey>
+			<ApiKey>key</ApiKey>
 			<!-- API Secret parameter from the Multifactor personal account. -->
-			<ApiSecret>c161041eee4afdd7e8c3aa54297cf71b</ApiSecret>
+			<ApiSecret>secret</ApiSecret>
 			<!-- [Optional] Access the Multifactor API via the HTTP proxy. -->
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
