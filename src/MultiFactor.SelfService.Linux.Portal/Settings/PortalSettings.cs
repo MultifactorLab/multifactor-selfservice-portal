@@ -21,7 +21,7 @@
         public bool PreAuthenticationMethod { get; private set; }
 
         public PortalSettings(){}
-        
+
         public PortalSettings(CompanySettings companySettings, ActiveDirectorySettings activeDirectorySettings)
         {
             CompanySettings = companySettings;
@@ -38,6 +38,7 @@
         {
             return
                 ActiveDirectorySettings.UseUpnAsIdentity
+                || !string.IsNullOrWhiteSpace(ActiveDirectorySettings.UseAttributeAsIdentity)
                 || ActiveDirectorySettings.SecondFactorGroups.Length != 0
                 || ActiveDirectorySettings.SplittedActiveDirectoryGroups.Length != 0
                 || PasswordManagement.Enabled;
