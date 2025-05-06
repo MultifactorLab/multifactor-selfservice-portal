@@ -65,12 +65,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                 }
             }
 
-            var identity = form.Identity.Trim();
-            var adValidationResult = await _credentialVerifier.VerifyMembership(identity);
-
-            return !string.IsNullOrWhiteSpace(adValidationResult.CustomIdentity)
-                ? adValidationResult.CustomIdentity
-                : identity;
+            return form.Identity.Trim();
         }
 
         public async Task ResetPasswordAsync(ResetPasswordForm form)
