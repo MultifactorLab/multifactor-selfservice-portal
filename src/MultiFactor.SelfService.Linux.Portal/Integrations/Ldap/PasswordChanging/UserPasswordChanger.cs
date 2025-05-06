@@ -5,6 +5,7 @@ using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging
 {
@@ -15,18 +16,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
         private readonly ILogger _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
         private readonly LdapProfileLoader _profileLoader;
+        private readonly PasswordRequirementsService _passwordRequirementsService;
 
         public UserPasswordChanger(LdapConnectionAdapterFactory connectionFactory,
             ILogger<UserPasswordChanger> logger,
             IPasswordAttributeChanger passwordAttributeChanger,
             IStringLocalizer<SharedResource> localizer,
-            LdapProfileLoader profileLoader)
+            LdapProfileLoader profileLoader,
+            PasswordRequirementsService passwordRequirementsService)
         {
-            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-            _passwordAttributeChanger = passwordAttributeChanger ?? throw new ArgumentNullException(nameof(passwordAttributeChanger));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _profileLoader = profileLoader ?? throw new ArgumentNullException(nameof(profileLoader));
+            _connectionFactory = connectionFactory;
+            _passwordAttributeChanger = passwordAttributeChanger;
+            _logger = logger;
+            _localizer = localizer;
+            _profileLoader = profileLoader;
+            _passwordRequirementsService = passwordRequirementsService;
         }
 
         public async Task<PasswordChangingResult> ChangePassword(
@@ -35,6 +39,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChangin
             string newPassword, 
             ChangePasswordMode passwordChangeMode)
         {
+            var validationResult = _passwordRequirementsService.ValidatePassword(newPassword);
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Change/reset password for user '{username}' failed: {message:l}", username, validationResult);
+                return new PasswordChangingResult(false, validationResult.ToString());
+            }
             try
             {
                 using var connection = passwordChangeMode == ChangePasswordMode.AsTechnicalAccount

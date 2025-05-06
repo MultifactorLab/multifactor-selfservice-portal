@@ -42,5 +42,28 @@
             public const string GoogleCaptcha = "googleCaptcha";
             public const string MultifactorIdpApi = "mfIdp";
         }
+        
+        public static class PasswordRequirements
+        {
+            public const string UPPER_CASE_LETTERS = "upper-case-letters";
+            public const string LOWER_CASE_LETTERS = "lower-case-letters";
+            public const string DIGITS = "digits";
+            public const string SPECIAL_SYMBOLS = "special-symbols";
+            public const string MIN_LENGTH = "min-length";
+            public const string MAX_LENGTH = "max-length";
+                
+            public static HashSet<string> GetAllKnownConstants()
+            {
+                return new HashSet<string>
+                {
+                    UPPER_CASE_LETTERS,
+                    LOWER_CASE_LETTERS,
+                    DIGITS,
+                    SPECIAL_SYMBOLS,
+                    MIN_LENGTH,
+                    MAX_LENGTH,
+                };
+            }
+        }
     }
 }

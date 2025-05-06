@@ -34,6 +34,7 @@ using System.Net;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -94,7 +95,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ChangeExpiredPasswordStory>()
                 .AddTransient<ChangeValidPasswordStory>()
                 .AddTransient<SearchExchangeActiveSyncDevicesStory>()
-                .AddTransient<ChangeActiveSyncDeviceStateStory>();
+                .AddTransient<ChangeActiveSyncDeviceStateStory>()
+                .ConfigurePasswordRequirements();
             
             ConfigureHttpClients(builder);
            
