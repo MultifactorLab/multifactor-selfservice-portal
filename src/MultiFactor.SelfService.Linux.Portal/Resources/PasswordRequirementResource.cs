@@ -1,6 +1,8 @@
-namespace MultiFactor.SelfService.Linux.Portal.Resources;
-
-public class PasswordRequirementResource
+namespace MultiFactor.SelfService.Linux.Portal
 {
+    public class PasswordRequirementResource
+    {
+    }
 }
+
 

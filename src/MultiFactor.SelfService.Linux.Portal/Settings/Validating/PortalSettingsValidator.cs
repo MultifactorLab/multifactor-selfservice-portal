@@ -122,8 +122,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                         requirementsValidation.RuleFor(r => r.PwdRequirement)
                             .Must(requirements => {
-                                var minLength = requirements.FirstOrDefault(x => x.Condition == Constants.PasswordRequirements.MIN_LENGTH);
-                                var maxLength = requirements.FirstOrDefault(x => x.Condition == Constants.PasswordRequirements.MAX_LENGTH);
+                                var minLength = requirements?.FirstOrDefault(x => x.Condition == Constants.PasswordRequirements.MIN_LENGTH);
+                                var maxLength = requirements?.FirstOrDefault(x => x.Condition == Constants.PasswordRequirements.MAX_LENGTH);
                                 
                                 if (minLength != null && maxLength != null)
                                 {

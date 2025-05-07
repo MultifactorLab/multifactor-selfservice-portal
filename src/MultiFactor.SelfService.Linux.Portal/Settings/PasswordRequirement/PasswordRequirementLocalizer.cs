@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Localization;
-using MultiFactor.SelfService.Linux.Portal.Resources;
 using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement.Core;
 using System.Globalization;
 

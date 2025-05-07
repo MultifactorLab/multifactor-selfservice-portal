@@ -363,11 +363,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests.Settings.PasswordRequiremen
         {
             // Arrange & Act
             var minLengthRule = CreateRule(Constants.PasswordRequirements.MIN_LENGTH, 8,
-                "Password must be at least {0} characters long",
+                "Password length should not be less than {0} characters long",
                 "Пароль должен содержать не менее {0} символов");
             var maxLengthRule = CreateRule(Constants.PasswordRequirements.MAX_LENGTH, 25,
-                "Password must not exceed {0} characters",
-                "Пароль не должен превышать {0} символов");
+                "Password length should not be greater than {0} characters",
+                "Пароль не должен быть длиннее {0} символов");
             var upperCaseRule = CreateRule(Constants.PasswordRequirements.UPPER_CASE_LETTERS,
                 descriptionEn: "Password must contain at least one uppercase letter",
                 descriptionRu: "Пароль должен содержать хотя бы одну заглавную букву");
@@ -383,8 +383,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests.Settings.PasswordRequiremen
 
             // Assert English culture
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-            Assert.Equal(string.Format("Password must be at least {0} characters long", 8), minLengthRule.GetLocalizedDescription());
-            Assert.Equal(string.Format("Password must not exceed {0} characters", 25), maxLengthRule.GetLocalizedDescription());
+            Assert.Equal(string.Format("Password length should not be less than {0} characters long", 8), minLengthRule.GetLocalizedDescription());
+            Assert.Equal(string.Format("Password length should not be greater than {0} characters", 25), maxLengthRule.GetLocalizedDescription());
             Assert.Equal("Password must contain at least one uppercase letter", upperCaseRule.GetLocalizedDescription());
             Assert.Equal("Password must contain at least one lowercase letter", lowerCaseRule.GetLocalizedDescription());
             Assert.Equal("Password must contain at least one digit", digitRule.GetLocalizedDescription());
@@ -393,7 +393,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests.Settings.PasswordRequiremen
             // Assert Russian culture
             Thread.CurrentThread.CurrentCulture = new CultureInfo("ru-RU");
             Assert.Equal(string.Format("Пароль должен содержать не менее {0} символов", 8), minLengthRule.GetLocalizedDescription());
-            Assert.Equal(string.Format("Пароль не должен превышать {0} символов", 25), maxLengthRule.GetLocalizedDescription());
+            Assert.Equal(string.Format("Пароль не должен быть длиннее {0} символов", 25), maxLengthRule.GetLocalizedDescription());
             Assert.Equal("Пароль должен содержать хотя бы одну заглавную букву", upperCaseRule.GetLocalizedDescription());
             Assert.Equal("Пароль должен содержать хотя бы одну строчную букву", lowerCaseRule.GetLocalizedDescription());
             Assert.Equal("Пароль должен содержать хотя бы одну цифру", digitRule.GetLocalizedDescription());
