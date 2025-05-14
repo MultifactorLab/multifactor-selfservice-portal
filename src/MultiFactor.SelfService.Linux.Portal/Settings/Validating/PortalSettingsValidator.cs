@@ -92,6 +92,49 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     .Must((model, value) => !model.PasswordManagement.AllowPasswordRecovery
                                           || model.PasswordManagement.AllowPasswordRecovery && model.PasswordManagement.Enabled)
                     .WithMessage($"Password management must be enabled before password recovery. Please, check '{GetPropPath(x => x.PasswordManagement.Enabled)}' property");
+                
+                
+                RuleFor(portal => portal.PasswordRequirements)
+                    .ChildRules(requirementsValidation =>
+                    {
+                        requirementsValidation.RuleForEach(r => r.PwdRequirement)
+                            .ChildRules(requirement =>
+                            {
+                                requirement.RuleFor(r => r.Enabled)
+                                    .NotNull().WithMessage("Enabled property must be specified for each password requirement");
+
+                                requirement.RuleFor(r => r.Condition)
+                                    .Must(condition => string.IsNullOrEmpty(condition) || Constants.PasswordRequirements.GetAllKnownConstants().Contains(condition))
+                                    .WithMessage("Invalid condition value. Must be one of: " + 
+                                        string.Join(", ", Constants.PasswordRequirements.GetAllKnownConstants()));
+
+                                requirement.RuleFor(r => r.Value)
+                                    .Must((model, value) => {
+                                        if (model.Condition == Constants.PasswordRequirements.MIN_LENGTH || 
+                                            model.Condition == Constants.PasswordRequirements.MAX_LENGTH)
+                                        {
+                                            return int.TryParse(value, out int length) && length > 0;
+                                        }
+                                        return true;
+                                    })
+                                    .WithMessage("Length value must be a positive number");
+                            });
+
+                        requirementsValidation.RuleFor(r => r.PwdRequirement)
+                            .Must(requirements => {
+                                var minLength = requirements?.FirstOrDefault(x => x.Condition == Constants.PasswordRequirements.MIN_LENGTH);
+                                var maxLength = requirements?.FirstOrDefault(x => x.Condition == Constants.PasswordRequirements.MAX_LENGTH);
+                                
+                                if (minLength != null && maxLength != null)
+                                {
+                                    return int.TryParse(minLength.Value, out int min) && 
+                                           int.TryParse(maxLength.Value, out int max) && 
+                                           min < max;
+                                }
+                                return true;
+                            })
+                            .WithMessage("Minimum length must be less than maximum length");
+                    });
             }
 
             private static string GetErrorMessage<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)

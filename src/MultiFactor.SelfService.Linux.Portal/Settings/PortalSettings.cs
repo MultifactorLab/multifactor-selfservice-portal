@@ -1,4 +1,6 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Settings
+﻿using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement.Core;
+
+namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
     public class PortalSettings
     {
@@ -14,6 +16,7 @@
         public PasswordManagementSettings PasswordManagement { get; set; }
         public ShowcaseLinks ShowcaseLinks { get; set; } = new();
         public ExchangeActiveSyncDevicesManagement ExchangeActiveSyncDevicesManagement { get; set; }
+        public PasswordRequirementsSection PasswordRequirements { get; init; } = new();
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }
         public string UICulture { get; private set; } = string.Empty;
