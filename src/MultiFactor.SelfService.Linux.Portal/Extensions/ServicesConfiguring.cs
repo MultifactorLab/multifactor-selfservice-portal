@@ -98,7 +98,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ChangeValidPasswordStory>()
                 .AddTransient<SearchExchangeActiveSyncDevicesStory>()
                 .AddTransient<ChangeActiveSyncDeviceStateStory>()
-                .ConfigurePasswordRequirements();
+                .AddPasswordRequirements()
                 .AddSingleton<IUserAttributeChanger, UserAttributeChanger>()
                 .AddSingleton<LockAttributeChangerFactory>()
                 .AddSingleton(services => services.GetRequiredService<LockAttributeChangerFactory>().CreateChanger())

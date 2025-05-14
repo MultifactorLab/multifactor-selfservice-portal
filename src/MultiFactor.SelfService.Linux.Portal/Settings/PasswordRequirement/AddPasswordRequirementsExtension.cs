@@ -6,7 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement
 {
     public static class AddPasswordRequirementsExtension
     {
-        public static void ConfigurePasswordRequirements(this IServiceCollection services)
+        public static IServiceCollection AddPasswordRequirements(this IServiceCollection services)
         {
             services.AddSingleton<PasswordRequirementsService>();
             services.AddSingleton<PasswordRequirementLocalizer>();
@@ -58,6 +58,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement
                 }
                 return rules;
             });
+            return services;
         }
     }
 }
