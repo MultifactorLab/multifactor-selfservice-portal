@@ -37,23 +37,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
 
         public async Task<IActionResult> StartRecoverAsync(EnterIdentityForm form)
         {
-            if (_portalSettings.ActiveDirectorySettings.RequiresUserPrincipalName)
-            {
-                // AD requires UPN check
-                var userName = LdapIdentity.ParseUser(form.Identity);
-                if (userName.Type != IdentityType.UserPrincipalName)
-                {
-                    throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
-                }
-            }
+            var identity = await GetIdentity(form);
 
-            var identity = form.Identity.Trim();
-            if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
-            {
-                var adValidationResult = await _credentialVerifier.VerifyMembership(identity);
-                identity = adValidationResult.UserPrincipalName;
-            }
-            
             var callback = form.MyUrl.BuildRelativeUrl("Reset", 1);
             try
             {
@@ -66,6 +51,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                 _logger.LogError(ex, "Unable to recover password for user '{u:l}': {m:l}", form.Identity, ex.Message);
                 throw new ModelStateErrorException(_localizer.GetString("AD.UnableToChangePassword"));
             }
+        }
+
+        private async Task<string> GetIdentity(EnterIdentityForm form)
+        {
+            if (_portalSettings.ActiveDirectorySettings.RequiresUserPrincipalName)
+            {
+                // AD requires UPN check
+                var userName = LdapIdentity.ParseUser(form.Identity);
+                if (userName.Type != IdentityType.UserPrincipalName)
+                {
+                    throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
+                }
+            }
+
+            return form.Identity.Trim();
         }
 
         public async Task ResetPasswordAsync(ResetPasswordForm form)
