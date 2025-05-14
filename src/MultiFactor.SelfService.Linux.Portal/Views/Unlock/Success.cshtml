@@ -1,0 +1,16 @@
+﻿@model string
+@{
+    ViewBag.Title = @Localizer["Title"];
+}
+
+<div class="login">
+    <div class="form-column">
+        <h2>@Localizer["Title"]</h2>
+        <p>
+            @Localizer["UnlockUserSuccess"]
+        </p>
+        <ul class="action">
+            <li><a href="~/" class="center-button btn-primary w-100">@Localizer["Ok"]</a></li>
+        </ul>
+    </div>
+</div>

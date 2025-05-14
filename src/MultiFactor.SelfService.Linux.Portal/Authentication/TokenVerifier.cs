@@ -25,15 +25,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                 var claimsPrincipal = handler.ValidateToken(accessToken, validationParameters, out var securityToken);
                 var jwtSecurityToken = (JwtSecurityToken)securityToken;
 
-                var identity = jwtSecurityToken.Subject;
-                var rawUserName = claimsPrincipal.Claims.SingleOrDefault(claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
-
+                var rawUserName = claimsPrincipal.Claims
+                    .SingleOrDefault(claim => claim.Type == Constants.MultiFactorClaims.RawUserName)?.Value;
+                var identity = !string.IsNullOrEmpty(rawUserName) ? rawUserName : jwtSecurityToken.Subject;
+                var unlockUser = claimsPrincipal.Claims
+                                     .FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.UnlockUser)
+                                     ?.Value?.ToLower() == "true";
+                var mustChangePassword =
+                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword);
+                var mustResetPassword =
+                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword);
                 // use raw user name when possible couse multifactor may transform identity depend by settings
-                return new TokenClaims(jwtSecurityToken.Id,
-                    !string.IsNullOrEmpty(rawUserName) ? rawUserName : identity,
-                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword),
-                    jwtSecurityToken.ValidTo,
-                    claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword));
+                return new TokenClaims(
+                    Id: jwtSecurityToken.Id,
+                    Identity: identity,
+                    MustChangePassword: mustChangePassword,
+                    ValidTo: jwtSecurityToken.ValidTo,
+                    MustResetPassword: mustResetPassword,
+                    MustUnlockUser: unlockUser);
             }
             catch (Exception ex)
             {

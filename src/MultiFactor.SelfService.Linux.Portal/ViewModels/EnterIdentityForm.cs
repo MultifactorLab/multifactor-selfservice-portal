@@ -10,5 +10,10 @@ namespace MultiFactor.SelfService.Linux.Portal.ViewModels
         /// </summary>
         [HiddenInput]
         public string MyUrl { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Unlock user without password reset
+        /// </summary>
+        public bool UnlockUser { get; set; }
     }
 }
