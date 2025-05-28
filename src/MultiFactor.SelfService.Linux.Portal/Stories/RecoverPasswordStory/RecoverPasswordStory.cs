@@ -55,17 +55,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
 
         private async Task<string> GetIdentity(EnterIdentityForm form)
         {
-            if (_portalSettings.ActiveDirectorySettings.RequiresUserPrincipalName)
+            var verificationResult = await _credentialVerifier.VerifyMembership(form.Identity.Trim());
+            if (string.IsNullOrWhiteSpace(verificationResult.UserPrincipalName))
             {
-                // AD requires UPN check
-                var userName = LdapIdentity.ParseUser(form.Identity);
-                if (userName.Type != IdentityType.UserPrincipalName)
-                {
-                    throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
-                }
+                _logger.LogError("Unable to recover password - failed to get UPN for user: '{u:l}'", form.Identity);
+                throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
             }
 
-            return form.Identity.Trim();
+            return verificationResult.UserPrincipalName;
         }
 
         public async Task ResetPasswordAsync(ResetPasswordForm form)

@@ -249,6 +249,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             var resultBuilder = CredentialVerificationResult.CreateBuilder(true)
                 .SetDisplayName(profile.DisplayName)
                 .SetEmail(profile.Email)
+                .SetUserPrincipalName(profile.Upn)
                 .SetUserMustChangePassword(profile.UserMustChangePassword())
                 .SetPasswordExpirationDate(profile.PasswordExpirationDate());
 
@@ -260,11 +261,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             if (_settings.ActiveDirectorySettings.UseMobileUserPhone)
             {
                 resultBuilder.SetPhone(profile.Mobile);
-            }
-
-            if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
-            {
-                resultBuilder.SetUserPrincipalName(profile.Upn);
             }
 
             if (profile.UseCustomIdentity)
