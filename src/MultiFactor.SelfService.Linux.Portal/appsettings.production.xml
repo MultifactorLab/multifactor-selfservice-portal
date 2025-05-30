@@ -62,6 +62,17 @@
 			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 		</PasswordManagement>
 
+		<!-- Portal-side password validation before sending the password to AD -->
+		<!-- To Enable validation add PwdRequirement section -->
+		<PasswordRequirements>
+			<!-- <PwdRequirement enabled="true"> -->
+				<!-- <Condition>rule-name</Condition> -->
+				<!-- <Value>optional-value</Value> -->
+				<!-- <DescriptionEn>English description</DescriptionEn> -->
+				<!-- <DescriptionRu>Описание на русском</DescriptionRu> -->
+			<!-- </PwdRequirement> -->
+		</PasswordRequirements>
+
 		<!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
 		<ExchangeActiveSyncDevicesManagement enabled="false" />
 

@@ -17,7 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement
                 var rules = new List<PasswordRequirementRule>();
                 var requirements = settings.PasswordRequirements;
                 var localizer = sp.GetRequiredService<PasswordRequirementLocalizer>();
-                if (requirements != null)
+                if (requirements?.PwdRequirement != null)
                 {
                     foreach (var req in requirements.PwdRequirement.Where(r => r.Enabled))
                     {
