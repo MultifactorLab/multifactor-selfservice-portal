@@ -8,6 +8,7 @@ using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -20,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         private readonly PortalSettings _portalSettings;
         private readonly ApplicationCache _applicationCache;
         private readonly SafeHttpContextAccessor _safeHttpContextAccessor;
-        
+
 
         public AccountController(PortalSettings portalSettings,
             ApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
@@ -31,14 +32,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public IActionResult Login()
+        public async Task<IActionResult> Login([FromServices] LoadProfileStory loadProfile)
         {
-            if (_portalSettings.PreAuthenticationMethod)
+            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+            try
             {
-                return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
-            }
+                if (sso.HasSamlSession())
+                {
+                    var user = await loadProfile.ExecuteAsync();
+                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = user.Identity, samlSession = sso.SamlSessionId });
+                }
 
-            return View(new LoginViewModel());
+                return View(new LoginViewModel());
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Identity", sso);
+                }
+
+                return View(new LoginViewModel());
+            }
         }
 
         [HttpPost]
@@ -119,7 +134,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return RedirectToAction("Login");
             }
-            
+
             try
             {
                 return await authnStoryHandler.ExecuteAsync(model);

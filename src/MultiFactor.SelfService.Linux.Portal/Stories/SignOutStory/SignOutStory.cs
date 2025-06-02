@@ -2,6 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders;
 using System.Text;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
@@ -24,7 +25,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
             _contextAccessor.HttpContext.Request.Headers.Remove("Authorization");
 
             var redirectUrl = new StringBuilder("/account/login");
-            var claimsDto = _contextAccessor.SafeGetSsoClaims();
+            var claimsDto = MultiFactorClaimsDtoBinder.FromRequest(_contextAccessor.HttpContext.Request);
             if (claimsDto.HasSamlSession())
             {
                 redirectUrl.Append($"?{Constants.MultiFactorClaims.SamlSessionId}={claimsDto.SamlSessionId}");
