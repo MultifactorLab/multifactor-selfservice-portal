@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.Intrinsics.X86;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;

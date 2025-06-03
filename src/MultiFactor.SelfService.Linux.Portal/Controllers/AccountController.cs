@@ -37,13 +37,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
             {
+                var user = await loadProfile.ExecuteAsync();
+
                 if (sso.HasSamlSession())
                 {
-                    var user = await loadProfile.ExecuteAsync();
                     return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = user.Identity, samlSession = sso.SamlSessionId });
                 }
 
-                return View(new LoginViewModel());
+                return RedirectToAction("Index", "Home");
             }
             catch (UnauthorizedException ex)
             {
