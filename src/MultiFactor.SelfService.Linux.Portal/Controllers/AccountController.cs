@@ -171,6 +171,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
             [FromServices] MultiFactorApi api)
         {
+            await api.AddToSsoMasterSession(samlSession);
+
             var page = await api.CreateSamlBypassRequestAsync(username, samlSession);
             return View(page);
         }
