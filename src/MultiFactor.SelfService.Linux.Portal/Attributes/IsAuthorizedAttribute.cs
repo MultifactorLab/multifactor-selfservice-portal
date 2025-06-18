@@ -27,7 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             if (cookie is null)
             {
                 var signOutStory = context.HttpContext.RequestServices.GetRequiredService<SignOutStory>();
-                signOutStory.Execute();
+                context.Result = signOutStory.Execute();
                 return;
             }
             var tokenClaims = tokenVerifier.Verify(cookie);

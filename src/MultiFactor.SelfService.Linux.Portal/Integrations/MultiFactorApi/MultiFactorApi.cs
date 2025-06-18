@@ -69,6 +69,35 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         }
 
         /// <summary>
+        /// Returns SSO master session.
+        /// </summary>
+        /// <param name="userIdentity"></param>
+        public async Task<SsoMasterSessionDto> GetSsoMasterSession()
+        {
+            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<SsoMasterSessionDto>>("self-service/get-master-session", GetBearerAuthHeaders()));
+            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
+        }
+
+        /// <summary>
+        /// Adds SAML session to SSO master session.
+        /// </summary>
+        /// <param name="userIdentity"></param>
+        public async Task<SsoMasterSessionDto> AddToSsoMasterSession(string samlSessionId)
+        {
+            var payload = new
+            {
+                SamlSessionId = samlSessionId
+            };
+
+            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+                "self-service/add-to-master-session", 
+                payload, 
+                GetBearerAuthHeaders()));
+
+            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
+        }
+
+        /// <summary>
         /// Returns new access token.
         /// </summary>
         /// <param name="username"></param>

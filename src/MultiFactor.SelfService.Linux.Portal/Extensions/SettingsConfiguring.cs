@@ -18,6 +18,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 }
             });
 
+            if (applicationBuilder.Environment.EnvironmentName == "localhost")
+            {
+                applicationBuilder.Configuration.AddUserSecrets<Program>();
+            }
+
             return applicationBuilder;
         }
     }
