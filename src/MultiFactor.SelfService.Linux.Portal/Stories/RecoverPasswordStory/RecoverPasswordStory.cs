@@ -55,11 +55,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
 
         private async Task<string> GetIdentity(EnterIdentityForm form)
         {
-            var verificationResult = await _credentialVerifier.VerifyMembership(form.Identity.Trim());
-            if (string.IsNullOrWhiteSpace(verificationResult.UserPrincipalName))
+            var attr = _portalSettings.ActiveDirectorySettings.UseAttributeAsIdentity;
+            var username = form.Identity.Trim();
+            var verificationResult = await _credentialVerifier.VerifyMembership(username);
+            if (!string.IsNullOrWhiteSpace(attr))
             {
-                _logger.LogError("Unable to recover password - failed to get UPN for user: '{u:l}'", form.Identity);
-                throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
+                if (string.IsNullOrWhiteSpace(verificationResult.CustomIdentity))
+                {
+                    throw new InvalidOperationException($"Missing overridden identity (attribute '{attr}') for user {username}");
+                }
+
+                return verificationResult.CustomIdentity;
+            }
+
+            if (!_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
+            {
+                return username;
+            }
+
+            if (string.IsNullOrEmpty(verificationResult.UserPrincipalName))
+            {
+                throw new InvalidOperationException($"Null UPN for user {username}");
             }
 
             return verificationResult.UserPrincipalName;
