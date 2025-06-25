@@ -37,7 +37,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
         }
-        
+
         /// <summary>
         /// Sends a request to create an enrollment request for the self-service portal.
         /// </summary>
@@ -79,7 +79,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// <param name="claims"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="UnsuccessfulResponseException"></exception>
-        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email, 
+        public Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email,
             string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims)
         {
             ArgumentNullException.ThrowIfNull(username);
@@ -87,8 +87,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
             var payload = new
             {
-                Identity = string.IsNullOrEmpty(_settings.ActiveDirectorySettings.NetBiosName) 
-                    ? username 
+                Identity = string.IsNullOrEmpty(_settings.ActiveDirectorySettings.NetBiosName)
+                    ? username
                     : $"{_settings.ActiveDirectorySettings.NetBiosName}\\{username}",
                 Callback = new
                 {
@@ -109,20 +109,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<AccessPageDto>>("access/requests", payload, GetBasicAuthHeaders()));
         }
 
-        public Task<ResetPasswordDto> StartResetPassword(string identity, string callbackUrl)
+        public Task<ResetPasswordDto> StartResetPassword(string twoFaIdentity, string ldapIdentity, string callbackUrl)
         {
-            ArgumentNullException.ThrowIfNull(identity);
+            ArgumentNullException.ThrowIfNull(twoFaIdentity);
             ArgumentNullException.ThrowIfNull(callbackUrl);
 
             // add netbios domain name to login if specified
 
             var payload = new
             {
-                Identity = identity,
+                Identity = twoFaIdentity,
                 CallbackUrl = callbackUrl,
                 Claims = new Dictionary<string, string>
                 {
-                    { MultiFactorClaims.ResetPassword, "true" }
+                    { MultiFactorClaims.ResetPassword, "true" },
+                    { MultiFactorClaims.RawUserName, ldapIdentity }
                 }
             };
 

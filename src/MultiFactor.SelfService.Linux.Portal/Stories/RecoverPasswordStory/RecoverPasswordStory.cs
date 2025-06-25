@@ -42,7 +42,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
             var callback = form.MyUrl.BuildRelativeUrl("Reset", 1);
             try
             {
-                var response = await _apiClient.StartResetPassword(identity, callback);
+                var response = await _apiClient.StartResetPassword(identity, form.Identity, callback);
                 return new RedirectResult(response.Url);
 
             }
