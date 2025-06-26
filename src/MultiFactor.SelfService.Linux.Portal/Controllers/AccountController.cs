@@ -148,7 +148,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public IActionResult Logout([FromServices] SignOutStory signOut) => signOut.Execute();
+        public async Task<IActionResult> Logout([FromServices] SignOutStory signOut, [FromServices] MultiFactorApi api)
+        {
+            await api.LogoutSsoMasterSession();
+
+            return signOut.Execute();
+        }
 
         [HttpPost]
         public IActionResult PostbackFromMfa(string accessToken,
