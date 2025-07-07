@@ -37,6 +37,7 @@ using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement;
 using MultiFactor.SelfService.Linux.Portal.Integrations;
 using MultiFactor.SelfService.Linux.Portal.Stories;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -105,8 +106,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<UnlockUserStory>();
             
             ConfigureHttpClients(builder);
-           
+
             ConfigureMultifactorApi(builder);
+            ConfigureMultifactorIdpApi(builder);
             ConfigureGoogleApi(builder);
             ConfigureYandexCaptchaApi(builder);
 
@@ -166,18 +168,29 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 })
                 .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
-            
+
             builder.Services
-                .AddHttpClient(Constants.HttpClients.MultifactorIdpApi)
+                .AddHttpClient(Constants.HttpClients.MultifactorIdpApi, (services, client) =>
+                {
+                    var settings = services.GetRequiredService<PortalSettings>();
+                    client.BaseAddress = new Uri(settings.MultifactorIdpApiSettings.ApiUrl!);
+
+                })
                 .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
         }
-        
+
 
         private static void ConfigureMultifactorApi(WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<MultiFactorApi>()
                 .AddTransient<MultifactorHttpClientAdapterFactory>();
+        }
+
+        private static void ConfigureMultifactorIdpApi(WebApplicationBuilder builder)
+        {
+            builder.Services.AddTransient<MultifactorIdpApi>()
+                .AddTransient<MultifactorIdpHttpClientAdapterFactory>();
         }
 
         private static void ConfigureGoogleApi(WebApplicationBuilder builder)

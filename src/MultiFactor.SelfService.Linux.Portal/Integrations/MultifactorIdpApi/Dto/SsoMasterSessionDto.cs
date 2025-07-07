@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto
+﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto
 {
     public record SsoMasterSessionDto(
         string MasterSessionId,

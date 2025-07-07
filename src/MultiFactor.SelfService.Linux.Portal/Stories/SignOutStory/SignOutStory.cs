@@ -2,6 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders;
 using System.Text;
 
@@ -10,11 +11,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
     public class SignOutStory
     {
         private readonly SafeHttpContextAccessor _contextAccessor;
+        private readonly MultifactorIdpApi _idpApi;
         private readonly ILogger<SignOutStory> _logger;
 
-        public SignOutStory(SafeHttpContextAccessor contextAccessor, ILogger<SignOutStory> logger)
+        public SignOutStory(SafeHttpContextAccessor contextAccessor, MultifactorIdpApi idpApi, ILogger<SignOutStory> logger)
         {
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+            _idpApi = idpApi;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -23,6 +26,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
             // remove mfa cookie
              _contextAccessor.HttpContext.Response.Cookies.Delete(Constants.COOKIE_NAME);
             _contextAccessor.HttpContext.Request.Headers.Remove("Authorization");
+            _idpApi.LogoutSsoMasterSession();
 
             var redirectUrl = new StringBuilder("/account/login");
             var claimsDto = MultiFactorClaimsDtoBinder.FromRequest(_contextAccessor.HttpContext.Request);
