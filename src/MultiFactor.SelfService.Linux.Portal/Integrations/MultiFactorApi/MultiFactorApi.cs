@@ -69,43 +69,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         }
 
         /// <summary>
-        /// Returns SSO master session.
-        /// </summary>
-        public async Task<SsoMasterSessionDto> GetSsoMasterSession()
-        {
-            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<SsoMasterSessionDto>>("sso-master-session", GetBearerAuthHeaders()));
-            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
-        }
-
-        /// <summary>
-        /// Adds SAML session to SSO master session.
-        /// </summary>
-        /// <param name="samlSessionId"></param>
-        public async Task<SsoMasterSessionDto> AddToSsoMasterSession(string samlSessionId)
-        {
-            var payload = new
-            {
-                ChildSessionId = samlSessionId
-            };
-
-            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
-                "sso-master-session/add-child-session",
-                payload,
-                GetBearerAuthHeaders()));
-
-            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
-        }
-
-        /// <summary>
-        /// Logout from SSO master session.
-        /// </summary>
-        public async Task<SsoMasterSessionDto> LogoutSsoMasterSession()
-        {
-            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>("sso-master-session/logout", GetBearerAuthHeaders()));
-            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
-        }
-
-        /// <summary>
         /// Returns new access token.
         /// </summary>
         /// <param name="username"></param>

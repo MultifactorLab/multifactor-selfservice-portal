@@ -5,6 +5,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
@@ -148,10 +149,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public async Task<IActionResult> Logout([FromServices] SignOutStory signOut, [FromServices] MultiFactorApi api)
+        public IActionResult Logout([FromServices] SignOutStory signOut)
         {
-            await api.LogoutSsoMasterSession();
-
             return signOut.Execute();
         }
 
@@ -174,9 +173,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
-            [FromServices] MultiFactorApi api)
+            [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
-            await api.AddToSsoMasterSession(samlSession);
+            await idpApi.AddToSsoMasterSession(samlSession);
 
             var page = await api.CreateSamlBypassRequestAsync(username, samlSession);
             return View(page);
