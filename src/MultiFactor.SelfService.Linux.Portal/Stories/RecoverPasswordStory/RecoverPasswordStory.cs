@@ -37,27 +37,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
 
         public async Task<IActionResult> StartRecoverAsync(EnterIdentityForm form)
         {
-            if (_portalSettings.ActiveDirectorySettings.RequiresUserPrincipalName)
-            {
-                // AD requires UPN check
-                var userName = LdapIdentity.ParseUser(form.Identity);
-                if (userName.Type != IdentityType.UserPrincipalName)
-                {
-                    throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
-                }
-            }
+            var identity = await GetIdentity(form);
 
-            var identity = form.Identity.Trim();
-            if (_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
-            {
-                var adValidationResult = await _credentialVerifier.VerifyMembership(identity);
-                identity = adValidationResult.UserPrincipalName;
-            }
-            
             var callback = form.MyUrl.BuildRelativeUrl("Reset", 1);
             try
             {
-                var response = await _apiClient.StartResetPassword(identity, callback);
+                var response = await _apiClient.StartResetPassword(identity, form.Identity, callback);
                 return new RedirectResult(response.Url);
 
             }
@@ -66,6 +51,34 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
                 _logger.LogError(ex, "Unable to recover password for user '{u:l}': {m:l}", form.Identity, ex.Message);
                 throw new ModelStateErrorException(_localizer.GetString("AD.UnableToChangePassword"));
             }
+        }
+
+        private async Task<string> GetIdentity(EnterIdentityForm form)
+        {
+            var attr = _portalSettings.ActiveDirectorySettings.UseAttributeAsIdentity;
+            var username = form.Identity.Trim();
+            var verificationResult = await _credentialVerifier.VerifyMembership(username);
+            if (!string.IsNullOrWhiteSpace(attr))
+            {
+                if (string.IsNullOrWhiteSpace(verificationResult.CustomIdentity))
+                {
+                    throw new InvalidOperationException($"Missing overridden identity (attribute '{attr}') for user {username}");
+                }
+
+                return verificationResult.CustomIdentity;
+            }
+
+            if (!_portalSettings.ActiveDirectorySettings.UseUpnAsIdentity)
+            {
+                return username;
+            }
+
+            if (string.IsNullOrEmpty(verificationResult.UserPrincipalName))
+            {
+                throw new InvalidOperationException($"Null UPN for user {username}");
+            }
+
+            return verificationResult.UserPrincipalName;
         }
 
         public async Task ResetPasswordAsync(ResetPasswordForm form)
