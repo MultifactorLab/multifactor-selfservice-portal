@@ -72,6 +72,26 @@
 			<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 		</PasswordManagement>
 
+		<!-- Portal-side password validation before sending the password to AD -->
+		<!-- To Enable validation add PwdRequirement section -->
+		<PasswordRequirements>
+			<!-- <PwdRequirement enabled="true"> -->
+			<!-- <Condition>rule-name</Condition> -->
+			<!-- <Value>optional-value</Value> -->
+			<!-- <DescriptionEn>English description</DescriptionEn> -->
+			<!-- <DescriptionRu>Описание на русском</DescriptionRu> -->
+			<!-- </PwdRequirement> -->
+		</PasswordRequirements>
+
+		<!-- Links for showcase for existing apps -->
+		<!--<ShowcaseLinks>
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
+		</ShowcaseLinks>-->
 
 		<!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
 		<!--<LoggingLevel>Info</LoggingLevel>-->
@@ -82,7 +102,7 @@
 
 		<!-- Load Nested Groups during the profile loading -->
 		<!--LoadActiveDirectoryNestedGroups>false</LoadActiveDirectoryNestedGroups-->
-		
+
 		<!--
 			UI language selection:
 			ru - Russian,

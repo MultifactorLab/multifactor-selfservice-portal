@@ -128,7 +128,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<ResetPasswordDto>>("self-service/start-reset-password", payload, GetBasicAuthHeaders()));
+        }
 
+        public Task<UnlockUserDto> StartUnlockingUser(string identity, string callbackUrl)
+        {
+            ArgumentNullException.ThrowIfNull(identity);
+            ArgumentNullException.ThrowIfNull(callbackUrl);
+            
+            var payload = new
+            {
+                Identity = identity,
+                CallbackUrl = callbackUrl,
+                Claims = new Dictionary<string, string>
+                {
+                    { MultiFactorClaims.UnlockUser, "true"}
+                }
+            };
+
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<UnlockUserDto>>("self-service/start-unlock-user", payload, GetBasicAuthHeaders()));
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
