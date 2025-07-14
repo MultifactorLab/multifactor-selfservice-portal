@@ -15,6 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
         public string Phone { get; private set; }
         public string Username { get; private set; }
         public string UserPrincipalName { get; private set; }
+        public string CustomIdentity { get; private set; }
         private CredentialVerificationResult(bool isAuthenticated)
         {
             IsAuthenticated = isAuthenticated;
@@ -49,7 +50,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 Username = username,
             };
         }
-        
+
         public static CredentialVerificationResult FromKnownError(string errorMessage, string username = null)
         {
             if (string.IsNullOrEmpty(errorMessage))
@@ -63,7 +64,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             if (match.Success && match.Groups.Count == 2)
             {
                 var data = match.Groups[1].Value;
-                
+
                 var resultBuilder = CreateBuilder(false);
                 if(username != null)
                 {
@@ -107,8 +108,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
             return new CredentialVerificationResult(false) { Reason = errorMessage ?? "Unknown error" };
         }
 
-        
-        
+
+
         public class CredentialVerificationResultBuilder
         {
             private readonly CredentialVerificationResult _result;
@@ -135,10 +136,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 _result.Phone = phone;
                 return this;
             }
-            
+
             public CredentialVerificationResultBuilder SetUsername(string username)
             {
                 _result.Username = username;
+                return this;
+            }
+
+            public CredentialVerificationResultBuilder SetCustomIdentity(string identity)
+            {
+                _result.CustomIdentity = identity;
                 return this;
             }
 
@@ -153,7 +160,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 _result.PasswordExpirationDate = dt;
                 return this;
             }
-            
+
             public CredentialVerificationResultBuilder SetReason(string reason)
             {
                 _result.Reason = reason;
