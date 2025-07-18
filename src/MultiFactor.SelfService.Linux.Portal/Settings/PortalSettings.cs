@@ -10,6 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public TechnicalAccountSettings TechnicalAccountSettings { get; private set; } = new();
         public ActiveDirectorySettings ActiveDirectorySettings { get; set; } = new();
         public MultiFactorApiSettings MultiFactorApiSettings { get; private set; } = new();
+        public MultifactorIdpApiSettings MultifactorIdpApiSettings { get; private set; } = new();
         public GroupPolicyPreset GroupPolicyPreset { get; private set; } = new();
         public AdditionalClaims AdditionalClaims { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
