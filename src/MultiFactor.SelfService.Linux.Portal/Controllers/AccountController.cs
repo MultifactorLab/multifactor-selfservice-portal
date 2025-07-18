@@ -5,9 +5,11 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -20,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         private readonly PortalSettings _portalSettings;
         private readonly ApplicationCache _applicationCache;
         private readonly SafeHttpContextAccessor _safeHttpContextAccessor;
-        
+
 
         public AccountController(PortalSettings portalSettings,
             ApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
@@ -31,14 +33,29 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public IActionResult Login()
+        public async Task<IActionResult> Login([FromServices] LoadProfileStory loadProfile)
         {
-            if (_portalSettings.PreAuthenticationMethod)
+            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+            try
             {
-                return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
-            }
+                var user = await loadProfile.ExecuteAsync();
 
-            return View(new LoginViewModel());
+                if (sso.HasSamlSession())
+                {
+                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = user.Identity, samlSession = sso.SamlSessionId });
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Identity", sso);
+                }
+
+                return View(new LoginViewModel());
+            }
         }
 
         [HttpPost]
@@ -119,7 +136,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return RedirectToAction("Login");
             }
-            
+
             try
             {
                 return await authnStoryHandler.ExecuteAsync(model);
@@ -132,7 +149,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public IActionResult Logout([FromServices] SignOutStory signOut) => signOut.Execute();
+        public IActionResult Logout([FromServices] SignOutStory signOut)
+        {
+            return signOut.Execute();
+        }
 
         [HttpPost]
         public IActionResult PostbackFromMfa(string accessToken,
@@ -153,8 +173,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
-            [FromServices] MultiFactorApi api)
+            [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
+            await idpApi.AddToSsoMasterSession(samlSession);
+
             var page = await api.CreateSamlBypassRequestAsync(username, samlSession);
             return View(page);
         }
