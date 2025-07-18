@@ -5,9 +5,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         // for model binding
         public ActiveDirectorySettings()
         {
-                
+
         }
-        
+
         // for obsolete mapping
         public ActiveDirectorySettings(
             string secondFactorGroup,
@@ -26,14 +26,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         }
         public string[] SecondFactorGroups => SecondFactorGroup?.Split(';') ?? Array.Empty<string>();
 
-        /// old setting with single group. we must split in and use <see cref="SecondFactorGroups"/> 
+        /// old setting with single group. we must split in and use <see cref="SecondFactorGroups"/>
         private string SecondFactorGroup { get; init; }
         public bool UseUserPhone { get; init; }
         public bool UseMobileUserPhone { get; init; }
         public string NetBiosName { get; init; }
         public bool RequiresUserPrincipalName { get; init; }
         public bool UseUpnAsIdentity { get; init; }
-        
+        public string UseAttributeAsIdentity { get; private set; } = string.Empty;
+
         /// <summary>
         /// Only users from these groups has access to the resource
         /// </summary>

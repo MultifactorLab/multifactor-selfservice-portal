@@ -45,6 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         public async Task<IActionResult> ExecuteAsync(IdentityViewModel model)
         {
             var userName = LdapIdentity.ParseUser(model.UserName);
+
             if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName)
             {
                 if (userName.Type != IdentityType.UserPrincipalName)
@@ -59,7 +60,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             // 2fa before authn
             var identity = model.UserName;
             var sso = _contextAccessor.SafeGetSsoClaims();
-            // in common case 
+            // in common case
             if (!_settings.NeedPrebindInfo())
             {
                 var credResult = CredentialVerificationResult.BeforeAuthn(model.UserName);
@@ -109,19 +110,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult,
-            string documentUrl)
+        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl)
         {
             var postbackUrl = documentUrl.BuildPostbackUrl();
             var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult.Username, verificationResult.UserPrincipalName);
+            var username = GetIdentity(verificationResult);
 
             var personalData = new PersonalData(
                 verificationResult.DisplayName,
                 verificationResult.Email,
                 verificationResult.Phone,
                 _settings.MultiFactorApiSettings.PrivacyModeDescriptor);
-            
+
             var accessPage = await _api.CreateAccessRequestAsync(username,
                 personalData.Name,
                 personalData.Email,
@@ -132,25 +132,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             return new RedirectResult(accessPage.Url, true);
         }
 
-        private string GetIdentity(string username, string upn = null)
+        private string GetIdentity(CredentialVerificationResult verificationResult)
         {
-            var identity = username;
-            if (_settings.ActiveDirectorySettings.UseUpnAsIdentity)
-            {
-                if (string.IsNullOrEmpty(upn))
-                {
-                    throw new InvalidOperationException($"Null UPN for user {username}");
-                }
-
-                identity = upn;
-            }
-
-            if (identity == null)
-            {
-                throw new InvalidOperationException($"Null username, can't sign in");
-            }
-
-            return identity;
+            return !string.IsNullOrWhiteSpace(verificationResult.CustomIdentity)
+                ? verificationResult.CustomIdentity
+                : verificationResult.Username;
         }
 
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession)
