@@ -177,9 +177,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                     {
                         return;
                     }
-
                     client.BaseAddress = new Uri(settings.MultifactorIdpApiSettings.ApiUrl!);
-
                 })
                 .ConfigurePrimaryHttpMessageHandler(() => CreateHttpClientHandler(proxy))
                 .AddHttpMessageHandler<HttpMessageInterceptor>();
