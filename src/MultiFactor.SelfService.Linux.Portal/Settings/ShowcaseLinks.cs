@@ -1,4 +1,6 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Settings
+﻿using System.Diagnostics;
+
+namespace MultiFactor.SelfService.Linux.Portal.Settings
 {
     public class ShowcaseLinks
     {
@@ -14,9 +16,9 @@
         {
             // To deal with a single element binding to array issue, we should map a single item manually 
             // See: https://github.com/dotnet/runtime/issues/57325
-            if (Links.Count == 0 && !string.IsNullOrEmpty(SingleLink.Title))
+            if (!string.IsNullOrEmpty(SingleLink.Title))
             {
-                Links.Add(SingleLink);
+                Links = new List<Link>() { SingleLink };
             }
             return Links;
         }

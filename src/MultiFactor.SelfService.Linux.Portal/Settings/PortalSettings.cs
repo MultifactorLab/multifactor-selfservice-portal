@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public AdditionalClaims AdditionalClaims { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
         public PasswordManagementSettings PasswordManagement { get; set; }
-        public ShowcaseLinks ShowcaseLinks { get; set; } = new();
+        public ShowcaseLinks LinksShowcase { get; set; } = new();
         public ExchangeActiveSyncDevicesManagement ExchangeActiveSyncDevicesManagement { get; set; }
         public PasswordRequirementsSection PasswordRequirements { get; init; } = new();
         public string LoggingLevel { get; private set; }
