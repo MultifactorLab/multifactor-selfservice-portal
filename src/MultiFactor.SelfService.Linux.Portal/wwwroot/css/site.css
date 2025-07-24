@@ -626,6 +626,8 @@ p {
 .showcase-link-image {
     max-width: 4em;
     max-height: 4em;
+    min-width: 4em;
+    min-height: 4em;
     margin-bottom: 0.5em;
 }
 

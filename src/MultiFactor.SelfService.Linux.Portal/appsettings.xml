@@ -89,14 +89,14 @@
 		</PasswordRequirements>
 
 		<!-- Links for showcase for existing apps -->
-		<!--<ShowcaseLinks>
+		<!--<LinksShowcase>
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
-		</ShowcaseLinks>-->
+		</LinksShowcase>-->
 
 		<!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
 		<!--<LoggingLevel>Info</LoggingLevel>-->

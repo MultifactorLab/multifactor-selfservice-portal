@@ -1,12 +1,12 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
 
 <div class="login">
-    <div class="form-column @(Settings.ShowcaseLinks.GetLinks().Count > 0 ? "showcase-no-top-padding" : "") ">
+    <div class="form-column @(Settings.LinksShowcase.GetLinks().Count > 0 ? "showcase-no-top-padding" : "") ">
         <div class="auth-details">
-            @if (Settings.ShowcaseLinks != null)
+            @if (Settings.LinksShowcase != null)
             {
                 <div class="showcase">
-                    @foreach (var link in Settings.ShowcaseLinks.GetLinks())
+                    @foreach (var link in Settings.LinksShowcase.GetLinks())
                     {
                         <a href="@link.Url" @(link.OpenInNewTab ? "target=_blank" : "")>
                             <div class="showcase-link">
