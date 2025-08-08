@@ -9,7 +9,7 @@ using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
-    [IsAuthorized]
+    //[IsAuthorized]
     [RequiredFeature(ApplicationFeature.PasswordManagement)]
     public class PasswordController : ControllerBase
     {
@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Change(ChangePasswordViewModel model, 
+        public async Task<IActionResult> Change(ChangePasswordViewModel model,
             [FromServices] ChangeValidPasswordStory changeValidPassword,
             [FromServices] IStringLocalizer<SharedResource> localizer)
         {
