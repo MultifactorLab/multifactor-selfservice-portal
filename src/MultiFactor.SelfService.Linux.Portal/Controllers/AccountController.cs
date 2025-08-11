@@ -45,6 +45,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                     return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = user.Identity, samlSession = sso.SamlSessionId });
                 }
 
+                if (sso.HasOidcSession())
+                {
+                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { username = user.Identity, oicdSession = sso.OidcSessionId });
+                }
+
                 return RedirectToAction("Index", "Home");
             }
             catch (UnauthorizedException ex)
@@ -175,9 +180,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
             [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
-            await idpApi.AddToSsoMasterSession(samlSession);
+            await idpApi.AddSamlToSsoMasterSession(samlSession);
 
             var page = await api.CreateSamlBypassRequestAsync(username, samlSession);
+            return View(page);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ByPassOidcSession(string username, string oidcSession,
+            [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+        {
+            await idpApi.AddOidcToSsoMasterSession(oidcSession);
+
+            var page = await api.CreateOidcBypassRequestAsync(username, oidcSession);
             return View(page);
         }
     }

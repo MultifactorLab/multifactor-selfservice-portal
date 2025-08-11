@@ -29,14 +29,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         public async Task<SsoMasterSessionDto> GetSsoMasterSession()
         {
             var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<SsoMasterSessionDto>>("sso-master-session", GetBearerAuthHeaders()));
-            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
+            return new SsoMasterSessionDto(response.MasterSessionId);
         }
 
         /// <summary>
         /// Adds SAML session to SSO master session.
         /// </summary>
         /// <param name="samlSessionId"></param>
-        public async Task<SsoMasterSessionDto> AddToSsoMasterSession(string samlSessionId)
+        public async Task<SsoMasterSessionDto> AddSamlToSsoMasterSession(string samlSessionId)
         {
             var payload = new
             {
@@ -44,11 +44,30 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             };
 
             var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
-                "sso-master-session/add-child-session",
+                "sso-master-session/add-saml-session",
                 payload,
                 GetBearerAuthHeaders()));
 
-            return new SsoMasterSessionDto(response.MasterSessionId, response.SamlSessionIds);
+            return new SsoMasterSessionDto(response.MasterSessionId);
+        }
+
+        /// <summary>
+        /// Adds OIDC session to SSO master session.
+        /// </summary>
+        /// <param name="oidcSessionId"></param>
+        public async Task<SsoMasterSessionDto> AddOidcToSsoMasterSession(string oidcSessionId)
+        {
+            var payload = new
+            {
+                ChildSessionId = oidcSessionId
+            };
+
+            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+                "sso-master-session/add-oidc-session",
+                payload,
+                GetBearerAuthHeaders()));
+
+            return new SsoMasterSessionDto(response.MasterSessionId);
         }
 
         /// <summary>

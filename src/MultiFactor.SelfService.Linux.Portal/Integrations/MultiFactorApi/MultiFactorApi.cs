@@ -38,6 +38,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
         }
 
+        public Task<BypassPageDto> CreateOidcBypassRequestAsync(string login, string oidcSessionId)
+        {
+            var payload = new
+            {
+                Identity = login,
+                OidcSessionId = oidcSessionId
+            };
+
+            var test1 = GetBearerAuthHeaders();
+            var test2 = GetBasicAuthHeaders();
+
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/oidc", payload, GetBasicAuthHeaders()));
+        }
+
         /// <summary>
         /// Sends a request to create an enrollment request for the self-service portal.
         /// </summary>
