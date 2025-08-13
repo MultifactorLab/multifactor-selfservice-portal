@@ -40,11 +40,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         {
             var payload = new
             {
-                ChildSessionId = samlSessionId
+                ChildSessionId = samlSessionId,
+                SessionType = SsoMasterSessionTypes.SamlSessionType
             };
 
             var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
-                "sso-master-session/add-saml-session",
+                "sso-master-session/add-child-session",
                 payload,
                 GetBearerAuthHeaders()));
 
@@ -59,11 +60,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         {
             var payload = new
             {
-                ChildSessionId = oidcSessionId
+                ChildSessionId = oidcSessionId,
+                SessionType = SsoMasterSessionTypes.OidcSessionType
             };
 
             var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
-                "sso-master-session/add-oidc-session",
+                "sso-master-session/add-child-session",
                 payload,
                 GetBearerAuthHeaders()));
 

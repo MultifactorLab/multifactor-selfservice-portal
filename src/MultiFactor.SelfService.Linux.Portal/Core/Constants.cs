@@ -36,6 +36,12 @@
             public const string UnlockUser = "unlockUser";
         }
 
+        public static class SsoMasterSessionTypes
+        {
+            public const string SamlSessionType = "saml";
+            public const string OidcSessionType = "oidc";
+        }
+
         public static class HttpClients
         {
             public const string YandexCaptcha = "yandexCaptcha";
