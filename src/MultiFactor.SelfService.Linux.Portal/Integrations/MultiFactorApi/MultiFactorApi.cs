@@ -46,9 +46,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 OidcSessionId = oidcSessionId
             };
 
-            var test1 = GetBearerAuthHeaders();
-            var test2 = GetBasicAuthHeaders();
-
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/oidc", payload, GetBasicAuthHeaders()));
         }
 
