@@ -10,19 +10,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     {
         public async Task<IActionResult> Index(SingleSignOnDto claims, [FromServices] LoadProfileStory loadProfile)
         {
+            var userProfile = await loadProfile.ExecuteAsync();
+
             if (claims.HasSamlSession())
             {
-                var user = await loadProfile.ExecuteAsync();
-                return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = user.Identity, samlSession = claims.SamlSessionId });
+                return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = userProfile.Identity, samlSession = claims.SamlSessionId });
             }
 
             if (claims.HasOidcSession())
             {
-                //re-login for saml or oidc authentication
-                return RedirectToAction("logout", "account", claims);
+                return new RedirectToActionResult("ByPassOidcSession", "Account", new { username = userProfile.Identity, oidcSession = claims.OidcSessionId });
             }
 
-            var userProfile = await loadProfile.ExecuteAsync();
             return View(userProfile);
         }
     }
