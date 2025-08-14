@@ -9,6 +9,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         public IActionResult Index()
         {
             return View();
-        } 
+        }
+
+        public IActionResult SessionExpired()
+        {
+            return View();
+        }
     }
 }
