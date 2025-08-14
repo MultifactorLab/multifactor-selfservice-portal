@@ -25,7 +25,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly ILogger<SignInStory> _logger;
         private readonly ApplicationCache _applicationCache;
         private readonly ClaimsProvider _claimsProvider;
-        private readonly PortalSettings _portalSettings;
 
         public SignInStory(CredentialVerifier credentialVerifier,
             DataProtection dataProtection,
@@ -35,8 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             ApplicationCache applicationCache,
             IStringLocalizer<SharedResource> localizer,
             ILogger<SignInStory> logger,
-            ClaimsProvider claimsProvider,
-            PortalSettings portalSettings)
+            ClaimsProvider claimsProvider)
         {
             _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
             _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
@@ -47,7 +45,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
             _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
-            _portalSettings = portalSettings;
         }
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
