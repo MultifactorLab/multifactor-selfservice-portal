@@ -1,4 +1,5 @@
 ﻿using LdapForNet;
+using Microsoft.Extensions.Caching.Memory;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using System.Diagnostics;
 using static LdapForNet.Native.Native;
@@ -16,10 +17,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             string uri,
             LdapIdentity user,
             string password,
+            IMemoryCache memoryCache,
             Action<LdapConnectionAdapterConfigBuilder> configure = null);
 
         ILdapConnectionAdapter CreateAnonymous(
             string uri,
+            IMemoryCache memoryCache,
             Action<LdapConnectionAdapterConfigBuilder> configure = null);
     }
 
@@ -28,8 +31,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly LdapConnection _connection;
         private string Uri { get; }
         private readonly LdapConnectionAdapterConfig _config;
-
         private readonly string[] _namingContextAttributeNames = ["defaultNamingContext", "namingContexts"];
+        private IMemoryCache _memoryCache;
 
         /// <summary>
         /// Returns user that has been successfully binded with LDAP directory.
@@ -49,12 +52,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             "vendorVersion"
         ];
 
-        private LdapConnectionAdapter(string uri, LdapIdentity user, LdapConnectionAdapterConfig config)
+        private LdapConnectionAdapter(string uri, LdapIdentity user, LdapConnectionAdapterConfig config, IMemoryCache memoryCache)
         {
             _connection = new LdapConnection();
             Uri = uri;
             BindedUser = user;
             _config = config;
+            _memoryCache = memoryCache;
         }
 
         public LdapConnectionAdapter()
@@ -63,6 +67,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
         public async Task<LdapDomain> WhereAmIAsync()
         {
+            if (_memoryCache.TryGetValue(Uri, out LdapDomain cachedData))
+            {
+                _config.Logger.LogDebug("Query {method:l} result from cache.", nameof(WhereAmIAsync));
+                return cachedData;
+            }
+
             var serverInfo = await GetServerInfoAsync();
             var filter = LdapFilter.Create("objectclass", "*").Build();
             var queryResult = await SearchQueryAsync(string.Empty, filter, LdapSearchScope.LDAP_SCOPE_BASEOBJECT,
@@ -80,7 +90,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 }
             }
 
-            return LdapDomain.Parse(defaultNamingContext);
+            var domain = LdapDomain.Parse(defaultNamingContext);
+            
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSize(1)
+                .SetSlidingExpiration(TimeSpan.FromMinutes(60));
+            _memoryCache.Set(Uri, domain, cacheEntryOptions);
+
+            return domain;
         }
 
         public async Task<IList<LdapEntry>> SearchQueryAsync(string baseDn, string filter, LdapSearchScope scope, params string[] attributes)
@@ -93,6 +110,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var sw = Stopwatch.StartNew();
             var searchResult = await _connection.SearchAsync(baseDn, filter, attributes, scope);
 
+            _config.Logger.LogDebug("Querying {baseDn:l} {filter:l}. Time elapsed {elapsed}", baseDn, filter, sw.Elapsed);
+
             if (sw.Elapsed.TotalSeconds > 2)
             {
                 _config.Logger.LogWarning("Slow response while querying {baseDn:l}. Time elapsed {elapsed}", baseDn,
@@ -104,13 +123,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 
         public Task<DirectoryResponse> SendRequestAsync(DirectoryRequest request)
         {
-            return _connection.SendRequestAsync(request);
+            var sw = Stopwatch.StartNew();
+            var result = _connection.SendRequestAsync(request);
+            _config.Logger.LogDebug("Querying {request:l}. Time elapsed {elapsed}", request.GetType(), sw.Elapsed);
+
+            return result;
         }
 
         public async Task<ILdapConnectionAdapter> CreateAsync(
             string uri,
             LdapIdentity user,
             string password,
+            IMemoryCache memoryCache,
             Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             ArgumentNullException.ThrowIfNull(uri);
@@ -120,8 +144,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var config = new LdapConnectionAdapterConfig();
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
 
-            var instance = new LdapConnectionAdapter(uri, user, config);
+            var instance = new LdapConnectionAdapter(uri, user, config, memoryCache);
 
+            var sw = Stopwatch.StartNew();
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
                 var ldapUri = new Uri(uri);
@@ -145,11 +170,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 UserName = bindDn,
                 Password = config.BindPasswordFormatter.Format(password)
             });
+
+            instance._config.Logger.LogDebug("Connection {method:l}. Time elapsed {elapsed}", nameof(CreateAsync), sw.Elapsed);
+
             return instance;
         }
 
         public ILdapConnectionAdapter CreateAnonymous(
             string uri,
+            IMemoryCache memoryCache,
             Action<LdapConnectionAdapterConfigBuilder> configure = null)
         {
             ArgumentNullException.ThrowIfNull(uri);
@@ -157,7 +186,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             var config = new LdapConnectionAdapterConfig();
             configure?.Invoke(new LdapConnectionAdapterConfigBuilder(config));
 
-            var instance = new LdapConnectionAdapter(uri, null, config);
+            var instance = new LdapConnectionAdapter(uri, null, config, memoryCache);
+
+            var sw = Stopwatch.StartNew();
             if (System.Uri.IsWellFormedUriString(uri, UriKind.Absolute))
             {
                 var ldapUri = new Uri(uri);
@@ -175,13 +206,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             instance._connection.TrustAllCertificates();
             instance._connection.Bind(LdapAuthType.Anonymous, new LdapCredential());
 
+            instance._config.Logger.LogDebug("Connection {method:l}. Time elapsed {elapsed}", nameof(CreateAnonymous), sw.Elapsed);
+
             return instance;
         }
 
         public async Task<LdapServerInfo> GetServerInfoAsync()
         {
+            var sw = Stopwatch.StartNew();
             var result = await _connection.SearchAsync(string.Empty, "(objectclass=*)",
                 Attributes, LdapSearchScope.LDAP_SCOPE_BASE);
+            _config.Logger.LogDebug("Querying {method:l}. Time elapsed {elapsed}", nameof(GetServerInfoAsync),  sw.Elapsed);
+
             var entry = result.FirstOrDefault();
             if (entry == null)
             {
@@ -190,8 +226,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 return def;
             }
 
+            sw.Restart();
             var rootDse = await _connection.SearchAsync(string.Empty, "(objectclass=*)",
                 scope: LdapSearchScope.LDAP_SCOPE_BASE);
+            _config.Logger.LogDebug("Querying {method:l} rootDse. Time elapsed {elapsed}", nameof(GetServerInfoAsync), sw.Elapsed);
+
             foreach (var attribute in rootDse.First().DirectoryAttributes)
             {
                 entry.DirectoryAttributes.Remove(attribute.Name);

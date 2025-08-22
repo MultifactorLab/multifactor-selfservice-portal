@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
+﻿using Microsoft.Extensions.Caching.Memory;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
@@ -22,14 +23,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         private readonly ILogger<GetApplicationInfoStory> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        private readonly IMemoryCache _memoryCache;
 
-        public GetApplicationInfoStory(MultiFactorApi api, 
+        public GetApplicationInfoStory(MultiFactorApi api,
             IWebHostEnvironment env,
-            PortalSettings settings, 
-            IConfiguration config, 
+            PortalSettings settings,
+            IConfiguration config,
             ILogger<GetApplicationInfoStory> logger,
             IBindIdentityFormatter bindDnFormatter,
-            ILdapConnectionAdapter ldapConnectionAdapter)
+            ILdapConnectionAdapter ldapConnectionAdapter,
+            IMemoryCache memoryCache)
         {
             _api = api;
             _env = env;
@@ -38,6 +41,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             _logger = logger;
             _bindDnFormatter = bindDnFormatter;
             _ldapConnectionAdapter = ldapConnectionAdapter;
+            _memoryCache = memoryCache;
         }
 
         public async Task<ApplicationInfoDto> ExecuteAsync()
@@ -89,8 +93,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
             try
             {
                 var user = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
-                using var conn = await _ldapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user, 
+                using var conn = await _ldapConnectionAdapter.CreateAsync(_settings.CompanySettings.Domain, user,
                     _settings.TechnicalAccountSettings.Password!,
+                    _memoryCache,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
                 return ApplicationComponentStatus.Ok;
             }

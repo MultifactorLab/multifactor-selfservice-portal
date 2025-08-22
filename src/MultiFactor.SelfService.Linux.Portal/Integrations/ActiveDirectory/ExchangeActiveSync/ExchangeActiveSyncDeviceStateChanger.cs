@@ -6,6 +6,7 @@ using FluentValidation;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync
 {
@@ -15,17 +16,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         private readonly ILogger<ExchangeActiveSyncDeviceStateChanger> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        private readonly IMemoryCache _memoryCache;
         
         public ExchangeActiveSyncDeviceStateChanger(
             PortalSettings settings,
             ILogger<ExchangeActiveSyncDeviceStateChanger> logger,
             IBindIdentityFormatter bindDnFormatter,
-            ILdapConnectionAdapter ldapConnectionAdapter)
+            ILdapConnectionAdapter ldapConnectionAdapter,
+            IMemoryCache memoryCache)
         {
             _settings = settings;
             _logger = logger;
             _bindDnFormatter = bindDnFormatter;
             _ldapConnectionAdapter = ldapConnectionAdapter;
+            _memoryCache = memoryCache;
         }
 
         public async Task ChangeStateAsync(ExchangeActiveSyncDeviceInfo device, ExchangeActiveSyncDeviceAccessState state)
@@ -40,6 +44,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.CompanySettings.Domain,
                     techUser, 
                     _settings.TechnicalAccountSettings.Password!, 
+                    _memoryCache,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 // first, we need to update device state and state reason.
