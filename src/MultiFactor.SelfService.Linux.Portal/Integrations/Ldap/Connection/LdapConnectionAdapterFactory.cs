@@ -50,7 +50,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                     parsed,
                     password,
                     _memoryCache,
-                    config => config.SetBindIdentityFormatter(_bindDnFormatter));
+                    config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
             }
 
             var existedUser = await GetExistedUserAsync(username);
