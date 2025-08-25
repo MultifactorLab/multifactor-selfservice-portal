@@ -1,4 +1,5 @@
 ﻿using LdapForNet;
+using Microsoft.Extensions.Caching.Memory;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
@@ -12,17 +13,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly ILogger<LdapConnectionAdapterFactory> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
-        
+        private readonly IMemoryCache _memoryCache;
+
         public LdapConnectionAdapterFactory(
             PortalSettings settings, 
             ILogger<LdapConnectionAdapterFactory> logger, 
             IBindIdentityFormatter bindDnFormatter,
-            ILdapConnectionAdapter ldapConnectionAdapter)
+            ILdapConnectionAdapter ldapConnectionAdapter,
+            IMemoryCache memoryCache)
         {
             _settings = settings;
             _logger = logger;
             _bindDnFormatter = bindDnFormatter;
             _ldapConnectionAdapter = ldapConnectionAdapter;
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         /// <summary>
@@ -45,6 +49,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                     _settings.CompanySettings.Domain,
                     parsed,
                     password,
+                    _memoryCache,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter));
             }
 
@@ -55,6 +60,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                 _settings.CompanySettings.Domain,
                 existedUser,
                 password,
+                _memoryCache,
                 config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
         }
 
@@ -75,6 +81,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
                     _settings.CompanySettings.Domain,
                     user,
                     _settings.TechnicalAccountSettings.Password!,
+                    _memoryCache,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
             }
             catch (Exception ex)

@@ -47,6 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             builder.Services
                 .AddSession()
+                .AddMemoryCache()
                 .AddHttpContextAccessor()
                 .AddPasswordChangingSessionCache()
                 .AddSingleton<ILdapConnectionAdapter, LdapConnectionAdapter>()

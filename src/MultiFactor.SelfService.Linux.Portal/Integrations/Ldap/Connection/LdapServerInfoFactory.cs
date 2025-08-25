@@ -1,4 +1,5 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Settings;
+﻿using Microsoft.Extensions.Caching.Memory;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
 {
@@ -7,11 +8,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly PortalSettings _settings;
         private readonly ILogger<LdapServerInfoFactory> _logger;
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        private readonly IMemoryCache _memoryCache;
 
-        public LdapServerInfoFactory(PortalSettings settings, ILdapConnectionAdapter ldapConnectionAdapter, ILogger<LdapServerInfoFactory> logger)
+        public LdapServerInfoFactory(PortalSettings settings, ILdapConnectionAdapter ldapConnectionAdapter, ILogger<LdapServerInfoFactory> logger, IMemoryCache memoryCache)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _ldapConnectionAdapter = ldapConnectionAdapter;
         }
 
@@ -20,6 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             try
             {
                 using var conn = _ldapConnectionAdapter.CreateAnonymous(_settings.CompanySettings.Domain,
+                    _memoryCache,
                     x => x.SetLogger(_logger));
                 var info = await conn.GetServerInfoAsync();
                 _logger.LogInformation("Ldap implementation: {impl}", info);

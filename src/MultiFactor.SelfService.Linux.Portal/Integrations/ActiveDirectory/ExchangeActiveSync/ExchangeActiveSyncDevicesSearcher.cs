@@ -1,4 +1,5 @@
 ﻿using LdapForNet;
+using Microsoft.Extensions.Caching.Memory;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync.Models;
@@ -18,6 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
         private readonly ILogger<ExchangeActiveSyncDevicesSearcher> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        private readonly IMemoryCache _memoryCache;
         private readonly LdapProfileLoader _profileLoader;
 
         public ExchangeActiveSyncDevicesSearcher(PortalSettings settings, 
@@ -25,6 +27,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
             ILogger<ExchangeActiveSyncDevicesSearcher> logger,
             IBindIdentityFormatter bindDnFormatter,
             ILdapConnectionAdapter ldapConnectionAdapter,
+            IMemoryCache memoryCache,
             LdapProfileLoader profileLoader)
         {
             _settings = settings;
@@ -48,6 +51,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.CompanySettings.Domain, 
                     techUser, 
                     _settings.TechnicalAccountSettings.Password!,
+                    _memoryCache,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 var domain = await connection.WhereAmIAsync();
@@ -99,6 +103,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.Exch
                     _settings.CompanySettings.Domain, 
                     techUser, 
                     _settings.TechnicalAccountSettings.Password!,
+                    _memoryCache,
                     config => config.SetBindIdentityFormatter(_bindDnFormatter).SetLogger(_logger));
 
                 var domain = await connection.WhereAmIAsync();
