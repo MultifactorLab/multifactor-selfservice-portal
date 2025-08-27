@@ -19,18 +19,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             {
                 loggerConfiguration.MinimumLevel.Override("Microsoft", GetLogMinimalLevel(msOverride));
             }
-            
-            var isLocalhost = applicationBuilder.Environment.IsEnvironment("localhost");
-            loggerConfiguration.WriteTo.Console(isLocalhost ? logLevel : LogEventLevel.Warning);
 
-            ConfigureFileLog(loggerConfiguration, applicationBuilder);
+            ConfigureConsoleLog(loggerConfiguration, applicationBuilder);
 
             var logger = loggerConfiguration.CreateLogger();
             applicationBuilder.Logging.ClearProviders();
             applicationBuilder.Logging.AddSerilog(logger);
 
             Log.Logger = logger;
-            if (isLocalhost)
+            if (applicationBuilder.Environment.IsEnvironment("localhost"))
             {
                 Log.Logger.Information($"Environment: {applicationBuilder.Configuration.GetConfigValue<string>("Environment")}. Logging subsystem has been configured");
             }
@@ -48,17 +45,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 _ => LogEventLevel.Information
             };
 
-        private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
+        private static void ConfigureConsoleLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
             var formatter = GetLogFormatter(applicationBuilder);
-            var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
-                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.Console(formatter);
             }
             else
             {
-                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.Console();
             }
         }
 
