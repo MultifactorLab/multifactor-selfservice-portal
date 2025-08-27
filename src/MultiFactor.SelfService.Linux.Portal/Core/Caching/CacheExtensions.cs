@@ -22,7 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
                     x.AbsoluteExpiration = settings.PasswordChangingSessionLifetime.Value;
                 }
             });
-            services.AddSingleton<ApplicationCache>();
+            services.AddSingleton<IApplicationCache, ApplicationCache>();
             return services;
         }
     }

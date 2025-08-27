@@ -16,19 +16,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStor
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly DataProtection _dataProtection;
         private readonly UserPasswordChanger _passwordChanger;
-        private readonly ApplicationCache _applicationCache;
+        private readonly IApplicationCache _applicationCache;
 
         public ChangeExpiredPasswordStory(PortalSettings settings,
             SafeHttpContextAccessor contextAccessor,
             DataProtection dataProtection,
             UserPasswordChanger passwordChanger,
-            ApplicationCache applicationCache)
+            IApplicationCache applicationCache)
         {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
-            _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
-            _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));
-            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
+            _settings = settings;
+            _contextAccessor = contextAccessor;
+            _dataProtection = dataProtection;
+            _passwordChanger = passwordChanger;
+            _applicationCache = applicationCache;
         }
 
         public async Task<IActionResult> ExecuteAsync(ChangeExpiredPasswordViewModel model)

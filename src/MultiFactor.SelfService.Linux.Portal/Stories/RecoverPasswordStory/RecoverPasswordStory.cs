@@ -13,7 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
 {
     public class RecoverPasswordStory
     {
-        private readonly MultiFactorApi _apiClient;
+        private readonly IMultiFactorApi _apiClient;
         private readonly PortalSettings _portalSettings;
         private readonly ForgottenPasswordChanger _passwordChanger;
         private readonly CredentialVerifier _credentialVerifier;
@@ -21,7 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory
         private readonly IStringLocalizer<SharedResource> _localizer;
 
         public RecoverPasswordStory(
-            MultiFactorApi apiClient,
+            IMultiFactorApi apiClient,
             PortalSettings portalSettings,
             ForgottenPasswordChanger passwordChanger,
             ILogger<RecoverPasswordStory> logger,

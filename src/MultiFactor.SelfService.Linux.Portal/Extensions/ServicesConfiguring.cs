@@ -190,7 +190,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void ConfigureMultifactorApi(WebApplicationBuilder builder)
         {
-            builder.Services.AddTransient<MultiFactorApi>()
+            builder.Services.AddTransient<IMultiFactorApi, MultiFactorApi>()
                 .AddTransient<MultifactorHttpClientAdapterFactory>();
         }
 

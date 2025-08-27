@@ -8,13 +8,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
 {
     public class ScopeInfoService
     {
-        private readonly MultiFactorApi _apiClient;
-        private readonly ApplicationCache _cache;
+        private readonly IMultiFactorApi _apiClient;
+        private readonly IApplicationCache _cache;
         private readonly ILogger<ScopeInfoService> _logger;
         
         public ScopeInfoService(
-            MultiFactorApi apiClient, 
-            ApplicationCache cache, 
+            IMultiFactorApi apiClient, 
+            IApplicationCache cache, 
             ILogger<ScopeInfoService> logger)
         {
             _apiClient = apiClient;

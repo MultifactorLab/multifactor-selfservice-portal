@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -80,7 +81,8 @@ public class LockAttributeChangerFactoryTests
             .AddSingleton<ILdapProfileFilterProvider, LdapProfileFilterProvider>()
             .AddSingleton<IBindIdentityFormatter, DefaultBindIdentityFormatter>()
             .AddSingleton<LdapProfileLoader>()
-            .AddSingleton<LdapConnectionAdapterFactory>();
+            .AddSingleton<LdapConnectionAdapterFactory>()
+            .AddSingleton<IMemoryCache, MemoryCache>();
         
         return builder;
     }

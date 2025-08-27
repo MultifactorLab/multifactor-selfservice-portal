@@ -13,13 +13,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
         private readonly TokenVerifier _tokenVerifier;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _portalSettings;
-        private readonly ApplicationCache _applicationCache;
+        private readonly IApplicationCache _applicationCache;
         private readonly ILogger<AuthenticateSessionStory> _logger;
 
-        public AuthenticateSessionStory(TokenVerifier tokenVerifier, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, ApplicationCache applicationCache)
+        public AuthenticateSessionStory(TokenVerifier tokenVerifier, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, IApplicationCache applicationCache)
         {
-            _tokenVerifier = tokenVerifier ?? throw new ArgumentNullException(nameof(tokenVerifier));
-            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+            _tokenVerifier = tokenVerifier;
+            _contextAccessor = contextAccessor;
             _logger = logger;
             _portalSettings = portalSettings;
             _applicationCache = applicationCache;
