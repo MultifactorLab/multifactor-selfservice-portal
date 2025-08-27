@@ -18,33 +18,33 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
     {
         private readonly CredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
-        private readonly MultiFactorApi _api;
+        private readonly IMultiFactorApi _api;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
         private readonly ILogger<SignInStory> _logger;
-        private readonly ApplicationCache _applicationCache;
+        private readonly IApplicationCache _applicationCache;
         private readonly ClaimsProvider _claimsProvider;
 
         public SignInStory(CredentialVerifier credentialVerifier,
             DataProtection dataProtection,
-            MultiFactorApi api,
+            IMultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
-            ApplicationCache applicationCache,
+            IApplicationCache applicationCache,
             IStringLocalizer<SharedResource> localizer,
             ILogger<SignInStory> logger,
             ClaimsProvider claimsProvider)
         {
-            _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
-            _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
-            _api = api ?? throw new ArgumentNullException(nameof(api));
-            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
-            _claimsProvider = claimsProvider ?? throw new ArgumentNullException(nameof(claimsProvider));
+            _credentialVerifier = credentialVerifier;
+            _dataProtection = dataProtection;
+            _api = api;
+            _contextAccessor = contextAccessor;
+            _settings = settings;
+            _localizer = localizer;
+            _logger = logger;
+            _applicationCache = applicationCache;
+            _claimsProvider = claimsProvider;
         }
 
         public async Task<IActionResult> ExecuteAsync(LoginViewModel model)

@@ -8,7 +8,7 @@ using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
-    public class MultiFactorApi
+    public class MultiFactorApi : IMultiFactorApi
     {
         private readonly HttpClientAdapter _clientAdapter;
         private readonly HttpClientTokenProvider _tokenProvider;
@@ -16,11 +16,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         public MultiFactorApi(MultifactorHttpClientAdapterFactory clientFactory, HttpClientTokenProvider tokenProvider, PortalSettings settings)
         {
-            ArgumentNullException.ThrowIfNull(clientFactory);
             _clientAdapter = clientFactory.CreateClientAdapter();
-
-            _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _tokenProvider = tokenProvider;
+            _settings = settings;
         }
 
         public Task PingAsync()

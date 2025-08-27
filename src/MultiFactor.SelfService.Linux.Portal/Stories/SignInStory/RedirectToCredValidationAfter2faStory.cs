@@ -9,14 +9,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 public class RedirectToCredValidationAfter2faStory
 {
     private readonly ILogger<SignInStory> _logger;
-    private readonly ApplicationCache _applicationCache;
+    private readonly IApplicationCache _applicationCache;
 
     public RedirectToCredValidationAfter2faStory(
-        ApplicationCache applicationCache,
+        IApplicationCache applicationCache,
         ILogger<SignInStory> logger)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
+        _logger = logger;
+        _applicationCache = applicationCache;
     }
     
     /*

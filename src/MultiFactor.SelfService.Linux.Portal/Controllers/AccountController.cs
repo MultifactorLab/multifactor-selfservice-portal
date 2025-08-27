@@ -20,12 +20,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     public class AccountController : ControllerBase
     {
         private readonly PortalSettings _portalSettings;
-        private readonly ApplicationCache _applicationCache;
+        private readonly IApplicationCache _applicationCache;
         private readonly SafeHttpContextAccessor _safeHttpContextAccessor;
 
 
         public AccountController(PortalSettings portalSettings,
-            ApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
+            IApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
         {
             _portalSettings = portalSettings;
             _applicationCache = applicationCache;
@@ -178,7 +178,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
-            [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
             await idpApi.AddSamlToSsoMasterSession(samlSession);
 
@@ -188,7 +188,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassOidcSession(string username, string oidcSession,
-            [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
             await idpApi.AddOidcToSsoMasterSession(oidcSession);
 

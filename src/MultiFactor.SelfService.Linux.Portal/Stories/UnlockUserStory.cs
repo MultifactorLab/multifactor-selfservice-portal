@@ -14,7 +14,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories;
 public class UnlockUserStory
 {
     private readonly ILockAttributeChanger _lockAttributeChanger;
-    private readonly MultiFactorApi _apiClient;
+    private readonly IMultiFactorApi _apiClient;
     private readonly PortalSettings _portalSettings;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly CredentialVerifier _credentialVerifier;
@@ -22,7 +22,7 @@ public class UnlockUserStory
 
     public UnlockUserStory(
         ILockAttributeChanger lockAttributeChanger,
-        MultiFactorApi apiClient,
+        IMultiFactorApi apiClient,
         PortalSettings portalSettings,
         IStringLocalizer<SharedResource> localizer,
         CredentialVerifier credentialVerifier,

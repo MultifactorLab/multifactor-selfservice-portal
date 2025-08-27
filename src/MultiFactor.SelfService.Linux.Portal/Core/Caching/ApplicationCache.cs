@@ -4,7 +4,7 @@ using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
 {
-    public class ApplicationCache
+    public class ApplicationCache : IApplicationCache
     {
         private readonly IMemoryCache _cache;
         private readonly ApplicationCacheConfig _config;
