@@ -17,9 +17,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
             ApplicationCache cache, 
             ILogger<ScopeInfoService> logger)
         {
-            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _apiClient = apiClient;
+            _cache = cache;
+            _logger = logger;
         }
         
         public async Task<SupportViewModel> GetSupportInfo()
@@ -44,7 +44,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to load admin info: {Message}", ex.Message);
+                _logger.LogWarning(ex, "Failed to load admin info: {Message:l}", ex.Message);
                 var emptyModel = SupportViewModel.EmptyModel();
                 _cache.SetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY, emptyModel);
                 return emptyModel;

@@ -12,7 +12,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
                 // 5 Mb by default
                 var pwdSessionCache = settings.PasswordChangingSessionCacheSize ?? 1024 * 1024 * 5;
                 var supportInfoCache = Constants.SupportInfo.SUPPORT_INFO_CACHE_SIZE;
-                x.SizeLimit = pwdSessionCache * supportInfoCache;
+                x.SizeLimit = pwdSessionCache + supportInfoCache;
             });
 
             services.Configure<ApplicationCacheConfig>(x =>
