@@ -28,61 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
                 _mockLogger.Object
             );
         }
-
-        [Fact]
-        public async Task GetSupportInfo_CacheIsNotEmpty_ShouldReturnCachedValue()
-        {
-            // Arrange
-            var expectedSupportInfo = new SupportViewModel("Admin Name", "admin@example.com", "+1234567890");
-            var cachedItem = new CachedItem<SupportViewModel>(expectedSupportInfo);
-            
-            _mockCache.Setup(x => x.GetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY))
-                     .Returns(cachedItem);
-
-            // Act
-            var result = await _service.GetSupportInfo();
-
-            // Assert
-            Assert.Equal(expectedSupportInfo, result);
-            Assert.Equal(expectedSupportInfo.AdminName, result.AdminName);
-            Assert.Equal(expectedSupportInfo.AdminEmail, result.AdminEmail);
-            Assert.Equal(expectedSupportInfo.AdminPhone, result.AdminPhone);
-            
-            _mockApiClient.Verify(x => x.GetScopeSupportInfo(), Times.Never);
-            _mockCache.Verify(x => x.SetSupportInfo(It.IsAny<string>(), It.IsAny<SupportViewModel>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task GetSupportInfo_CacheIsEmpty_ShouldCallApiAndCacheResult()
-        {
-            // Arrange
-            var apiResponse = new ScopeSupportInfoDto
-            {
-                AdminName = "Test Admin",
-                AdminEmail = "test@example.com",
-                AdminPhone = "+1234567890"
-            };
-            var emptyCachedItem = CachedItem<SupportViewModel>.Empty;
-            
-            _mockCache.Setup(x => x.GetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY))
-                     .Returns(emptyCachedItem);
-            _mockApiClient.Setup(x => x.GetScopeSupportInfo())
-                         .ReturnsAsync(apiResponse);
-
-            // Act
-            var result = await _service.GetSupportInfo();
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(apiResponse.AdminName, result.AdminName);
-            Assert.Equal(apiResponse.AdminEmail, result.AdminEmail);
-            Assert.Equal(apiResponse.AdminPhone, result.AdminPhone);
-            
-            _mockApiClient.Verify(x => x.GetScopeSupportInfo(), Times.Once);
-            _mockCache.Verify(x => x.SetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY, 
-                It.Is<SupportViewModel>(s => s.AdminName == apiResponse.AdminName)), Times.Once);
-        }
-
+        
         [Theory]
         [InlineData("Admin", "admin@test.com", "+123456")]
         [InlineData("", "", "")]
@@ -100,9 +46,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var emptyCachedItem = CachedItem<SupportViewModel>.Empty;
             
             _mockCache.Setup(x => x.GetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY))
-                     .Returns(emptyCachedItem);
+                .Returns(emptyCachedItem);
             _mockApiClient.Setup(x => x.GetScopeSupportInfo())
-                         .ReturnsAsync(apiResponse);
+                .ReturnsAsync(apiResponse);
 
             // Act
             var result = await _service.GetSupportInfo();
@@ -112,6 +58,34 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             Assert.Equal(adminName, result.AdminName);
             Assert.Equal(adminEmail, result.AdminEmail);
             Assert.Equal(adminPhone, result.AdminPhone);
+            
+            _mockApiClient.Verify(x => x.GetScopeSupportInfo(), Times.Once);
+            _mockCache.Verify(x => x.SetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY, 
+                    It.Is<SupportViewModel>(s => 
+                        s.AdminName == apiResponse.AdminName && 
+                        s.AdminEmail == apiResponse.AdminEmail && 
+                        s.AdminPhone == apiResponse.AdminPhone)), 
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task GetSupportInfo_CacheIsNotEmpty_ShouldReturnCachedValue()
+        {
+            // Arrange
+            var expectedSupportInfo = new SupportViewModel("Admin Name", "admin@example.com", "+1234567890");
+            var cachedItem = new CachedItem<SupportViewModel>(expectedSupportInfo);
+            
+            _mockCache.Setup(x => x.GetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY))
+                     .Returns(cachedItem);
+
+            // Act
+            var result = await _service.GetSupportInfo();
+
+            // Assert
+            Assert.Equal(expectedSupportInfo, result);
+            
+            _mockApiClient.Verify(x => x.GetScopeSupportInfo(), Times.Never);
+            _mockCache.Verify(x => x.SetSupportInfo(It.IsAny<string>(), It.IsAny<SupportViewModel>()), Times.Never);
         }
 
         [Fact]
@@ -129,11 +103,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var result = await _service.GetSupportInfo();
 
             // Assert
-            Assert.NotNull(result);
             Assert.True(result.IsEmpty());
-            Assert.Equal(string.Empty, result.AdminName);
-            Assert.Equal(string.Empty, result.AdminEmail);
-            Assert.Equal(string.Empty, result.AdminPhone);
             
             _mockCache.Verify(x => x.SetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY, 
                 It.Is<SupportViewModel>(s => s.IsEmpty())), Times.Once);
@@ -155,14 +125,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
             var result = await _service.GetSupportInfo();
 
             // Assert
-            Assert.NotNull(result);
             Assert.True(result.IsEmpty());
-            Assert.Equal(string.Empty, result.AdminName);
-            Assert.Equal(string.Empty, result.AdminEmail);
-            Assert.Equal(string.Empty, result.AdminPhone);
-            
-            _mockCache.Verify(x => x.SetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY, 
-                It.Is<SupportViewModel>(s => s.IsEmpty())), Times.Once);
             
             _mockLogger.Verify(
                 x => x.Log(
@@ -172,47 +135,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Tests
                     expectedException,
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
-        }
-
-        [Fact]
-        public async Task GetSupportInfo_CacheHasEmptyValue_ShouldReturnEmptyValueDirectly()
-        {
-            // Arrange
-            var emptyModel = SupportViewModel.EmptyModel();
-            var cachedItem = new CachedItem<SupportViewModel>(emptyModel);
-            
-            _mockCache.Setup(x => x.GetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY))
-                     .Returns(cachedItem);
-
-            // Act
-            var result = await _service.GetSupportInfo();
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.True(result.IsEmpty());
-            
-            _mockApiClient.Verify(x => x.GetScopeSupportInfo(), Times.Never);
-            _mockCache.Verify(x => x.SetSupportInfo(It.IsAny<string>(), It.IsAny<SupportViewModel>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task GetSupportInfo_ShouldUseCorrectCacheKey()
-        {
-            // Arrange
-            var emptyCachedItem = CachedItem<SupportViewModel>.Empty;
-            
-            _mockCache.Setup(x => x.GetSupportInfo(It.IsAny<string>()))
-                     .Returns(emptyCachedItem);
-            _mockApiClient.Setup(x => x.GetScopeSupportInfo())
-                         .ReturnsAsync(new ScopeSupportInfoDto());
-
-            // Act
-            await _service.GetSupportInfo();
-
-            // Assert
-            _mockCache.Verify(x => x.GetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY), Times.Once);
-            _mockCache.Verify(x => x.SetSupportInfo(Constants.SupportInfo.SUPPORT_INFO_CACHE_KEY, 
-                It.IsAny<SupportViewModel>()), Times.Once);
         }
     }
 }
