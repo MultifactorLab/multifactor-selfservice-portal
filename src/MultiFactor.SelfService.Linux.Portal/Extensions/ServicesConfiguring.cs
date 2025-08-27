@@ -38,6 +38,7 @@ using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement;
 using MultiFactor.SelfService.Linux.Portal.Integrations;
 using MultiFactor.SelfService.Linux.Portal.Stories;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
+using MultiFactor.SelfService.Linux.Portal.Services;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -49,7 +50,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSession()
                 .AddMemoryCache()
                 .AddHttpContextAccessor()
-                .AddPasswordChangingSessionCache()
+                .AddApplicationCache()
                 .AddSingleton<ILdapConnectionAdapter, LdapConnectionAdapter>()
                 .AddSingleton<SafeHttpContextAccessor>()
                 .AddSingleton<TokenVerifier>()
@@ -114,6 +115,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             ConfigureYandexCaptchaApi(builder);
 
             ConfigureCaptchaVerifier(builder);
+            
+            builder.Services.AddTransient<ScopeInfoService>();
 
             builder.Services.AddHostedService<ApplicationChecker>();
 

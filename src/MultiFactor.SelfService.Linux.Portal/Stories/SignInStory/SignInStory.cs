@@ -128,6 +128,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 personalData.Phone,
                 postbackUrl,
                 claims);
+            
+            if (string.IsNullOrWhiteSpace(accessPage.Url))
+            {
+                return new RedirectToActionResult("AccessDenied", "Error", null);
+            }
 
             return new RedirectResult(accessPage.Url, true);
         }

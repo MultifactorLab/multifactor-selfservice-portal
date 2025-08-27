@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
+using MultiFactor.SelfService.Linux.Portal.Dto;
 using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
@@ -157,6 +158,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<UnlockUserDto>>("self-service/start-unlock-user", payload, GetBasicAuthHeaders()));
+        }
+        
+        public Task<ScopeSupportInfoDto> GetScopeSupportInfo()
+        {
+            return ExecuteAsync(()=> _clientAdapter.GetAsync<ApiResponse<ScopeSupportInfoDto>>("/self-service/support-info", GetBasicAuthHeaders()));
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
