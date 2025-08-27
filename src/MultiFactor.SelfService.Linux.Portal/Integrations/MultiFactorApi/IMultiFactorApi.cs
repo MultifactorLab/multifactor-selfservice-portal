@@ -15,5 +15,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims);
         Task<UserProfileDto> GetUserProfileAsync();
         Task<ScopeSupportInfoDto> GetScopeSupportInfo();
+        Task<ApiResponse<EnrollmentPageDto>> CreateEnrollmentRequest();
     }
 }

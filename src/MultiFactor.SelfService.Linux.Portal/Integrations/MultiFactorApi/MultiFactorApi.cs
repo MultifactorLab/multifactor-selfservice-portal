@@ -8,7 +8,7 @@ using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
-    public class MultiFactorApi : IMultiFactorApi
+    internal class MultiFactorApi : IMultiFactorApi
     {
         private readonly HttpClientAdapter _clientAdapter;
         private readonly HttpClientTokenProvider _tokenProvider;

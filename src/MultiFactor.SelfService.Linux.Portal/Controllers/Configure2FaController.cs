@@ -5,9 +5,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers;
 
 public class Configure2FaController : ControllerBase
 {
-    private readonly MultiFactorApi _selfServiceApiClient;
+    private readonly IMultiFactorApi _selfServiceApiClient;
 
-    public Configure2FaController(MultiFactorApi selfServiceApiClient)
+    public Configure2FaController(IMultiFactorApi selfServiceApiClient)
     {
         _selfServiceApiClient = selfServiceApiClient;
     }
