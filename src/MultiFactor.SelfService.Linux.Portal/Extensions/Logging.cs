@@ -21,6 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
 
             ConfigureConsoleLog(loggerConfiguration, applicationBuilder);
+            ConfigureFileLog(loggerConfiguration, applicationBuilder);
 
             var logger = loggerConfiguration.CreateLogger();
             applicationBuilder.Logging.ClearProviders();
@@ -45,8 +46,34 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 _ => LogEventLevel.Information
             };
 
+        private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
+        {
+            var useFileOutput = applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("enabled", true);
+            if (!useFileOutput)
+            {
+                return;
+            }
+
+            var formatter = GetLogFormatter(applicationBuilder);
+            var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
+            if (formatter != null)
+            {
+                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);
+            }
+            else
+            {
+                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day);
+            }
+        }
+
         private static void ConfigureConsoleLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
+            var useConsoleOutput = applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("enabled", true);
+            if (!useConsoleOutput)
+            {
+                return;
+            }
+
             var formatter = GetLogFormatter(applicationBuilder);
             if (formatter != null)
             {

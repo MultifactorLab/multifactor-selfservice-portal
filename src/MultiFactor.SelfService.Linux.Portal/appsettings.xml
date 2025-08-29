@@ -8,6 +8,10 @@
 			<Default>Information</Default>
 			<Microsoft>Warning</Microsoft>
 		</LogLevel>
+		<Output>
+			<Console enabled="true" />
+			<File enabled="true" />
+		</Output>
 	</Logging>
 	<AllowedHosts>*</AllowedHosts>
 
