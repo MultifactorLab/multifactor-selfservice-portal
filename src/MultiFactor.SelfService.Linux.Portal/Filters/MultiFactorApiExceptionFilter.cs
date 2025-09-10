@@ -24,18 +24,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Filters
                 _logger.LogWarning("MultiFactorApi error in {Controller}/{Action}: {Message:l}", 
                     controller, action, apiException.Message);
 
-                var result = HandleByMessageContent(apiException.Message, context);
+                var result = HandleByMessageContent(apiException.Message);
 
                 if (result == null) return;
                 
+                context.ModelState.AddModelError(string.Empty, apiException.Message);
                 context.ExceptionHandled = true;
                 context.Result = result;
             }
         }
 
-        private IActionResult HandleByMessageContent(string message, ExceptionContext context)
+        private IActionResult HandleByMessageContent(string message)
         {
-            context.ModelState.AddModelError(string.Empty, context.Exception.Message);
             return message.ToLowerInvariant() switch
             {
                 var msg when msg.Contains("unauthorized") || msg.Contains("access denied") || msg.Contains("usernotregistered") => 
