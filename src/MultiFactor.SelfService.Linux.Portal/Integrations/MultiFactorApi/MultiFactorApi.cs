@@ -27,23 +27,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse>("ping"));
         }
 
-        public Task<BypassPageDto> CreateSamlBypassRequestAsync(string login, string samlSessionId)
+        public Task<BypassPageDto> CreateSamlBypassRequestAsync(UserProfileDto user, string samlSessionId)
         {
             var payload = new
             {
-                Identity = login,
-                SamlSessionId = samlSessionId
+                Identity = user.Identity,
+                SamlSessionId = samlSessionId,
+                Email = user.Email,
+                Name = user.Name
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
         }
 
-        public Task<BypassPageDto> CreateOidcBypassRequestAsync(string login, string oidcSessionId)
+        public Task<BypassPageDto> CreateOidcBypassRequestAsync(UserProfileDto user, string oidcSessionId)
         {
             var payload = new
             {
-                Identity = login,
-                OidcSessionId = oidcSessionId
+                Identity = user.Identity,
+                OidcSessionId = oidcSessionId,
+                Email = user.Email,
+                Name = user.Name
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/oidc", payload, GetBasicAuthHeaders()));
