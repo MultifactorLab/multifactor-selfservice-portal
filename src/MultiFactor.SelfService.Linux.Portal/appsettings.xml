@@ -5,12 +5,12 @@
 
 	<Logging>
 		<LogLevel>
-			<Default>Information</Default>
-			<Microsoft>Warning</Microsoft>
+			<Default>Info</Default>
+			<Microsoft>Warn</Microsoft>
 		</LogLevel>
 		<Output>
-			<Console enabled="true" />
-			<File enabled="true" />
+			<Console enabled="true" restrictToLogLevel="Debug" />
+			<File enabled="true" restrictToLogLevel="Info" />
 		</Output>
 	</Logging>
 	<AllowedHosts>*</AllowedHosts>

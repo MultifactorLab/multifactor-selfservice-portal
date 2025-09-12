@@ -54,15 +54,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 return;
             }
 
+            var restrictToLogLevel = applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("restrictToLogLevel", LogEventLevel.Debug.ToString());
             var formatter = GetLogFormatter(applicationBuilder);
             var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
-                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
             }
             else
             {
-                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
             }
         }
 
@@ -74,14 +75,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 return;
             }
 
+            var restrictToLogLevel = applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("restrictToLogLevel", LogEventLevel.Debug.ToString());
             var formatter = GetLogFormatter(applicationBuilder);
             if (formatter != null)
             {
-                loggerConfiguration.WriteTo.Console(formatter);
+                loggerConfiguration.WriteTo.Console(formatter, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
             }
             else
             {
-                loggerConfiguration.WriteTo.Console();
+                loggerConfiguration.WriteTo.Console(restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
             }
         }
 
