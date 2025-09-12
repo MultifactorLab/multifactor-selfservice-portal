@@ -18,10 +18,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Filters
             if (context.Exception is UnsuccessfulResponseException apiException)
             {
                 var rd = context.HttpContext.GetRouteData();
-                var action = rd.Values["action"]?.ToString() ?? "action";
-                var controller = rd.Values["controller"]?.ToString() ?? "controller";
+                var action = rd.Values["action"]?.ToString() ?? "UnknownAction";
+                var controller = rd.Values["controller"]?.ToString() ?? "UnknownController";
                 
-                _logger.LogWarning("MultiFactorApi error in {Controller}/{Action}: {Message:l}", 
+                _logger.LogWarning(apiException,"MultiFactorApi error in {Controller:l}/{Action:l}: {Message:l}", 
                     controller, action, apiException.Message);
 
                 var result = HandleByMessageContent(apiException.Message);
