@@ -55,7 +55,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
 
             var restrictToLogLevel = applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("restrictToLogLevel", LogEventLevel.Debug.ToString());
-            var formatter = GetLogFormatter(applicationBuilder);
+            var formatter = GetLogFormatter(applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("format", string.Empty));
             var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
@@ -76,7 +76,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
 
             var restrictToLogLevel = applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("restrictToLogLevel", LogEventLevel.Debug.ToString());
-            var formatter = GetLogFormatter(applicationBuilder);
+            var formatter = GetLogFormatter(applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("format", string.Empty));
             if (formatter != null)
             {
                 loggerConfiguration.WriteTo.Console(formatter, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
@@ -87,10 +87,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             }
         }
 
-        private static ITextFormatter GetLogFormatter(WebApplicationBuilder applicationBuilder)
+        private static ITextFormatter GetLogFormatter(string loggingFormat)
         {
-            var loggingFormat = applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingFormat);
-
             if (string.IsNullOrEmpty(loggingFormat))
             {
                 return null;
