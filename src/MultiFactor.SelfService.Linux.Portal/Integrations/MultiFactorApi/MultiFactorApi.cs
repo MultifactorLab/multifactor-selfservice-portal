@@ -33,8 +33,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             {
                 Identity = user.Identity,
                 SamlSessionId = samlSessionId,
-                Email = user.Email,
-                Name = user.Name
+                Claims = new Dictionary<string, string>() 
+                { 
+                    { "name", user.Name }, 
+                    { "email", user.Email } 
+                }
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
@@ -46,8 +49,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             {
                 Identity = user.Identity,
                 OidcSessionId = oidcSessionId,
-                Email = user.Email,
-                Name = user.Name
+                Claims = new Dictionary<string, string>()
+                {
+                    { "name", user.Name },
+                    { "email", user.Email }
+                }
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/oidc", payload, GetBasicAuthHeaders()));
