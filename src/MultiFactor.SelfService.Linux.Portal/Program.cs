@@ -32,6 +32,7 @@ void Start()
             o.ModelBinderProviders.Insert(0, ModelBindingConfiguration.GetModelBinderProvider());
             o.Filters.Add<ApplicationExceptionFilter>();
             o.Filters.Add<FeatureNotEnabledExceptionFilter>();
+            o.Filters.Add<MultiFactorApiExceptionFilter>();
         });
 
     // "If data protection isn't configured, the keys are held in memory and discarded when the app restarts."
