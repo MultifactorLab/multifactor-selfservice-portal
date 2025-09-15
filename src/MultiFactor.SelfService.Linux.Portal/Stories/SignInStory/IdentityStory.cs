@@ -138,19 +138,5 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 ? verificationResult.CustomIdentity
                 : verificationResult.Username;
         }
-
-        public async Task<IActionResult> ByPassSamlSession(string username, string samlSession)
-        {
-            var page = await _api.CreateSamlBypassRequestAsync(username, samlSession);
-            var result = new ViewResult
-            {
-                ViewName = "ByPassSamlSession",
-                ViewData =
-                {
-                    Model = page
-                }
-            };
-            return result;
-        }
     }
 }
