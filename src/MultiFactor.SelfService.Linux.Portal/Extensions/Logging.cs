@@ -19,10 +19,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             {
                 loggerConfiguration.MinimumLevel.Override("Microsoft", GetLogMinimalLevel(msOverride));
             }
-            
-            var isLocalhost = applicationBuilder.Environment.IsEnvironment("localhost");
-            loggerConfiguration.WriteTo.Console(isLocalhost ? logLevel : LogEventLevel.Warning);
 
+            ConfigureConsoleLog(loggerConfiguration, applicationBuilder);
             ConfigureFileLog(loggerConfiguration, applicationBuilder);
 
             var logger = loggerConfiguration.CreateLogger();
@@ -30,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
             applicationBuilder.Logging.AddSerilog(logger);
 
             Log.Logger = logger;
-            if (isLocalhost)
+            if (applicationBuilder.Environment.IsEnvironment("localhost"))
             {
                 Log.Logger.Information($"Environment: {applicationBuilder.Configuration.GetConfigValue<string>("Environment")}. Logging subsystem has been configured");
             }
@@ -50,22 +48,47 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void ConfigureFileLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
-            var formatter = GetLogFormatter(applicationBuilder);
+            var useFileOutput = applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("enabled", true);
+            if (!useFileOutput)
+            {
+                return;
+            }
+
+            var restrictToLogLevel = applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("restrictToLogLevel", LogEventLevel.Debug.ToString());
+            var formatter = GetLogFormatter(applicationBuilder.Configuration.GetSection("Logging:Output:File").GetValue("format", string.Empty));
             var path = $"{Constants.LOG_DIRECTORY}/sspl-log-.txt";
             if (formatter != null)
             {
-                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.File(formatter, path, rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
             }
             else
             {
-                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day);
+                loggerConfiguration.WriteTo.File(path, rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
             }
         }
 
-        private static ITextFormatter GetLogFormatter(WebApplicationBuilder applicationBuilder)
+        private static void ConfigureConsoleLog(LoggerConfiguration loggerConfiguration, WebApplicationBuilder applicationBuilder)
         {
-            var loggingFormat = applicationBuilder.Configuration.GetPortalSettingsValue(x => x.LoggingFormat);
+            var useConsoleOutput = applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("enabled", true);
+            if (!useConsoleOutput)
+            {
+                return;
+            }
 
+            var restrictToLogLevel = applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("restrictToLogLevel", LogEventLevel.Debug.ToString());
+            var formatter = GetLogFormatter(applicationBuilder.Configuration.GetSection("Logging:Output:Console").GetValue("format", string.Empty));
+            if (formatter != null)
+            {
+                loggerConfiguration.WriteTo.Console(formatter, restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
+            }
+            else
+            {
+                loggerConfiguration.WriteTo.Console(restrictedToMinimumLevel: GetLogMinimalLevel(restrictToLogLevel));
+            }
+        }
+
+        private static ITextFormatter GetLogFormatter(string loggingFormat)
+        {
             if (string.IsNullOrEmpty(loggingFormat))
             {
                 return null;
