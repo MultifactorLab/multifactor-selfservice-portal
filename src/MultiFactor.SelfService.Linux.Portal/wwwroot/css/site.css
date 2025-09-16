@@ -370,6 +370,7 @@ body {
     font-weight: normal;
     font-style: normal;
     background: linear-gradient(#2C6DA7, #62A6E2);
+    block-size: 100vh;
 }
 
 img {
@@ -611,6 +612,7 @@ p {
 .login .form-column .auth-details .showcase {
     display: grid;
     grid-template-columns: 110px 110px 110px;
+    min-block-size: 220px;
     margin: 0 auto;
     max-height: 14em;
     overflow: auto;
@@ -671,7 +673,6 @@ p {
 #wrapper {
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .background-layout {
@@ -1011,4 +1012,9 @@ table.authenticators tr {
     justify-content:center;
     display: flex;
     align-items: center
+}
+
+.captcha-wrapper {
+    max-inline-size: 65vw;
+    overflow: hidden;
 }
