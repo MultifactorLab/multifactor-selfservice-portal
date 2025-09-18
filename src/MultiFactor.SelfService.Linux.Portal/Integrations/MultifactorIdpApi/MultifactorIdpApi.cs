@@ -24,7 +24,26 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         }
 
         /// <summary>
-        /// Returns SSO master session.
+        /// Creates new SSO master session.
+        /// </summary>
+        public async Task<SsoMasterSessionDto> CreateSsoMasterSession(string userIdentity)
+        {
+            var payload = new
+            {
+                UserIdentity = userIdentity
+            };
+            var a = GetBasicAuthHeaders();
+
+            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+                "sso-master-session/create",
+                payload,
+                GetBasicAuthHeaders()));
+
+            return new SsoMasterSessionDto(response.MasterSessionId);
+        }
+
+        /// <summary>
+        /// Returns existing SSO master session.
         /// </summary>
         public async Task<SsoMasterSessionDto> GetSsoMasterSession()
         {
