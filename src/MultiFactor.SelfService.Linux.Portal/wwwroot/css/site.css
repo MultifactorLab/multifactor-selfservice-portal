@@ -8,6 +8,7 @@ html {
     font-family: sans-serif;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    block-size: 100%;
 }
 
 body {
@@ -363,6 +364,7 @@ html {
 }
 
 body {
+    display: flex;
     min-width: 320px;
     margin: 0;
     color: #32454D;
@@ -370,7 +372,9 @@ body {
     font-weight: normal;
     font-style: normal;
     background: linear-gradient(#2C6DA7, #62A6E2);
-    block-size: 100vh;
+    background-attachment: fixed;
+    min-block-size: 100dvh;
+;
 }
 
 img {
@@ -459,11 +463,12 @@ p {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
+    flex: 1;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
     flex-direction: column;
-    min-height: 100%;
+    min-block-size: 0;
 }
 
 #header {
@@ -670,23 +675,18 @@ p {
     font-weight: 400;
 }
 
-#wrapper {
-    display: flex;
-    flex-direction: column;
-}
-
 .background-layout {
     display: flex;
     flex-direction: column;
     background: #fff;
     border-radius: 24px;
     margin: 32px;
-    height: 100%;
+    flex: 1;
 }
 
 .stage {
     display: flex;
-    height: inherit;
+    flex: 1;
     background: url(../images/stage.svg) center center no-repeat;
 }
 
@@ -871,12 +871,6 @@ table.authenticators tr {
             background: #fff;
             color: #4082BC;
         }
-
-@media screen and (min-width: 1870px) {
-    html, body {
-        height: 100%;
-    }
-}
 
 @media screen and (max-width: 933px) {
     .login {
