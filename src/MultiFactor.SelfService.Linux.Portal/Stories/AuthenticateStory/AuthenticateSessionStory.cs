@@ -37,6 +37,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
             _logger.LogInformation("Second factor for user '{user:l}' verified successfully", verifiedToken.Identity);
             // 2fa before authn enable
 
+            var masterSessionDto = _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
+
             if (_portalSettings.PreAuthenticationMethod)
             {
                 var identity = verifiedToken.Identity;
@@ -64,8 +66,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
                 HttpOnly = true,
                 Expires = verifiedToken.ValidTo
             });
-
-            var masterSessionDto = _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
 
             return verifiedToken.MustChangePassword 
                 ? new RedirectToActionResult("Change", "ExpiredPassword", default) 
