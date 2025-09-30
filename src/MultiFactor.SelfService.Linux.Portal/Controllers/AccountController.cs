@@ -42,12 +42,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 if (sso.HasSamlSession())
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { username = user.Identity, samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
                 }
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { username = user.Identity, oicdSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -177,22 +177,26 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassSamlSession(string username, string samlSession,
-            [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+        public async Task<IActionResult> ByPassSamlSession(string samlSession,
+            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
+            var user = await loadProfile.ExecuteAsync();
+
             await idpApi.AddSamlToSsoMasterSession(samlSession);
 
-            var page = await api.CreateSamlBypassRequestAsync(username, samlSession);
+            var page = await api.CreateSamlBypassRequestAsync(user, samlSession);
             return View(page);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassOidcSession(string username, string oidcSession,
-            [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+        public async Task<IActionResult> ByPassOidcSession(string oidcSession,
+            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
+            var user = await loadProfile.ExecuteAsync();
+
             await idpApi.AddOidcToSsoMasterSession(oidcSession);
 
-            var page = await api.CreateOidcBypassRequestAsync(username, oidcSession);
+            var page = await api.CreateOidcBypassRequestAsync(user, oidcSession);
             return View(page);
         }
     }

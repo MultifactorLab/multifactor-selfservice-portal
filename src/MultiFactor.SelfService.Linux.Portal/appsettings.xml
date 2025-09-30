@@ -5,9 +5,13 @@
 
 	<Logging>
 		<LogLevel>
-			<Default>Information</Default>
+			<Default>Info</Default>
 			<Microsoft>Warning</Microsoft>
 		</LogLevel>
+		<Output>
+			<Console enabled="true"/>
+			<File enabled="true" restrictToLogLevel="Info" />
+		</Output>
 	</Logging>
 	<AllowedHosts>*</AllowedHosts>
 
@@ -97,10 +101,6 @@
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 		</LinksShowcase>-->
-
-		<!-- Logging level: 'Debug', 'Info', 'Warn', 'Error' -->
-		<!--<LoggingLevel>Info</LoggingLevel>-->
-		<!--<LoggingFormat>json</LoggingFormat>-->
 
 		<!-- Enable user Exchange ActiveSync devices provisioning. Doesn't work with Samba. -->
 		<ExchangeActiveSyncDevicesManagement enabled="false" />
