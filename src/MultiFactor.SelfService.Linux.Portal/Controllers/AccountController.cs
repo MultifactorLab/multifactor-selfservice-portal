@@ -182,7 +182,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             var user = await loadProfile.ExecuteAsync();
 
-            await idpApi.AddSamlToSsoMasterSession(samlSession);
+            idpApi.AddSamlToSsoMasterSession(samlSession);
 
             var page = await api.CreateSamlBypassRequestAsync(user, samlSession);
             return View(page);
@@ -194,7 +194,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             var user = await loadProfile.ExecuteAsync();
 
-            await idpApi.AddOidcToSsoMasterSession(oidcSession);
+            idpApi.AddOidcToSsoMasterSession(oidcSession);
 
             var page = await api.CreateOidcBypassRequestAsync(user, oidcSession);
             return View(page);
