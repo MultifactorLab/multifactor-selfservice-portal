@@ -72,5 +72,11 @@
                 };
             }
         }
+        
+        public static class SupportInfo
+        {
+            public const string SUPPORT_INFO_CACHE_KEY = "multifactor:support-info";
+            public const long SUPPORT_INFO_CACHE_SIZE = 1024 * 1024;
+        }
     }
 }

@@ -3,11 +3,12 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using System.Text;
+using MultiFactor.SelfService.Linux.Portal.Dto;
 using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 {
-    public class MultiFactorApi
+    internal class MultiFactorApi : IMultiFactorApi
     {
         private readonly HttpClientAdapter _clientAdapter;
         private readonly HttpClientTokenProvider _tokenProvider;
@@ -15,11 +16,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         public MultiFactorApi(MultifactorHttpClientAdapterFactory clientFactory, HttpClientTokenProvider tokenProvider, PortalSettings settings)
         {
-            ArgumentNullException.ThrowIfNull(clientFactory);
             _clientAdapter = clientFactory.CreateClientAdapter();
-
-            _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _tokenProvider = tokenProvider;
+            _settings = settings;
         }
 
         public Task PingAsync()
@@ -167,6 +166,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             };
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<UnlockUserDto>>("self-service/start-unlock-user", payload, GetBasicAuthHeaders()));
+        }
+        
+        public Task<ScopeSupportInfoDto> GetScopeSupportInfo()
+        {
+            return ExecuteAsync(()=> _clientAdapter.GetAsync<ApiResponse<ScopeSupportInfoDto>>("/self-service/support-info", GetBasicAuthHeaders()));
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
