@@ -11,13 +11,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessi
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
 
-        private readonly ApplicationCache _applicationCache;
+        private readonly IApplicationCache _applicationCache;
 
-        public CheckExpiredPasswordSessionStory(SafeHttpContextAccessor contextAccessor, PortalSettings settings, ApplicationCache applicationCache)
+        public CheckExpiredPasswordSessionStory(SafeHttpContextAccessor contextAccessor, PortalSettings settings, IApplicationCache applicationCache)
         {
-            _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
+            _contextAccessor = contextAccessor;
+            _settings = settings;
+            _applicationCache = applicationCache;
         }
 
         public IActionResult Execute()

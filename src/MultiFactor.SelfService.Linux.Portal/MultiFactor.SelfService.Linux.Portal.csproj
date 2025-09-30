@@ -77,6 +77,9 @@
 		  <Generator>ResXFileCodeGenerator</Generator>
 		  <LastGenOutput>Authn.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Views\Error\AccessDenied.resx">
+		  <LastGenOutput>AccessDenied.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -93,6 +96,14 @@
 	  <None Update="libs\LdapForNet.dll">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Resources\Views\Error\AccessDenied.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>AccessDenied.resx</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 </Project>

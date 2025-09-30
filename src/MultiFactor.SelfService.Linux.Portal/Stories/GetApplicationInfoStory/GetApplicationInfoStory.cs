@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
     /// </summary>
     public class GetApplicationInfoStory
     {
-        private readonly MultiFactorApi _api;
+        private readonly IMultiFactorApi _api;
         private readonly IWebHostEnvironment _env;
         private readonly PortalSettings _settings;
         private readonly IConfiguration _config;
@@ -25,7 +25,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
         private readonly IMemoryCache _memoryCache;
 
-        public GetApplicationInfoStory(MultiFactorApi api,
+        public GetApplicationInfoStory(IMultiFactorApi api,
             IWebHostEnvironment env,
             PortalSettings settings,
             IConfiguration config,

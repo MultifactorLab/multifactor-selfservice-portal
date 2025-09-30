@@ -24,7 +24,7 @@ public class AuthnStory
     private readonly PortalSettings _settings;
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<SignInStory> _logger;
-    private readonly ApplicationCache _applicationCache;
+    private readonly IApplicationCache _applicationCache;
     private readonly AuthenticateSessionStory _authenticateSessionStory;
     private readonly IHttpClientFactory _httpFactory;
 
@@ -32,19 +32,19 @@ public class AuthnStory
         DataProtection dataProtection,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
-        ApplicationCache applicationCache,
+        IApplicationCache applicationCache,
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
         AuthenticateSessionStory authenticateSessionStory,
         IHttpClientFactory httpFactory)
     {
-        _credentialVerifier = credentialVerifier ?? throw new ArgumentNullException(nameof(credentialVerifier));
-        _dataProtection = dataProtection ?? throw new ArgumentNullException(nameof(dataProtection));
-        _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _applicationCache = applicationCache ?? throw new ArgumentNullException(nameof(applicationCache));
+        _credentialVerifier = credentialVerifier;
+        _dataProtection = dataProtection;
+        _contextAccessor = contextAccessor;
+        _settings = settings;
+        _localizer = localizer;
+        _logger = logger;
+        _applicationCache = applicationCache;
         _authenticateSessionStory = authenticateSessionStory;
         _httpFactory = httpFactory;
     }

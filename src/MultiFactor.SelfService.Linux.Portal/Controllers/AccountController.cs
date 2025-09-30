@@ -20,12 +20,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     public class AccountController : ControllerBase
     {
         private readonly PortalSettings _portalSettings;
-        private readonly ApplicationCache _applicationCache;
+        private readonly IApplicationCache _applicationCache;
         private readonly SafeHttpContextAccessor _safeHttpContextAccessor;
 
 
         public AccountController(PortalSettings portalSettings,
-            ApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
+            IApplicationCache applicationCache, SafeHttpContextAccessor safeHttpContextAccessor)
         {
             _portalSettings = portalSettings;
             _applicationCache = applicationCache;
@@ -178,7 +178,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string samlSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
             var user = await loadProfile.ExecuteAsync();
 
@@ -190,7 +190,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassOidcSession(string oidcSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] MultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
             var user = await loadProfile.ExecuteAsync();
 

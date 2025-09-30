@@ -18,7 +18,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
     public class IdentityStory
     {
         private readonly CredentialVerifier _credentialVerifier;
-        private readonly MultiFactorApi _api;
+        private readonly IMultiFactorApi _api;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
@@ -26,7 +26,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly ILogger<SignInStory> _logger;
 
         public IdentityStory(CredentialVerifier credentialVerifier,
-            MultiFactorApi api,
+            IMultiFactorApi api,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
             IStringLocalizer<SharedResource> localizer,
