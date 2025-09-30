@@ -5,7 +5,7 @@
 
 	<Logging>
 		<LogLevel>
-			<Default>Info</Default>
+			<Default>Information</Default>
 			<Microsoft>Warning</Microsoft>
 		</LogLevel>
 		<Output>

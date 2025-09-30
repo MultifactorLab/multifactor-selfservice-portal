@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
@@ -11,14 +12,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
     public class AuthenticateSessionStory
     {
         private readonly TokenVerifier _tokenVerifier;
+        private readonly MultifactorIdpApi _idpApi;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _portalSettings;
         private readonly IApplicationCache _applicationCache;
         private readonly ILogger<AuthenticateSessionStory> _logger;
 
-        public AuthenticateSessionStory(TokenVerifier tokenVerifier, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, IApplicationCache applicationCache)
+        public AuthenticateSessionStory(TokenVerifier tokenVerifier, MultifactorIdpApi idpApi, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, IApplicationCache applicationCache)
         {
             _tokenVerifier = tokenVerifier;
+            _idpApi = idpApi;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _portalSettings = portalSettings;
@@ -33,7 +36,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
             var verifiedToken = _tokenVerifier.Verify(accessToken);
             _logger.LogInformation("Second factor for user '{user:l}' verified successfully", verifiedToken.Identity);
             // 2fa before authn enable
-            
+
+            var masterSessionDto = _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
+
             if (_portalSettings.PreAuthenticationMethod)
             {
                 var identity = verifiedToken.Identity;
