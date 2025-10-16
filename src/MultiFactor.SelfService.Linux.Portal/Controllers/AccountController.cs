@@ -91,19 +91,38 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <param name="requestId">State for continuation user verification.</param>
         /// <returns></returns>
         [ConsumeSsoClaims]
-        public ActionResult Identity(string requestId)
+        public async Task<ActionResult> Identity(string requestId, [FromServices] LoadProfileStory loadProfile)
         {
-            if (!_portalSettings.PreAuthenticationMethod)
+            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+            try
             {
-                return RedirectToAction("Login");
+                var user = await loadProfile.ExecuteAsync();
+
+                if (sso.HasSamlSession())
+                {
+                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+                }
+
+                if (sso.HasOidcSession())
+                {
+                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
+                }
+
+                return RedirectToAction("Index", "Home");
             }
+            catch (UnauthorizedException ex)
+            {
+                if (!_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Login");
+                }
 
-            var identity = _applicationCache.GetIdentity(requestId);
-            return !identity.IsEmpty
-                ? View("Authn", identity.Value)
-                : View(new IdentityViewModel());
+                var identity = _applicationCache.GetIdentity(requestId);
+                return !identity.IsEmpty
+                    ? View("Authn", identity.Value)
+                    : View(new IdentityViewModel());
+            }
         }
-
 
         [HttpPost]
         [VerifyCaptcha]
@@ -160,7 +179,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostbackFromMfa(string accessToken,
+        public async Task<IActionResult> PostbackFromMfa(string accessToken,
             [FromServices] AuthenticateSessionStory authenticateSession,
             [FromServices] RedirectToCredValidationAfter2faStory redirectToCredValidationAfter2FaStory)
         {
@@ -172,7 +191,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
 
             // otherwise flow is (almost) finished
-            authenticateSession.Execute(accessToken);
+            await authenticateSession.Execute(accessToken);
             return RedirectToAction("Index", "Home");
         }
 

@@ -10,6 +10,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -63,16 +64,19 @@ public class AuthnStory
         var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
         if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
 
-        
+
         // authn after 2fa
         // AD credential check
         var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
-        
+
         // credential is VALID
         if (adValidationResult.IsAuthenticated)
         {
             _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
                 _settings.CompanySettings.Domain);
+
+            await _authenticateSessionStory.Execute(model.AccessToken);
+
             var sso = _contextAccessor.SafeGetSsoClaims();
             if (sso.HasSamlSession())
             {
@@ -81,12 +85,15 @@ public class AuthnStory
                     return new RedirectToActionResult("ByPassSamlSession", "account",
                         new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
-                
-                // go to idp, return and render html form with saml assertion
-                return await GetSamlAssertion(model.AccessToken);
+
+                return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
             }
 
-            _authenticateSessionStory.Execute(model.AccessToken);
+            if (sso.HasOidcSession())
+            {
+                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
+            }
+
             return new RedirectToActionResult("Index", "Home", default);
         }
 
@@ -98,50 +105,12 @@ public class AuthnStory
             _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
                 encryptedPassword);
 
-            return _authenticateSessionStory.Execute(model.AccessToken);
+            return await _authenticateSessionStory.Execute(model.AccessToken);
         }
 
         return await WrongAsync();
     }
 
-    private async Task<ActionResult> GetSamlAssertion(string accessToken)
-    {
-        // no token verification because 'aud'=api_key and ssp_api_key!=saml_api_key
-        // hence verification will fail. but it's ok, idp service make its own verification
-        // so security not broken
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(accessToken);
-        var idpUrl = token.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.AdditionSsoStep)
-            ?.Value;
-
-        try
-        {
-            MultipartFormDataContent multipartContent = new MultipartFormDataContent
-            {
-                {
-                    new StringContent(accessToken, Encoding.UTF8, MediaTypeNames.Text.Plain),
-                    "accessToken"
-                }
-            };
-            HttpClient httpClient = _httpFactory.CreateClient(Constants.HttpClients.MultifactorIdpApi);
-            var res = await httpClient.PostAsync(idpUrl, multipartContent);
-            var jsonResponse = await res.Content.ReadAsStringAsync();
-            
-            // must render idp page
-            var result = new ContentResult
-            {
-                Content = jsonResponse,
-                ContentType = "text/html"
-            };
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unable to connect API {idpUrl}: {ex.Message}", idpUrl, ex.Message);
-            throw;
-        }
-    }
-    
     private async Task<IActionResult> WrongAsync()
     {
         // Invalid credentials, freeze response for 2-5 seconds to prevent brute-force attacks.
