@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
             _applicationCache = applicationCache;
         }
 
-        public IActionResult Execute(string accessToken)
+        public async Task<IActionResult> Execute(string accessToken)
         {
             ArgumentNullException.ThrowIfNull(accessToken);
             _logger.LogDebug("Received MFA token: {accessToken:l}", accessToken);
@@ -37,7 +37,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
             _logger.LogInformation("Second factor for user '{user:l}' verified successfully", verifiedToken.Identity);
             // 2fa before authn enable
 
-            var masterSessionDto = _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
+            await _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
 
             if (_portalSettings.PreAuthenticationMethod)
             {
