@@ -179,7 +179,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostbackFromMfa(string accessToken,
+        public async Task<IActionResult> PostbackFromMfa(string accessToken,
             [FromServices] AuthenticateSessionStory authenticateSession,
             [FromServices] RedirectToCredValidationAfter2faStory redirectToCredValidationAfter2FaStory)
         {
@@ -191,7 +191,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
 
             // otherwise flow is (almost) finished
-            authenticateSession.Execute(accessToken);
+            await authenticateSession.Execute(accessToken);
             return RedirectToAction("Index", "Home");
         }
 

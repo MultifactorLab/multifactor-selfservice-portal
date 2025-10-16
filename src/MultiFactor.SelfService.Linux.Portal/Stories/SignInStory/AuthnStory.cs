@@ -75,7 +75,7 @@ public class AuthnStory
             _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
                 _settings.CompanySettings.Domain);
 
-            _authenticateSessionStory.Execute(model.AccessToken);
+            await _authenticateSessionStory.Execute(model.AccessToken);
 
             var sso = _contextAccessor.SafeGetSsoClaims();
             if (sso.HasSamlSession())
@@ -105,7 +105,7 @@ public class AuthnStory
             _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
                 encryptedPassword);
 
-            return _authenticateSessionStory.Execute(model.AccessToken);
+            return await _authenticateSessionStory.Execute(model.AccessToken);
         }
 
         return await WrongAsync();
