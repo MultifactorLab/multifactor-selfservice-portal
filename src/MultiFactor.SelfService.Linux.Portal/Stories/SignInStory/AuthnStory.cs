@@ -10,6 +10,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -22,6 +23,7 @@ public class AuthnStory
     private readonly DataProtection _dataProtection;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
+    private readonly MultifactorIdpApi _idpApi;
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<SignInStory> _logger;
     private readonly IApplicationCache _applicationCache;
@@ -32,6 +34,7 @@ public class AuthnStory
         DataProtection dataProtection,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
+        MultifactorIdpApi idpApi,
         IApplicationCache applicationCache,
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
@@ -42,6 +45,7 @@ public class AuthnStory
         _dataProtection = dataProtection;
         _contextAccessor = contextAccessor;
         _settings = settings;
+        _idpApi = idpApi;
         _localizer = localizer;
         _logger = logger;
         _applicationCache = applicationCache;
@@ -63,16 +67,17 @@ public class AuthnStory
         var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
         if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
 
-        
+
         // authn after 2fa
         // AD credential check
         var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
-        
+
         // credential is VALID
         if (adValidationResult.IsAuthenticated)
         {
             _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
                 _settings.CompanySettings.Domain);
+
             var sso = _contextAccessor.SafeGetSsoClaims();
             if (sso.HasSamlSession())
             {
@@ -81,9 +86,15 @@ public class AuthnStory
                     return new RedirectToActionResult("ByPassSamlSession", "account",
                         new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
-                
-                // go to idp, return and render html form with saml assertion
-                return await GetSamlAssertion(model.AccessToken);
+
+                await _idpApi.CreateSsoMasterSession(adValidationResult.Username);
+                return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+            }
+
+            if (sso.HasOidcSession())
+            {
+                await _idpApi.CreateSsoMasterSession(adValidationResult.Username);
+                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
             }
 
             _authenticateSessionStory.Execute(model.AccessToken);
@@ -126,7 +137,7 @@ public class AuthnStory
             HttpClient httpClient = _httpFactory.CreateClient(Constants.HttpClients.MultifactorIdpApi);
             var res = await httpClient.PostAsync(idpUrl, multipartContent);
             var jsonResponse = await res.Content.ReadAsStringAsync();
-            
+
             // must render idp page
             var result = new ContentResult
             {
@@ -141,7 +152,7 @@ public class AuthnStory
             throw;
         }
     }
-    
+
     private async Task<IActionResult> WrongAsync()
     {
         // Invalid credentials, freeze response for 2-5 seconds to prevent brute-force attacks.
