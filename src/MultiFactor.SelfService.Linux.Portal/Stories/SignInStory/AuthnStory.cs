@@ -23,7 +23,6 @@ public class AuthnStory
     private readonly DataProtection _dataProtection;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
-    private readonly MultifactorIdpApi _idpApi;
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<SignInStory> _logger;
     private readonly IApplicationCache _applicationCache;
@@ -34,7 +33,6 @@ public class AuthnStory
         DataProtection dataProtection,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
-        MultifactorIdpApi idpApi,
         IApplicationCache applicationCache,
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
@@ -45,7 +43,6 @@ public class AuthnStory
         _dataProtection = dataProtection;
         _contextAccessor = contextAccessor;
         _settings = settings;
-        _idpApi = idpApi;
         _localizer = localizer;
         _logger = logger;
         _applicationCache = applicationCache;
@@ -78,6 +75,8 @@ public class AuthnStory
             _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
                 _settings.CompanySettings.Domain);
 
+            _authenticateSessionStory.Execute(model.AccessToken);
+
             var sso = _contextAccessor.SafeGetSsoClaims();
             if (sso.HasSamlSession())
             {
@@ -87,17 +86,14 @@ public class AuthnStory
                         new { username = model.UserName, samlSession = sso.SamlSessionId });
                 }
 
-                await _idpApi.CreateSsoMasterSession(adValidationResult.Username);
                 return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
             }
 
             if (sso.HasOidcSession())
             {
-                await _idpApi.CreateSsoMasterSession(adValidationResult.Username);
                 return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
             }
 
-            _authenticateSessionStory.Execute(model.AccessToken);
             return new RedirectToActionResult("Index", "Home", default);
         }
 
@@ -113,44 +109,6 @@ public class AuthnStory
         }
 
         return await WrongAsync();
-    }
-
-    private async Task<ActionResult> GetSamlAssertion(string accessToken)
-    {
-        // no token verification because 'aud'=api_key and ssp_api_key!=saml_api_key
-        // hence verification will fail. but it's ok, idp service make its own verification
-        // so security not broken
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(accessToken);
-        var idpUrl = token.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.AdditionSsoStep)
-            ?.Value;
-
-        try
-        {
-            MultipartFormDataContent multipartContent = new MultipartFormDataContent
-            {
-                {
-                    new StringContent(accessToken, Encoding.UTF8, MediaTypeNames.Text.Plain),
-                    "accessToken"
-                }
-            };
-            HttpClient httpClient = _httpFactory.CreateClient(Constants.HttpClients.MultifactorIdpApi);
-            var res = await httpClient.PostAsync(idpUrl, multipartContent);
-            var jsonResponse = await res.Content.ReadAsStringAsync();
-
-            // must render idp page
-            var result = new ContentResult
-            {
-                Content = jsonResponse,
-                ContentType = "text/html"
-            };
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unable to connect API {idpUrl}: {ex.Message}", idpUrl, ex.Message);
-            throw;
-        }
     }
 
     private async Task<IActionResult> WrongAsync()

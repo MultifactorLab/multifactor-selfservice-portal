@@ -37,7 +37,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
             _logger.LogInformation("Second factor for user '{user:l}' verified successfully", verifiedToken.Identity);
             // 2fa before authn enable
 
-            var masterSessionDto = _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
+            _idpApi.CreateSsoMasterSession(verifiedToken.Identity).Wait();
 
             if (_portalSettings.PreAuthenticationMethod)
             {
