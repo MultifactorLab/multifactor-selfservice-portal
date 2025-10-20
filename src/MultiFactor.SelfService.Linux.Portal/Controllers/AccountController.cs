@@ -47,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -105,7 +105,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
