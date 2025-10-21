@@ -91,7 +91,7 @@ public class AuthnStory
 
             if (sso.HasOidcSession())
             {
-                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oicdSession = sso.OidcSessionId });
+                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
             }
 
             return new RedirectToActionResult("Index", "Home", default);
