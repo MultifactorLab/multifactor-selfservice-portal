@@ -39,6 +39,8 @@ using MultiFactor.SelfService.Linux.Portal.Integrations;
 using MultiFactor.SelfService.Linux.Portal.Stories;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Services;
+using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
+using MultiFactor.SelfService.Linux.Portal.Options;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -111,6 +113,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
             ConfigureMultifactorApi(builder);
             ConfigureMultifactorIdpApi(builder);
+            ConfigureCloudConfiguration(builder);
             ConfigureGoogleApi(builder);
             ConfigureYandexCaptchaApi(builder);
 
@@ -198,6 +201,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
         {
             builder.Services.AddTransient<MultifactorIdpApi>()
                 .AddTransient<MultifactorIdpHttpClientAdapterFactory>();
+        }
+
+        private static void ConfigureCloudConfiguration(WebApplicationBuilder builder)
+        {
+            var serviceProvider = builder.Services.BuildServiceProvider();
+            var configProvider = new CloudConfigurationProvider(
+                serviceProvider.GetRequiredService<MultiFactorApi>(),
+                serviceProvider.GetRequiredService<ILogger<CloudConfigurationProvider>>());
+
+            builder.Host.ConfigureAppConfiguration((hostingContext, configurationBuilder) =>
+            {                
+                configurationBuilder.Add(configProvider);
+            });
+
+            builder.Services.AddOptions<ShowcaseSettings>()
+                .BindConfiguration("ShowcaseSettings")
+                .ValidateDataAnnotations();
+
+            builder.Services.AddSingleton(configProvider);
+            builder.Services.AddSingleton<ICloudConfigurationRefresher, CloudConfigurationRefresher>();
+            builder.Services.AddTransient<IShowcaseSettingsOptions, ShowcaseSettingsOptions>();
         }
 
         private static void ConfigureGoogleApi(WebApplicationBuilder builder)
