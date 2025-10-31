@@ -2,10 +2,12 @@
 @using Microsoft.Extensions.Localization
 @using MultiFactor.SelfService.Linux.Portal;
 @using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
+@using MultiFactor.SelfService.Linux.Portal.Options
 @using MultiFactor.SelfService.Linux.Portal.Settings
 
 @inject IViewLocalizer Localizer
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @inject PortalSettings Settings
+@inject IShowcaseSettingsOptions ShowcaseSettings
 @inject ApplicationLanguageProvider ApplicationLanguageProvider
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
