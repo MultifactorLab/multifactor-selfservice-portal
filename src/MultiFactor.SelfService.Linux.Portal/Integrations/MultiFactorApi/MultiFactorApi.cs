@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         public async Task<ShowcaseSettings> GetShowcaseSettingsAsync()
         {
-            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<ShowcaseSettingsDto>>("self-service/settings", GetBearerAuthHeaders()));
+            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<ShowcaseSettingsDto>>("self-service/settings/showcase", GetBearerAuthHeaders()));
             return new ShowcaseSettings()
             {
                 Enabled = response.Enabled,
@@ -42,6 +42,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                     })
                     .ToArray(),
             };
+        }
+
+        public async Task<byte[]> GetShowcaseLogoAsync(string fileName)
+        {
+            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<byte[]>>(
+                $"self-service/settings/showcase/logo{fileName}",
+                GetBearerAuthHeaders()));
+            return response;
         }
 
         public Task<BypassPageDto> CreateSamlBypassRequestAsync(UserProfileDto user, string samlSessionId)

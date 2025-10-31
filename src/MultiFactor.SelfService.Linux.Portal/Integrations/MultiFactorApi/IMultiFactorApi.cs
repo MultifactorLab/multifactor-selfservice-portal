@@ -8,6 +8,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
     {
         Task PingAsync();
         Task<ShowcaseSettings> GetShowcaseSettingsAsync();
+        Task<byte[]> GetShowcaseLogoAsync(string fileName);
         Task<BypassPageDto> CreateSamlBypassRequestAsync(UserProfileDto user, string samlSessionId);
         Task<BypassPageDto> CreateOidcBypassRequestAsync(UserProfileDto user, string oidcSessionId);
         Task<ResetPasswordDto> StartResetPassword(string twoFaIdentity, string ldapIdentity, string callbackUrl);
