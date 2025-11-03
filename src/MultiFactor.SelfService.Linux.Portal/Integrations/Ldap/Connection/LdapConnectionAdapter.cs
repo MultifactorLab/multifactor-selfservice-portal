@@ -94,7 +94,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetSize(1)
-                .SetSlidingExpiration(TimeSpan.FromMinutes(60));
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(60));
             _memoryCache.Set(Uri, domain, cacheEntryOptions);
 
             return domain;

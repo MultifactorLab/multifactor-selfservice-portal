@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
-using MultiFactor.SelfService.Linux.Portal.Options;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
@@ -29,7 +27,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
             builder.Services.AddSingleton(configProvider);
             builder.Services.AddSingleton<ICloudConfigurationRefresher, CloudConfigurationRefresher>();
-            builder.Services.AddTransient<IShowcaseSettingsOptions, ShowcaseSettingsOptions>();
 
             return builder;
         }

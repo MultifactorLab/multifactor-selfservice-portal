@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Caching.Memory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
@@ -8,6 +6,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
 {
     public class CloudConfigurationProvider : ConfigurationProvider, IConfigurationSource
     {
+        private static readonly TimeSpan _cahceTtl = TimeSpan.FromMinutes(1);
         private readonly IMultiFactorApi _multifactorApi;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IMemoryCache _cache;
@@ -33,9 +32,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
                 }
 
                 var newSettings = _multifactorApi.GetShowcaseSettingsAsync().GetAwaiter().GetResult();
-                _cache.Set("ShowcaseSettings", newSettings, TimeSpan.FromMinutes(1));
-                SetData(newSettings);
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(_cahceTtl)
+                    .SetSize(1);
+                _cache.Set("ShowcaseSettings", newSettings, cacheEntryOptions);
 
+                SetData(newSettings);
                 await UpdateLogos(newSettings);
                 
             }
@@ -43,6 +45,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
             {
                 _logger.LogError(ex, "Failed to refresh settings from Multifactor Cloud. Local Showcase settings may be out of date.");
             }
+        }
+
+        private void SetData(ShowcaseSettings settings)
+        {
+            Data["ShowcaseSettings:Enabled"] = settings.Enabled.ToString();
+            SetCollection("ShowcaseSettings:Links", settings.Links);
+
+            OnReload();
         }
 
         private async Task UpdateLogos(ShowcaseSettings settings)
@@ -75,14 +85,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers
             {
                 File.Delete(Path.Combine(localFolder, filename));
             }
-        }
-
-        private void SetData(ShowcaseSettings settings)
-        {
-            Data["ShowcaseSettings:Enabled"] = settings.Enabled.ToString();
-            SetCollection("ShowcaseSettings:Links", settings.Links);
-
-            OnReload();
         }
 
         private void SetCollection(string key, ShowcaseLink[] elements)
