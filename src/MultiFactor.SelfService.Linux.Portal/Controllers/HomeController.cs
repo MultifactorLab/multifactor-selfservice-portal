@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
-using MultiFactor.SelfService.Linux.Portal.Options;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
