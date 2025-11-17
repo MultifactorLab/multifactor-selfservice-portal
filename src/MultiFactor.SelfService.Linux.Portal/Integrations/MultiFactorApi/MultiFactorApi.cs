@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
         public async Task<ShowcaseSettings> GetShowcaseSettingsAsync()
         {
-            var response = await ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<ShowcaseSettingsDto>>("self-service/settings/showcase", GetBasicAuthHeaders()));
+            var response = await _clientAdapter.GetAsync<ShowcaseSettingsDto>("self-service/settings/showcase", GetBasicAuthHeaders());
             return new ShowcaseSettings()
             {
                 Enabled = response.Enabled,

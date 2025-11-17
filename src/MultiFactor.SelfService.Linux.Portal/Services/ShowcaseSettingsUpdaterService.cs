@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
@@ -42,7 +41,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
                 }
                 catch (Exception ex)
                 {
-                    var test = ex.ToString();
                     _logger.LogError(ex, "Failed to load Showcase settings");
                 }
             }
@@ -79,7 +77,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
 
                     File.WriteAllBytes(Path.Combine(localFolder, fileName), data);
                 }
-                catch (HttpRequestException) { }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to load showcase logo '{fileName}'", fileName);
+                }
             }
 
             var extraFiles = localFileNames.Except(cloudFileNames).ToArray();
