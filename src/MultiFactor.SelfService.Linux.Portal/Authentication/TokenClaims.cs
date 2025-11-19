@@ -6,5 +6,7 @@
         bool MustChangePassword, 
         DateTime ValidTo,
         bool MustResetPassword,
+        string SamlClaims,
+        string OidcClaims,
         bool MustUnlockUser = false);
 }

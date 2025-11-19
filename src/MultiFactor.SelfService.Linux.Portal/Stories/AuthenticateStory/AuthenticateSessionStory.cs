@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -65,6 +66,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
                 HttpOnly = true,
                 Expires = verifiedToken.ValidTo
             });
+
+            var sso = new SingleSignOnDto(verifiedToken.SamlClaims, verifiedToken.OidcClaims);
+            if (sso.HasSamlSession())
+            {
+                return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+            }
+
+            if (sso.HasOidcSession())
+            {
+                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
+            }
 
             return verifiedToken.MustChangePassword 
                 ? new RedirectToActionResult("Change", "ExpiredPassword", default) 
