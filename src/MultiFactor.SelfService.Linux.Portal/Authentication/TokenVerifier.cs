@@ -35,6 +35,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ChangePassword);
                 var mustResetPassword =
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword);
+                var samlClaims = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.SamlSessionId)?.Value;
+                var oidcClaims = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.OidcSessionId)?.Value;
                 // use raw user name when possible couse multifactor may transform identity depend by settings
                 return new TokenClaims(
                     Id: jwtSecurityToken.Id,
@@ -42,6 +44,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                     MustChangePassword: mustChangePassword,
                     ValidTo: jwtSecurityToken.ValidTo,
                     MustResetPassword: mustResetPassword,
+                    SamlClaims: samlClaims,
+                    OidcClaims: oidcClaims,
                     MustUnlockUser: unlockUser);
             }
             catch (Exception ex)

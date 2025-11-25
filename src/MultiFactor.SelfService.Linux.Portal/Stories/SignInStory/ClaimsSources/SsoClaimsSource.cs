@@ -26,18 +26,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources
             if (sso.HasSamlSession())
             {
                 claims.Add(Constants.MultiFactorClaims.SamlSessionId, sso.SamlSessionId);
+                claims.Add(Constants.MultiFactorClaims.AdditionSsoStep, "true");
             }
 
             if (sso.HasOidcSession())
             {
                 claims.Add(Constants.MultiFactorClaims.OidcSessionId, sso.OidcSessionId);
-            }
-
-            if (_portalSettings.PreAuthenticationMethod && (sso.OidcSessionId != null || sso.SamlSessionId != null))
-            {
-                
                 claims.Add(Constants.MultiFactorClaims.AdditionSsoStep, "true");
             }
+
             return claims;
         }
     }

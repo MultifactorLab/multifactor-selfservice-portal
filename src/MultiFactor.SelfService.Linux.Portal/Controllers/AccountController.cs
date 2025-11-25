@@ -191,8 +191,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
 
             // otherwise flow is (almost) finished
-            await authenticateSession.Execute(accessToken);
-            return RedirectToAction("Index", "Home");
+            return await authenticateSession.Execute(accessToken);
         }
 
         [HttpGet]
