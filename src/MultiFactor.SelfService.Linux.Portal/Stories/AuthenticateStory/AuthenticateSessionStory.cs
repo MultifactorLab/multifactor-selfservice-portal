@@ -67,7 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
                 Expires = verifiedToken.ValidTo
             });
 
-            var sso = new SingleSignOnDto(verifiedToken.SamlClaims, verifiedToken.OidcClaims);
+            var sso = new SingleSignOnDto(verifiedToken.SamlClaim, verifiedToken.OidcClaim);
             if (sso.HasSamlSession())
             {
                 return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
