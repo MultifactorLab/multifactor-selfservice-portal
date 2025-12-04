@@ -67,7 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStory signIn)
+        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStoryV2 signIn)
         {
             if (!ModelState.IsValid)
             {
@@ -75,7 +75,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
             try
             {
-                return await signIn.ExecuteAsync(model);
+                return await signIn.ExecuteAsync(model, HttpContext.GetRequiredHeaders());
             }
             catch (ModelStateErrorException ex)
             {
