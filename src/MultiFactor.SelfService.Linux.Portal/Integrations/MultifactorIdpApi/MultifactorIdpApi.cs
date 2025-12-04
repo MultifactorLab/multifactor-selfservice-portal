@@ -22,6 +22,36 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
+        
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<LoginResponseDto>>(
+                    "api/v1/login",
+                    request,
+                    headers);
+
+                if (response == null)
+                {
+                    return LoginResponseDto.Failed("Empty response from IdP");
+                }
+
+                if (!response.Success)
+                {
+                    return LoginResponseDto.Failed(response.Message ?? "Login failed");
+                }
+
+                return response.Data ?? LoginResponseDto.Failed("Empty data in response");
+            }
+            catch (Exception ex)
+            {
+                return LoginResponseDto.Failed(ex.Message);
+            }
+        }
 
         /// <summary>
         /// Creates new SSO master session.
@@ -32,7 +62,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             {
                 UserIdentity = userIdentity
             };
-            var a = GetBasicAuthHeaders();
 
             var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
                 "sso-master-session/create",

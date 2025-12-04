@@ -46,6 +46,7 @@
         {
             public const string YandexCaptcha = "yandexCaptcha";
             public const string MultifactorApi = "mfApi";
+            public const string IdentityProviderApi = "idpApi";
             public const string GoogleCaptcha = "googleCaptcha";
             public const string MultifactorIdpApi = "mfIdp";
         }
