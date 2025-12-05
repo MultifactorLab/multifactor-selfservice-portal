@@ -75,7 +75,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
             try
             {
-                return await signIn.ExecuteAsync(model, HttpContext.GetRequiredHeaders());
+                return await signIn.ExecuteAsync(model, HttpContext.GetRequiredHeaders(_portalSettings));
             }
             catch (ModelStateErrorException ex)
             {
