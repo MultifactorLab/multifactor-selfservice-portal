@@ -1,12 +1,13 @@
 ﻿namespace MultiFactor.SelfService.Linux.Portal.Authentication
 {
     public record TokenClaims(
-        string Id, 
-        string Identity, 
+        string Id,
+        string Identity,
+        string RawUserName,
         bool MustChangePassword, 
         DateTime ValidTo,
         bool MustResetPassword,
-        string SamlClaims,
-        string OidcClaims,
+        string SamlClaim,
+        string OidcClaim,
         bool MustUnlockUser = false);
 }

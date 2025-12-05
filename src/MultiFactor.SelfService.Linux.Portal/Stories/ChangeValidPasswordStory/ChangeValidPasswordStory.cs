@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory
             {
                 return new RedirectToActionResult("Logout", "Account", new { });
             }
-            var username = _claimsAccessor.GetTokenClaims().Identity;
+            var username = _claimsAccessor.GetTokenClaims().RawUserName;
 
             var res = await _passwordChanger.ChangePassword(
                 username,
