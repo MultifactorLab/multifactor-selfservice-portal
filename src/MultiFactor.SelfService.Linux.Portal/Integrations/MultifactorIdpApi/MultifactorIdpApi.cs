@@ -54,6 +54,39 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         }
 
         /// <summary>
+        /// Completes login after MFA verification.
+        /// </summary>
+        public async Task<LoginCompletedResponseDto> LoginCompletedAsync(LoginCompletedRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<LoginCompletedResponseDto>>(
+                    "api/v1/login-completed",
+                    request,
+                    headers);
+
+                if (response == null)
+                {
+                    return LoginCompletedResponseDto.Failed("Empty response from IdP");
+                }
+
+                if (!response.Success)
+                {
+                    return LoginCompletedResponseDto.Failed(response.Message ?? "Login completion failed");
+                }
+
+                return response.Data ?? LoginCompletedResponseDto.Failed("Empty data in response");
+            }
+            catch (Exception ex)
+            {
+                return LoginCompletedResponseDto.Failed(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Creates new SSO master session.
         /// </summary>
         public async Task<SsoMasterSessionDto> CreateSsoMasterSession(string userIdentity)

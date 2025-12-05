@@ -75,7 +75,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
             try
             {
-                return await signIn.ExecuteAsync(model, HttpContext.GetRequiredHeaders(_portalSettings));
+                var headers = HttpContext.GetRequiredHeaders();
+                var adHeader = HttpContext.GetAdConnectorUrlHeader(model.MyUrl);
+                headers.Add(adHeader.Key, adHeader.Value);
+                
+                return await signIn.ExecuteAsync(model, headers);
             }
             catch (ModelStateErrorException ex)
             {
@@ -180,7 +184,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpPost]
         public async Task<IActionResult> PostbackFromMfa(string accessToken,
-            [FromServices] AuthenticateSessionStory authenticateSession,
+            [FromServices] AuthenticateSessionStoryV2 authenticateSession,
             [FromServices] RedirectToCredValidationAfter2faStory redirectToCredValidationAfter2FaStory)
         {
             // 2fa before authn enable
@@ -190,7 +194,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return redirectToCredValidationAfter2FaStory.Execute(accessToken);
             }
 
-            // otherwise flow is (almost) finished
+            // otherwise flow is (almost) finished - delegate to IdP
             return await authenticateSession.Execute(accessToken);
         }
 
