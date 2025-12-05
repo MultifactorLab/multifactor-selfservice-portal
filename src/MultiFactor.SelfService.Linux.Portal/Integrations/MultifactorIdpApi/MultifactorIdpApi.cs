@@ -32,7 +32,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             {
                 UserIdentity = userIdentity
             };
-            var a = GetBasicAuthHeaders();
 
             var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
                 "sso-master-session/create",
