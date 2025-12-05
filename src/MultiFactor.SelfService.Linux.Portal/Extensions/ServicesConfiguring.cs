@@ -96,6 +96,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<LoadProfileStory>()
                 .AddTransient<RecoverPasswordStory>()
                 .AddTransient<AuthenticateSessionStory>()
+                .AddTransient<AuthenticateSessionStoryV2>()
                 .AddTransient<GetApplicationInfoStory>()
                 .AddTransient<CheckExpiredPasswordSessionStory>()
                 .AddTransient<ChangeExpiredPasswordStory>()

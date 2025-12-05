@@ -63,7 +63,6 @@ public class SignInStoryV2
         {
             Username = model.UserName.Trim(),
             Password = model.Password.Trim(),
-            CallbackUrl = model.MyUrl.BuildPostbackUrl(),
             SamlSessionId = sso.SamlSessionId,
             OidcSessionId = sso.OidcSessionId,
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
@@ -94,7 +93,7 @@ public class SignInStoryV2
     {
         if (!response.Success)
         {
-            _logger.LogWarning("Login failed: {Error}", response.ErrorMessage);
+            _logger.LogDebug("Login failed: {Error}", response.ErrorMessage);
             throw new ModelStateErrorException(
                 response.ErrorMessage ?? _localizer.GetString("WrongUserNameOrPassword"));
         }
@@ -102,14 +101,14 @@ public class SignInStoryV2
         // Handle MFA required
         if (response.IsMfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
-            _logger.LogInformation("Redirecting user to MFA page");
+            _logger.LogDebug("Redirecting user to MFA page");
             return new RedirectResult(response.RedirectUrl, true);
         }
 
         // Handle SAML bypass
         if (response.IsBypassSaml)
         {
-            _logger.LogInformation("Bypass second factor for user '{User}' via SAML", model.UserName);
+            _logger.LogDebug("Bypass second factor for user '{User}' via SAML", model.UserName);
             var sso = _contextAccessor.SafeGetSsoClaims();
             return new RedirectToActionResult("ByPassSamlSession", "Account",
                 new { username = model.UserName, samlSession = sso.SamlSessionId });
@@ -118,7 +117,7 @@ public class SignInStoryV2
         // Handle OIDC bypass
         if (response.IsBypassOidc)
         {
-            _logger.LogInformation("Bypass second factor for user '{User}' via OIDC", model.UserName);
+            _logger.LogDebug("Bypass second factor for user '{User}' via OIDC", model.UserName);
             var sso = _contextAccessor.SafeGetSsoClaims();
             return new RedirectToActionResult("ByPassOidcSession", "Account",
                 new { oidcSession = sso.OidcSessionId });
