@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
-using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 

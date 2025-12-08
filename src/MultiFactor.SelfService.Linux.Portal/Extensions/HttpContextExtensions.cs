@@ -32,7 +32,7 @@ public static class HttpContextExtensions
         string url;
         if (!string.IsNullOrEmpty(myBaseUrl))
         {
-            url = myBaseUrl.BuildPostbackUrl();
+            url = myBaseUrl.BuildAdConnectorBaseUrl();
         }
         else
         {
@@ -47,6 +47,6 @@ public static class HttpContextExtensions
             url = $"{proto}://{host}{prefix}".TrimEnd('/');
         }
         
-        return new KeyValuePair<string, string>(url, httpContext.Request.Headers["X-Forwarded-Path"]);
+        return new KeyValuePair<string, string>("X-Callback-AdConnector-Url", url);
     }
 }
