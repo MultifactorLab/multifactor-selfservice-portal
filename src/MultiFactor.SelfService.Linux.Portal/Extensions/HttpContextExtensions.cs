@@ -26,27 +26,4 @@ public static class HttpContextExtensions
         "X-Forwarded-For",
         "Forwarded"
     };
-    
-    public static KeyValuePair<string, string> GetAdConnectorUrlHeader(this HttpContext httpContext, string? myBaseUrl = null)
-    {
-        string url;
-        if (!string.IsNullOrEmpty(myBaseUrl))
-        {
-            url = myBaseUrl.BuildAdConnectorBaseUrl();
-        }
-        else
-        {
-            var proto = httpContext.Request.Headers["X-Forwarded-Proto"].FirstOrDefault()
-                        ?? httpContext.Request.Scheme;
-
-            var host = httpContext.Request.Headers["X-Forwarded-Host"].FirstOrDefault()
-                       ?? httpContext.Request.Host.Value;
-
-            var prefix = httpContext.Request.Headers["X-Forwarded-Prefix"].FirstOrDefault() ?? "";
-
-            url = $"{proto}://{host}{prefix}".TrimEnd('/');
-        }
-        
-        return new KeyValuePair<string, string>("X-Callback-AdConnector-Url", url);
-    }
 }

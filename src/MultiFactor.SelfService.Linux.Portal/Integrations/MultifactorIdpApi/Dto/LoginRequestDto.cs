@@ -7,5 +7,7 @@ public class LoginRequestDto
     public string? SamlSessionId { get; init; }
     public string? OidcSessionId { get; init; }
     public Dictionary<string, string>? AdditionalClaims { get; init; }
+    public required string LoginCompletedCallbackUrl { get; init; }
+    public required string AdConnectorCallbackBaseUrl { get; init; }
     public required SspSettingsDto Settings { get; init; }
 }
