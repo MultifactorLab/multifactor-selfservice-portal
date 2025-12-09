@@ -1,5 +1,7 @@
 ﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 {
@@ -45,6 +47,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             if (data != null)
             {
                 message.Content = _jsonDataSerializer.Serialize(data, "Request to API");
+            }
+
+            var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
+            if (resp.Content == null) return default;
+
+            return await _jsonDataSerializer.Deserialize<T>(resp.Content, "Response from API");
+        }
+
+        public async Task<T> PostFormAsync<T>(string uri, IEnumerable<KeyValuePair<string, string>> formData, IReadOnlyDictionary<string, string> headers = null)
+        {
+            var message = new HttpRequestMessage(HttpMethod.Post, uri);
+            HttpClientUtils.AddHeadersIfExist(message, headers);
+
+            if (formData != null)
+            {
+                message.Content = new FormUrlEncodedContent(formData);
+                message.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
             }
 
             var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));

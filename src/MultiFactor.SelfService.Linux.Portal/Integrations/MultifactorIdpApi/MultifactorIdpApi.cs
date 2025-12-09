@@ -62,10 +62,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             {
                 var auth = GetBasicAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-                
-                var response = await _clientAdapter.PostAsync<IdpApiResponse<LoginCompletedResponseDto>>(
+
+                var formData = new[]
+                {
+                    new KeyValuePair<string, string>("accessToken", request.AccessToken)
+                };
+
+                var response = await _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
                     "api/v1/login-completed",
-                    request,
+                    formData,
                     headers);
 
                 if (response == null)

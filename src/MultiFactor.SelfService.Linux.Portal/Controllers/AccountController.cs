@@ -76,8 +76,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             try
             {
                 var headers = HttpContext.GetRequiredHeaders();
-                var adHeader = HttpContext.GetAdConnectorUrlHeader(model.MyUrl);
-                headers.Add(adHeader.Key, adHeader.Value);
                 
                 return await signIn.ExecuteAsync(model, headers);
             }

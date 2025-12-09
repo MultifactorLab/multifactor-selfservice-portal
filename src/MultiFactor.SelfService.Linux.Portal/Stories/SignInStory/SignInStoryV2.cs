@@ -57,6 +57,9 @@ public class SignInStoryV2
         // Prepare claims from SSP
         var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
+        
+        var postbackUrl = model.MyUrl.BuildPostbackUrl();
+        var adConnectorBaseUrl = model.MyUrl.BuildAdConnectorBaseUrl();
 
         // Build request for IdP
         var request = new LoginRequestDto()
@@ -65,6 +68,8 @@ public class SignInStoryV2
             Password = model.Password.Trim(),
             SamlSessionId = sso.SamlSessionId,
             OidcSessionId = sso.OidcSessionId,
+            LoginCompletedCallbackUrl = postbackUrl,
+            AdConnectorCallbackBaseUrl = adConnectorBaseUrl,
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
             Settings = BuildSspSettings()
         };
