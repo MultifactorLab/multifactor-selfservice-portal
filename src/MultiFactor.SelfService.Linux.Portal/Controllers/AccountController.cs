@@ -6,6 +6,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
@@ -198,14 +199,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string samlSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] MultifactorIdpApi idpApi)
         {
-            var user = await loadProfile.ExecuteAsync();
+            var headers = HttpContext.GetRequiredHeaders();
+            
+            var request = new BypassSamlRequestDto
+            {
+                SamlSessionId = samlSession
+            };
 
-            idpApi.AddSamlToSsoMasterSession(samlSession);
+            var response = await idpApi.BypassSamlAsync(request, headers);
 
-            var page = await api.CreateSamlBypassRequestAsync(user, samlSession);
-            return View(page);
+            if (!response.Success || string.IsNullOrWhiteSpace(response.CallbackUrl))
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
+
+            return new RedirectResult(response.CallbackUrl, true);
         }
 
         [HttpGet]
