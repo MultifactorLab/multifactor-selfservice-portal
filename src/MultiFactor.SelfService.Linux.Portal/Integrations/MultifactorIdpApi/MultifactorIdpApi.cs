@@ -169,6 +169,39 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 GetBearerAuthHeaders()));
         }
 
+        /// <summary>
+        /// Creates SAML bypass via IdP.
+        /// </summary>
+        public async Task<BypassSamlResponseDto> BypassSamlAsync(BypassSamlRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>(
+                    "api/v1/bypass/saml",
+                    request,
+                    headers);
+
+                if (response == null)
+                {
+                    return BypassSamlResponseDto.Failed("Empty response from IdP");
+                }
+
+                if (!response.Success)
+                {
+                    return BypassSamlResponseDto.Failed(response.Message ?? "Bypass failed");
+                }
+
+                return response.Data ?? BypassSamlResponseDto.Failed("Empty data in response");
+            }
+            catch (Exception ex)
+            {
+                return BypassSamlResponseDto.Failed(ex.Message);
+            }
+        }
+
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
         {
             var response = await method();
