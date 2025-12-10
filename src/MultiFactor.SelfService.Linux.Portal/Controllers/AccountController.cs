@@ -210,12 +210,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             var response = await idpApi.BypassSamlAsync(request, headers);
 
-            if (!response.Success || string.IsNullOrWhiteSpace(response.CallbackUrl))
+            if (!response.Success)
             {
                 return RedirectToAction("AccessDenied", "Error");
             }
 
-            return new RedirectResult(response.CallbackUrl, true);
+            // If SAML response HTML is provided, return it directly
+            if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
+            {
+                return Content(response.SamlResponseHtml, "text/html");
+            }
+
+            // Fallback to redirect if CallbackUrl is provided
+            if (!string.IsNullOrWhiteSpace(response.CallbackUrl))
+            {
+                return new RedirectResult(response.CallbackUrl, true);
+            }
+
+            return RedirectToAction("AccessDenied", "Error");
         }
 
         [HttpGet]
