@@ -39,7 +39,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 }
             };
 
-            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBasicAuthHeaders()));
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<BypassPageDto>>("access/bypass/saml", payload, GetBearerAuthHeaders()));
         }
 
         public Task<BypassPageDto> CreateOidcBypassRequestAsync(UserProfileDto user, string oidcSessionId)
