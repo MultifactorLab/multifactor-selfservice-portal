@@ -198,7 +198,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void ConfigureMultifactorIdpApi(WebApplicationBuilder builder)
         {
-            builder.Services.AddTransient<MultifactorIdpApi>()
+            builder.Services.AddTransient<IMultifactorIdpApi, MultifactorIdpApi>()
                 .AddTransient<MultifactorIdpHttpClientAdapterFactory>();
         }
 

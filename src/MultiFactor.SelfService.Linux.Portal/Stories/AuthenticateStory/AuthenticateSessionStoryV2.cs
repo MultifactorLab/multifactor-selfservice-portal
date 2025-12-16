@@ -13,12 +13,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 /// </summary>
 public class AuthenticateSessionStoryV2
 {
-    private readonly MultifactorIdpApi _idpApi;
+    private readonly IMultifactorIdpApi _idpApi;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly ILogger<AuthenticateSessionStoryV2> _logger;
 
     public AuthenticateSessionStoryV2(
-        MultifactorIdpApi idpApi,
+        IMultifactorIdpApi idpApi,
         SafeHttpContextAccessor contextAccessor,
         ILogger<AuthenticateSessionStoryV2> logger)
     {

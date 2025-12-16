@@ -11,10 +11,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory
     public class SignOutStory
     {
         private readonly SafeHttpContextAccessor _contextAccessor;
-        private readonly MultifactorIdpApi _idpApi;
+        private readonly IMultifactorIdpApi _idpApi;
         private readonly ILogger<SignOutStory> _logger;
 
-        public SignOutStory(SafeHttpContextAccessor contextAccessor, MultifactorIdpApi idpApi, ILogger<SignOutStory> logger)
+        public SignOutStory(SafeHttpContextAccessor contextAccessor, IMultifactorIdpApi idpApi, ILogger<SignOutStory> logger)
         {
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _idpApi = idpApi;
