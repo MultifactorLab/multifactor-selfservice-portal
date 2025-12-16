@@ -176,31 +176,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         {
             try
             {
-                var auth = GetBasicAuthHeaders();
+                var auth = GetBearerAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
                 
-                var responseString = await _clientAdapter.PostAsync("api/v1/bypass/saml", request, headers);
-                if (string.IsNullOrWhiteSpace(responseString))
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers);
+                
+                if (response == null)
                 {
                     return BypassSamlResponseDto.Failed("Empty response from IdP");
                 }
 
-                var jsonResponse = System.Text.Json.JsonSerializer.Deserialize<IdpApiResponse<BypassSamlResponseDto>>(responseString);
-                
-                if (jsonResponse != null)
+                if (!response.Success)
                 {
-                    if (!jsonResponse.Success)
-                    {
-                        return BypassSamlResponseDto.Failed(jsonResponse.Message ?? "Bypass failed");
-                    }
-
-                    return jsonResponse.Data ?? BypassSamlResponseDto.Failed("Empty data in response");
+                    return BypassSamlResponseDto.Failed(response.Message ?? "Bypass failed");
                 }
 
                 return new BypassSamlResponseDto
                 {
                     Success = true,
-                    SamlResponseHtml = responseString
+                    SamlResponseHtml = response.Data.SamlResponseHtml
                 };
             }
             catch (Exception ex)
