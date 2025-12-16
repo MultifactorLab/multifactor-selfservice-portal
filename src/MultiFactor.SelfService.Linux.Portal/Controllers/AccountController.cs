@@ -199,40 +199,50 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string samlSession,
-            [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] IMultifactorIdpApi idpApi)
         {
-            var headers = HttpContext.GetRequiredHeaders();
-            
-            var request = new BypassSamlRequestDto
+            try
             {
-                SamlSessionId = samlSession
-            };
+                var request = new BypassSamlRequestDto
+                {
+                    SamlSessionId = samlSession
+                };
 
-            var response = await idpApi.BypassSamlAsync(request, headers);
+                var response = await idpApi.BypassSamlAsync(request, HttpContext.GetRequiredHeaders());
 
-            if (!response.Success)
-            {
+                if (!response.Success)
+                {
+                    return RedirectToAction("AccessDenied", "Error");
+                }
+
+                // If SAML response HTML is provided, return it directly
+                if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
+                {
+                    return Content(response.SamlResponseHtml, "text/html");
+                }
+
+                // Fallback to redirect if CallbackUrl is provided
+                if (!string.IsNullOrWhiteSpace(response.CallbackUrl))
+                {
+                    return new RedirectResult(response.CallbackUrl, true);
+                }
+
                 return RedirectToAction("AccessDenied", "Error");
             }
-
-            // If SAML response HTML is provided, return it directly
-            if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
+            catch (UnauthorizedException ex)
             {
-                return Content(response.SamlResponseHtml, "text/html");
-            }
+                if (_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
+                }
 
-            // Fallback to redirect if CallbackUrl is provided
-            if (!string.IsNullOrWhiteSpace(response.CallbackUrl))
-            {
-                return new RedirectResult(response.CallbackUrl, true);
+                return View(new LoginViewModel());
             }
-
-            return RedirectToAction("AccessDenied", "Error");
         }
 
         [HttpGet]
         public async Task<IActionResult> ByPassOidcSession(string oidcSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] IMultifactorIdpApi idpApi)
         {
             var user = await loadProfile.ExecuteAsync();
 

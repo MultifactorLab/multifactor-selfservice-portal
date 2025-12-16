@@ -19,7 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 /// </summary>
 public class SignInStoryV2
 {
-    private readonly MultifactorIdpApi _idpApiClient;
+    private readonly IMultifactorIdpApi _idpApiClient;
     private readonly DataProtection _dataProtection;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
@@ -29,7 +29,7 @@ public class SignInStoryV2
     private readonly ClaimsProvider _claimsProvider;
 
     public SignInStoryV2(
-        MultifactorIdpApi idpApiClient,
+        IMultifactorIdpApi idpApiClient,
         DataProtection dataProtection,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,

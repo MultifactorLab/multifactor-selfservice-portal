@@ -8,7 +8,7 @@ using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
 {
-    public class MultifactorIdpApi
+    public class MultifactorIdpApi : IMultifactorIdpApi
     {
         private readonly HttpClientAdapter _clientAdapter;
         private readonly HttpClientTokenProvider _tokenProvider;
@@ -30,22 +30,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 var auth = GetBasicAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
                 
-                var response = await _clientAdapter.PostAsync<IdpApiResponse<LoginResponseDto>>(
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<LoginResponseDto>>(
                     "api/v1/login",
                     request,
-                    headers);
+                    headers));
 
-                if (response == null)
-                {
-                    return LoginResponseDto.Failed("Empty response from IdP");
-                }
-
-                if (!response.Success)
-                {
-                    return LoginResponseDto.Failed(response.Message ?? "Login failed");
-                }
-
-                return response.Data ?? LoginResponseDto.Failed("Empty data in response");
+                return response;
             }
             catch (Exception ex)
             {
@@ -68,22 +59,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                     new KeyValuePair<string, string>("accessToken", request.AccessToken)
                 };
 
-                var response = await _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
                     "api/v1/login-completed",
                     formData,
-                    headers);
+                    headers));
 
-                if (response == null)
-                {
-                    return LoginCompletedResponseDto.Failed("Empty response from IdP");
-                }
-
-                if (!response.Success)
-                {
-                    return LoginCompletedResponseDto.Failed(response.Message ?? "Login completion failed");
-                }
-
-                return response.Data ?? LoginCompletedResponseDto.Failed("Empty data in response");
+                return response;
             }
             catch (Exception ex)
             {
@@ -179,22 +161,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 var auth = GetBearerAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
                 
-                var response = await _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers);
-                
-                if (response == null)
-                {
-                    return BypassSamlResponseDto.Failed("Empty response from IdP");
-                }
-
-                if (!response.Success)
-                {
-                    return BypassSamlResponseDto.Failed(response.Message ?? "Bypass failed");
-                }
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers));
 
                 return new BypassSamlResponseDto
                 {
                     Success = true,
-                    SamlResponseHtml = response.Data.SamlResponseHtml
+                    SamlResponseHtml = response.SamlResponseHtml
                 };
             }
             catch (Exception ex)
@@ -203,6 +176,40 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             }
         }
 
+        public async Task<UserProfileDto> GetUserProfileAsync()
+        {
+            var response = await ExecuteAsync(() => 
+                _clientAdapter.GetAsync<IdpApiResponse<UserProfileDto>>("api/v1/users/load-profile", GetBearerAuthHeaders()));
+            
+            return new UserProfileDto(response.Id, response.Identity)
+            {
+                Name = response.Name,
+                Email = response.Email,
+                EnablePasswordManagement = _settings.PasswordManagement.Enabled,
+                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled
+            };
+        }
+
+        private static async Task<T> ExecuteAsync<T>(Func<Task<IdpApiResponse<T>>> method)
+        {
+            var response = await method();
+
+            if (response == null)
+            {
+                throw new Exception("Response is null");
+            }
+            if (!response.Success)
+            {
+                throw new UnsuccessfulResponseException(response.Message);
+            }
+            if (response.Data == null)
+            {
+                throw new Exception("Response payload is null");
+            }
+
+            return response.Data;
+        }
+        
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
         {
             var response = await method();

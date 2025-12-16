@@ -13,13 +13,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
     public class AuthenticateSessionStory
     {
         private readonly TokenVerifier _tokenVerifier;
-        private readonly MultifactorIdpApi _idpApi;
+        private readonly IMultifactorIdpApi _idpApi;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _portalSettings;
         private readonly IApplicationCache _applicationCache;
         private readonly ILogger<AuthenticateSessionStory> _logger;
 
-        public AuthenticateSessionStory(TokenVerifier tokenVerifier, MultifactorIdpApi idpApi, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, IApplicationCache applicationCache)
+        public AuthenticateSessionStory(TokenVerifier tokenVerifier, IMultifactorIdpApi idpApi, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, IApplicationCache applicationCache)
         {
             _tokenVerifier = tokenVerifier;
             _idpApi = idpApi;
