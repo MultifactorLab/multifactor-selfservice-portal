@@ -198,7 +198,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassSamlSession(string samlSession,
+        public async Task<IActionResult> ByPassSamlSession(
+            string samlSession,
             [FromServices] IMultifactorIdpApi idpApi)
         {
             try
@@ -234,15 +235,39 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassOidcSession(string oidcSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] IMultifactorIdpApi idpApi)
+        public async Task<IActionResult> ByPassOidcSession(
+            string oidcSession,
+            [FromServices] IMultifactorIdpApi idpApi)
         {
-            var user = await loadProfile.ExecuteAsync();
+            try
+            {
+                var request = new BypassOidcRequestDto
+                {
+                    OidcSessionId = oidcSession
+                };
+                
+                var response = await idpApi.BypassOidcAsync(request, HttpContext.GetRequiredHeaders());
+                
+                if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
+                {
+                    return Redirect(response.RedirectUrl);
+                }
 
-            idpApi.AddOidcToSsoMasterSession(oidcSession);
+                return RedirectToAction("AccessDenied", "Error");
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
+                }
 
-            var page = await api.CreateOidcBypassRequestAsync(user, oidcSession);
-            return View(page);
+                return View(new LoginViewModel());
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
         }
     }
 }

@@ -150,6 +150,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers));
         }
 
+        public async Task<BypassOidcResponseDto> BypassOidcAsync(BypassOidcRequestDto request, Dictionary<string, string> headers)
+        {
+            var auth = GetBearerAuthHeaders();
+            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+            
+            return await ExecuteAsync(() =>
+                _clientAdapter.PostAsync<IdpApiResponse<BypassOidcResponseDto>>("api/v1/oidc/bypass", request, headers));
+        }
+
         public async Task<UserProfileDto> GetUserProfileAsync()
         {
             return await ExecuteAsync(() => 
