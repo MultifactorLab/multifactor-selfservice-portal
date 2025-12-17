@@ -47,12 +47,6 @@ public class AuthenticateSessionStoryV2
 
     private IActionResult HandleLoginCompletedResponse(LoginCompletedResponseDto response, string accessToken)
     {
-        if (!response.Success)
-        {
-            _logger.LogDebug("Login completion failed: {Error}", response.ErrorMessage);
-            return new RedirectToActionResult("AccessDenied", "Error", null);
-        }
-
         // Set cookie with access token
         if (response.TokenExpirationDate.HasValue)
         {

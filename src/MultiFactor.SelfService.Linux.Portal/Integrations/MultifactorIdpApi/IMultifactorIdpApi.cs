@@ -17,6 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         Task LogoutSsoMasterSession();
 
         Task<BypassSamlResponseDto> BypassSamlAsync(BypassSamlRequestDto request, Dictionary<string, string> headers);
+        Task<BypassOidcResponseDto> BypassOidcAsync(BypassOidcRequestDto request, Dictionary<string, string> headers);
         
         Task<UserProfileDto> GetUserProfileAsync();
     }
