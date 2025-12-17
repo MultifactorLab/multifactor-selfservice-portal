@@ -49,28 +49,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         /// </summary>
         public async Task<LoginCompletedResponseDto> LoginCompletedAsync(LoginCompletedRequestDto request, Dictionary<string, string> headers)
         {
-            try
+            var auth = GetBasicAuthHeaders();
+            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+
+            var formData = new[]
             {
-                var auth = GetBasicAuthHeaders();
-                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                new KeyValuePair<string, string>("accessToken", request.AccessToken)
+            };
 
-                var formData = new[]
-                {
-                    new KeyValuePair<string, string>("accessToken", request.AccessToken)
-                };
-
-                var response = await ExecuteAsync(() =>
-                    _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
+            return await ExecuteAsync(() =>
+                _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
                     "api/v1/login-completed",
                     formData,
                     headers));
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                return LoginCompletedResponseDto.Failed(ex.Message);
-            }
         }
 
         /// <summary>
@@ -112,12 +103,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 SessionType = SsoMasterSessionTypes.SamlSessionType
             };
 
-            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+            return await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
                 "sso-master-session/add-child-session",
                 payload,
                 GetBearerAuthHeaders()));
-
-            return new SsoMasterSessionDto(response.MasterSessionId);
         }
 
         /// <summary>
@@ -132,12 +121,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 SessionType = SsoMasterSessionTypes.OidcSessionType
             };
 
-            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+            return await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
                 "sso-master-session/add-child-session",
                 payload,
                 GetBearerAuthHeaders()));
-
-            return new SsoMasterSessionDto(response.MasterSessionId);
         }
 
         /// <summary>
@@ -156,38 +143,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         /// </summary>
         public async Task<BypassSamlResponseDto> BypassSamlAsync(BypassSamlRequestDto request, Dictionary<string, string> headers)
         {
-            try
-            {
-                var auth = GetBearerAuthHeaders();
-                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+            var auth = GetBearerAuthHeaders();
+            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
                 
-                var response = await ExecuteAsync(() =>
-                    _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers));
-
-                return new BypassSamlResponseDto
-                {
-                    Success = true,
-                    SamlResponseHtml = response.SamlResponseHtml
-                };
-            }
-            catch (Exception ex)
-            {
-                return BypassSamlResponseDto.Failed(ex.Message);
-            }
+            return await ExecuteAsync(() =>
+                _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers));
         }
 
         public async Task<UserProfileDto> GetUserProfileAsync()
         {
-            var response = await ExecuteAsync(() => 
+            return await ExecuteAsync(() => 
                 _clientAdapter.GetAsync<IdpApiResponse<UserProfileDto>>("api/v1/users/load-profile", GetBearerAuthHeaders()));
-            
-            return new UserProfileDto(response.Id, response.Identity)
-            {
-                Name = response.Name,
-                Email = response.Email,
-                EnablePasswordManagement = _settings.PasswordManagement.Enabled,
-                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled
-            };
         }
 
         private static async Task<T> ExecuteAsync<T>(Func<Task<IdpApiResponse<T>>> method)

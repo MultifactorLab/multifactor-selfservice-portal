@@ -210,21 +210,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 var response = await idpApi.BypassSamlAsync(request, HttpContext.GetRequiredHeaders());
 
-                if (!response.Success)
-                {
-                    return RedirectToAction("AccessDenied", "Error");
-                }
-
                 // If SAML response HTML is provided, return it directly
                 if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
                 {
                     return Content(response.SamlResponseHtml, "text/html");
-                }
-
-                // Fallback to redirect if CallbackUrl is provided
-                if (!string.IsNullOrWhiteSpace(response.CallbackUrl))
-                {
-                    return new RedirectResult(response.CallbackUrl, true);
                 }
 
                 return RedirectToAction("AccessDenied", "Error");
@@ -237,6 +226,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 }
 
                 return View(new LoginViewModel());
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("AccessDenied", "Error");
             }
         }
 
