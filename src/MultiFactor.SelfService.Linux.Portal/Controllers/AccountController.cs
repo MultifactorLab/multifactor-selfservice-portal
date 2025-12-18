@@ -7,7 +7,6 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
@@ -117,7 +116,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 if (!_portalSettings.PreAuthenticationMethod)
                 {
-                    return RedirectToAction("Login");
+                    return RedirectToAction("Login", sso);
                 }
 
                 var identity = _applicationCache.GetIdentity(requestId);
@@ -131,7 +130,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStory identityStoryHandler)
+        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStoryV2 identityStoryHandler)
         {
             if (!ModelState.IsValid)
             {
@@ -140,7 +139,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                return await identityStoryHandler.ExecuteAsync(model);
+                return await identityStoryHandler.ExecuteAsync(model, HttpContext.GetRequiredHeaders());
             }
             catch (ModelStateErrorException ex)
             {
