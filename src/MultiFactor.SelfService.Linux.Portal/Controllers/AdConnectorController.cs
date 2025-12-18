@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Dto.AdConnector;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
@@ -14,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/ad")]
-[AllowAnonymous] // TODO: Add mTLS authentication in production
+[AllowAnonymous]
 public class AdConnectorController : ControllerBase
 {
     private readonly CredentialVerifier _credentialVerifier;
@@ -121,6 +122,18 @@ public class AdConnectorController : ControllerBase
             });
         }
     }
+    
+    private async Task<IActionResult> WrongAsync()
+    {
+        var rnd = new Random();
+        int delay = rnd.Next(2, 6);
+        await Task.Delay(TimeSpan.FromSeconds(delay));
+        return BadRequest(new AdConnectorResponse
+        {
+            Success = false,
+            Message = "Username and password are required"
+        });
+    }
 
     private static VerifyCredentialsResponse MapToResponse(CredentialVerificationResult result)
     {
@@ -140,60 +153,4 @@ public class AdConnectorController : ControllerBase
         };
     }
 }
-
-#region DTOs
-
-/// <summary>
-/// Request DTO for credential verification.
-/// </summary>
-public sealed class VerifyCredentialsRequest
-{
-    public string Username { get; init; } = string.Empty;
-    public string Password { get; init; } = string.Empty;
-}
-
-/// <summary>
-/// Request DTO for membership verification.
-/// </summary>
-public sealed class VerifyMembershipRequest
-{
-    public string Username { get; init; } = string.Empty;
-}
-
-/// <summary>
-/// Response DTO for credential/membership verification.
-/// </summary>
-public sealed class VerifyCredentialsResponse
-{
-    public bool IsAuthenticated { get; init; }
-    public bool IsBypass { get; init; }
-    public bool UserMustChangePassword { get; init; }
-    public DateTime PasswordExpirationDate { get; init; }
-    public string? DisplayName { get; init; }
-    public string? Email { get; init; }
-    public string? Phone { get; init; }
-    public string? Username { get; init; }
-    public string? UserPrincipalName { get; init; }
-    public string? CustomIdentity { get; init; }
-    public string? Reason { get; init; }
-}
-
-/// <summary>
-/// Standard response wrapper for AD Connector API.
-/// </summary>
-public class AdConnectorResponse
-{
-    public bool Success { get; init; }
-    public string? Message { get; init; }
-}
-
-/// <summary>
-/// Standard response wrapper with data for AD Connector API.
-/// </summary>
-public sealed class AdConnectorResponse<T> : AdConnectorResponse
-{
-    public T? Data { get; init; }
-}
-
-#endregion
 

@@ -45,6 +45,30 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         }
 
         /// <summary>
+        /// Identity verification for pre-authentication flow (MFA first, then password).
+        /// </summary>
+        public async Task<IdentityResponseDto> IdentityAsync(IdentityRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<IdentityResponseDto>>(
+                    "api/v1/identity",
+                    request,
+                    headers));
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResponseDto.Failed(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Completes login after MFA verification.
         /// </summary>
         public async Task<LoginCompletedResponseDto> LoginCompletedAsync(LoginCompletedRequestDto request, Dictionary<string, string> headers)
