@@ -92,8 +92,7 @@ public class IdentityStoryV2
         if (!response.Success)
         {
             _logger.LogDebug("Identity verification failed: {Error}", response.ErrorMessage);
-            throw new ModelStateErrorException(
-                response.ErrorMessage ?? _localizer.GetString("WrongUserNameOrPassword"));
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
         // Handle MFA required - redirect to MFA page

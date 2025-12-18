@@ -99,8 +99,7 @@ public class SignInStoryV2
         if (!response.Success)
         {
             _logger.LogDebug("Login failed: {Error}", response.ErrorMessage);
-            throw new ModelStateErrorException(
-                response.ErrorMessage ?? _localizer.GetString("WrongUserNameOrPassword"));
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
         // Handle MFA required
