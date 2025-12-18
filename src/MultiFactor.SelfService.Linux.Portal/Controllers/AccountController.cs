@@ -175,9 +175,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public IActionResult Logout([FromServices] SignOutStory signOut)
+        public async Task<IActionResult> Logout([FromServices] SignOutStoryV2 signOut)
         {
-            return signOut.Execute();
+            var headers = HttpContext.GetRequiredHeaders();
+            return await signOut.ExecuteAsync(headers);
         }
 
         [HttpPost]

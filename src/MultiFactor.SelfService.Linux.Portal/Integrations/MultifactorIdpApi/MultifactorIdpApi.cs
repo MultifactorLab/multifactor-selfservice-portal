@@ -152,7 +152,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         }
 
         /// <summary>
-        /// Logout from SSO master session.
+        /// Logout from SSO master session (legacy method, kept for backward compatibility).
         /// </summary>
         public Task LogoutSsoMasterSession()
         {
@@ -160,6 +160,30 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 "sso-master-session/logout",
                 data: null,
                 GetBearerAuthHeaders()));
+        }
+
+        /// <summary>
+        /// Logout via new API endpoint.
+        /// </summary>
+        public async Task<LogoutResponseDto> LogoutAsync(LogoutRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBearerAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<LogoutResponseDto>>(
+                    "api/v1/logout",
+                    request,
+                    headers));
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return LogoutResponseDto.Failed(ex.Message);
+            }
         }
 
         /// <summary>
