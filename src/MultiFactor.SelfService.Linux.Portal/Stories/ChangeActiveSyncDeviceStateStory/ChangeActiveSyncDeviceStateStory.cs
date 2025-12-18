@@ -23,7 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceSta
         {
             ArgumentNullException.ThrowIfNull(deviceId);
 
-            var username = _claimsAccessor.GetTokenClaims().Identity;
+            var username = _claimsAccessor.GetTokenClaims().RawUserName;
             var device = await _searcher.FindByUserAndDeviceIdAsync(username, deviceId);
             if (device == null) return;
 
@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceSta
         {
             ArgumentNullException.ThrowIfNull(deviceId);
 
-            var username = _claimsAccessor.GetTokenClaims().Identity;
+            var username = _claimsAccessor.GetTokenClaims().RawUserName;
             var device = await _searcher.FindByUserAndDeviceIdAsync(username, deviceId);
             if (device == null) return;
 
