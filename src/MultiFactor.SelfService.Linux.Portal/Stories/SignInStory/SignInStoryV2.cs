@@ -88,6 +88,7 @@ public class SignInStoryV2
             PreAuthenticationMethod = _settings.PreAuthenticationMethod,
             RequiresUserPrincipalName = _settings.ActiveDirectorySettings.RequiresUserPrincipalName,
             PasswordManagementEnabled = _settings.PasswordManagement?.Enabled ?? false,
+            NeedPrebindInfo = _settings.NeedPrebindInfo(),
             PrivacyMode = _settings.MultiFactorApiSettings.PrivacyModeDescriptor.ToString(),
             NetBiosName = _settings.ActiveDirectorySettings.NetBiosName,
             SignUpGroups = _settings.GroupPolicyPreset.SignUpGroups
