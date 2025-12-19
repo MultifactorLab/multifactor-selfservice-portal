@@ -47,15 +47,13 @@ public class IdentityStoryV2
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(headers);
-
-        // Prepare claims from SSP
+        
         var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
 
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
         var adConnectorBaseUrl = model.MyUrl.BuildAdConnectorBaseUrl();
-
-        // Build request for IdP
+        
         var request = new IdentityRequestDto
         {
             Username = model.UserName.Trim(),
@@ -66,11 +64,9 @@ public class IdentityStoryV2
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
             Settings = BuildSspSettings()
         };
-
-        // Call IdP
+        
         var response = await _idpApiClient.IdentityAsync(request, headers);
-
-        // Handle response
+        
         return HandleIdentityResponse(response, model);
     }
 
@@ -80,6 +76,7 @@ public class IdentityStoryV2
         {
             PreAuthenticationMethod = _settings.PreAuthenticationMethod,
             RequiresUserPrincipalName = _settings.ActiveDirectorySettings.RequiresUserPrincipalName,
+            NeedPrebindInfo = _settings.NeedPrebindInfo(),
             UseUpnAsIdentity = _settings.ActiveDirectorySettings.UseUpnAsIdentity,
             PrivacyMode = _settings.MultiFactorApiSettings.PrivacyModeDescriptor.ToString(),
             NetBiosName = _settings.ActiveDirectorySettings.NetBiosName,
@@ -94,16 +91,13 @@ public class IdentityStoryV2
             _logger.LogDebug("Identity verification failed: {Error}", response.ErrorMessage);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-
-        // Handle MFA required - redirect to MFA page
+        
         if (response.IsMfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             _logger.LogDebug("Redirecting user '{User}' to MFA page", model.UserName);
             return new RedirectResult(response.RedirectUrl, true);
         }
-
-        // Handle ShowAuthn - user can bypass MFA and enter password directly
-        // Return the Authn view so user can enter their password
+        
         if (response.IsShowAuthn)
         {
             var identity = response.Username ?? model.UserName;
@@ -114,7 +108,6 @@ public class IdentityStoryV2
                 ViewName = "Authn",
                 ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
                 {
-                    // Create new model with potentially updated identity (UPN instead of sAMAccountName)
                     Model = new IdentityViewModel
                     {
                         UserName = identity,
@@ -125,15 +118,13 @@ public class IdentityStoryV2
                 }
             };
         }
-
-        // Handle access denied
+        
         if (response.IsAccessDenied)
         {
             _logger.LogWarning("Access denied for user '{User}'", model.UserName);
             return new RedirectToActionResult("AccessDenied", "Error", null);
         }
-
-        // Default: redirect to MFA page if URL provided
+        
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             return new RedirectResult(response.RedirectUrl, true);

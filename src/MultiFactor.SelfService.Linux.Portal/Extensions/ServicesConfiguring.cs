@@ -92,6 +92,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<IdentityStory>()
                 .AddTransient<IdentityStoryV2>()
                 .AddTransient<RedirectToCredValidationAfter2faStory>()
+                .AddTransient<RedirectToCredValidationAfter2FaStoryV2>()
                 .AddTransient<AuthnStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<SignOutStoryV2>()
