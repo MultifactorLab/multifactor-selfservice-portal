@@ -10,6 +10,7 @@ public sealed class LoginCompletedResponseDto
     public string? Identity { get; init; }
     public string? SamlSessionId { get; init; }
     public string? OidcSessionId { get; init; }
+    public string? RawUserName { get; init; }
 
     public bool IsBypassSaml => Action == "BypassSaml";
     public bool IsBypassOidc => Action == "BypassOidc";
