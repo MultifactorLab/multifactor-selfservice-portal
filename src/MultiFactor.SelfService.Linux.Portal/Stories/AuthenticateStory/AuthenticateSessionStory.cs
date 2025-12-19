@@ -1,86 +1,86 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
-using MultiFactor.SelfService.Linux.Portal.Dto;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
-using MultiFactor.SelfService.Linux.Portal.Settings;
-using MultiFactor.SelfService.Linux.Portal.ViewModels;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory
+namespace MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
+
+/// <summary>
+/// AuthenticateSessionStory that delegates logic to IdP.
+/// SSP only handles UI and passes data to IdP for processing.
+/// </summary>
+public class AuthenticateSessionStory
 {
-    public class AuthenticateSessionStory
+    private readonly IMultifactorIdpApi _idpApi;
+    private readonly SafeHttpContextAccessor _contextAccessor;
+    private readonly ILogger<AuthenticateSessionStory> _logger;
+
+    public AuthenticateSessionStory(
+        IMultifactorIdpApi idpApi,
+        SafeHttpContextAccessor contextAccessor,
+        ILogger<AuthenticateSessionStory> logger)
     {
-        private readonly TokenVerifier _tokenVerifier;
-        private readonly IMultifactorIdpApi _idpApi;
-        private readonly SafeHttpContextAccessor _contextAccessor;
-        private readonly PortalSettings _portalSettings;
-        private readonly IApplicationCache _applicationCache;
-        private readonly ILogger<AuthenticateSessionStory> _logger;
+        _idpApi = idpApi;
+        _contextAccessor = contextAccessor;
+        _logger = logger;
+    }
 
-        public AuthenticateSessionStory(TokenVerifier tokenVerifier, IMultifactorIdpApi idpApi, SafeHttpContextAccessor contextAccessor, ILogger<AuthenticateSessionStory> logger, PortalSettings portalSettings, IApplicationCache applicationCache)
+    public async Task<IActionResult> Execute(string accessToken)
+    {
+        ArgumentNullException.ThrowIfNull(accessToken);
+        _logger.LogDebug("Received MFA token: {accessToken:l}", accessToken);
+
+        // Build request for IdP
+        var request = new LoginCompletedRequestDto
         {
-            _tokenVerifier = tokenVerifier;
-            _idpApi = idpApi;
-            _contextAccessor = contextAccessor;
-            _logger = logger;
-            _portalSettings = portalSettings;
-            _applicationCache = applicationCache;
-        }
+            AccessToken = accessToken
+        };
 
-        public async Task<IActionResult> Execute(string accessToken)
+        // Call IdP
+        var response = await _idpApi.LoginCompletedAsync(request, _contextAccessor.HttpContext.GetRequiredHeaders());
+
+        // Handle response
+        return HandleLoginCompletedResponse(response, accessToken);
+    }
+
+    private IActionResult HandleLoginCompletedResponse(LoginCompletedResponseDto response, string accessToken)
+    {
+        // Set cookie with access token
+        if (response.TokenExpirationDate.HasValue)
         {
-            ArgumentNullException.ThrowIfNull(accessToken);
-            _logger.LogDebug("Received MFA token: {accessToken:l}", accessToken);
-
-            var verifiedToken = _tokenVerifier.Verify(accessToken);
-            _logger.LogInformation("Second factor for user '{user:l}' verified successfully", verifiedToken.Identity);
-            // 2fa before authn enable
-
-            await _idpApi.CreateSsoMasterSession(verifiedToken.Identity);
-
-            if (_portalSettings.PreAuthenticationMethod)
-            {
-                var identity = verifiedToken.Identity;
-                var requestId = verifiedToken.Id;
-                _applicationCache.SetIdentity(requestId,
-                    new IdentityViewModel
-                        { UserName = identity, AccessToken = accessToken });
-                var cachedUser = _applicationCache.Get(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(identity));
-                
-                _contextAccessor.HttpContext.Response.Cookies.Append(Constants.COOKIE_NAME, accessToken, new CookieOptions
-                {
-                    Secure = true,
-                    HttpOnly = true,
-                    Expires = verifiedToken.ValidTo
-                });
-                return verifiedToken.MustChangePassword || !cachedUser.IsEmpty
-                    ? new RedirectToActionResult("Change", "ExpiredPassword", default) 
-                    : new RedirectToActionResult("Identity", "Account", new { requestId = requestId });
-            }
-            
             _contextAccessor.HttpContext.Response.Cookies.Append(Constants.COOKIE_NAME, accessToken, new CookieOptions
             {
                 Secure = true,
                 HttpOnly = true,
-                Expires = verifiedToken.ValidTo
+                Expires = response.TokenExpirationDate.Value
             });
-
-            var sso = new SingleSignOnDto(verifiedToken.SamlClaim, verifiedToken.OidcClaim);
-            if (sso.HasSamlSession())
-            {
-                return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
-            }
-
-            if (sso.HasOidcSession())
-            {
-                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
-            }
-
-            return verifiedToken.MustChangePassword 
-                ? new RedirectToActionResult("Change", "ExpiredPassword", default) 
-                : new RedirectToActionResult("Index", "Home", default);
         }
+
+        // Handle SAML bypass
+        if (response.IsBypassSaml && !string.IsNullOrEmpty(response.SamlSessionId))
+        {
+            _logger.LogDebug("Redirecting to SAML bypass for session '{Session}'", response.SamlSessionId);
+            return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = response.SamlSessionId });
+        }
+
+        // Handle OIDC bypass
+        if (response.IsBypassOidc && !string.IsNullOrEmpty(response.OidcSessionId))
+        {
+            _logger.LogDebug("Redirecting to OIDC bypass for session '{Session}'", response.OidcSessionId);
+            return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = response.OidcSessionId });
+        }
+
+        // Handle password change required
+        if (response.IsChangePassword)
+        {
+            _logger.LogDebug("User '{User}' must change password", response.Identity);
+            return new RedirectToActionResult("Change", "ExpiredPassword", default);
+        }
+
+        // Standard authenticated flow
+        _logger.LogDebug("User '{User}' authenticated successfully", response.Identity);
+        return new RedirectToActionResult("Index", "Home", default);
     }
 }
