@@ -184,16 +184,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [HttpPost]
         public async Task<IActionResult> PostbackFromMfa(string accessToken,
             [FromServices] AuthenticateSessionStoryV2 authenticateSession,
-            [FromServices] RedirectToCredValidationAfter2faStory redirectToCredValidationAfter2FaStory)
+            [FromServices] RedirectToCredValidationAfter2FaStoryV2 redirectToCredValidationAfter2FaStoryV2)
         {
-            // 2fa before authn enable
             if (_portalSettings.PreAuthenticationMethod)
             {
-                // hence continue authentication flow 
-                return redirectToCredValidationAfter2FaStory.Execute(accessToken);
+                return await redirectToCredValidationAfter2FaStoryV2.ExecuteAsync(accessToken);
             }
-
-            // otherwise flow is (almost) finished - delegate to IdP
+            
             return await authenticateSession.Execute(accessToken);
         }
 
@@ -210,8 +207,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 };
 
                 var response = await idpApi.BypassSamlAsync(request, HttpContext.GetRequiredHeaders());
-
-                // If SAML response HTML is provided, return it directly
+                
                 if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
                 {
                     return Content(response.SamlResponseHtml, "text/html");
