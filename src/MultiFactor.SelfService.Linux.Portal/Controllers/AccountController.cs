@@ -67,7 +67,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStoryV2 signIn)
+        public async Task<IActionResult> Login(LoginViewModel model, [FromServices] SignInStory signIn)
         {
             if (!ModelState.IsValid)
             {
@@ -130,7 +130,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStoryV2 identityStoryHandler)
+        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStory identityStoryHandler)
         {
             if (!ModelState.IsValid)
             {
@@ -175,7 +175,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public async Task<IActionResult> Logout([FromServices] SignOutStoryV2 signOut)
+        public async Task<IActionResult> Logout([FromServices] SignOutStory signOut)
         {
             var headers = HttpContext.GetRequiredHeaders();
             return await signOut.ExecuteAsync(headers);
@@ -183,12 +183,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
         [HttpPost]
         public async Task<IActionResult> PostbackFromMfa(string accessToken,
-            [FromServices] AuthenticateSessionStoryV2 authenticateSession,
-            [FromServices] RedirectToCredValidationAfter2FaStoryV2 redirectToCredValidationAfter2FaStoryV2)
+            [FromServices] AuthenticateSessionStory authenticateSession,
+            [FromServices] RedirectToCredValidationAfter2FaStory redirectToCredValidationAfter2faStory)
         {
             if (_portalSettings.PreAuthenticationMethod)
             {
-                return await redirectToCredValidationAfter2FaStoryV2.ExecuteAsync(accessToken);
+                return await redirectToCredValidationAfter2faStory.ExecuteAsync(accessToken);
             }
             
             return await authenticateSession.Execute(accessToken);

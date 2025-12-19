@@ -6,142 +6,158 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
-using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
-namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
+namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
+
+public class SignInStory
 {
-    public class SignInStory
+    private readonly IMultifactorIdpApi _idpApiClient;
+    private readonly DataProtection _dataProtection;
+    private readonly SafeHttpContextAccessor _contextAccessor;
+    private readonly PortalSettings _settings;
+    private readonly IStringLocalizer _localizer;
+    private readonly ILogger<SignInStory> _logger;
+    private readonly IApplicationCache _applicationCache;
+    private readonly ClaimsProvider _claimsProvider;
+
+    public SignInStory(
+        IMultifactorIdpApi idpApiClient,
+        DataProtection dataProtection,
+        SafeHttpContextAccessor contextAccessor,
+        PortalSettings settings,
+        IApplicationCache applicationCache,
+        IStringLocalizer<SharedResource> localizer,
+        ILogger<SignInStory> logger,
+        ClaimsProvider claimsProvider)
     {
-        private readonly CredentialVerifier _credentialVerifier;
-        private readonly DataProtection _dataProtection;
-        private readonly IMultiFactorApi _api;
-        private readonly SafeHttpContextAccessor _contextAccessor;
-        private readonly PortalSettings _settings;
-        private readonly IStringLocalizer _localizer;
-        private readonly ILogger<SignInStory> _logger;
-        private readonly IApplicationCache _applicationCache;
-        private readonly ClaimsProvider _claimsProvider;
+        _idpApiClient = idpApiClient;
+        _dataProtection = dataProtection;
+        _contextAccessor = contextAccessor;
+        _settings = settings;
+        _localizer = localizer;
+        _logger = logger;
+        _applicationCache = applicationCache;
+        _claimsProvider = claimsProvider;
+    }
 
-        public SignInStory(CredentialVerifier credentialVerifier,
-            DataProtection dataProtection,
-            IMultiFactorApi api,
-            SafeHttpContextAccessor contextAccessor,
-            PortalSettings settings,
-            IApplicationCache applicationCache,
-            IStringLocalizer<SharedResource> localizer,
-            ILogger<SignInStory> logger,
-            ClaimsProvider claimsProvider)
+    public async Task<IActionResult> ExecuteAsync(LoginViewModel model,
+        Dictionary<string, string> headers)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(headers);
+        
+        var claims = _claimsProvider.GetClaims();
+        var sso = _contextAccessor.SafeGetSsoClaims();
+        
+        var postbackUrl = model.MyUrl.BuildPostbackUrl();
+        var adConnectorBaseUrl = model.MyUrl.BuildAdConnectorBaseUrl();
+        
+        var request = new LoginRequestDto()
         {
-            _credentialVerifier = credentialVerifier;
-            _dataProtection = dataProtection;
-            _api = api;
-            _contextAccessor = contextAccessor;
-            _settings = settings;
-            _localizer = localizer;
-            _logger = logger;
-            _applicationCache = applicationCache;
-            _claimsProvider = claimsProvider;
-        }
+            Username = model.UserName.Trim(),
+            Password = model.Password.Trim(),
+            SamlSessionId = sso.SamlSessionId,
+            OidcSessionId = sso.OidcSessionId,
+            LoginCompletedCallbackUrl = postbackUrl,
+            AdConnectorCallbackBaseUrl = adConnectorBaseUrl,
+            AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
+            Settings = BuildSspSettings()
+        };
+        
+        var response = await _idpApiClient.LoginAsync(request, headers);
+        
+        return HandleLoginResponse(response, model);
+    }
 
-        public async Task<IActionResult> ExecuteAsync(LoginViewModel model)
+    private SspSettingsDto BuildSspSettings()
+    {
+        return new SspSettingsDto
         {
-            var userName = LdapIdentity.ParseUser(model.UserName);
+            PreAuthenticationMethod = _settings.PreAuthenticationMethod,
+            RequiresUserPrincipalName = _settings.ActiveDirectorySettings.RequiresUserPrincipalName,
+            PasswordManagementEnabled = _settings.PasswordManagement?.Enabled ?? false,
+            NeedPrebindInfo = _settings.NeedPrebindInfo(),
+            PrivacyMode = _settings.MultiFactorApiSettings.PrivacyModeDescriptor.ToString(),
+            NetBiosName = _settings.ActiveDirectorySettings.NetBiosName,
+            SignUpGroups = _settings.GroupPolicyPreset.SignUpGroups
+        };
+    }
 
-            if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName)
-            {
-                if (userName.Type != IdentityType.UserPrincipalName)
-                {
-                    throw new ModelStateErrorException(_localizer.GetString("UserNameUpnRequired"));
-                }
-            }
-
-            var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
-            if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
-
-            var adValidationResult =
-                await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
-            if (adValidationResult.IsAuthenticated)
-            {
-                _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
-                    _settings.CompanySettings.Domain);
-                var sso = _contextAccessor.SafeGetSsoClaims();
-                if (sso.HasSamlSession() && adValidationResult.IsBypass)
-                {
-                    _logger.LogInformation("Bypass second factor for user '{@user:l}'", userName);
-                    return new RedirectToActionResult("ByPassSamlSession", "Account",
-                        new { username = model.UserName, samlSession = sso.SamlSessionId });
-                }
-
-                return await RedirectToMfa(adValidationResult, model.MyUrl);
-            }
-
-            if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
-            {
-                // because if we here - bind throw exception, so need verify
-                if (_settings.NeedPrebindInfo())
-                {
-                    adValidationResult = await _credentialVerifier.VerifyMembership(model.UserName);
-                }
-
-                var encryptedPassword =
-                    _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
-                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName),
-                    model.UserName.Trim());
-                _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
-                    encryptedPassword);
-
-                return await RedirectToMfa(adValidationResult, model.MyUrl);
-            }
-
-            return await WrongAsync();
-
-        }
-
-        private async Task<IActionResult> WrongAsync()
+    private IActionResult HandleLoginResponse(LoginResponseDto response, LoginViewModel model)
+    {
+        if (!response.Success)
         {
-            // Invalid credentials, freeze response for 2-5 seconds to prevent brute-force attacks.
-            var rnd = new Random();
-            int delay = rnd.Next(2, 6);
-            await Task.Delay(TimeSpan.FromSeconds(delay));
+            _logger.LogDebug("Login failed: {Error}", response.ErrorMessage);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
 
-        private async Task<IActionResult> RedirectToMfa(CredentialVerificationResult verificationResult, string documentUrl)
+        // Handle MFA required
+        if (response.IsMfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
-            var postbackUrl = documentUrl.BuildPostbackUrl();
-            var claims = _claimsProvider.GetClaims();
-            var username = GetIdentity(verificationResult);
+            _logger.LogDebug("Redirecting user to MFA page");
+            return new RedirectResult(response.RedirectUrl, true);
+        }
 
-            var personalData = new PersonalData(
-                verificationResult.DisplayName,
-                verificationResult.Email,
-                verificationResult.Phone,
-                _settings.MultiFactorApiSettings.PrivacyModeDescriptor);
+        // Handle SAML bypass
+        if (response.IsBypassSaml)
+        {
+            _logger.LogDebug("Bypass second factor for user '{User}' via SAML", model.UserName);
+            var sso = _contextAccessor.SafeGetSsoClaims();
+            return new RedirectToActionResult("ByPassSamlSession", "Account",
+                new { username = model.UserName, samlSession = sso.SamlSessionId });
+        }
 
-            var accessPage = await _api.CreateAccessRequestAsync(username,
-                personalData.Name,
-                personalData.Email,
-                personalData.Phone,
-                postbackUrl,
-                claims);
-            
-            if (string.IsNullOrWhiteSpace(accessPage.Url))
+        // Handle OIDC bypass
+        if (response.IsBypassOidc)
+        {
+            _logger.LogDebug("Bypass second factor for user '{User}' via OIDC", model.UserName);
+            var sso = _contextAccessor.SafeGetSsoClaims();
+            return new RedirectToActionResult("ByPassOidcSession", "Account",
+                new { oidcSession = sso.OidcSessionId });
+        }
+
+        // Handle password change required
+        if (response.IsChangePassword)
+        {
+            _logger.LogInformation("User '{User}' must change password", model.UserName);
+
+            // Cache encrypted password for password change flow
+            var encryptedPassword = _dataProtection.Protect(
+                model.Password.Trim(),
+                Constants.PWD_RENEWAL_PURPOSE);
+            _applicationCache.Set(
+                ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName),
+                model.UserName.Trim());
+            _applicationCache.Set(
+                ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
+                encryptedPassword);
+
+            // Redirect to MFA if URL is provided
+            if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
             {
-                return new RedirectToActionResult("AccessDenied", "Error", null);
+                return new RedirectResult(response.RedirectUrl, true);
             }
 
-            return new RedirectResult(accessPage.Url, true);
+            return new RedirectToActionResult("Change", "ExpiredPassword", null);
         }
 
-        private string GetIdentity(CredentialVerificationResult verificationResult)
+        // Handle access denied
+        if (response.IsAccessDenied)
         {
-            return !string.IsNullOrWhiteSpace(verificationResult.CustomIdentity)
-                ? verificationResult.CustomIdentity
-                : verificationResult.Username;
+            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
+            return new RedirectToActionResult("AccessDenied", "Error", null);
         }
+
+        // Default: redirect to MFA page if URL provided
+        if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
+        {
+            return new RedirectResult(response.RedirectUrl, true);
+        }
+
+        throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
     }
 }

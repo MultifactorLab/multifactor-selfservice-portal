@@ -1,60 +1,103 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
-using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 
-public class RedirectToCredValidationAfter2faStory
+public class RedirectToCredValidationAfter2FaStory
 {
-    private readonly ILogger<SignInStory> _logger;
+    private readonly ILogger<RedirectToCredValidationAfter2FaStory> _logger;
     private readonly IApplicationCache _applicationCache;
+    private readonly IMultifactorIdpApi _idpApi;
+    private readonly SafeHttpContextAccessor _contextAccessor;
 
-    public RedirectToCredValidationAfter2faStory(
+    public RedirectToCredValidationAfter2FaStory(
         IApplicationCache applicationCache,
-        ILogger<SignInStory> logger)
+        ILogger<RedirectToCredValidationAfter2FaStory> logger,
+        IMultifactorIdpApi idpApi,
+        SafeHttpContextAccessor contextAccessor)
     {
         _logger = logger;
         _applicationCache = applicationCache;
+        _idpApi = idpApi;
+        _contextAccessor = contextAccessor;
     }
     
-    /*
-     * Now we know: username, the fact of successful confirmation of the 2fa and some info about user.
-     * Next step - enter password and verify user creds.
-     * For this we must correctly pass all known information using the cache and query params.
-     */
-    public ActionResult Execute(string accessToken)
+    public async Task<ActionResult> ExecuteAsync(string accessToken)
     {
+        ArgumentNullException.ThrowIfNull(accessToken);
+        _logger.LogDebug("Extracting token information for PreAuthenticationMethod flow");
+        
         var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(accessToken);
-        var usernameClaims = token.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.RawUserName);
+        JwtSecurityToken token;
+        try
+        {
+            token = handler.ReadJwtToken(accessToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to parse access token");
+            return new RedirectToActionResult("Login", "Account", null);
+        }
 
-        // for the password entry step
         var requestId = token.Id;
-        _applicationCache.SetIdentity(requestId,
-            new IdentityViewModel { UserName = usernameClaims?.Value, AccessToken = accessToken });
-
-        object routeValue = new { requestId = requestId };
-
-        #region Process SSO session (if present)
-
-        var oidcClaims = token.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.OidcSessionId);
-        var samlClaims = token.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.SamlSessionId);
-        if (!string.IsNullOrEmpty(samlClaims?.Value))
+        if (string.IsNullOrEmpty(requestId))
         {
-            routeValue = new { samlSessionId = samlClaims?.Value, requestId = requestId };
+            _logger.LogError("Token ID is missing");
+            return new RedirectToActionResult("Login", "Account", null);
+        }
+        
+        var request = new LoginCompletedRequestDto
+        {
+            AccessToken = accessToken
+        };
+
+        try
+        {
+            var response = await _idpApi.LoginCompletedAsync(request, _contextAccessor.HttpContext.GetRequiredHeaders());
+            
+            var username = response.RawUserName ?? response.Identity;
+            if (string.IsNullOrEmpty(username))
+            {
+                _logger.LogError("Cannot determine username from token");
+                return new RedirectToActionResult("Login", "Account", null);
+            }
+            
+            _applicationCache.SetIdentity(requestId,
+                new IdentityViewModel 
+                { 
+                    UserName = username, 
+                    AccessToken = accessToken 
+                });
+
+            object routeValue = new { requestId = requestId };
+            
+            if (!string.IsNullOrEmpty(response.SamlSessionId))
+            {
+                _logger.LogDebug("SAML session found, redirecting to Identity with SAML session");
+                routeValue = new { samlSessionId = response.SamlSessionId, requestId = requestId };
+                return new RedirectToActionResult("Identity", "Account", routeValue);
+            }
+
+            if (!string.IsNullOrEmpty(response.OidcSessionId))
+            {
+                _logger.LogDebug("OIDC session found, redirecting to Identity with OIDC session");
+                routeValue = new { oidcSessionId = response.OidcSessionId, requestId = requestId };
+                return new RedirectToActionResult("Identity", "Account", routeValue);
+            }
+
+            _logger.LogDebug("Redirecting to Identity page for password entry");
             return new RedirectToActionResult("Identity", "Account", routeValue);
         }
-
-        if (!string.IsNullOrEmpty(oidcClaims?.Value))
+        catch (Exception e)
         {
-            routeValue = new { oidcSessionId = oidcClaims?.Value, requestId = requestId };
-            return new RedirectToActionResult("Identity", "Account", routeValue);
+            _logger.LogError(e, "Failed to extract token information");
+            return new RedirectToActionResult("Login", "Account", null);
         }
-
-        #endregion
-
-        return new RedirectToActionResult("Identity", "Account", routeValue);
     }
 }
