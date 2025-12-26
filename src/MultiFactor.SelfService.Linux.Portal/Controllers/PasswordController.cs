@@ -3,8 +3,8 @@ using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
-using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPassword;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers

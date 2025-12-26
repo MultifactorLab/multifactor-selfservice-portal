@@ -6,7 +6,7 @@ using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories;
-using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPassword;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
