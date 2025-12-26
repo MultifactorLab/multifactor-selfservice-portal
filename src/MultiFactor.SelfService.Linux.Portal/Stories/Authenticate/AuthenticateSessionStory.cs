@@ -4,6 +4,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
 
@@ -47,6 +48,12 @@ public class AuthenticateSessionStory
 
     private IActionResult HandleLoginCompletedResponse(LoginCompletedResponseDto response, string accessToken)
     {
+        if (!response.Success)
+        {
+            _logger.LogDebug("LoginCompleted failed: {Error}", response.ErrorMessage);
+            return new RedirectToActionResult("AccessDenied", "Error", default);
+        }
+        
         // Set cookie with access token
         if (response.TokenExpirationDate.HasValue)
         {
@@ -59,21 +66,21 @@ public class AuthenticateSessionStory
         }
 
         // Handle SAML bypass
-        if (response.IsBypassSaml && !string.IsNullOrEmpty(response.SamlSessionId))
+        if (response.Action == LoginCompletedAction.BypassSaml && !string.IsNullOrEmpty(response.SamlSessionId))
         {
             _logger.LogDebug("Redirecting to SAML bypass for session '{Session}'", response.SamlSessionId);
             return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = response.SamlSessionId });
         }
 
         // Handle OIDC bypass
-        if (response.IsBypassOidc && !string.IsNullOrEmpty(response.OidcSessionId))
+        if (response.Action == LoginCompletedAction.BypassOidc && !string.IsNullOrEmpty(response.OidcSessionId))
         {
             _logger.LogDebug("Redirecting to OIDC bypass for session '{Session}'", response.OidcSessionId);
             return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = response.OidcSessionId });
         }
 
         // Handle password change required
-        if (response.IsChangePassword)
+        if (response.Action == LoginCompletedAction.ChangePassword)
         {
             _logger.LogDebug("User '{User}' must change password", response.Identity);
             return new RedirectToActionResult("Change", "ExpiredPassword", default);

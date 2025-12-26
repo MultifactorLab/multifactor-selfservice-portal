@@ -8,6 +8,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -97,14 +98,14 @@ public class SignInStory
         }
 
         // Handle MFA required
-        if (response.IsMfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
+        if (response.Action == LoginAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             _logger.LogDebug("Redirecting user to MFA page");
             return new RedirectResult(response.RedirectUrl, true);
         }
 
         // Handle SAML bypass
-        if (response.IsBypassSaml)
+        if (response.Action == LoginAction.BypassSaml)
         {
             _logger.LogDebug("Bypass second factor for user '{User}' via SAML", model.UserName);
             var sso = _contextAccessor.SafeGetSsoClaims();
@@ -113,7 +114,7 @@ public class SignInStory
         }
 
         // Handle OIDC bypass
-        if (response.IsBypassOidc)
+        if (response.Action == LoginAction.BypassOidc)
         {
             _logger.LogDebug("Bypass second factor for user '{User}' via OIDC", model.UserName);
             var sso = _contextAccessor.SafeGetSsoClaims();
@@ -122,7 +123,7 @@ public class SignInStory
         }
 
         // Handle password change required
-        if (response.IsChangePassword)
+        if (response.Action == LoginAction.ChangePassword)
         {
             _logger.LogInformation("User '{User}' must change password", model.UserName);
 
@@ -147,7 +148,7 @@ public class SignInStory
         }
 
         // Handle access denied
-        if (response.IsAccessDenied)
+        if (response.Action == LoginAction.AccessDenied)
         {
             _logger.LogWarning("Access denied for user '{User}'", model.UserName);
             return new RedirectToActionResult("AccessDenied", "Error", null);
