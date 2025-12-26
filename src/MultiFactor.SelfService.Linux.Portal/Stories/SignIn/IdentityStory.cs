@@ -8,6 +8,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
@@ -87,13 +88,13 @@ public class IdentityStory
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
         
-        if (response.IsMfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
+        if (response.Action == IdentityAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             _logger.LogDebug("Redirecting user '{User}' to MFA page", model.UserName);
             return new RedirectResult(response.RedirectUrl, true);
         }
         
-        if (response.IsShowAuthn)
+        if (response.Action == IdentityAction.ShowAuthn)
         {
             var identity = response.Username ?? model.UserName;
             _logger.LogInformation("Bypass second factor for user '{User}', showing password form", identity);
@@ -114,7 +115,7 @@ public class IdentityStory
             };
         }
         
-        if (response.IsAccessDenied)
+        if (response.Action == IdentityAction.AccessDenied)
         {
             _logger.LogWarning("Access denied for user '{User}'", model.UserName);
             return new RedirectToActionResult("AccessDenied", "Error", null);
