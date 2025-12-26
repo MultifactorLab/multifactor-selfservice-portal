@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
 
 namespace MultiFactor.SelfService.Linux.Portal.Attributes
 {

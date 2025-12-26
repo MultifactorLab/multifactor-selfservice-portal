@@ -8,10 +8,10 @@ using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Settings;
-using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers

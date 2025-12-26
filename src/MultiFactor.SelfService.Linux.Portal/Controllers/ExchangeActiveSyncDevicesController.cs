@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
-using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceState;
+using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevices;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
