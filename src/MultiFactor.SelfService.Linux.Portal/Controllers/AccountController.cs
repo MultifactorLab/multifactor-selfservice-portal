@@ -13,6 +13,7 @@ using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
@@ -195,15 +196,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ByPassSsoSession(string callbackUrl, string accessToken)
+        {
+            var page = new BypassPageDto(callbackUrl, accessToken);
+            return View(page);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(string samlSession,
             [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
         {
             var user = await loadProfile.ExecuteAsync();
 
-            idpApi.AddSamlToSsoMasterSession(samlSession);
+            _ = idpApi.AddSamlToSsoMasterSession(samlSession);
 
             var page = await api.CreateSamlBypassRequestAsync(user, samlSession);
-            return View(page);
+            return View("ByPassSsoSession",page);
         }
 
         [HttpGet]
@@ -212,10 +220,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             var user = await loadProfile.ExecuteAsync();
 
-            idpApi.AddOidcToSsoMasterSession(oidcSession);
+            _ = idpApi.AddOidcToSsoMasterSession(oidcSession);
 
             var page = await api.CreateOidcBypassRequestAsync(user, oidcSession);
-            return View(page);
+            return View("ByPassSsoSession", page);
         }
     }
 }
