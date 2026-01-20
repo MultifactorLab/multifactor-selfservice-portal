@@ -42,10 +42,12 @@ void Start()
 
     var app = builder.Build();
 
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    var forwardedHeadersOptions = new ForwardedHeadersOptions
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-    });
+    };
+    
+    app.UseForwardedHeaders(forwardedHeadersOptions);
 
     if (app.Environment.IsEnvironment(Constants.PRODUCTION_ENV))
     {
