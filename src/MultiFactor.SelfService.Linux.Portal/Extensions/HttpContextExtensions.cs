@@ -8,22 +8,25 @@ public static class HttpContextExtensions
             .Where(h => ShouldForwardHeader(h.Key))
             .ToDictionary(h => h.Key, h => h.Value.ToString());
 
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString();
+        if (!string.IsNullOrWhiteSpace(clientIp))
+        {
+            headers["X-Original-Client-IP"] = clientIp;
+        }
+
         return headers;
     }
     
     private static bool ShouldForwardHeader(string key)
     {
-        return RequiredHeaders.Contains(key);
+        return AllowedForwardHeaders.Contains(key);
     }
     
-    private static readonly HashSet<string> RequiredHeaders = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> AllowedForwardHeaders = new(StringComparer.OrdinalIgnoreCase)
     {
         "Authorization",
         "User-Agent",
         "X-Device-Id",
-        "X-Device-Type",
-        "X-Real-IP",
-        "X-Forwarded-For",
-        "Forwarded"
+        "X-Device-Type"
     };
 }
