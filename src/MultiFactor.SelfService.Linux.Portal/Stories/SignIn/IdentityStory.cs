@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
@@ -6,6 +6,8 @@ using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationCla
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
@@ -22,6 +24,7 @@ public class IdentityStory
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<IdentityStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
+    private readonly CredentialVerifier _credentialVerifier;
 
     public IdentityStory(
         IMultifactorIdpApi idpApiClient,
@@ -29,7 +32,8 @@ public class IdentityStory
         PortalSettings settings,
         IStringLocalizer<SharedResource> localizer,
         ILogger<IdentityStory> logger,
-        ClaimsProvider claimsProvider)
+        ClaimsProvider claimsProvider,
+        CredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
         _contextAccessor = contextAccessor;
@@ -37,6 +41,7 @@ public class IdentityStory
         _localizer = localizer;
         _logger = logger;
         _claimsProvider = claimsProvider;
+        _credentialVerifier = credentialVerifier;
     }
 
     public async Task<IActionResult> ExecuteAsync(IdentityViewModel model, Dictionary<string, string> headers)
@@ -44,19 +49,53 @@ public class IdentityStory
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(headers);
         
+        var username = model.UserName.Trim();
+
+        // Validate username format if UPN is required
+        if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName && !IsUserPrincipalName(username))
+        {
+            _logger.LogWarning("UPN format required but not provided for user input");
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+        }
+
+        // Verify technical account protection
+        var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
+        var userName = LdapIdentity.ParseUser(username);
+        if (userName.IsEquivalentTo(serviceUser))
+        {
+            _logger.LogWarning("Attempt to use identity as technical account user '{User}'", username);
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+        }
+
         var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
-
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
-        var adConnectorBaseUrl = model.MyUrl.BuildAdConnectorBaseUrl();
+        
+        VerifiedMembershipDto? verifiedMembership = null;
+        
+        // Verify membership locally if prebind info is needed
+        if (_settings.NeedPrebindInfo())
+        {
+            _logger.LogDebug("Verifying membership locally for user '{User}'", username);
+            var membershipResult = await _credentialVerifier.VerifyMembership(username);
+            
+            if (!membershipResult.IsAuthenticated)
+            {
+                _logger.LogWarning("Membership verification failed for user '{User}': {Reason}", username, membershipResult.Reason);
+                throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+            }
+
+            _logger.LogInformation("User '{User}' membership verified successfully", username);
+            verifiedMembership = MapToVerifiedMembershipDto(membershipResult);
+        }
         
         var request = new IdentityRequestDto
         {
-            Username = model.UserName.Trim(),
+            Username = username,
+            VerifiedMembership = verifiedMembership,
             SamlSessionId = sso.SamlSessionId,
             OidcSessionId = sso.OidcSessionId,
             LoginCompletedCallbackUrl = postbackUrl,
-            AdConnectorCallbackBaseUrl = adConnectorBaseUrl,
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
             Settings = BuildSspSettings()
         };
@@ -127,5 +166,23 @@ public class IdentityStory
         }
 
         throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+    }
+
+    private static VerifiedMembershipDto MapToVerifiedMembershipDto(CredentialVerificationResult result)
+    {
+        return new VerifiedMembershipDto
+        {
+            IsBypass = result.IsBypass,
+            DisplayName = result.DisplayName,
+            Email = result.Email,
+            Phone = result.Phone,
+            UserPrincipalName = result.UserPrincipalName,
+            CustomIdentity = result.CustomIdentity
+        };
+    }
+
+    private static bool IsUserPrincipalName(string username)
+    {
+        return username.Contains('@');
     }
 }
