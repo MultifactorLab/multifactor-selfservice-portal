@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
@@ -6,6 +6,8 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
@@ -25,6 +27,7 @@ public class SignInStory
     private readonly ILogger<SignInStory> _logger;
     private readonly IApplicationCache _applicationCache;
     private readonly ClaimsProvider _claimsProvider;
+    private readonly CredentialVerifier _credentialVerifier;
 
     public SignInStory(
         IMultifactorIdpApi idpApiClient,
@@ -34,7 +37,8 @@ public class SignInStory
         IApplicationCache applicationCache,
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
-        ClaimsProvider claimsProvider)
+        ClaimsProvider claimsProvider,
+        CredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
         _dataProtection = dataProtection;
@@ -44,6 +48,7 @@ public class SignInStory
         _logger = logger;
         _applicationCache = applicationCache;
         _claimsProvider = claimsProvider;
+        _credentialVerifier = credentialVerifier;
     }
 
     public async Task<IActionResult> ExecuteAsync(LoginViewModel model,
@@ -52,20 +57,50 @@ public class SignInStory
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(headers);
         
+        var username = model.UserName.Trim();
+        var password = model.Password.Trim();
+
+        // Validate username format if UPN is required
+        if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName && !IsUserPrincipalName(username))
+        {
+            _logger.LogWarning("UPN format required but not provided for user input");
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+        }
+
+        // Verify technical account protection
+        var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
+        var userName = LdapIdentity.ParseUser(username);
+        if (userName.IsEquivalentTo(serviceUser))
+        {
+            _logger.LogWarning("Attempt to login as technical account user '{User}'", username);
+            await DelayedFailureAsync();
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+        }
+
+        // Verify credentials locally via LDAP
+        _logger.LogDebug("Verifying credentials locally for user '{User}'", username);
+        var credentialResult = await _credentialVerifier.VerifyCredentialAsync(username, password);
+
+        // Handle authentication failure
+        if (!credentialResult.IsAuthenticated && !credentialResult.UserMustChangePassword)
+        {
+            _logger.LogWarning("Credential verification failed for user '{User}': {Reason}", username, credentialResult.Reason);
+            await DelayedFailureAsync();
+            throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+        }
+
+        _logger.LogInformation("User '{User}' credentials verified successfully", username);
+
         var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
-        
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
-        var adConnectorBaseUrl = model.MyUrl.BuildAdConnectorBaseUrl();
         
-        var request = new LoginRequestDto()
+        var request = new LoginRequestDto
         {
-            Username = model.UserName.Trim(),
-            Password = model.Password.Trim(),
+            VerifiedCredentials = MapToVerifiedCredentialsDto(credentialResult),
             SamlSessionId = sso.SamlSessionId,
             OidcSessionId = sso.OidcSessionId,
             LoginCompletedCallbackUrl = postbackUrl,
-            AdConnectorCallbackBaseUrl = adConnectorBaseUrl,
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
             Settings = BuildSspSettings()
         };
@@ -161,5 +196,36 @@ public class SignInStory
         }
 
         throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+    }
+
+    private static VerifiedCredentialsDto MapToVerifiedCredentialsDto(CredentialVerificationResult result)
+    {
+        return new VerifiedCredentialsDto
+        {
+            IsAuthenticated = result.IsAuthenticated,
+            IsBypass = result.IsBypass,
+            UserMustChangePassword = result.UserMustChangePassword,
+            PasswordExpirationDate = result.PasswordExpirationDate,
+            DisplayName = result.DisplayName,
+            Email = result.Email,
+            Phone = result.Phone,
+            Username = result.Username,
+            UserPrincipalName = result.UserPrincipalName,
+            CustomIdentity = result.CustomIdentity,
+            Reason = result.Reason
+        };
+    }
+
+    private static bool IsUserPrincipalName(string username)
+    {
+        return username.Contains('@');
+    }
+
+    private static async Task DelayedFailureAsync()
+    {
+        // Freeze response for 2-5 seconds to prevent brute-force attacks
+        var rnd = new Random();
+        var delay = rnd.Next(2, 6);
+        await Task.Delay(TimeSpan.FromSeconds(delay));
     }
 }
