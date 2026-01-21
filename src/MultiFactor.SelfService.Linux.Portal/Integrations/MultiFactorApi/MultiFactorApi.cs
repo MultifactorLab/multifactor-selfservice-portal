@@ -26,16 +26,42 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse>("ping"));
         }
 
+        public async Task<ShowcaseSettings> GetShowcaseSettingsAsync()
+        {
+            var response = await _clientAdapter.GetAsync<ShowcaseSettingsDto>("self-service/settings/showcase", GetBasicAuthHeaders());
+            return new ShowcaseSettings()
+            {
+                Enabled = response.Enabled,
+                Links = response.ShowcaseLinks
+                    .Select(x => new ShowcaseLink()
+                    {
+                        Url = x.Url,
+                        Title = x.Title,
+                        OpenInNewTab = x.OpenInNewTab,
+                        Image = x.Image,
+                    })
+                    .ToArray(),
+            };
+        }
+
+        public async Task<byte[]> GetShowcaseLogoAsync(string fileName)
+        {
+            var response = await _clientAdapter.GetByteArrayAsync(
+                $"self-service/settings/showcase/logo/{fileName}",
+                GetBasicAuthHeaders());
+            return response;
+        }
+
         public Task<BypassPageDto> CreateSamlBypassRequestAsync(UserProfileDto user, string samlSessionId)
         {
             var payload = new
             {
                 Identity = user.Identity,
                 SamlSessionId = samlSessionId,
-                Claims = new Dictionary<string, string>() 
-                { 
-                    { "name", user.Name }, 
-                    { "email", user.Email } 
+                Claims = new Dictionary<string, string>()
+                {
+                    { "name", user.Name },
+                    { "email", user.Email }
                 }
             };
 
@@ -66,10 +92,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         /// </returns>
         public Task<ApiResponse<EnrollmentPageDto>> CreateEnrollmentRequest()
         {
-             return _clientAdapter.PostAsync<ApiResponse<EnrollmentPageDto>>(
-                 "/self-service/create-enrollment-request",
-                 data: null,
-                 GetBearerAuthHeaders());
+            return _clientAdapter.PostAsync<ApiResponse<EnrollmentPageDto>>(
+                "/self-service/create-enrollment-request",
+                data: null,
+                GetBearerAuthHeaders());
         }
 
         /// <summary>
@@ -154,7 +180,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         {
             ArgumentNullException.ThrowIfNull(identity);
             ArgumentNullException.ThrowIfNull(callbackUrl);
-            
+
             var payload = new
             {
                 Identity = identity,
@@ -167,10 +193,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
 
             return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<UnlockUserDto>>("self-service/start-unlock-user", payload, GetBasicAuthHeaders()));
         }
-        
+
         public Task<ScopeSupportInfoDto> GetScopeSupportInfo()
         {
-            return ExecuteAsync(()=> _clientAdapter.GetAsync<ApiResponse<ScopeSupportInfoDto>>("/self-service/support-info", GetBasicAuthHeaders()));
+            return ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse<ScopeSupportInfoDto>>("/self-service/support-info", GetBasicAuthHeaders()));
         }
 
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)

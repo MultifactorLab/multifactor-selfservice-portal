@@ -1,16 +1,16 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
 
 <div class="login">
-    <div class="form-column @(Settings.LinksShowcase.GetLinks().Count > 0 ? "showcase-no-top-padding" : "") ">
+    <div class="form-column @(@ShowcaseSettings.CurrentValue?.Enabled == true ? "showcase-no-top-padding" : "") ">
         <div class="auth-details">
-            @if (Settings.LinksShowcase != null)
+            @if (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)
             {
                 <div class="showcase">
-                    @foreach (var link in Settings.LinksShowcase.GetLinks())
+                    @foreach (var link in ShowcaseSettings.CurrentValue.Links)
                     {
                         <a href="@link.Url" @(link.OpenInNewTab ? "target=_blank" : "")>
                             <div class="showcase-link">
-                                <img class="showcase-link-image" src="~/content/images/@link.Image" />
+                                <img class="showcase-link-image" src="~/@(string.IsNullOrWhiteSpace(link.Image) ? "content/images/ssoResource.svg" : $"content/images/showcase/{link.Image}")" />
 
                                 <div class="link-title">
                                     @link.Title

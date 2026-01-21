@@ -27,6 +27,7 @@ void Start()
         .RegisterConfiguration()
         .ConfigureApplicationServices()
         .ConfigureAuthentication()
+        .ConfigureCloudConfiguration()
         .AddControllersWithViewsAndLocalization(o =>
         {
             o.ModelBinderProviders.Insert(0, ModelBindingConfiguration.GetModelBinderProvider());

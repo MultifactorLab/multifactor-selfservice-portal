@@ -27,6 +27,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             return await resp.Content.ReadAsStringAsync();
         }
 
+        public async Task<byte[]> GetByteArrayAsync(string uri, IReadOnlyDictionary<string, string> headers = null)
+        {
+            var message = new HttpRequestMessage(HttpMethod.Get, uri);
+            HttpClientUtils.AddHeadersIfExist(message, headers);
+
+            var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
+            if (resp.Content == null) return default;
+
+            return await resp.Content.ReadAsByteArrayAsync();
+        }
+
         public async Task<T> GetAsync<T>(string uri, IReadOnlyDictionary<string, string> headers = null)
         {
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
