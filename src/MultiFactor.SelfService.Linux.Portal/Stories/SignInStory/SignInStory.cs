@@ -9,6 +9,8 @@ using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
@@ -19,6 +21,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         private readonly CredentialVerifier _credentialVerifier;
         private readonly DataProtection _dataProtection;
         private readonly IMultiFactorApi _api;
+        private readonly MultifactorIdpApi _idpApi;
         private readonly SafeHttpContextAccessor _contextAccessor;
         private readonly PortalSettings _settings;
         private readonly IStringLocalizer _localizer;
@@ -29,6 +32,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
         public SignInStory(CredentialVerifier credentialVerifier,
             DataProtection dataProtection,
             IMultiFactorApi api,
+            MultifactorIdpApi idpApi,
             SafeHttpContextAccessor contextAccessor,
             PortalSettings settings,
             IApplicationCache applicationCache,
@@ -39,6 +43,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
             _credentialVerifier = credentialVerifier;
             _dataProtection = dataProtection;
             _api = api;
+            _idpApi = idpApi;
             _contextAccessor = contextAccessor;
             _settings = settings;
             _localizer = localizer;
@@ -72,8 +77,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                 if (sso.HasSamlSession() && adValidationResult.IsBypass)
                 {
                     _logger.LogInformation("Bypass second factor for user '{@user:l}'", userName);
-                    return new RedirectToActionResult("ByPassSamlSession", "Account",
-                        new { username = model.UserName, samlSession = sso.SamlSessionId });
+
+                    var userIdentity = GetIdentity(adValidationResult);
+                    await _idpApi.CreateSsoMasterSession(userIdentity);
+
+                    var user = new UserProfileDto(string.Empty, userIdentity)
+                    {
+                        Email = adValidationResult.Email,
+                        Name = adValidationResult.DisplayName,
+                    };
+                    var page = await _api.CreateSamlBypassRequestAsync(user, sso.SamlSessionId);
+
+                    return new RedirectToActionResult("ByPassSsoSession", "Account",
+                        new { callbackUrl = page.CallbackUrl, accessToken = page.AccessToken });
                 }
 
                 return await RedirectToMfa(adValidationResult, model.MyUrl);
