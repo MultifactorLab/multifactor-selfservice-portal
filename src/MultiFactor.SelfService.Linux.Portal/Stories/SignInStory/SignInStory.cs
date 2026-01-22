@@ -79,7 +79,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignInStory
                     _logger.LogInformation("Bypass second factor for user '{@user:l}'", userName);
 
                     var userIdentity = GetIdentity(adValidationResult);
-                    await _idpApi.CreateSsoMasterSession(userIdentity);
+                    await _idpApi.CreateSsoMasterSession(userIdentity, string.Empty);
 
                     var user = new UserProfileDto(string.Empty, userIdentity)
                     {
