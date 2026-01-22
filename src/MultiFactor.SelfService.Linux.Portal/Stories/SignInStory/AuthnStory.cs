@@ -10,6 +10,8 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
@@ -21,6 +23,8 @@ public class AuthnStory
 {
     private readonly CredentialVerifier _credentialVerifier;
     private readonly DataProtection _dataProtection;
+    private readonly IMultiFactorApi _api;
+    private readonly MultifactorIdpApi _idpApi;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
     private readonly IStringLocalizer _localizer;
@@ -31,6 +35,8 @@ public class AuthnStory
 
     public AuthnStory(CredentialVerifier credentialVerifier,
         DataProtection dataProtection,
+        IMultiFactorApi api,
+        MultifactorIdpApi idpApi,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
         IApplicationCache applicationCache,
@@ -41,6 +47,8 @@ public class AuthnStory
     {
         _credentialVerifier = credentialVerifier;
         _dataProtection = dataProtection;
+        _api = api;
+        _idpApi = idpApi;
         _contextAccessor = contextAccessor;
         _settings = settings;
         _localizer = localizer;
@@ -82,8 +90,18 @@ public class AuthnStory
             {
                 if (adValidationResult.IsBypass)
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "account",
-                        new { username = model.UserName, samlSession = sso.SamlSessionId });
+                    var userIdentity = GetIdentity(adValidationResult);
+                    await _idpApi.CreateSsoMasterSession(userIdentity);
+
+                    var user = new UserProfileDto(string.Empty, userIdentity)
+                    {
+                        Email = adValidationResult.Email,
+                        Name = adValidationResult.DisplayName,
+                    };
+                    var page = await _api.CreateSamlBypassRequestAsync(user, sso.SamlSessionId);
+
+                    return new RedirectToActionResult("ByPassSsoSession", "Account",
+                        new { callbackUrl = page.CallbackUrl, accessToken = page.AccessToken });
                 }
 
                 return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
@@ -118,5 +136,12 @@ public class AuthnStory
         int delay = rnd.Next(2, 6);
         await Task.Delay(TimeSpan.FromSeconds(delay));
         throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
+    }
+
+    private string GetIdentity(CredentialVerificationResult verificationResult)
+    {
+        return !string.IsNullOrWhiteSpace(verificationResult.CustomIdentity)
+            ? verificationResult.CustomIdentity
+            : verificationResult.Username;
     }
 }
