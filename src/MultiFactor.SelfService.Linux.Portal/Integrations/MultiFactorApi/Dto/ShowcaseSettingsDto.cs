@@ -8,6 +8,7 @@
 
     public class ShowcaseLinkDto
     {
+        public string ResourceId { get; init; }
         public string Url { get; init; }
         public string Title { get; init; }
         public string Image { get; init; }
