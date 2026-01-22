@@ -353,3 +353,6 @@ MigrationBackup/
 
 # Rider and other Idea-compatible IDEs
 .idea/
+
+# Showcase logos
+/src/MultiFactor.SelfService.Linux.Portal/wwwroot/content/images/showcase

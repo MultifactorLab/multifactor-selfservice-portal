@@ -35,6 +35,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 Links = response.ShowcaseLinks
                     .Select(x => new ShowcaseLink()
                     {
+                        ResourceId = x.ResourceId,
                         Url = x.Url,
                         Title = x.Title,
                         OpenInNewTab = x.OpenInNewTab,
@@ -110,7 +111,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 Name = response.Name,
                 Email = response.Email,
                 EnablePasswordManagement = _settings.PasswordManagement.Enabled,
-                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled
+                Policy = new() 
+                { 
+                    AllResourcesPermitted = response.Policy?.AllResourcesPermitted ?? false,
+                    PermittedResources = response.Policy?.PermittedResources ?? []
+                },
+                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled,
             };
         }
 
