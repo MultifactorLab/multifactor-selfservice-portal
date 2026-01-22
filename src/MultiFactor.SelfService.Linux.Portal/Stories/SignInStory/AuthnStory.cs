@@ -91,7 +91,7 @@ public class AuthnStory
                 if (adValidationResult.IsBypass)
                 {
                     var userIdentity = GetIdentity(adValidationResult);
-                    await _idpApi.CreateSsoMasterSession(userIdentity, string.Empty);
+                    await _idpApi.CreateSsoMasterSession(userIdentity, null);
 
                     var user = new UserProfileDto(string.Empty, userIdentity)
                     {
