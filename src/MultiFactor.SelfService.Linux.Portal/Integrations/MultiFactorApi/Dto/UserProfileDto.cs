@@ -6,6 +6,7 @@
         public string Identity { get; }
         public string Name { get; init; }
         public string Email { get; init; }
+        public UserProfilePolicyDto Policy { get; init; }
         
         public bool EnablePasswordManagement { get; init; }
         public bool EnableExchangeActiveSyncDevicesManagement { get; init; }
@@ -15,5 +16,11 @@
             Id = id ?? throw new ArgumentNullException(nameof(id));
             Identity = identity ?? throw new ArgumentNullException(nameof(identity));
         }
+    }
+
+    public class UserProfilePolicyDto
+    {
+        public bool AllResourcesPermitted { get; init; }
+        public IEnumerable<string> PermittedResources { get; init; }
     }
 }
