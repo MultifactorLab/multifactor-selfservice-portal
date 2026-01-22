@@ -4,5 +4,10 @@
         string Id,
         string Identity,
         string Name,
-        string Email);
+        string Email,
+        UserProfilePolicyApiDto Policy);
+
+    public record UserProfilePolicyApiDto(
+        bool AllResourcesPermitted,
+        string[] PermittedResources);
 }
