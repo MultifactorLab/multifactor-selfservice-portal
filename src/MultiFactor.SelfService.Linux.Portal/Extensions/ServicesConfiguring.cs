@@ -35,6 +35,7 @@ using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPassword;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSession;
 using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfo;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPassword;
 using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevices;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignIn;

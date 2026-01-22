@@ -195,13 +195,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassSsoSession(string callbackUrl, string accessToken)
-        {
-            var page = new BypassPageDto(callbackUrl, accessToken);
-            return View(page);
-        }
-
-        [HttpGet]
         public async Task<IActionResult> ByPassSamlSession(
             string samlSession,
             [FromServices] IMultifactorIdpApi idpApi)
