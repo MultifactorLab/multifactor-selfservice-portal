@@ -21,6 +21,6 @@
     public class UserProfilePolicyDto
     {
         public bool AllResourcesPermitted { get; init; }
-        public IEnumerable<string> PermittedResources { get; init; }
+        public string[] PermittedResources { get; init; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
+﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Options;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
@@ -11,8 +10,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory
 
         public FilterShowcaseLinksStory(IShowcaseSettingsOptions showcaseSettings)
         {
-            _showcaseSettings = showcaseSettings
-                ?? throw new ArgumentNullException(nameof(showcaseSettings));
+            _showcaseSettings = showcaseSettings;
         }
 
         public IReadOnlyCollection<ShowcaseLink> Execute(UserProfilePolicyDto policy)

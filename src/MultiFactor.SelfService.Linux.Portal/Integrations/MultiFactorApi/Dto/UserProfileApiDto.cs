@@ -9,5 +9,5 @@
 
     public record UserProfilePolicyApiDto(
         bool AllResourcesPermitted,
-        IEnumerable<string> PermittedResources);
+        string[] PermittedResources);
 }

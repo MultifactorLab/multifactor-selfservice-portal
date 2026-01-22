@@ -113,8 +113,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                 EnablePasswordManagement = _settings.PasswordManagement.Enabled,
                 Policy = new() 
                 { 
-                    AllResourcesPermitted = response.Policy.AllResourcesPermitted,
-                    PermittedResources = response.Policy.PermittedResources
+                    AllResourcesPermitted = response.Policy?.AllResourcesPermitted ?? false,
+                    PermittedResources = response.Policy?.PermittedResources ?? []
                 },
                 EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled,
             };
