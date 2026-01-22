@@ -116,7 +116,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 if (!_portalSettings.PreAuthenticationMethod)
                 {
-                    return RedirectToAction("Login", sso);
+                    return RedirectToAction("Login");
                 }
 
                 var identity = _applicationCache.GetIdentity(requestId);
@@ -192,6 +192,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
             
             return await authenticateSession.Execute(accessToken);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ByPassSsoSession(string callbackUrl, string accessToken)
+        {
+            var page = new BypassPageDto(callbackUrl, accessToken);
+            return View(page);
         }
 
         [HttpGet]

@@ -1,4 +1,4 @@
-﻿@model MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto.UserProfileDto
+﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.ShowcaseViewModel
 
 <div class="login">
     <div class="form-column @(@ShowcaseSettings.CurrentValue?.Enabled == true ? "showcase-no-top-padding" : "") ">
@@ -6,7 +6,7 @@
             @if (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)
             {
                 <div class="showcase">
-                    @foreach (var link in ShowcaseSettings.CurrentValue.Links)
+                    @foreach (var link in Model.ShowcaseLinks)
                     {
                         <a href="@link.Url" @(link.OpenInNewTab ? "target=_blank" : "")>
                             <div class="showcase-link">
@@ -24,18 +24,18 @@
             <h2 class="success-title">@Localizer["Title"]</h2>
             <div class="auth-username">
                 <p>@Localizer["Welcome"]</p>
-                <p class="user-login">@(Model.Name ?? Model.Identity)</p>
+                <p class="user-login">@(Model.Profile.Name ?? Model.Profile.Identity)</p>
             </div>
         </div>
         <ul class="action">
             <li>
                 @Html.ActionLink(Localizer["Configure2FA"].Value, "Index", "Configure2Fa", new { }, new { target = "_blank", @class = "btn btn-secondary" })
             </li>
-            @if (Model.EnablePasswordManagement)
+            @if (Model.Profile.EnablePasswordManagement)
             {
                 <li><a href="~/password/change" class="btn btn-secondary">@Localizer["ChangePassword"]</a></li>
             }
-            @if (Model.EnableExchangeActiveSyncDevicesManagement)
+            @if (Model.Profile.EnableExchangeActiveSyncDevicesManagement)
             {
                 <li><a href="~/ExchangeActiveSyncDevices" class="btn btn-secondary">@Localizer["ManageActiveSyncDevices"]</a></li>
             }
