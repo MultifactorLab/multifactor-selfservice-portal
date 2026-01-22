@@ -10,7 +10,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         Task<LoginCompletedResponseDto> LoginCompletedAsync(LoginCompletedRequestDto request, Dictionary<string, string> headers);
         Task<LogoutResponseDto> LogoutAsync(LogoutRequestDto request, Dictionary<string, string> headers);
         
-        Task<SsoMasterSessionDto> CreateSsoMasterSession(string userIdentity);
         Task<SsoMasterSessionDto> GetSsoMasterSession();
         
         Task<SsoMasterSessionDto> AddSamlToSsoMasterSession(string samlSessionId);
