@@ -28,7 +28,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
         {
             using PeriodicTimer timer = new PeriodicTimer(_updatePeriod);
 
-            while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct))
+            do
             {
                 try
                 {
@@ -43,7 +43,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Services
                 {
                     _logger.LogError(ex, "Failed to load Showcase settings");
                 }
-            }
+            } while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct));
         }
 
         private async Task UpdateLogos(ShowcaseSettings settings)
