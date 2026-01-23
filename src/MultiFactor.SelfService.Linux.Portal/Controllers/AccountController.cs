@@ -5,6 +5,7 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Settings;
@@ -42,12 +43,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 if (sso.HasSamlSession())
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account",
+                        new { samlSession = sso.SamlSessionId });
                 }
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account",
+                        new { oidcSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -73,10 +76,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View(model);
             }
+
             try
             {
                 var headers = HttpContext.GetRequiredHeaders();
-                
+
                 return await signIn.ExecuteAsync(model, headers);
             }
             catch (ModelStateErrorException ex)
@@ -102,12 +106,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 if (sso.HasSamlSession())
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account",
+                        new { samlSession = sso.SamlSessionId });
                 }
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account",
+                        new { oidcSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -130,7 +136,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStory identityStoryHandler)
+        public async Task<IActionResult> Identity(IdentityViewModel model,
+            [FromServices] IdentityStory identityStoryHandler)
         {
             if (!ModelState.IsValid)
             {
@@ -190,8 +197,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return await redirectToCredValidationAfter2faStory.ExecuteAsync(accessToken);
             }
-            
+
             return await authenticateSession.Execute(accessToken);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ByPassSsoSession(string callbackUrl, string accessToken)
+        {
+            var page = new BypassPageDto(callbackUrl, accessToken);
+            return View(page);
         }
 
         [HttpGet]
@@ -207,7 +221,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 };
 
                 var response = await idpApi.BypassSamlAsync(request, HttpContext.GetRequiredHeaders());
-                
+
                 if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
                 {
                     return Content(response.SamlResponseHtml, "text/html");
@@ -241,9 +255,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 {
                     OidcSessionId = oidcSession
                 };
-                
+
                 var response = await idpApi.BypassOidcAsync(request, HttpContext.GetRequiredHeaders());
-                
+
                 if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
                 {
                     return Redirect(response.RedirectUrl);
