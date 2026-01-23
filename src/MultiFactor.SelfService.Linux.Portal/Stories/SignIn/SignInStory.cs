@@ -8,6 +8,8 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
@@ -20,6 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 public class SignInStory
 {
     private readonly IMultifactorIdpApi _idpApiClient;
+    private readonly IMultiFactorApi _apiClient;
     private readonly DataProtection _dataProtection;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
@@ -31,6 +34,7 @@ public class SignInStory
 
     public SignInStory(
         IMultifactorIdpApi idpApiClient,
+        IMultiFactorApi apiClient,
         DataProtection dataProtection,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
@@ -41,6 +45,7 @@ public class SignInStory
         CredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
+        _apiClient = apiClient;
         _dataProtection = dataProtection;
         _contextAccessor = contextAccessor;
         _settings = settings;
@@ -107,7 +112,7 @@ public class SignInStory
         
         var response = await _idpApiClient.LoginAsync(request, headers);
         
-        return HandleLoginResponse(response, model);
+        return await HandleLoginResponse(response, model, credentialResult);
     }
 
     private SspSettingsDto BuildSspSettings()
@@ -124,7 +129,7 @@ public class SignInStory
         };
     }
 
-    private IActionResult HandleLoginResponse(LoginResponseDto response, LoginViewModel model)
+    private async Task<IActionResult> HandleLoginResponse(LoginResponseDto response, LoginViewModel model, CredentialVerificationResult adValidationResult)
     {
         if (!response.Success)
         {
@@ -143,9 +148,20 @@ public class SignInStory
         if (response.Action == LoginAction.BypassSaml)
         {
             _logger.LogDebug("Bypass second factor for user '{User}' via SAML", model.UserName);
+            
+            var userIdentity = GetIdentity(adValidationResult);
+            
             var sso = _contextAccessor.SafeGetSsoClaims();
-            return new RedirectToActionResult("ByPassSamlSession", "Account",
-                new { username = model.UserName, samlSession = sso.SamlSessionId });
+            var user = new UserProfileDto(string.Empty, userIdentity)
+            {
+                Email = adValidationResult.Email,
+                Name = adValidationResult.DisplayName,
+            };
+            
+            var page = await _apiClient.CreateSamlBypassRequestAsync(user, sso.SamlSessionId);
+
+            return new RedirectToActionResult("ByPassSsoSession", "Account",
+                new { callbackUrl = page.CallbackUrl, accessToken = page.AccessToken });
         }
 
         // Handle OIDC bypass
@@ -227,5 +243,12 @@ public class SignInStory
         var rnd = new Random();
         var delay = rnd.Next(2, 6);
         await Task.Delay(TimeSpan.FromSeconds(delay));
+    }
+    
+    private string GetIdentity(CredentialVerificationResult verificationResult)
+    {
+        return !string.IsNullOrWhiteSpace(verificationResult.CustomIdentity)
+            ? verificationResult.CustomIdentity
+            : verificationResult.Username;
     }
 }
