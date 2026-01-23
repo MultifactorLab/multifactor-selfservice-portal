@@ -33,7 +33,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public async Task<IActionResult> Login([FromServices] LoadProfileStory loadProfile)
+        public async Task<IActionResult> Login([FromServices] LoadIdpProfileStory loadProfile)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
@@ -93,12 +93,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <param name="requestId">State for continuation user verification.</param>
         /// <returns></returns>
         [ConsumeSsoClaims]
-        public async Task<ActionResult> Identity(string requestId, [FromServices] LoadProfileStory loadProfile)
+        public async Task<ActionResult> Identity(string requestId, [FromServices] LoadIdpProfileStory loadProfile)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
             {
-                var user = await loadProfile.ExecuteAsync();
+                await loadProfile.ExecuteAsync();
 
                 if (sso.HasSamlSession())
                 {
