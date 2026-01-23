@@ -1,13 +1,13 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
+﻿using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile
 {
     public class LoadProfileStory
     {
-        private readonly IMultifactorIdpApi _api;
+        private readonly IMultiFactorApi _api;
 
-        public LoadProfileStory(IMultifactorIdpApi api)
+        public LoadProfileStory(IMultiFactorApi api)
         {
             _api = api ?? throw new ArgumentNullException(nameof(api));
         }
