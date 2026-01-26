@@ -8,10 +8,6 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
 
-/// <summary>
-/// AuthenticateSessionStory that delegates logic to IdP.
-/// SSP only handles UI and passes data to IdP for processing.
-/// </summary>
 public class AuthenticateSessionStory
 {
     private readonly IMultifactorIdpApi _idpApi;
@@ -32,17 +28,14 @@ public class AuthenticateSessionStory
     {
         ArgumentNullException.ThrowIfNull(accessToken);
         _logger.LogDebug("Received MFA token: {accessToken:l}", accessToken);
-
-        // Build request for IdP
+        
         var request = new LoginCompletedRequestDto
         {
             AccessToken = accessToken
         };
-
-        // Call IdP
+        
         var response = await _idpApi.LoginCompletedAsync(request, _contextAccessor.HttpContext.GetRequiredHeaders());
-
-        // Handle response
+        
         return HandleLoginCompletedResponse(response, accessToken);
     }
 
@@ -54,7 +47,6 @@ public class AuthenticateSessionStory
             return new RedirectToActionResult("AccessDenied", "Error", default);
         }
         
-        // Set cookie with access token
         if (response.TokenExpirationDate.HasValue)
         {
             _contextAccessor.HttpContext.Response.Cookies.Append(Constants.COOKIE_NAME, accessToken, new CookieOptions
@@ -64,29 +56,25 @@ public class AuthenticateSessionStory
                 Expires = response.TokenExpirationDate.Value
             });
         }
-
-        // Handle SAML bypass
+        
         if (response.Action == LoginCompletedAction.BypassSaml && !string.IsNullOrEmpty(response.SamlSessionId))
         {
             _logger.LogDebug("Redirecting to SAML bypass for session '{Session}'", response.SamlSessionId);
             return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = response.SamlSessionId });
         }
-
-        // Handle OIDC bypass
+        
         if (response.Action == LoginCompletedAction.BypassOidc && !string.IsNullOrEmpty(response.OidcSessionId))
         {
             _logger.LogDebug("Redirecting to OIDC bypass for session '{Session}'", response.OidcSessionId);
             return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = response.OidcSessionId });
         }
-
-        // Handle password change required
+        
         if (response.Action == LoginCompletedAction.ChangePassword)
         {
             _logger.LogDebug("User '{User}' must change password", response.Identity);
             return new RedirectToActionResult("Change", "ExpiredPassword", default);
         }
-
-        // Standard authenticated flow
+        
         _logger.LogDebug("User '{User}' authenticated successfully", response.Identity);
         return new RedirectToActionResult("Index", "Home", default);
     }
