@@ -64,15 +64,13 @@ public class SignInStory
         
         var username = model.UserName.Trim();
         var password = model.Password.Trim();
-
-        // Validate username format if UPN is required
+        
         if (_settings.ActiveDirectorySettings.RequiresUserPrincipalName && !IsUserPrincipalName(username))
         {
             _logger.LogWarning("UPN format required but not provided for user input");
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-
-        // Verify technical account protection
+        
         var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
         var userName = LdapIdentity.ParseUser(username);
         if (userName.IsEquivalentTo(serviceUser))
@@ -81,12 +79,10 @@ public class SignInStory
             await DelayedFailureAsync();
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-
-        // Verify credentials locally via LDAP
+        
         _logger.LogDebug("Verifying credentials locally for user '{User}'", username);
         var credentialResult = await _credentialVerifier.VerifyCredentialAsync(username, password);
-
-        // Handle authentication failure
+        
         if (!credentialResult.IsAuthenticated && !credentialResult.UserMustChangePassword)
         {
             _logger.LogWarning("Credential verification failed for user '{User}': {Reason}", username, credentialResult.Reason);
@@ -136,15 +132,13 @@ public class SignInStory
             _logger.LogDebug("Login failed: {Error}", response.ErrorMessage);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-
-        // Handle MFA required
+        
         if (response.Action == LoginAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             _logger.LogDebug("Redirecting user to MFA page");
             return new RedirectResult(response.RedirectUrl, true);
         }
-
-        // Handle SAML bypass
+        
         if (response.Action == LoginAction.BypassSaml)
         {
             _logger.LogDebug("Bypass second factor for user '{User}' via SAML", model.UserName);
@@ -163,8 +157,7 @@ public class SignInStory
             return new RedirectToActionResult("ByPassSsoSession", "Account",
                 new { callbackUrl = page.CallbackUrl, accessToken = page.AccessToken });
         }
-
-        // Handle OIDC bypass
+        
         if (response.Action == LoginAction.BypassOidc)
         {
             _logger.LogDebug("Bypass second factor for user '{User}' via OIDC", model.UserName);
@@ -172,13 +165,11 @@ public class SignInStory
             return new RedirectToActionResult("ByPassOidcSession", "Account",
                 new { oidcSession = sso.OidcSessionId });
         }
-
-        // Handle password change required
+        
         if (response.Action == LoginAction.ChangePassword)
         {
             _logger.LogInformation("User '{User}' must change password", model.UserName);
-
-            // Cache encrypted password for password change flow
+            
             var encryptedPassword = _dataProtection.Protect(
                 model.Password.Trim(),
                 Constants.PWD_RENEWAL_PURPOSE);
@@ -188,8 +179,7 @@ public class SignInStory
             _applicationCache.Set(
                 ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
                 encryptedPassword);
-
-            // Redirect to MFA if URL is provided
+            
             if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
             {
                 return new RedirectResult(response.RedirectUrl, true);
@@ -197,15 +187,13 @@ public class SignInStory
 
             return new RedirectToActionResult("Change", "ExpiredPassword", null);
         }
-
-        // Handle access denied
+        
         if (response.Action == LoginAction.AccessDenied)
         {
             _logger.LogWarning("Access denied for user '{User}'", model.UserName);
             return new RedirectToActionResult("AccessDenied", "Error", null);
         }
 
-        // Default: redirect to MFA page if URL provided
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             return new RedirectResult(response.RedirectUrl, true);
@@ -239,7 +227,6 @@ public class SignInStory
 
     private static async Task DelayedFailureAsync()
     {
-        // Freeze response for 2-5 seconds to prevent brute-force attacks
         var rnd = new Random();
         var delay = rnd.Next(2, 6);
         await Task.Delay(TimeSpan.FromSeconds(delay));
