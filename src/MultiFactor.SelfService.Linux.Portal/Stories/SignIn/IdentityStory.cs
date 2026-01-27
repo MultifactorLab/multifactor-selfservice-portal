@@ -66,13 +66,8 @@ public class IdentityStory
             _logger.LogWarning("Attempt to use identity as technical account user '{User}'", username);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-
-        var claims = _claimsProvider.GetClaims();
-        var sso = _contextAccessor.SafeGetSsoClaims();
-        var postbackUrl = model.MyUrl.BuildPostbackUrl();
         
-        VerifiedMembershipDto? verifiedMembership = null;
-        
+        VerifiedMembershipDto verifiedMembership = null;
         // Verify membership locally if prebind info is needed
         if (_settings.NeedPrebindInfo())
         {
@@ -88,6 +83,10 @@ public class IdentityStory
             _logger.LogInformation("User '{User}' membership verified successfully", username);
             verifiedMembership = MapToVerifiedMembershipDto(membershipResult);
         }
+        
+        var claims = _claimsProvider.GetClaims();
+        var sso = _contextAccessor.SafeGetSsoClaims();
+        var postbackUrl = model.MyUrl.BuildPostbackUrl();
         
         var request = new IdentityRequestDto
         {
