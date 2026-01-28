@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfo;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {

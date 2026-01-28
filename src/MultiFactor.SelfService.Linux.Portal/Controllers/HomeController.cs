@@ -3,6 +3,7 @@ using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {

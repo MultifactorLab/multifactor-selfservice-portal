@@ -125,5 +125,6 @@
 
 		<!-- FreeIPA support -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
+        <PreAuthenticationMethod>true</PreAuthenticationMethod>
 	</PortalSettings>
 </configuration>

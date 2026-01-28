@@ -1,4 +1,4 @@
-﻿namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
+namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 
 /// <summary>
 /// Access token for user within non-mfa group

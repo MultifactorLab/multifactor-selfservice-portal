@@ -1,4 +1,5 @@
 using MultiFactor.SelfService.Linux.Portal.Settings.PrivacyMode;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
 
 namespace MultiFactor.SelfService.Linux.Portal.Tests;
