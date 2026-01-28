@@ -1,0 +1,32 @@
+namespace MultiFactor.SelfService.Linux.Portal.Extensions;
+
+public static class HttpContextExtensions
+{
+    public static Dictionary<string, string> GetRequiredHeaders(this HttpContext httpContext)
+    {
+        var headers = httpContext.Request.Headers
+            .Where(h => ShouldForwardHeader(h.Key))
+            .ToDictionary(h => h.Key, h => h.Value.ToString());
+
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString();
+        if (!string.IsNullOrWhiteSpace(clientIp))
+        {
+            headers["X-Original-Client-IP"] = clientIp;
+        }
+
+        return headers;
+    }
+    
+    private static bool ShouldForwardHeader(string key)
+    {
+        return AllowedForwardHeaders.Contains(key);
+    }
+    
+    private static readonly HashSet<string> AllowedForwardHeaders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Authorization",
+        "User-Agent",
+        "X-Device-Id",
+        "X-Device-Type"
+    };
+}

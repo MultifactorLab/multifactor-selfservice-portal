@@ -1,4 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
+using MultiFactor.SelfService.Linux.Portal.Abstractions.CaptchaVerifier;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims;
@@ -15,23 +15,12 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Settings;
-using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceStateStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPasswordStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPasswordStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSessionStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfoStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevicesStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory.ClaimsSources;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Google.ReCaptcha;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Captcha.Yandex;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using System.Net;
-using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPasswordStory;
 using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Settings.PasswordRequirement;
@@ -39,6 +28,19 @@ using MultiFactor.SelfService.Linux.Portal.Integrations;
 using MultiFactor.SelfService.Linux.Portal.Stories;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Services;
+using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceState;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPassword;
+using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPassword;
+using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSession;
+using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfo;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
+using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPassword;
+using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevices;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignIn.ClaimsSources;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
 
 namespace MultiFactor.SelfService.Linux.Portal.Extensions
 {
@@ -50,6 +52,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSession()
                 .AddMemoryCache()
                 .AddHttpContextAccessor()
+                .AddScoped<IClientContext, ClientContext>()
                 .AddApplicationCache()
                 .AddSingleton<ILdapConnectionAdapter, LdapConnectionAdapter>()
                 .AddSingleton<SafeHttpContextAccessor>()
@@ -89,10 +92,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
                 .AddTransient<SignInStory>()
                 .AddTransient<IdentityStory>()
-                .AddTransient<RedirectToCredValidationAfter2faStory>()
+                .AddTransient<RedirectToCredValidationAfter2FaStory>()
                 .AddTransient<AuthnStory>()
                 .AddTransient<SignOutStory>()
                 .AddTransient<LoadProfileStory>()
+                .AddTransient<LoadIdpProfileStory>()
                 .AddTransient<FilterShowcaseLinksStory>()
                 .AddTransient<RecoverPasswordStory>()
                 .AddTransient<AuthenticateSessionStory>()
@@ -197,7 +201,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
         private static void ConfigureMultifactorIdpApi(WebApplicationBuilder builder)
         {
-            builder.Services.AddTransient<MultifactorIdpApi>()
+            builder.Services.AddTransient<IMultifactorIdpApi, MultifactorIdpApi>()
                 .AddTransient<MultifactorIdpHttpClientAdapterFactory>();
         }
 

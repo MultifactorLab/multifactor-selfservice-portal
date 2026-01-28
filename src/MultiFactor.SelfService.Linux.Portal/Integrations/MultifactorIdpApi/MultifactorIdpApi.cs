@@ -8,7 +8,7 @@ using static MultiFactor.SelfService.Linux.Portal.Core.Constants;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
 {
-    public class MultifactorIdpApi
+    public class MultifactorIdpApi : IMultifactorIdpApi
     {
         private readonly HttpClientAdapter _clientAdapter;
         private readonly HttpClientTokenProvider _tokenProvider;
@@ -21,6 +21,71 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
 
             _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        }
+        
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<LoginResponseDto>>(
+                    "api/v1/login",
+                    request,
+                    headers));
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return LoginResponseDto.Failed(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Identity verification for pre-authentication flow (MFA first, then password).
+        /// </summary>
+        public async Task<IdentityResponseDto> IdentityAsync(IdentityRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<IdentityResponseDto>>(
+                    "api/v1/identity",
+                    request,
+                    headers));
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResponseDto.Failed(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Completes login after MFA verification.
+        /// </summary>
+        public async Task<LoginCompletedResponseDto> LoginCompletedAsync(LoginCompletedRequestDto request, Dictionary<string, string> headers)
+        {
+            var auth = GetBasicAuthHeaders();
+            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+
+            var formData = new[]
+            {
+                new KeyValuePair<string, string>("accessToken", request.AccessToken)
+            };
+
+            return await ExecuteAsync(() =>
+                _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
+                    "api/v1/login-completed",
+                    formData,
+                    headers));
         }
 
         /// <summary>
@@ -63,12 +128,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 SessionType = SsoMasterSessionTypes.SamlSessionType
             };
 
-            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+            return await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
                 "sso-master-session/add-child-session",
                 payload,
                 GetBearerAuthHeaders()));
-
-            return new SsoMasterSessionDto(response.MasterSessionId);
         }
 
         /// <summary>
@@ -83,16 +146,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 SessionType = SsoMasterSessionTypes.OidcSessionType
             };
 
-            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
+            return await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<SsoMasterSessionDto>>(
                 "sso-master-session/add-child-session",
                 payload,
                 GetBearerAuthHeaders()));
-
-            return new SsoMasterSessionDto(response.MasterSessionId);
         }
 
         /// <summary>
-        /// Logout from SSO master session.
+        /// Logout from SSO master session (legacy method, kept for backward compatibility).
         /// </summary>
         public Task LogoutSsoMasterSession()
         {
@@ -102,6 +163,77 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
                 GetBearerAuthHeaders()));
         }
 
+        /// <summary>
+        /// Logout via new API endpoint.
+        /// </summary>
+        public async Task<LogoutResponseDto> LogoutAsync(LogoutRequestDto request, Dictionary<string, string> headers)
+        {
+            try
+            {
+                var auth = GetBearerAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+                var response = await ExecuteAsync(() =>
+                    _clientAdapter.PostAsync<IdpApiResponse<LogoutResponseDto>>(
+                    "api/v1/logout",
+                    request,
+                    headers));
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return LogoutResponseDto.Failed(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Creates SAML bypass via IdP.
+        /// </summary>
+        public async Task<BypassSamlResponseDto> BypassSamlAsync(BypassSamlRequestDto request, Dictionary<string, string> headers)
+        {
+            var auth = GetBearerAuthHeaders();
+            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+                
+            return await ExecuteAsync(() =>
+                _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers));
+        }
+
+        public async Task<BypassOidcResponseDto> BypassOidcAsync(BypassOidcRequestDto request, Dictionary<string, string> headers)
+        {
+            var auth = GetBearerAuthHeaders();
+            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
+            
+            return await ExecuteAsync(() =>
+                _clientAdapter.PostAsync<IdpApiResponse<BypassOidcResponseDto>>("api/v1/oidc/bypass", request, headers));
+        }
+
+        public async Task<UserProfileDto> GetUserProfileAsync()
+        {
+            return await ExecuteAsync(() => 
+                _clientAdapter.GetAsync<IdpApiResponse<UserProfileDto>>("api/v1/users/load-profile", GetBearerAuthHeaders()));
+        }
+
+        private static async Task<T> ExecuteAsync<T>(Func<Task<IdpApiResponse<T>>> method)
+        {
+            var response = await method();
+
+            if (response == null)
+            {
+                throw new Exception("Response is null");
+            }
+            if (!response.Success)
+            {
+                throw new UnsuccessfulResponseException(response.Message);
+            }
+            if (response.Data == null)
+            {
+                throw new Exception("Response payload is null");
+            }
+
+            return response.Data;
+        }
+        
         private static async Task ExecuteAsync(Func<Task<ApiResponse>> method)
         {
             var response = await method();

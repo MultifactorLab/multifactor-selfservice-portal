@@ -37,5 +37,11 @@
             var postbackUrl = noLastSegment + "/PostbackFromMfa";
             return postbackUrl;
         }
+
+        public static string BuildAdConnectorBaseUrl(this string documentUrl)
+        {
+            var currentUri = new Uri(documentUrl);
+            return $"{currentUri.Scheme}://{currentUri.Authority}";
+        }
     }
 }

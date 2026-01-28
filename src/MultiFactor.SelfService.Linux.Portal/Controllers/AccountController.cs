@@ -5,15 +5,15 @@ using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
-using MultiFactor.SelfService.Linux.Portal.Settings;
-using MultiFactor.SelfService.Linux.Portal.Stories.AuthenticateStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignInStory;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignOutStory;
-using MultiFactor.SelfService.Linux.Portal.ViewModels;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Settings;
+using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
+using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
+using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
+using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
@@ -34,7 +34,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public async Task<IActionResult> Login([FromServices] LoadProfileStory loadProfile)
+        public async Task<IActionResult> Login([FromServices] LoadIdpProfileStory loadProfile)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
@@ -43,12 +43,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 if (sso.HasSamlSession())
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account",
+                        new { samlSession = sso.SamlSessionId });
                 }
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account",
+                        new { oidcSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -74,9 +76,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 return View(model);
             }
+
             try
             {
-                return await signIn.ExecuteAsync(model);
+                var headers = HttpContext.GetRequiredHeaders();
+
+                return await signIn.ExecuteAsync(model, headers);
             }
             catch (ModelStateErrorException ex)
             {
@@ -92,21 +97,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <param name="requestId">State for continuation user verification.</param>
         /// <returns></returns>
         [ConsumeSsoClaims]
-        public async Task<ActionResult> Identity(string requestId, [FromServices] LoadProfileStory loadProfile)
+        public async Task<ActionResult> Identity(string requestId, [FromServices] LoadIdpProfileStory loadProfile)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
             {
-                var user = await loadProfile.ExecuteAsync();
+                await loadProfile.ExecuteAsync();
 
                 if (sso.HasSamlSession())
                 {
-                    return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
+                    return new RedirectToActionResult("ByPassSamlSession", "Account",
+                        new { samlSession = sso.SamlSessionId });
                 }
 
                 if (sso.HasOidcSession())
                 {
-                    return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
+                    return new RedirectToActionResult("ByPassOidcSession", "Account",
+                        new { oidcSession = sso.OidcSessionId });
                 }
 
                 return RedirectToAction("Index", "Home");
@@ -129,7 +136,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Identity(IdentityViewModel model, [FromServices] IdentityStory identityStoryHandler)
+        public async Task<IActionResult> Identity(IdentityViewModel model,
+            [FromServices] IdentityStory identityStoryHandler)
         {
             if (!ModelState.IsValid)
             {
@@ -138,7 +146,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             try
             {
-                return await identityStoryHandler.ExecuteAsync(model);
+                return await identityStoryHandler.ExecuteAsync(model, HttpContext.GetRequiredHeaders());
             }
             catch (ModelStateErrorException ex)
             {
@@ -174,24 +182,22 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [ConsumeSsoClaims]
-        public IActionResult Logout([FromServices] SignOutStory signOut)
+        public async Task<IActionResult> Logout([FromServices] SignOutStory signOut)
         {
-            return signOut.Execute();
+            var headers = HttpContext.GetRequiredHeaders();
+            return await signOut.ExecuteAsync(headers);
         }
 
         [HttpPost]
         public async Task<IActionResult> PostbackFromMfa(string accessToken,
             [FromServices] AuthenticateSessionStory authenticateSession,
-            [FromServices] RedirectToCredValidationAfter2faStory redirectToCredValidationAfter2FaStory)
+            [FromServices] RedirectToCredValidationAfter2FaStory redirectToCredValidationAfter2faStory)
         {
-            // 2fa before authn enable
             if (_portalSettings.PreAuthenticationMethod)
             {
-                // hence continue authentication flow 
-                return redirectToCredValidationAfter2FaStory.Execute(accessToken);
+                return await redirectToCredValidationAfter2faStory.ExecuteAsync(accessToken);
             }
 
-            // otherwise flow is (almost) finished
             return await authenticateSession.Execute(accessToken);
         }
 
@@ -203,27 +209,75 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassSamlSession(string samlSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+        public async Task<IActionResult> ByPassSamlSession(
+            string samlSession,
+            [FromServices] IMultifactorIdpApi idpApi)
         {
-            var user = await loadProfile.ExecuteAsync();
+            try
+            {
+                var request = new BypassSamlRequestDto
+                {
+                    SamlSessionId = samlSession
+                };
 
-            _ = idpApi.AddSamlToSsoMasterSession(samlSession);
+                var response = await idpApi.BypassSamlAsync(request, HttpContext.GetRequiredHeaders());
 
-            var page = await api.CreateSamlBypassRequestAsync(user, samlSession);
-            return View("ByPassSsoSession",page);
+                if (!string.IsNullOrWhiteSpace(response.SamlResponseHtml))
+                {
+                    return Content(response.SamlResponseHtml, "text/html");
+                }
+
+                return RedirectToAction("AccessDenied", "Error");
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
+                }
+
+                return View(new LoginViewModel());
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
         }
 
         [HttpGet]
-        public async Task<IActionResult> ByPassOidcSession(string oidcSession,
-            [FromServices] LoadProfileStory loadProfile, [FromServices] IMultiFactorApi api, [FromServices] MultifactorIdpApi idpApi)
+        public async Task<IActionResult> ByPassOidcSession(
+            string oidcSession,
+            [FromServices] IMultifactorIdpApi idpApi)
         {
-            var user = await loadProfile.ExecuteAsync();
+            try
+            {
+                var request = new BypassOidcRequestDto
+                {
+                    OidcSessionId = oidcSession
+                };
 
-            _ = idpApi.AddOidcToSsoMasterSession(oidcSession);
+                var response = await idpApi.BypassOidcAsync(request, HttpContext.GetRequiredHeaders());
 
-            var page = await api.CreateOidcBypassRequestAsync(user, oidcSession);
-            return View("ByPassSsoSession", page);
+                if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
+                {
+                    return Redirect(response.RedirectUrl);
+                }
+
+                return RedirectToAction("AccessDenied", "Error");
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (_portalSettings.PreAuthenticationMethod)
+                {
+                    return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
+                }
+
+                return View(new LoginViewModel());
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("AccessDenied", "Error");
+            }
         }
     }
 }
