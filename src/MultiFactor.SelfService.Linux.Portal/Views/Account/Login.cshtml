@@ -31,7 +31,7 @@
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @Html.ValidationSummary(true)
-                    @if (isCaptchaEnabled) {
+                    @if (true || isCaptchaEnabled) {
                         ViewBag.RenderCaptchaScripts = true;
                         <div class="captcha-wrapper">
                             @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaRequired.Always })

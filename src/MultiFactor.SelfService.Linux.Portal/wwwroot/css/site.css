@@ -5,7 +5,6 @@
  * -------------------------------------------------------------------
  */
 html {
-    font-family: sans-serif;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     block-size: 100%;
@@ -312,41 +311,8 @@ textarea {
 }
 
 @font-face {
-    font-family: 'SF Pro Display';
-    src: url("../fonts/subset-SFProDisplay-Bold.eot");
-    src: url("../fonts/subset-SFProDisplay-Bold.eot?#iefix") format("embedded-opentype"), url("../fonts/subset-SFProDisplay-Bold.woff2") format("woff2"), url("../fonts/subset-SFProDisplay-Bold.woff") format("woff"), url("../fonts/subset-SFProDisplay-Bold.ttf") format("truetype"), url("../fonts/subset-SFProDisplay-Bold.svg#SFProDisplay-Bold") format("svg");
-    font-weight: bold;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url("../fonts/subset-SFProDisplay-Black.eot");
-    src: url("../fonts/subset-SFProDisplay-Black.eot?#iefix") format("embedded-opentype"), url("../fonts/subset-SFProDisplay-Black.woff") format("woff"), url("../fonts/subset-SFProDisplay-Black.ttf") format("truetype"), url("../fonts/subset-SFProDisplay-Black.svg#SFProDisplay-Black") format("svg");
-    font-weight: 800;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'SF Pro Display';
-    src: url("../fonts/subset-SFProDisplay-Medium.eot");
-    src: url("../fonts/subset-SFProDisplay-Medium.eot?#iefix") format("embedded-opentype"), url("../fonts/subset-SFProDisplay-Medium.woff2") format("woff2"), url("../fonts/subset-SFProDisplay-Medium.woff") format("woff"), url("../fonts/subset-SFProDisplay-Medium.ttf") format("truetype"), url("../fonts/subset-SFProDisplay-Medium.svg#SFProDisplay-Medium") format("svg");
-    font-weight: 500;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'SF UI Text';
-    src: url("../fonts/subset-SFUIText-Semibold.eot");
-    src: url("../fonts/subset-SFUIText-Semibold.eot?#iefix") format("embedded-opentype"), url("../fonts/subset-SFUIText-Semibold.woff2") format("woff2"), url("../fonts/subset-SFUIText-Semibold.woff") format("woff"), url("../fonts/subset-SFUIText-Semibold.ttf") format("truetype"), url("../fonts/subset-SFUIText-Semibold.svg#SFUIText-Semibold") format("svg");
-    font-weight: 600;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'SF UI Text';
-    src: url("../fonts/subset-SFUIText-Regular.eot");
-    src: url("../fonts/subset-SFUIText-Regular.eot?#iefix") format("embedded-opentype"), url("../fonts/subset-SFUIText-Regular.woff2") format("woff2"), url("../fonts/subset-SFUIText-Regular.woff") format("woff"), url("../fonts/subset-SFUIText-Regular.ttf") format("truetype"), url("../fonts/subset-SFUIText-Regular.svg#SFUIText-Regular") format("svg");
+    font-family: 'Inter';
+    src: url("../fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
@@ -368,13 +334,12 @@ body {
     min-width: 320px;
     margin: 0;
     color: #32454D;
-    font: 15px/17px "SF UI Text", "Arial", "Helvetica", sans-serif;
+    font: 16px / 1.2 Inter, helvetica, arial, sans-serif;
     font-weight: normal;
     font-style: normal;
-    background: linear-gradient(#2C6DA7, #62A6E2);
+    background: url("/images/background.png");
     background-attachment: fixed;
     min-block-size: 100dvh;
-;
 }
 
 img {
@@ -383,8 +348,6 @@ img {
 }
 
 button, input, textarea, select {
-    font: 100% 'SF UI Text', "Arial", "Helvetica", sans-serif;
-    font-weight: normal;
     vertical-align: middle;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -392,59 +355,26 @@ button, input, textarea, select {
     -webkit-border-radius: 0;
 }
 
-    input::-webkit-input-placeholder {
-        /* Chrome/Opera/Safari */
-        color: #A3A9B2;
-    }
-
-    input::-moz-placeholder {
-        /* Firefox 19+ */
-        color: #A3A9B2;
-    }
-
-    input:-ms-input-placeholder {
-        /* IE 10+ */
-        color: #A3A9B2;
-    }
-
-    input:-moz-placeholder {
-        /* Firefox 18- */
-        color: #A3A9B2;
-    }
-
-    textarea::-webkit-input-placeholder {
-        /* Chrome/Opera/Safari */
-        color: #A3A9B2;
-    }
-
-    textarea::-moz-placeholder {
-        /* Firefox 19+ */
-        color: #A3A9B2;
-    }
-
-    textarea:-ms-input-placeholder {
-        /* IE 10+ */
-        color: #A3A9B2;
-    }
-
-    textarea:-moz-placeholder {
-        /* Firefox 18- */
-        color: #A3A9B2;
-    }
-
+input::-webkit-input-placeholder,
+input::-moz-placeholder,
+input:-moz-placeholder,
+textarea::-webkit-input-placeholder,
+textarea::-moz-placeholder,
+textarea:-moz-placeholder {
+    color: #99ABC9;
+}
+  
 h1 {
-    font-family: 'SF Pro Display', 'Arial', serif;
-    font-weight: 800;
-    font-size: 24px;
-    line-height: 31px;
-    text-align: center;
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 120%;
+    text-align: center;  
 }
 
 h2 {
-    font-family: "SF Pro Display", "Arial", serif;
-    font-weight: 800;
-    font-size: 26px;
-    line-height: 22px;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 120%;
     margin-bottom: 15px;
     text-align: center;
     color: #142553;
@@ -487,16 +417,10 @@ p {
 }
 
 #footer {
-    height: 100px;
     justify-content: center;
     align-items: center;
     display: flex;
 }
-
-    #footer .copyright {
-        font-style: normal;
-        color: #A3A9B2;
-    }
 
 .logo {
     display: block;
@@ -551,19 +475,19 @@ p {
 }
 
 .btn-primary {
-    height: 45px;
+    height: 56px;
     font-size: 16px;
     font-weight: 600;
-    border-radius: 8px;
-    line-height: 23px;
-    border: 1px solid #4589C7;
-    background-color: #579AD7;
+    border-radius: 4px;
+    line-height: 120%;
+    background: -webkit-gradient(linear,left top,right top,from(#579ad7),to(#75b8f5));
+    background: linear-gradient(90deg,#579ad7,#75b8f5);
     color: #fff;
+    border: none;
 }
 
-.btn-primary:focus, .btn-primary:hover {
-    background-color: #75B8F5;
-    color: #fff;
+.btn-primary:hover {
+    background: #75b8f5; 
 }
 
 .btn-secondary {
@@ -663,7 +587,7 @@ p {
     border: 1px solid #A3A9B2;
     box-sizing: border-box;
     border-radius: 4px;
-    height: 64px;
+    height: 56px;
     width: 100%;
     line-height: 62px;
     padding: 0 15px;
@@ -675,7 +599,6 @@ p {
 .background-layout {
     display: flex;
     flex-direction: column;
-    background: #fff;
     border-radius: 24px;
     margin: 32px;
     flex: 1;
