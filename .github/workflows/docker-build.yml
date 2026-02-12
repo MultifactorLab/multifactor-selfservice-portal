@@ -34,23 +34,24 @@ jobs:
       - name: 🏷️ Extract version and date
         id: meta
         run: |
-          # Извлекаем версию из тега (убираем 'v' если есть)
           VERSION=${{ github.event.release.tag_name }}
           VERSION=${VERSION#v}
           
-          # Текущая дата в формате ГГГГ-ММ-ДД
           BUILD_DATE=$(date +%Y-%m-%d)
           
-          # Текущий таймстамп
           CREATED=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
           echo "created=$CREATED" >> $GITHUB_OUTPUT
+          echo "repo_lower=$REPO_LOWER" >> $GITHUB_OUTPUT
           
           echo "📦 Version: $VERSION"
           echo "📅 Build Date: $BUILD_DATE"
           echo "🕐 Created: $CREATED"
+          echo "🏷️  Repository (lowercase): $REPO_LOWER"
 
       - name: 📝 Generate Dockerfile
         run: |
@@ -65,6 +66,9 @@ jobs:
           # Labels
           LABEL org.opencontainers.image.version=$VERSION
           LABEL org.opencontainers.image.created=$CREATED
+          LABEL org.opencontainers.image.title="Multifactor Self-Service Portal"
+          LABEL org.opencontainers.image.description="Self-service portal for multifactor authentication"
+          LABEL org.opencontainers.image.source="https://github.com/MultifactorLab/multifactor-selfservice-portal"
           LABEL org.opencontainers.image.build-date=$BUILD_DATE
           
           RUN adduser --disabled-password --home /ssp --gecos '' ssp \
@@ -88,10 +92,10 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.meta.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.version }}
+            ghcr.io/${{ steps.meta.outputs.repo_lower }}:latest
           build-args: |
             VERSION=${{ steps.meta.outputs.version }}
             BUILD_DATE=${{ steps.meta.outputs.build_date }}
@@ -116,12 +120,12 @@ jobs:
             
             ## 🐳 Docker Image
             
-            **Image:** `ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.meta.outputs.version }}`
+            **Image:** `ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.version }}`
             
             ### 🚀 Quick start:
             
             ```bash
-            docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.meta.outputs.version }}
+            docker pull ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.version }}
             ```
             
             ### 📊 Build info:
@@ -132,13 +136,13 @@ jobs:
             
             ### 🏷️ Available tags:
             
-            - `ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.meta.outputs.version }}`
-            - `ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest`
+            - `ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.version }}` - конкретная версия
+            - `ghcr.io/${{ steps.meta.outputs.repo_lower }}:latest` - последняя стабильная версия
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: ✅ Success notification
         run: |
           echo "🎉 Docker image successfully built and pushed!"
-          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.meta.outputs.version }}"
+          echo "📦 Image: ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.version }}"
           echo "📅 Build Date: ${{ steps.meta.outputs.build_date }}"
