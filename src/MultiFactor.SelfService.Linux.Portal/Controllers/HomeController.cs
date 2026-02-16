@@ -2,6 +2,7 @@
 using MultiFactor.SelfService.Linux.Portal.Attributes;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
+using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Controllers
 {
@@ -23,6 +24,34 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
 
             return View(userProfile);
+        }
+
+        public async Task<IActionResult> Applications([FromServices] LoadProfileStory loadProfile)
+        {
+            var userProfile = await loadProfile.ExecuteAsync();
+
+            var applications = new List<ApplicationItemViewModel>();
+
+            // Load applications from settings if configured
+            if (Settings.LinksShowcase != null)
+            {
+                var links = Settings.LinksShowcase.GetLinks();
+                applications = links.Select(link => new ApplicationItemViewModel
+                {
+                    Title = link.Title,
+                    Logo = $"~/content/images/{link.Image}",
+                    Url = link.Url,
+                    OpenInNewTab = link.OpenInNewTab
+                }).ToList();
+            }
+
+            var model = new ApplicationsPageViewModel
+            {
+                UserProfile = userProfile,
+                Applications = applications
+            };
+
+            return View(model);
         }
     }
 }

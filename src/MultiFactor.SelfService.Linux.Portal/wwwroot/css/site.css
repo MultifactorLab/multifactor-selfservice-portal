@@ -438,6 +438,12 @@ p {
     margin: 0 auto;
 }
 
+.showcase-layout {
+    max-width: 1180px;
+    height: 824px;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
 .login {
     max-width: 1023px;
     padding: 15px;
@@ -931,4 +937,355 @@ table.authenticators tr {
 .captcha-wrapper {
     max-inline-size: 65vw;
     overflow: hidden;
+}
+
+/* ===================================================================
+ * Applications Page Styles
+ * ===================================================================
+ */
+
+.apps-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(107.2deg, rgb(113, 191, 255) 12.2%, rgb(251, 252, 255) 92.2%);
+    display: flex;
+    flex-direction: column;
+}
+
+.apps-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: transparent;
+    padding: 27px 130px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apps-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 1180px;
+    max-width: 100%;
+}
+
+.apps-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.apps-logo img {
+    max-height: 30px;
+    width: auto;
+}
+
+.apps-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-header {
+    border: 1px solid black;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.2;
+    text-decoration: none;
+    color: black;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.btn-header:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-header:active {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.apps-header-user {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #579AD7;
+    flex-shrink: 0;
+}
+
+.avatar-letter {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: white;
+    white-space: nowrap;
+}
+
+.btn-exit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-exit:hover {
+    opacity: 0.8;
+}
+
+.btn-exit svg {
+    width: 100%;
+    height: 100%;
+}
+
+.apps-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 130px 60px;
+}
+
+.apps-title-section {
+    width: 1180px;
+    max-width: 100%;
+    margin-bottom: 40px;
+}
+
+.apps-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    color: #1d1e21;
+    margin: 0;
+    letter-spacing: -1px;
+}
+
+.apps-grid {
+    width: 100%;
+    max-width: 1180px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 54px;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.app-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    min-height: 200px;
+}
+
+.app-card:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.app-card-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 160px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.app-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.app-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #3f3f44;
+    text-align: center;
+    width: 100%;
+    word-wrap: break-word;
+    letter-spacing: -0.24px;
+}
+
+/* Responsive Design */
+@media (max-width: 1440px) {
+    .apps-header {
+        padding: 20px 60px;
+    }
+
+    .apps-content {
+        padding: 0 60px 40px;
+    }
+
+    .apps-grid {
+        padding: 40px;
+    }
+
+    .apps-header-top {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .apps-header {
+        padding: 15px 30px;
+    }
+
+    .apps-content {
+        padding: 0 30px 30px;
+    }
+
+    .apps-header-actions {
+        gap: 5px;
+    }
+
+    .btn-header {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .apps-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        padding: 30px;
+    }
+
+    .apps-title {
+        font-size: 24px;
+    }
+
+    .app-card {
+        min-height: 160px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .apps-header {
+        height: auto;
+        padding: 12px 20px;
+    }
+
+    .apps-header-top {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .apps-content {
+        padding: 0 20px 20px;
+    }
+
+    .apps-header-actions {
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .apps-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        padding: 20px;
+    }
+
+    .apps-title {
+        font-size: 20px;
+    }
+
+    .app-card {
+        min-height: 140px;
+        padding: 12px;
+    }
+
+    .user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .apps-header {
+        padding: 10px;
+    }
+
+    .apps-content {
+        padding: 0 10px 15px;
+    }
+
+    .apps-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .apps-title {
+        font-size: 18px;
+    }
+
+    .app-card {
+        min-height: 120px;
+        padding: 10px;
+    }
+
+    .apps-logo img {
+        max-height: 20px;
+    }
+
+    .btn-header {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
 }

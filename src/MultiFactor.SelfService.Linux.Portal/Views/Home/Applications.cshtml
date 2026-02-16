@@ -1,0 +1,68 @@
+@using MultiFactor.SelfService.Linux.Portal.ViewModels
+@model ApplicationsPageViewModel
+
+@{
+    ViewData["Title"] = "Доступные приложения";
+}
+
+<div class="apps-container">
+    <div class="apps-header">
+        <div class="apps-header-top">
+            <strong class="apps-logo">
+                <img src="~/@Settings.CompanySettings.LogoUrl" style="max-height: 30px;" />
+            </strong>
+            <div class="apps-header-actions">
+                <a href="~/password/change" class="btn btn-header">
+                    Настроить второй фактор
+                </a>
+                <a href="~/password/change" class="btn btn-header">
+                    Сменить пароль
+                </a>
+            </div>
+            <div class="apps-header-user">
+                <div class="user-avatar">
+                    <span class="avatar-letter">@(Model?.UserProfile?.Name?[0] ?? Model?.UserProfile?.Identity?[0] ?? 'A')</span>
+                </div>
+                <span class="user-name">@(Model?.UserProfile?.Name ?? Model?.UserProfile?.Identity)</span>
+                <a href="~/account/logout" class="btn-exit">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 17H19V5H15M11 17V15M11 13V11M11 9V3M7 21H17C18.1 21 19 20.1 19 19V5C19 3.9 18.1 3 17 3H7C5.9 3 5 3.9 5 5V19C5 20.1 5.9 21 7 21Z" 
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="apps-content">
+        <div class="apps-title-section">
+            <h2 class="apps-title">Доступные приложения</h2>
+        </div>
+
+        <div class="apps-grid">
+            @if (Model?.Applications != null && Model.Applications.Count > 0)
+            {
+                @foreach (var app in Model.Applications)
+                {
+                    <a href="@app.Url" class="app-card" @(app.OpenInNewTab ? "target=_blank" : "")>
+                        <div class="app-card-image">
+                            @if (!string.IsNullOrEmpty(app.Logo))
+                            {
+                                <img src="@app.Logo" alt="@app.Title" class="app-logo" />
+                            }
+                        </div>
+                        <div class="app-card-title">
+                            @app.Title
+                        </div>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        // Applications page specific scripts can go here
+    </script>
+}
