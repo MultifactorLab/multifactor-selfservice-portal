@@ -33,13 +33,11 @@
                 </strong>
                 <h1>@ViewBag.Title</h1>
             </header>
-            <div class="stage">
-                <main id="main">
-                    @RenderBody()
-                </main>
-            </div>
+            <main id="main">
+                @RenderBody()
+            </main>
             <footer id="footer">
-                <em class="copyright">&copy; @Settings.CompanySettings.Name @DateTime.Now.Year</em>
+                <img src="~/images/footer.svg" />
             </footer>
         </div>
     </div>
