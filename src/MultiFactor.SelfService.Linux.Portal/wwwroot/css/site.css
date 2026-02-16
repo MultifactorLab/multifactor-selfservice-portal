@@ -337,9 +337,13 @@ body {
     font: 16px / 1.2 Inter, helvetica, arial, sans-serif;
     font-weight: normal;
     font-style: normal;
-    background: url("/images/background.png");
+    background: url("/images/background_light.png");
     background-attachment: fixed;
     min-block-size: 100dvh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 0;
 }
 
 img {
@@ -947,10 +951,11 @@ a.active .btn:hover {
 .apps-container {
     position: relative;
     width: 100%;
+    max-width: 1180px;
     min-height: 100vh;
-    background: linear-gradient(107.2deg, rgb(113, 191, 255) 12.2%, rgb(251, 252, 255) 92.2%);
     display: flex;
     flex-direction: column;
+    align-self: center;
 }
 
 .apps-header {
@@ -1081,12 +1086,13 @@ a.active .btn:hover {
     flex-direction: column;
     align-items: center;
     padding: 0 130px 60px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
 }
 
 .apps-title-section {
-    width: 1180px;
-    max-width: 100%;
     margin-bottom: 40px;
+    padding-top: 54px;
 }
 
 .apps-title {
@@ -1102,12 +1108,10 @@ a.active .btn:hover {
 
 .apps-grid {
     width: 100%;
-    max-width: 1180px;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 54px;
+    padding: 0 54px 54px 54px;
     border-radius: 20px;
     box-sizing: border-box;
 }

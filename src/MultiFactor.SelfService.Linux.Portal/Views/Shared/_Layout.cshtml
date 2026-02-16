@@ -27,17 +27,15 @@
 <body>
     <div id="wrapper">
         <div class="background-layout">
-            <header id="header">
-                <strong class="logo">
-                    <img src="~/@Settings.CompanySettings.LogoUrl" style="max-height:100px" />
-                </strong>
-                <h1>@ViewBag.Title</h1>
-            </header>
+            @if (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)
+            {
+
+            }
             <main id="main">
                 @RenderBody()
             </main>
             <footer id="footer">
-                <img src="~/images/footer.svg" />
+                <img src="~/images/footer.svg"/>
             </footer>
         </div>
     </div>

@@ -1,25 +1,63 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.ShowcaseViewModel
 
-<div class="login">
-    <div class="form-column @(@ShowcaseSettings.CurrentValue?.Enabled == true ? "showcase-no-top-padding" : "") ">
-        <div class="auth-details">
-            @if (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)
-            {
-                <div class="showcase">
-                    @foreach (var link in Model.ShowcaseLinks)
-                    {
-                        <a href="@link.Url" @(link.OpenInNewTab ? "target=_blank" : "")>
-                            <div class="showcase-link">
-                                <img class="showcase-link-image" src="~/@(string.IsNullOrWhiteSpace(link.Image) ? "content/images/ssoResource.svg" : $"content/images/showcase/{link.Image}")" />
-
-                                <div class="link-title">
-                                    @link.Title
-                                </div>
-                            </div>
-                        </a>
-                    }
+@if (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)
+{
+    <div class="apps-header">
+        <div class="apps-header-top">
+            <strong class="apps-logo">
+                <img src="~/@Settings.CompanySettings.LogoUrl" style="max-height: 30px;" />
+            </strong>
+            <div class="apps-header-actions">
+                <a href="~/password/change" class="btn btn-header">
+                    Настроить второй фактор
+                </a>
+                <a href="~/password/change" class="btn btn-header">
+                    Сменить пароль
+                </a>
+            </div>
+            <div class="apps-header-user">
+                <div class="user-avatar">
+                    <span class="avatar-letter">@(Model?.Profile?.Name?[0] ?? Model?.Profile?.Identity?[0] ?? 'A')</span>
                 </div>
+                <span class="user-name">@(Model?.Profile?.Name ?? Model?.Profile?.Identity)</span>
+                <a href="~/account/logout" class="btn-exit">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 17H19V5H15M11 17V15M11 13V11M11 9V3M7 21H17C18.1 21 19 20.1 19 19V5C19 3.9 18.1 3 17 3H7C5.9 3 5 3.9 5 5V19C5 20.1 5.9 21 7 21Z" 
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>   
+<div class="apps-container">
+    <div class="apps-content">
+        <div class="apps-title-section">
+            <h2 class="apps-title">Доступные приложения</h2>
+        </div>
+
+        <div class="apps-grid">
+            @if (Model?.ShowcaseLinks != null && Model.ShowcaseLinks.Count > 0)
+            {
+                @foreach (var app in Model.ShowcaseLinks)
+                {
+                    <a href="@app.Url" class="app-card" @(app.OpenInNewTab ? "target=_blank" : "")>
+                        <div class="app-card-image">
+                            <img src="~/@(string.IsNullOrWhiteSpace(app.Image) ? "content/images/ssoResource.svg" : $"content/images/showcase/{app.Image}")" alt="@app.Title"  />
+                        </div>
+                        <div class="app-card-title">
+                            @app.Title
+                        </div>
+                    </a>
+                }
             }
+        </div>
+    </div>
+</div>
+} else
+{
+<div class="login">
+    <div class="form-column">
+        <div class="auth-details">
             <div class="success-mark"></div>
             <h2 class="success-title">@Localizer["Title"]</h2>
             <div class="auth-username">
@@ -43,3 +81,4 @@
         </ul>
     </div>
 </div>
+}
