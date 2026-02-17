@@ -27,7 +27,7 @@
 <body>
     <div id="wrapper">
         <div class="background-layout">
-            <main id="main" class="@((ViewBag?.Login ?? false) ? "content-center" : "")">
+            <main id="main" class="@(((ViewBag.Home ?? false) && (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)) ? "" : "content-center")">
                 @RenderBody()
             </main>
             <footer id="footer">

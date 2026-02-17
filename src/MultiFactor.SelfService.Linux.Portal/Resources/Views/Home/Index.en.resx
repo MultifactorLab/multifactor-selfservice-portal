@@ -130,7 +130,7 @@
     <value>Logged in as</value>
   </data>
   <data name="Greetings" xml:space="preserve">
-    <value>Hello</value>
+    <value>Hello,</value>
   </data>
   <data name="ManageActiveSyncDevices" xml:space="preserve">
     <value>Manage ActiveSync devices</value>

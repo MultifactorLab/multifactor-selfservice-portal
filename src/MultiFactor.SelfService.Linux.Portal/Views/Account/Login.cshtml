@@ -1,7 +1,6 @@
 ﻿@using MultiFactor.SelfService.Linux.Portal.Core
 @{
     var isCaptchaEnabled = Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaRequired.Always);
-    ViewBag.Login = true;
 }
 
 @model MultiFactor.SelfService.Linux.Portal.ViewModels.LoginViewModel

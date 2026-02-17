@@ -393,7 +393,6 @@ h2 {
 }
 
 .login .form-column .auth-details h2 {
-    line-height: 31.2px;
     text-align: center;
 }
 
@@ -467,7 +466,7 @@ p {
 .login .form-column {
     display: flex;
     flex-direction: column;
-    padding: 32px;
+    padding: 48px;
     width: 440px;
     border: 1px solid rgba(87, 154, 215, 0.2);
     background: #ECF5FB;
@@ -552,8 +551,8 @@ p {
     display: flex;
     flex-direction: column;
     text-align: center;
+    align-items: center;
     margin-bottom: 16px;
-    margin-top: 10px;
 }
 
 .login .form-column .auth-details .showcase {
@@ -582,6 +581,7 @@ p {
 
 .login .form-column .auth-details .auth-username p {
     margin: 0;
+    line-height: 145%;
 }
 
 .login .form-column .auth-details .auth-username .user-login {
@@ -1038,6 +1038,18 @@ a.active .btn:hover {
     flex-shrink: 0;
 }
 
+.user-avatar-no-sso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 40.5px;
+    background: linear-gradient(76deg, #579AD7 0%, #75B8F5 100%);
+    flex-shrink: 0;
+    margin-bottom: 16px;
+}
+
 .avatar-letter {
     font-family: 'Inter', sans-serif;
     font-size: 16px;
@@ -1097,14 +1109,12 @@ a.active .btn:hover {
 }
 
 .apps-title {
-    font-family: 'Inter', sans-serif;
     font-size: 30px;
     font-weight: 600;
     line-height: 1.2;
     text-align: center;
     color: #1d1e21;
     margin: 0;
-    letter-spacing: -1px;
 }
 
 .apps-grid {
@@ -1190,11 +1200,10 @@ a.active .btn:hover {
     }
 
     .apps-content {
-        padding: 0 60px 40px;
+
     }
 
     .apps-grid {
-        padding: 40px;
     }
 
     .apps-header-top {
