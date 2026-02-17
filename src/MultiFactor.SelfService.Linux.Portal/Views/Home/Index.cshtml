@@ -5,15 +5,14 @@
     <div class="apps-header">
         <div class="apps-header-top">
             <strong class="apps-logo">
-                <img src="~/@Settings.CompanySettings.LogoUrl" style="max-height: 30px;" />
+                <img src="~/@Settings.CompanySettings.LogoUrl" />
             </strong>
             <div class="apps-header-actions">
-                <a href="~/password/change" class="btn btn-header">
-                    Настроить второй фактор
-                </a>
-                <a href="~/password/change" class="btn btn-header">
-                    Сменить пароль
-                </a>
+                @Html.ActionLink(Localizer["Configure2FA"].Value, "Index", "Configure2Fa", new { }, new { target = "_blank", @class = "btn-header" })
+                @if (Model.Profile.EnablePasswordManagement)
+                {
+                    <a href="~/password/change" class="btn-header">@Localizer["ChangePassword"]</a>
+                }
             </div>
             <div class="apps-header-user">
                 <div class="user-avatar">

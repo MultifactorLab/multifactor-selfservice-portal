@@ -346,6 +346,14 @@ body {
     padding: 0;
 }
 
+.bg {
+    background-attachment: fixed;
+    min-block-size: 100dvh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 img {
     border-style: none;
     vertical-align: top;
@@ -415,7 +423,6 @@ p {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-content: center;
     max-inline-size: 100%;
 }
@@ -610,7 +617,6 @@ p {
     display: flex;
     flex-direction: column;
     border-radius: 24px;
-    margin: 32px;
     flex: 1;
 }
 
@@ -952,7 +958,7 @@ a.active .btn:hover {
     position: relative;
     width: 100%;
     max-width: 1180px;
-    min-height: 100vh;
+    height: 604px;
     display: flex;
     flex-direction: column;
     align-self: center;
@@ -985,7 +991,6 @@ a.active .btn:hover {
 }
 
 .apps-logo img {
-    max-height: 30px;
     width: auto;
 }
 
@@ -996,27 +1001,23 @@ a.active .btn:hover {
 }
 
 .btn-header {
-    border: 1px solid black;
-    border-radius: 4px;
     padding: 8px 12px;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
-    font-weight: 400;
+    letter-spacing: 1px;
+    font-weight: 700;
     line-height: 1.2;
     text-decoration: none;
-    color: black;
+    color: white !important;
     background: transparent;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s ease;
+    text-transform: uppercase;
 }
 
 .btn-header:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-.btn-header:active {
-    background-color: rgba(0, 0, 0, 0.1);
+    text-decoration: underline;
+    text-underline-offset: 10px;
 }
 
 .apps-header-user {
@@ -1085,7 +1086,7 @@ a.active .btn:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 130px 60px;
+    padding: 0 35px;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 20px;
 }
@@ -1111,9 +1112,25 @@ a.active .btn:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
-    padding: 0 54px 54px 54px;
+    padding-bottom: 54px;
     border-radius: 20px;
     box-sizing: border-box;
+}
+
+.apps-grid:not(:has(:nth-child(5))) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.apps-grid:not(:has(:nth-child(5))) .app-card {
+    width: 200px;
+    margin: 0 10px;
+}
+
+.apps-grid:not(:has(:nth-child(3))) .app-card {
+    width: 344px;
+    margin: 0 10px;
 }
 
 .app-card {
