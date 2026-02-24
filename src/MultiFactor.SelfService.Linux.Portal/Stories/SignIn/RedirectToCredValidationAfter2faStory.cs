@@ -61,10 +61,13 @@ public class RedirectToCredValidationAfter2FaStory
         {
             var response = await _idpApi.LoginCompletedAsync(request, _contextAccessor.HttpContext.GetRequiredHeaders());
             
-            var username = response.RawUserName ?? response.Identity;
+            var username = !string.IsNullOrWhiteSpace(response.RawUserName)
+                ? response.RawUserName 
+                : response.Identity;
+            
             if (string.IsNullOrEmpty(username))
             {
-                _logger.LogError("Cannot determine username from token");
+                _logger.LogError("Can't determine username from token");
                 return new RedirectToActionResult("Login", "Account", null);
             }
             
