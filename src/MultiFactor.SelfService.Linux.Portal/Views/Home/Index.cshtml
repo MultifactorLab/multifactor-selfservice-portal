@@ -16,6 +16,10 @@
                 {
                     <a href="~/password/change" class="btn-header">@Localizer["ChangePassword"]</a>
                 }
+                @if (Model.Profile.EnableExchangeActiveSyncDevicesManagement)
+                {
+                    <a href="~/ExchangeActiveSyncDevices" class="btn-header">@Localizer["ManageActiveSyncDevices"]</a>
+                }
             </div>
             <div class="apps-header-user">
                 <div class="user-avatar">
