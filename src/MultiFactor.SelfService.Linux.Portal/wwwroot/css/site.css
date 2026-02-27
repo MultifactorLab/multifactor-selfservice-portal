@@ -455,22 +455,71 @@ p {
 }
 
 .login {
+    /* legacy login container (unused for new design) */
     max-width: 1023px;
     padding: 15px;
     margin: 0 auto;
     display: flex;
     align-items: stretch;
-    flex-direction: row;
+    flex-direction: column;
 }
+
+
+/* separate header plate above the login form: refined glass with accurate transparency */
+.login-header-plate {
+    width: 440px;
+    margin: 0 auto;
+    height: 122px;
+    display: flex;
+    align-items: center; /* vertical centering of children */
+    gap: 32px; /* space between logo and title */
+    padding: 0 32px;
+    /* lighter opacity for a more realistic glass look */
+    background: rgba(255,255,255,0.15);
+    /* slightly stronger blur to diffuse background more */
+    backdrop-filter: blur(2.4px);
+    -webkit-backdrop-filter: blur(2.4px);
+    border-radius: 20px 20px 0 0;
+    box-sizing: border-box;
+    /* border only top and sides, softer color */
+    border-top: 1px solid rgba(255,255,255,0.8);
+    border-left: 1px solid rgba(255,255,255,0.8);
+    border-right: 1px solid rgba(255,255,255,0.8);
+    border-bottom: none;
+    /* subtle drop shadow to lift from background */
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    margin-bottom: 0;
+    padding-bottom: 18px;
+    position: relative;
+}
+
+.login-header-logo {
+    height: 40px;
+    width: auto;
+}
+
+.login-header-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: #ffffff;
+}
+
 
 .login .form-column {
     display: flex;
     flex-direction: column;
     padding: 48px;
     width: 440px;
-    border: 1px solid rgba(87, 154, 215, 0.2);
+    margin-top: -18px;
+    z-index: 999;
+    /* hide the top border so upper plate's border appears continuous */
+    border-left: 1px solid rgba(87, 154, 215, 0.2);
+    border-right: 1px solid rgba(87, 154, 215, 0.2);
+    border-bottom: 1px solid rgba(87, 154, 215, 0.2);
+    border-top: none;
     background: #ECF5FB;
-    border-radius: 12px;
+    border-radius: 20px;
 }
 
 .login .form-column .success-mark {
@@ -502,27 +551,30 @@ p {
     border: none;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-secondary:hover {
     background: #75b8f5;
 }
 
 .btn-secondary {
     background: transparent !important;
-    color: #579ad7 !important;
+    color: #579AD7;
     flex-direction: column;
     align-items: center;
     display: flex;
-    border: 1px solid #4589c7 !important;
-    height: 50px;
+    border-radius: 4px;
+    border: 1.5px solid #579AD7;
+    height: 56px;
     line-height: 46px;
     font-weight: bold;
     font-size: 16px;
     text-decoration: none;
+    gap: 10px;
 }
 
 .btn-secondary:focus, .btn-secondary:hover {
-    color: #fff !important;
-    background: #579ad7 !important;
+    color: #fff;
+    background: linear-gradient(90deg,#579ad7,#75b8f5) !important;
 }
 
 .w-100 {
@@ -540,6 +592,17 @@ p {
 
 .pt-4 {
     padding-top: 1.25em;
+}
+
+.pt-8 {
+    padding-top: 2em;
+}
+
+.forgot {
+    color: #99ABC9;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 135%;
 }
 
 .bottom-field-link-r {
@@ -601,7 +664,7 @@ p {
 .login .input input[type=password],
 .login .input input[type=text] {
     background: #FFFFFF;
-    border: 1px solid #A3A9B2;
+    border: 1px solid #E2ECFF;
     box-sizing: border-box;
     border-radius: 4px;
     height: 56px;
@@ -626,10 +689,6 @@ p {
     background: url(../images/stage.svg) center center no-repeat;
 }
 
-.login h2 {
-    text-align: left;
-}
-
 .input {
     margin-bottom: 14px;
 }
@@ -645,7 +704,8 @@ p {
 .input input[type=password],
 .input input[type=text] {
     background: #FFFFFF;
-    border: 1px solid #A3A9B2;
+    color: #E2ECFF;
+    border: 1px solid #E2ECFF;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     border-radius: 4px;

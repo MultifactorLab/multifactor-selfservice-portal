@@ -16,17 +16,14 @@
         {
             <fieldset>
                 @Html.AntiForgeryToken()
-                <p>@Localizer["Invitation"]</p>
                 <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
                     <div class="input">
-                        <span>@Localizer["UserName"]</span>
                         @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
                             : Localizer.GetString("UserName") })
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input">
-                        <span>@Localizer["Password"]</span>
                         @Html.PasswordFor(m => m.Password, new { placeholder = Localizer.GetString("Password"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
@@ -37,18 +34,18 @@
                             @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaRequired.Always })
                         </div>
                     }
-                    @if (Settings.PasswordManagement.AllowPasswordRecovery)
-                    {
-                        <div class="bottom-field-link-r pb-4">
-                            <a href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>
-                        </div>
-                    }
                 </div>
 
-                <div class="form-row">
+                <div>
                     <input type="hidden" name="myUrl" id="myUrl" />
                     <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" id="submit" />
                 </div>
+                @if (Settings.PasswordManagement.AllowPasswordRecovery)
+                {
+                <div class="d-flex content-center pt-8">
+                    <a class="forgot" href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>
+                </div>
+                }
             </fieldset>
         }
     </div>

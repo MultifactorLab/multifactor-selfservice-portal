@@ -57,35 +57,41 @@
 </div>
 } else
 {
-<div class="login">
-    <div class="form-column">
-        <div class="auth-details">
-            <div class="user-avatar-no-sso">
-                <span class="avatar-letter">@(Model?.Profile?.Name?[0] ?? Model?.Profile?.Identity?[0])</span>
-            </div>
-            <div class="auth-username">
-                <p>@Localizer["Greetings"]</p>
-                <h2 class="user-login">@(Model.Profile.Name ?? Model.Profile.Identity)</h2>
-            </div>
+    <div class="login">
+        <!-- glass header plate inside login container -->
+        <div class="login-header-plate">
+            <img src="~/@Settings.CompanySettings.LogoUrl" alt="logo" class="login-header-logo" />
+            <span class="login-header-title">Портал самообслуживания</span>
         </div>
-        <ul class="action">
-            <li><a target ="_blank" href="~/Configure2Fa">
-                <input type="button" class="w-100 btn-primary" value="@Localizer["Configure2FA"]" /></a>
+        <div class="form-column">
+            <div class="auth-details">
+                <div class="user-avatar-no-sso">
+                    <span class="avatar-letter">@(Model?.Profile?.Name?[0] ?? Model?.Profile?.Identity?[0])</span>
+                </div>
+                <div class="auth-username">
+                    <p>@Localizer["Greetings"]</p>
+                    <h2 class="user-login">@(Model.Profile.Name ?? Model.Profile.Identity)</h2>
+                </div>
+            </div>
+            <ul class="action">
+                <li><a target ="_blank" href="~/Configure2Fa">
+                    <input type="button" class="w-100 btn-primary" value="@Localizer["Configure2FA"]" /></a>
                 </li>
-            @if (Model.Profile.EnablePasswordManagement)
-            {
-                <li><a href="~/password/change">
-                    <input type="button" class="w-100 btn-primary" value="@Localizer["ChangePassword"]" />
-                </a></li>
-            }
-            @if (Model.Profile.EnableExchangeActiveSyncDevicesManagement)
-            {
-                <li><a href="~/ExchangeActiveSyncDevices">
-                    <input type="button" class="w-100 btn-primary" value="@Localizer["ManageActiveSyncDevices"]" />
-                </a></li>
-            }
-            <li><a href="~/account/logout" class="btn btn-secondary">@Localizer["Exit"]</a></li>
-        </ul>
+                @if (Model.Profile.EnablePasswordManagement)
+                {
+                    <li><a href="~/password/change">
+                        <input type="button" class="w-100 btn-primary" value="@Localizer["ChangePassword"]" />
+                    </a></li>
+                }
+                @if (Model.Profile.EnableExchangeActiveSyncDevicesManagement)
+                {
+                    <li><a href="~/ExchangeActiveSyncDevices">
+                        <input type="button" class="w-100 btn-primary" value="@Localizer["ManageActiveSyncDevices"]" />
+                    </a></li>
+                }
+                <li><a href="~/account/logout" class="btn btn-secondary">@Localizer["Exit"]</a></li>
+            </ul>
+        </div>
     </div>
-</div>
+
 }
