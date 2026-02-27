@@ -1198,14 +1198,26 @@ a.active .btn:hover {
     justify-content: center;
 }
 
-.apps-grid:not(:has(:nth-child(5))) .app-card {
-    width: 200px;
-    margin: 0 10px;
+.apps-grid:has(:nth-child(5)) {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding-bottom: 54px;
+    border-radius: 20px;
+    box-sizing: border-box;
 }
 
-.apps-grid:not(:has(:nth-child(3))) .app-card {
-    width: 344px;
-    margin: 0 10px;
+.apps-grid:has(:nth-child(2)):not(:has(:nth-child(5))) .app-card {
+    width: 420px;
+}
+
+.apps-grid:has(:nth-child(3)):not(:has(:nth-child(5))) .app-card {
+    width: 355px;
+}
+
+.apps-grid:has(:nth-child(4)):not(:has(:nth-child(5))) .app-card {
+    width: 260px;
 }
 
 .app-card {
