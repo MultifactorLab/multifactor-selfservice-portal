@@ -891,14 +891,19 @@ a.active .btn:hover {
     }
 }
 
-@media screen and (max-width: 535px) {
-    .login .form-column {
+@media screen and (max-width: 500px) {
+    .login .form-column,
+    .login-header-plate {
         width: 400px;
         max-width: 100%;
     }
 
     .success-title {
         width: 12.5em;
+    }
+    
+    .login-header-title {
+        font-size: 16px;
     }
 }
 

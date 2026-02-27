@@ -138,4 +138,7 @@
   <data name="Configure2FA" xml:space="preserve">
     <value>Configure 2FA</value>
   </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Self-Service Portal</value>
+  </data>
 </root>
