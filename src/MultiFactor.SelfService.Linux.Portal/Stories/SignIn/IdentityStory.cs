@@ -8,6 +8,7 @@ using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
@@ -18,6 +19,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 
 public class IdentityStory
 {
+    private readonly IMultiFactorApi _multifactorApiClient;
     private readonly IMultifactorIdpApi _idpApiClient;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
@@ -27,6 +29,7 @@ public class IdentityStory
     private readonly CredentialVerifier _credentialVerifier;
 
     public IdentityStory(
+        IMultiFactorApi multifactorApiClient,
         IMultifactorIdpApi idpApiClient,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
@@ -35,6 +38,7 @@ public class IdentityStory
         ClaimsProvider claimsProvider,
         CredentialVerifier credentialVerifier)
     {
+        _multifactorApiClient = multifactorApiClient;
         _idpApiClient = idpApiClient;
         _contextAccessor = contextAccessor;
         _settings = settings;
@@ -83,7 +87,24 @@ public class IdentityStory
             _logger.LogInformation("User '{User}' membership verified successfully", username);
             verifiedMembership = MapToVerifiedMembershipDto(membershipResult);
         }
-        
+
+        var authenticators = await _multifactorApiClient.GetUserAuthenticatorsAsync(username);
+        if (!authenticators.GetAuthenticators().Any())
+        {
+            return new ViewResult
+            {
+                ViewName = "Login",
+                ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                {
+                    Model = new LoginViewModel()
+                    {
+                        UserName = username
+                    }
+                    
+                }
+            };
+        }
+
         var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
@@ -98,7 +119,7 @@ public class IdentityStory
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
             Settings = BuildSspSettings()
         };
-        
+
         var response = await _idpApiClient.IdentityAsync(request, headers);
         
         return HandleIdentityResponse(response, model);

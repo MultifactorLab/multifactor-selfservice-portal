@@ -121,6 +121,27 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         }
 
         /// <summary>
+        /// Returns user profile.
+        /// </summary>
+        /// <exception cref="UnsuccessfulResponseException"></exception>
+        public async Task<UserAuthenticatorsDto> GetUserAuthenticatorsAsync(string identity)
+        {
+            var payload = new
+            {
+                Identity = identity
+            };
+
+            var response = await ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<UserProfileAuthenticatorsApiDto>>("self-service/user-authenticators", payload, GetBasicAuthHeaders()));
+            return new UserAuthenticatorsDto()
+            {
+                TotpAuthenticators = response.TotpAuthenticators,
+                TelegramAuthenticators = response.TelegramAuthenticators,
+                MobileAppAuthenticators = response.MobileAppAuthenticators,
+                PhoneAuthenticators = response.PhoneAuthenticators
+            };
+        }
+
+        /// <summary>
         /// Returns new access token.
         /// </summary>
         /// <param name="username"></param>
