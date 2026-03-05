@@ -206,20 +206,4 @@ public class IdentityStory
     {
         return username.Contains('@');
     }
-
-    private string ResolveIdentityFromMembership(CredentialVerificationResult result, string fallbackUsername)
-    {
-        if (_settings.ActiveDirectorySettings.UseUpnAsIdentity &&
-            !string.IsNullOrWhiteSpace(result.UserPrincipalName))
-        {
-            return result.UserPrincipalName;
-        }
-
-        if (!string.IsNullOrWhiteSpace(result.CustomIdentity))
-        {
-            return result.CustomIdentity;
-        }
-
-        return fallbackUsername;
-    }
 }
