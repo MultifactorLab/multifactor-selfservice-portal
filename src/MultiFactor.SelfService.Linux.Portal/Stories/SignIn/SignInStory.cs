@@ -82,7 +82,8 @@ public class SignInStory
         
         _logger.LogDebug("Verifying credentials locally for user '{User}'", username);
         var credentialResult = await _credentialVerifier.VerifyCredentialAsync(username, password);
-        
+        username = credentialResult.Username;
+
         if (!credentialResult.IsAuthenticated && !credentialResult.UserMustChangePassword)
         {
             _logger.LogWarning("Credential verification failed for user '{User}': {Reason}", username, credentialResult.Reason);

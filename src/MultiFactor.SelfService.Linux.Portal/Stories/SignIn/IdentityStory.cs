@@ -52,7 +52,7 @@ public class IdentityStory
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(headers);
-        
+
         var username = model.UserName.Trim();
 
         // Validate username format if UPN is required
@@ -70,14 +70,15 @@ public class IdentityStory
             _logger.LogWarning("Attempt to use identity as technical account user '{User}'", username);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-        
+
         VerifiedMembershipDto verifiedMembership = null;
         // Verify membership locally if prebind info is needed
         if (_settings.NeedPrebindInfo())
         {
             _logger.LogDebug("Verifying membership locally for user '{User}'", username);
             var membershipResult = await _credentialVerifier.VerifyMembership(username);
-            
+            username = membershipResult.Username;
+
             if (!membershipResult.IsAuthenticated)
             {
                 _logger.LogWarning("Membership verification failed for user '{User}': {Reason}", username, membershipResult.Reason);
@@ -100,7 +101,7 @@ public class IdentityStory
                     {
                         UserName = username
                     }
-                    
+
                 }
             };
         }
@@ -108,7 +109,7 @@ public class IdentityStory
         var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
-        
+
         var request = new IdentityRequestDto
         {
             Username = username,
@@ -121,7 +122,7 @@ public class IdentityStory
         };
 
         var response = await _idpApiClient.IdentityAsync(request, headers);
-        
+
         return HandleIdentityResponse(response, model);
     }
 
@@ -146,13 +147,13 @@ public class IdentityStory
             _logger.LogDebug("Identity verification failed: {Error}", response.ErrorMessage);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-        
+
         if (response.Action == IdentityAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             _logger.LogDebug("Redirecting user '{User}' to MFA page", model.UserName);
             return new RedirectResult(response.RedirectUrl, true);
         }
-        
+
         if (response.Action == IdentityAction.ShowAuthn)
         {
             var identity = response.Username ?? model.UserName;
@@ -173,13 +174,13 @@ public class IdentityStory
                 }
             };
         }
-        
+
         if (response.Action == IdentityAction.AccessDenied)
         {
             _logger.LogWarning("Access denied for user '{User}'", model.UserName);
             return new RedirectToActionResult("AccessDenied", "Error", null);
         }
-        
+
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             return new RedirectResult(response.RedirectUrl, true);
@@ -204,5 +205,21 @@ public class IdentityStory
     private static bool IsUserPrincipalName(string username)
     {
         return username.Contains('@');
+    }
+
+    private string ResolveIdentityFromMembership(CredentialVerificationResult result, string fallbackUsername)
+    {
+        if (_settings.ActiveDirectorySettings.UseUpnAsIdentity &&
+            !string.IsNullOrWhiteSpace(result.UserPrincipalName))
+        {
+            return result.UserPrincipalName;
+        }
+
+        if (!string.IsNullOrWhiteSpace(result.CustomIdentity))
+        {
+            return result.CustomIdentity;
+        }
+
+        return fallbackUsername;
     }
 }

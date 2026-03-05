@@ -137,7 +137,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     resultBuilder.SetCustomIdentity(profile.CustomIdentity);
                 }
 
-                resultBuilder.SetUsername(username);
+                resultBuilder.SetUsername(profile.CustomIdentity ?? username);
 
                 var result = resultBuilder.Build();
                 _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
@@ -272,7 +272,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 resultBuilder.SetCustomIdentity(profile.CustomIdentity);
             }
 
-            resultBuilder.SetUsername(username);
+            resultBuilder.SetUsername(profile.CustomIdentity ?? username);
 
             var result = resultBuilder.Build();
             _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
