@@ -82,7 +82,6 @@ public class SignInStory
         
         _logger.LogDebug("Verifying credentials locally for user '{User}'", username);
         var credentialResult = await _credentialVerifier.VerifyCredentialAsync(username, password);
-        username = credentialResult.Username;
 
         if (!credentialResult.IsAuthenticated && !credentialResult.UserMustChangePassword)
         {
@@ -136,6 +135,13 @@ public class SignInStory
         
         if (response.Action == LoginAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
+            if (_settings.PreAuthenticationMethod)
+            {
+                _applicationCache.SetPreauthenticationAuthn(
+                    ApplicationCacheKeyFactory.CreatePreAuthenticationAuthnSucceedKey(adValidationResult.Username),
+                    true);
+            }
+
             _logger.LogDebug("Redirecting user to MFA page");
             return new RedirectResult(response.RedirectUrl, true);
         }

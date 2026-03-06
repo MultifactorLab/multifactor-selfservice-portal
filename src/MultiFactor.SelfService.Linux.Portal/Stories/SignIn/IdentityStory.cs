@@ -72,12 +72,13 @@ public class IdentityStory
         }
 
         VerifiedMembershipDto verifiedMembership = null;
+        var verifiedUsername = default(string);
         // Verify membership locally if prebind info is needed
         if (_settings.NeedPrebindInfo())
         {
             _logger.LogDebug("Verifying membership locally for user '{User}'", username);
             var membershipResult = await _credentialVerifier.VerifyMembership(username);
-            username = membershipResult.Username;
+            verifiedUsername = membershipResult.Username;
 
             if (!membershipResult.IsAuthenticated)
             {
@@ -112,7 +113,7 @@ public class IdentityStory
 
         var request = new IdentityRequestDto
         {
-            Username = username,
+            Username = verifiedUsername,
             VerifiedMembership = verifiedMembership,
             SamlSessionId = sso.SamlSessionId,
             OidcSessionId = sso.OidcSessionId,

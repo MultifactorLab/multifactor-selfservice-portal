@@ -45,7 +45,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
                 ? new CachedItem<IdentityViewModel>(value) 
                 : CachedItem<IdentityViewModel>.Empty;
         }
-        
+
+        public void SetPreauthenticationAuthn(string key, bool value)
+        {
+            var options = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(_config.PreauthenticationAuthnExpiration)
+                .SetSize(1);
+            _cache.Set(key, value, options);
+        }
+
+        public CachedItem<bool> GetPreauthenticationAuthn(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return new CachedItem<bool>(false);
+            return _cache.TryGetValue(key, out bool value)
+                ? new CachedItem<bool>(value)
+                : new CachedItem<bool>(false);
+        }
+
         public void Remove(string key)
         {
             _cache.Remove(key);
