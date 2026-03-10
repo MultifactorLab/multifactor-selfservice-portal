@@ -57,10 +57,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
         public CachedItem<bool> GetPreauthenticationAuthn(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
-                return new CachedItem<bool>(false);
+                return CachedItem<bool>.Empty;
             return _cache.TryGetValue(key, out bool value)
                 ? new CachedItem<bool>(value)
-                : new CachedItem<bool>(false);
+                : CachedItem<bool>.Empty;
         }
 
         public void Remove(string key)
