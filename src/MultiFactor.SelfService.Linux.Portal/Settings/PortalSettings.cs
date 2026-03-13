@@ -22,6 +22,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public string UICulture { get; private set; } = string.Empty;
         public string LdapBaseDn { get; private set; } = string.Empty;
         public bool PreAuthenticationMethod { get; private set; }
+        public KerberosSettings KerberosSettings { get; set; } = new();
 
         public PortalSettings(){}
 

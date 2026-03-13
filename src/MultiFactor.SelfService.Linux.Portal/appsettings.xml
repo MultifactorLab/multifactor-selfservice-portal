@@ -126,5 +126,11 @@
 		<!-- FreeIPA support -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
         <PreAuthenticationMethod>false</PreAuthenticationMethod>
+        
+        <!-- Kerberos (Negotiate) silent authentication -->
+        <!-- When enabled, users in the Intranet zone will be authenticated automatically via Kerberos -->
+        <!-- Requires IIS Windows Authentication with Negotiate provider (NTLM must be disabled) -->
+        <!-- On Linux: requires configured keytab (KRB5_KTNAME environment variable) -->
+        <KerberosSettings enabled="false" />
 	</PortalSettings>
 </configuration>
