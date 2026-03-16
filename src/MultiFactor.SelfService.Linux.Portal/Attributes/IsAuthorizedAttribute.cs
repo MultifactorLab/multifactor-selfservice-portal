@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
+using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
 
 namespace MultiFactor.SelfService.Linux.Portal.Attributes
 {
@@ -21,13 +21,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            
             var tokenVerifier = context.HttpContext.RequestServices.GetRequiredService<TokenVerifier>();
             var cookie = context.HttpContext.Request.Cookies[Constants.COOKIE_NAME];
             if (cookie is null)
             {
-                var signOutStory = context.HttpContext.RequestServices.GetRequiredService<SignOutStory>();
-                context.Result = signOutStory.Execute();
+                context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                {
+                    { "action", "Auth" },
+                    { "controller", "Account" }
+                });
+                
                 return;
             }
             var tokenClaims = tokenVerifier.Verify(cookie);

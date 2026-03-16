@@ -39,8 +39,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             _logger = logger;
         }
 
+        [HttpGet("account")]
         [ConsumeSsoClaims]
-        public async Task<IActionResult> Login([FromServices] LoadIdpProfileStory loadProfile)
+        public async Task<IActionResult> Auth([FromServices] LoadIdpProfileStory loadProfile)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
@@ -67,21 +68,23 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 {
                     return RedirectToAction("Identity", sso);
                 }
-                
+
                 if (ShouldAttemptKerberos())
                 {
-                    _logger.LogInformation($"Start negotiate request");
-                    
-                    SetKerberosAttemptedCookie();
-                    
-                    _logger.LogInformation($"kerberos cookie set");
                     return RedirectToAction("NegotiateLogin", sso);
                 }
 
-                return View(new LoginViewModel());
+                return RedirectToAction("Login");
             }
         }
-        
+
+        [HttpGet("account/login")]
+        public IActionResult Login()
+        {
+            return View(new LoginViewModel());
+        }
+
+        [HttpGet("account/kerberos")]
         [ConsumeSsoClaims]
         public async Task<IActionResult> NegotiateLogin(
             [FromServices] KerberosSignInStory kerberosSignIn)
@@ -118,14 +121,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Negotiate protocol error, falling back to login form");
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login");
             }
 
             if (!authResult.Succeeded || authResult.Principal == null)
             {
                 _logger.LogWarning("Kerberos authentication failed: {Failure}",
                     authResult.Failure?.Message ?? "unknown");
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Login");
             }
             
             _logger.LogInformation("Kerberos authentication succeeded for {User}",
@@ -151,7 +154,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 postbackUrl);
         }
 
-        [HttpPost]
+        [HttpPost("account/login")]
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
@@ -181,6 +184,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <param name="sso">Model for sso integration. Can be empty.</param>
         /// <param name="requestId">State for continuation user verification.</param>
         /// <returns></returns>
+        [HttpGet("account/identity")]
         [ConsumeSsoClaims]
         public async Task<ActionResult> Identity(string requestId, [FromServices] LoadIdpProfileStory loadProfile)
         {
@@ -217,7 +221,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("account/identity")]
         [VerifyCaptcha]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
@@ -240,7 +244,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("account/authn")]
         [ConsumeSsoClaims]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Authn(IdentityViewModel model, [FromServices] AuthnStory authnStoryHandler)
@@ -265,12 +269,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 return View(model);
             }
         }
-
+        
         [ConsumeSsoClaims]
         public async Task<IActionResult> Logout([FromServices] SignOutStory signOut)
         {
             var headers = HttpContext.GetRequiredHeaders();
-            return await signOut.ExecuteAsync(headers);
+            await signOut.ExecuteAsync(headers);
+            return RedirectToAction("Login");
         }
 
         [HttpPost]
