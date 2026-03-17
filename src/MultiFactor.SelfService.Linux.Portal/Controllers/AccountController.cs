@@ -309,13 +309,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             [FromServices] AuthenticateSessionStory authenticateSession,
             [FromServices] RedirectToCredValidationAfter2FaStory redirectToCredValidationAfter2faStory)
         {
-            var authMethod = new JwtSecurityTokenHandler().ReadJwtToken(accessToken)
-                    .Claims.FirstOrDefault(c => c.Type == Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES)?.Value;
-            
-            if (_portalSettings.PreAuthenticationMethod 
-                && authMethod != Constants.AuthenticationClaims.KERBEROS_METHOD)
+            if (_portalSettings.PreAuthenticationMethod)
             {
-                return await redirectToCredValidationAfter2faStory.ExecuteAsync(accessToken);
+                var authMethod = new JwtSecurityTokenHandler().ReadJwtToken(accessToken)
+                    .Claims.FirstOrDefault(c => c.Type == Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES)?.Value;
+
+                if (authMethod != Constants.AuthenticationClaims.KERBEROS_METHOD)
+                {
+                    return await redirectToCredValidationAfter2faStory.ExecuteAsync(accessToken);
+                }
             }
 
             return await authenticateSession.Execute(accessToken);
@@ -349,17 +351,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 return RedirectToAction("AccessDenied", "Error");
             }
-            catch (UnauthorizedException ex)
+            catch (UnauthorizedException)
             {
-                if (_portalSettings.PreAuthenticationMethod)
-                {
-                    return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
-                }
-
-                return View(new LoginViewModel());
+                return _portalSettings.PreAuthenticationMethod
+                    ? RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims())
+                    : RedirectToAction("Login");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "SAML bypass failed for session '{Session}'", samlSession);
                 return RedirectToAction("AccessDenied", "Error");
             }
         }
@@ -385,17 +385,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 return RedirectToAction("AccessDenied", "Error");
             }
-            catch (UnauthorizedException ex)
+            catch (UnauthorizedException)
             {
-                if (_portalSettings.PreAuthenticationMethod)
-                {
-                    return RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims());
-                }
-
-                return View(new LoginViewModel());
+                return _portalSettings.PreAuthenticationMethod
+                    ? RedirectToAction("Identity", _safeHttpContextAccessor.SafeGetSsoClaims())
+                    : RedirectToAction("Login");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "OIDC bypass failed for session '{Session}'", oidcSession);
                 return RedirectToAction("AccessDenied", "Error");
             }
         }

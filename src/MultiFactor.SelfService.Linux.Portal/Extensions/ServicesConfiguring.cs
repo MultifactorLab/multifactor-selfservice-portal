@@ -62,7 +62,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<JsonDataSerializer>()
                 .AddSingleton<JsonPayloadLogger>()
                 .AddSingleton<DeviceAccessStateNameLocalizer>()
-                .AddSingleton<CredentialVerifier>()
+                .AddSingleton<ICredentialVerifier, CredentialVerifier>()
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()

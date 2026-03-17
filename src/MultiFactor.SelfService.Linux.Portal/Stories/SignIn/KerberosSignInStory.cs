@@ -18,14 +18,14 @@ public class KerberosSignInStory
     private readonly PortalSettings _settings;
     private readonly ILogger<KerberosSignInStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
 
     public KerberosSignInStory(
         IMultifactorIdpApi idpApiClient,
         PortalSettings settings,
         ILogger<KerberosSignInStory> logger,
         ClaimsProvider claimsProvider,
-        CredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
         _settings = settings;

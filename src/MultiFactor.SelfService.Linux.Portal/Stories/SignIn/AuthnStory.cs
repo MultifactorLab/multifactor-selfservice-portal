@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
@@ -16,7 +16,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 
 public class AuthnStory
 {
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
     private readonly DataProtection _dataProtection;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
@@ -25,7 +25,7 @@ public class AuthnStory
     private readonly IApplicationCache _applicationCache;
     private readonly AuthenticateSessionStory _authenticateSessionStory;
 
-    public AuthnStory(CredentialVerifier credentialVerifier,
+    public AuthnStory(ICredentialVerifier credentialVerifier,
         DataProtection dataProtection,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,

@@ -27,7 +27,7 @@ public class IdentityStory
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<IdentityStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
 
     public IdentityStory(
         IMultiFactorApi multifactorApiClient,
@@ -37,7 +37,7 @@ public class IdentityStory
         IStringLocalizer<SharedResource> localizer,
         ILogger<IdentityStory> logger,
         ClaimsProvider claimsProvider,
-        CredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier)
     {
         _multifactorApiClient = multifactorApiClient;
         _idpApiClient = idpApiClient;

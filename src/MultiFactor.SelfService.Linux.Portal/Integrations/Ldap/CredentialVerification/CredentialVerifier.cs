@@ -1,4 +1,4 @@
-﻿using LdapForNet;
+using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
@@ -11,7 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
     /// <summary>
     /// First factor credentials verifier.
     /// </summary>
-    public class CredentialVerifier
+    public class CredentialVerifier : ICredentialVerifier
     {
         private readonly LdapConnectionAdapterFactory _connectionFactory;
         private readonly PortalSettings _settings;

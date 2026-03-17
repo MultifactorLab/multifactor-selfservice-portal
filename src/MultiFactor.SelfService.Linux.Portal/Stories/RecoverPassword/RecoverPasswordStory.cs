@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
@@ -15,7 +15,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPassword
         private readonly IMultiFactorApi _apiClient;
         private readonly PortalSettings _portalSettings;
         private readonly ForgottenPasswordChanger _passwordChanger;
-        private readonly CredentialVerifier _credentialVerifier;
+        private readonly ICredentialVerifier _credentialVerifier;
         private readonly ILogger<RecoverPasswordStory> _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
 
@@ -24,7 +24,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.RecoverPassword
             PortalSettings portalSettings,
             ForgottenPasswordChanger passwordChanger,
             ILogger<RecoverPasswordStory> logger,
-            IStringLocalizer<SharedResource> localizer, CredentialVerifier credentialVerifier)
+            IStringLocalizer<SharedResource> localizer, ICredentialVerifier credentialVerifier)
         {
             _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
             _portalSettings = portalSettings ?? throw new ArgumentNullException(nameof(portalSettings));

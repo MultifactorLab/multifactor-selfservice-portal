@@ -30,7 +30,7 @@ public class SignInStory
     private readonly ILogger<SignInStory> _logger;
     private readonly IApplicationCache _applicationCache;
     private readonly ClaimsProvider _claimsProvider;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
 
     public SignInStory(
         IMultifactorIdpApi idpApiClient,
@@ -42,7 +42,7 @@ public class SignInStory
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
         ClaimsProvider claimsProvider,
-        CredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
         _apiClient = apiClient;
