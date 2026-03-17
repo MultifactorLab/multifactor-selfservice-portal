@@ -5,6 +5,7 @@
         public const string COOKIE_NAME = "multifactor";
         public const string SESSION_EXPIRED_PASSWORD_USER_KEY = "multifactor:expired-password:user";
         public const string SESSION_EXPIRED_PASSWORD_CIPHER_KEY = "multifactor:expired-password:cipher";
+        public const string PREAUTHENTICATION_AUTHN_SUCCEED_KEY = "multifactor:preauthentication-authn-succesd:user";
         public const string TOKEN_VALIDATION = "TokenValidation:JsonWebKeySet";
         public const string ENVIRONMENT_KEY = "Environment";
         public const string PRODUCTION_ENV = "production";

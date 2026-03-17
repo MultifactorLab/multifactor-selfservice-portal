@@ -40,6 +40,11 @@
 			<ApiSecret>secret</ApiSecret>
 			<!--<ApiProxy>http://proxy:3128</ApiProxy>-->
 		</MultiFactorApiSettings>
+		
+		<MultifactorIdpApiSettings>
+			<!-- Multifactor IDP Address -->
+			<ApiUrl>https://idp.multifactor.ru</ApiUrl>
+		</MultifactorIdpApiSettings>
 
 		<CaptchaSettings enabled="false">
 			<!--Captcha provider: 'Google', 'Yandex'-->

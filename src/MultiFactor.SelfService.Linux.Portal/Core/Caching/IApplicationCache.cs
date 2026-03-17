@@ -11,5 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
         void Remove(string key);
         void SetSupportInfo(string key, SupportViewModel value);
         CachedItem<SupportViewModel> GetSupportInfo(string key);
+        void SetPreauthenticationAuthn(string key, bool value);
+        CachedItem<bool> GetPreauthenticationAuthn(string key);
     }
 }
