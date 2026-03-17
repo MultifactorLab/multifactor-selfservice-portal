@@ -55,7 +55,7 @@ public class KerberosSignInStory
             return new RedirectToActionResult("Login", "Account", null);
         }
 
-        _logger.LogInformation("Kerberos authentication succeeded for '{User}', verifying membership", username);
+        _logger.LogDebug("Kerberos authentication succeeded for '{User}', verifying membership", username);
 
         var credentialResult = await _credentialVerifier.VerifyMembership(username);
         if (!credentialResult.IsAuthenticated && !credentialResult.IsBypass && !credentialResult.UserMustChangePassword)
@@ -65,7 +65,7 @@ public class KerberosSignInStory
             return new RedirectToActionResult("Login", "Account", null);
         }
 
-        _logger.LogInformation("Kerberos user '{User}' membership verified successfully", username);
+        _logger.LogDebug("Kerberos user '{User}' membership verified successfully", username);
 
         var claims = new Dictionary<string, string>(_claimsProvider.GetClaims())
         {

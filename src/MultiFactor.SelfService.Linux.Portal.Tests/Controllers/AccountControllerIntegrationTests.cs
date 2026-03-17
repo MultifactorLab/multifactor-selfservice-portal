@@ -545,7 +545,7 @@ public class AccountControllerIntegrationTests : IDisposable
             .ReturnsAsync(new BypassSamlResponseDto { SamlResponseHtml = "<html>SAML Response</html>" });
 
         // Act: note — ByPassSamlSession uses conventional routing (/Account/ByPassSamlSession)
-        var response = await client.GetAsync("/account/bypasssamlsession?samlSession=test-session-id");
+        var response = await client.GetAsync("/account/bypasssaml?samlSession=test-session-id");
 
         // Assert
         Assert.True(response.StatusCode == HttpStatusCode.OK ||
@@ -570,7 +570,7 @@ public class AccountControllerIntegrationTests : IDisposable
             .ThrowsAsync(new UnauthorizedException());
 
         // Act
-        var response = await client.GetAsync("/account/bypasssamlsession?samlSession=test-session-id");
+        var response = await client.GetAsync("/account/bypasssaml?samlSession=test-session-id");
 
         // Assert
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
@@ -597,7 +597,7 @@ public class AccountControllerIntegrationTests : IDisposable
             .ReturnsAsync(new BypassOidcResponseDto { RedirectUrl = "https://oidc.example.com/callback" });
 
         // Act: ByPassOidcSession uses conventional routing (/Account/ByPassOidcSession)
-        var response = await client.GetAsync("/account/bypassoidcsession?oidcSession=test-session-id");
+        var response = await client.GetAsync("/account/bypassoidс?oidcSession=test-session-id");
 
         // Assert
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
@@ -626,7 +626,7 @@ public class AccountControllerIntegrationTests : IDisposable
             .ThrowsAsync(new UnauthorizedException());
 
         // Act
-        var response = await client.GetAsync("/account/bypassoidcsession?oidcSession=test-session-id");
+        var response = await client.GetAsync("/account/bypassoidc?oidcSession=test-session-id");
 
         // Assert
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
