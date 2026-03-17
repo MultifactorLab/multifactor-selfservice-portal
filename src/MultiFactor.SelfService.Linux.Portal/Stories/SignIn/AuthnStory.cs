@@ -24,7 +24,6 @@ public class AuthnStory
     private readonly ILogger<SignInStory> _logger;
     private readonly IApplicationCache _applicationCache;
     private readonly AuthenticateSessionStory _authenticateSessionStory;
-    private readonly IHttpClientFactory _httpFactory;
 
     public AuthnStory(CredentialVerifier credentialVerifier,
         DataProtection dataProtection,
@@ -33,8 +32,7 @@ public class AuthnStory
         IApplicationCache applicationCache,
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
-        AuthenticateSessionStory authenticateSessionStory,
-        IHttpClientFactory httpFactory)
+        AuthenticateSessionStory authenticateSessionStory)
     {
         _credentialVerifier = credentialVerifier;
         _dataProtection = dataProtection;
@@ -44,7 +42,6 @@ public class AuthnStory
         _logger = logger;
         _applicationCache = applicationCache;
         _authenticateSessionStory = authenticateSessionStory;
-        _httpFactory = httpFactory;
     }
 
     public async Task<IActionResult> ExecuteAsync(IdentityViewModel model)

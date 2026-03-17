@@ -105,8 +105,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                                 return Task.CompletedTask;
                             }
 
-                            logger.LogDebug(
-                                "Negotiate authentication succeeded, AuthenticationType: {AuthType}", authType);
+                            logger.LogDebug("Negotiate authentication succeeded, AuthenticationType: {AuthType}", authType);
+                            
                             return Task.CompletedTask;
                         },
 

@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +47,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
             {
-                var user = await loadProfile.ExecuteAsync();
+                await loadProfile.ExecuteAsync();
 
                 if (sso.HasSamlSession())
                 {
@@ -62,19 +63,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
-            catch (UnauthorizedException ex)
+            catch (UnauthorizedException)
             {
-                if (_portalSettings.PreAuthenticationMethod)
-                {
-                    return RedirectToAction("Identity", sso);
-                }
-
                 if (ShouldAttemptKerberos())
                 {
                     return RedirectToAction("NegotiateLogin", sso);
                 }
 
-                return RedirectToAction("Login");
+                return _portalSettings.PreAuthenticationMethod
+                    ? RedirectToAction("Identity", sso)
+                    : RedirectToAction("Login");
             }
         }
 
@@ -84,59 +82,84 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             return View(new LoginViewModel());
         }
 
-        [HttpGet("account/kerberos")]
+        [HttpGet("account/sso")]
         [ConsumeSsoClaims]
         public async Task<IActionResult> NegotiateLogin(
             [FromServices] KerberosSignInStory kerberosSignIn)
         {
+            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+
             if (!_portalSettings.KerberosSettings.Enabled)
             {
-                return RedirectToAction("Login");
+                return _portalSettings.PreAuthenticationMethod
+                    ? RedirectToAction("Identity", sso)
+                    : RedirectToAction("Login");
             }
 
             if (Request.Cookies.ContainsKey(Constants.COOKIE_NAME))
             {
                 _logger.LogInformation("Negotiate skipped - already authenticated");
                 ClearKerberosAttemptedCookie();
-                return RedirectToAction("Login");
-            }
-
-            var authorization = Request.Headers.Authorization.ToString();
-
-            var isNegotiate =
-                authorization.StartsWith("Negotiate ", StringComparison.OrdinalIgnoreCase);
-            
-            if (!isNegotiate)
-            {
-                _logger.LogInformation("Sending Kerberos challenge");
-                return Challenge(NegotiateDefaults.AuthenticationScheme);
+                
+                return _portalSettings.PreAuthenticationMethod
+                    ? RedirectToAction("Identity", sso)
+                    : RedirectToAction("Login");
             }
 
             AuthenticateResult authResult;
+            
             try
             {
-                authResult = await HttpContext.AuthenticateAsync(
-                    NegotiateDefaults.AuthenticationScheme);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Negotiate protocol error, falling back to login form");
-                return RedirectToAction("Login");
-            }
+                authResult = await HttpContext.AuthenticateAsync(NegotiateDefaults.AuthenticationScheme);
+                
+                if (authResult.None)
+                {
+                    if (Request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE))
+                    {
+                        _logger.LogInformation("Kerberos unavailable, fallback to login");
 
-            if (!authResult.Succeeded || authResult.Principal == null)
+                        return _portalSettings.PreAuthenticationMethod
+                            ? RedirectToAction("Identity", sso)
+                            : RedirectToAction("Login");
+                    }
+
+                    Response.Cookies.Append(
+                        Constants.KERBEROS_ATTEMPTED_COOKIE,
+                        "1",
+                        new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Expires = DateTimeOffset.UtcNow.AddMinutes(2)
+                        });
+                    
+                    return Challenge(NegotiateDefaults.AuthenticationScheme);
+                }
+            
+                if (!authResult.Succeeded || authResult.Principal == null)
+                {
+                    _logger.LogWarning(
+                        "Kerberos authentication failed: {Failure}",
+                        authResult.Failure?.Message ?? "unknown");
+
+                    return _portalSettings.PreAuthenticationMethod
+                        ? RedirectToAction("Identity", sso)
+                        : RedirectToAction("Login");
+                }
+            }
+            catch (Exception e)
             {
-                _logger.LogWarning("Kerberos authentication failed: {Failure}",
-                    authResult.Failure?.Message ?? "unknown");
-                return RedirectToAction("Login");
+                _logger.LogError(e,"Kerberos authentication failed");
+
+                return _portalSettings.PreAuthenticationMethod
+                    ? RedirectToAction("Identity", sso)
+                    : RedirectToAction("Login");
             }
             
             _logger.LogInformation("Kerberos authentication succeeded for {User}",
                 authResult.Principal.Identity?.Name);
 
             ClearKerberosAttemptedCookie();
-
-            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+            
             var headers = HttpContext.GetRequiredHeaders();
 
             headers.Remove("Authorization");
@@ -275,7 +298,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             var headers = HttpContext.GetRequiredHeaders();
             await signOut.ExecuteAsync(headers);
-            return RedirectToAction("Login");
+            
+            return _portalSettings.PreAuthenticationMethod
+                ? RedirectToAction("Identity")
+                : RedirectToAction("Login");
         }
 
         [HttpPost]
@@ -283,7 +309,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             [FromServices] AuthenticateSessionStory authenticateSession,
             [FromServices] RedirectToCredValidationAfter2FaStory redirectToCredValidationAfter2faStory)
         {
-            if (_portalSettings.PreAuthenticationMethod)
+            var authMethod = new JwtSecurityTokenHandler().ReadJwtToken(accessToken)
+                    .Claims.FirstOrDefault(c => c.Type == Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES)?.Value;
+            
+            if (_portalSettings.PreAuthenticationMethod 
+                && authMethod != Constants.AuthenticationClaims.KERBEROS_METHOD)
             {
                 return await redirectToCredValidationAfter2faStory.ExecuteAsync(accessToken);
             }
@@ -374,20 +404,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             return _portalSettings.KerberosSettings.Enabled
                    && !Request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE);
-        }
-
-        private void SetKerberosAttemptedCookie()
-        {
-            Response.Cookies.Append(
-            Constants.KERBEROS_ATTEMPTED_COOKIE, 
-            "1", 
-            new CookieOptions
-            {
-                MaxAge = TimeSpan.FromSeconds(60),
-                HttpOnly = true,
-                Secure = Request.IsHttps,
-                SameSite = SameSiteMode.Lax
-            });
         }
 
         private void ClearKerberosAttemptedCookie()

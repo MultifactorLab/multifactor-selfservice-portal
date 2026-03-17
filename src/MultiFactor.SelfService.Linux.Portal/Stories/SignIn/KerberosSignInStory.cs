@@ -1,12 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
-using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
-using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
@@ -17,29 +15,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 public class KerberosSignInStory
 {
     private readonly IMultifactorIdpApi _idpApiClient;
-    private readonly IMultiFactorApi _apiClient;
-    private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
-    private readonly IStringLocalizer _localizer;
     private readonly ILogger<KerberosSignInStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
     private readonly CredentialVerifier _credentialVerifier;
 
     public KerberosSignInStory(
         IMultifactorIdpApi idpApiClient,
-        IMultiFactorApi apiClient,
-        SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
-        IStringLocalizer<SharedResource> localizer,
         ILogger<KerberosSignInStory> logger,
         ClaimsProvider claimsProvider,
         CredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
-        _apiClient = apiClient;
-        _contextAccessor = contextAccessor;
         _settings = settings;
-        _localizer = localizer;
         _logger = logger;
         _claimsProvider = claimsProvider;
         _credentialVerifier = credentialVerifier;
@@ -78,7 +67,11 @@ public class KerberosSignInStory
 
         _logger.LogInformation("Kerberos user '{User}' membership verified successfully", username);
 
-        var claims = _claimsProvider.GetClaims();
+        var claims = new Dictionary<string, string>(_claimsProvider.GetClaims())
+        {
+            { Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES, Constants.AuthenticationClaims.KERBEROS_METHOD}
+        };
+        
         var request = new LoginRequestDto
         {
             VerifiedCredentials = MapToVerifiedCredentialsDto(credentialResult),
@@ -91,13 +84,12 @@ public class KerberosSignInStory
 
         var response = await _idpApiClient.LoginAsync(request, headers);
 
-        return HandleLoginResponse(response, username, credentialResult, sso);
+        return HandleLoginResponse(response, username, sso);
     }
 
     private IActionResult HandleLoginResponse(
         LoginResponseDto response,
         string username,
-        CredentialVerificationResult credentialResult,
         SingleSignOnDto sso)
     {
         if (!response.Success)
@@ -151,10 +143,8 @@ public class KerberosSignInStory
     {
         return new SspSettingsDto
         {
-            PreAuthenticationMethod = _settings.PreAuthenticationMethod,
             RequiresUserPrincipalName = _settings.ActiveDirectorySettings.RequiresUserPrincipalName,
             PasswordManagementEnabled = _settings.PasswordManagement?.Enabled ?? false,
-            NeedPrebindInfo = _settings.NeedPrebindInfo(),
             PrivacyMode = _settings.MultiFactorApiSettings.PrivacyModeDescriptor.ToString(),
             NetBiosName = _settings.ActiveDirectorySettings.NetBiosName,
             SignUpGroups = _settings.GroupPolicyPreset.SignUpGroups
