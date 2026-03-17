@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core;
-using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
+using MultiFactor.SelfService.Linux.Portal.ModelBinding.Binders;
 
 namespace MultiFactor.SelfService.Linux.Portal.Attributes
 {
@@ -25,11 +25,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
             var cookie = context.HttpContext.Request.Cookies[Constants.COOKIE_NAME];
             if (cookie is null)
             {
-                context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                var claimsDto = MultiFactorClaimsDtoBinder.FromRequest(context.HttpContext.Request);
+
+                var routeValues = new RouteValueDictionary
                 {
                     { "action", "Auth" },
                     { "controller", "Account" }
-                });
+                };
+
+                if (claimsDto.HasSamlSession())
+                {
+                    routeValues[Constants.MultiFactorClaims.SamlSessionId] = claimsDto.SamlSessionId;
+                }
+
+                if (claimsDto.HasOidcSession())
+                {
+                    routeValues[Constants.MultiFactorClaims.OidcSessionId] = claimsDto.OidcSessionId;
+                }
+
+                context.Result = new RedirectToRouteResult(routeValues);
                 
                 return;
             }
