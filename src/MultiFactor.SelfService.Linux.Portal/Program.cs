@@ -64,16 +64,6 @@ void Start()
     app.UseSession();
 
     app.UseStaticFiles();
-    app.Use(async (context, next) =>
-    {
-        var token = context.Request.Cookies[Constants.COOKIE_NAME];
-        if (!string.IsNullOrEmpty(token))
-        {
-            context.Request.Headers.Authorization = $"Bearer {token}";
-        }
-
-        await next();
-    });
     app.UseStatusCodePages(context =>
     {
         var request = context.HttpContext.Request;
@@ -82,6 +72,9 @@ void Start()
         var response = context.HttpContext.Response;
         if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
         {
+            if (response.Headers.WWWAuthenticate.Count > 0)
+                return Task.CompletedTask;
+            
             response.Redirect($"/account/logout{MultiFactorClaimsDtoBinder.FromRequest(request)}");
         }
 

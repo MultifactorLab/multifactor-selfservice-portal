@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
@@ -26,7 +27,7 @@ public class IdentityStory
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<IdentityStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
 
     public IdentityStory(
         IMultiFactorApi multifactorApiClient,
@@ -36,7 +37,7 @@ public class IdentityStory
         IStringLocalizer<SharedResource> localizer,
         ILogger<IdentityStory> logger,
         ClaimsProvider claimsProvider,
-        CredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier)
     {
         _multifactorApiClient = multifactorApiClient;
         _idpApiClient = idpApiClient;
@@ -107,7 +108,11 @@ public class IdentityStory
             };
         }
 
-        var claims = _claimsProvider.GetClaims();
+        var claims = new Dictionary<string, string>(_claimsProvider.GetClaims())
+        {
+            { Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES, Constants.AuthenticationClaims.PASSWORD_METHOD }
+        };
+        
         var sso = _contextAccessor.SafeGetSsoClaims();
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
 

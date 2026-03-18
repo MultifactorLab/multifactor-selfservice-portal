@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Core.Configuration.Providers;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
@@ -24,15 +26,100 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
 
             applicationBuilder.Services
                 .AddAntiforgery()
-                .AddAuthentication(x =>
+                .AddAuthentication(options =>
                 {
-                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = "Hybrid";
+                    options.DefaultChallengeScheme = "Hybrid";
+                })
+                .AddPolicyScheme("Hybrid", "JWT or Kerberos", options =>
+                {
+                    options.ForwardDefaultSelector = context =>
+                    {
+                        var auth = context.Request.Headers.Authorization.ToString();
+
+                        if (!string.IsNullOrEmpty(auth))
+                        {
+                            if (auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                                return JwtBearerDefaults.AuthenticationScheme;
+
+                            if (auth.StartsWith("Negotiate ", StringComparison.OrdinalIgnoreCase))
+                                return NegotiateDefaults.AuthenticationScheme;
+                        }
+
+                        // default → JWT
+                        return JwtBearerDefaults.AuthenticationScheme;
+                    };
                 })
                 .AddJwtBearer(x =>
                 {
                     x.SaveToken = true;
                     x.TokenValidationParameters = TokenValidationParametersFactory.GetParameters(applicationBuilder.Configuration);
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            if (string.IsNullOrEmpty(context.Token))
+                            {
+                                var cookie = context.Request.Cookies[Constants.COOKIE_NAME];
+                                if (!string.IsNullOrEmpty(cookie))
+                                    context.Token = cookie;
+                            }
+
+                            return Task.CompletedTask;
+                        },
+                        
+                        OnAuthenticationFailed = context =>
+                        {
+                            context.NoResult();
+                            return Task.CompletedTask;
+                        }
+                    };
+                })
+                .AddNegotiate(options =>
+                {
+                    options.Events = new NegotiateEvents
+                    {
+                        OnAuthenticated = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices
+                                .GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("NegotiateAuthentication");
+
+                            var authType = context.Principal?.Identity?.AuthenticationType;
+
+                            // Windows SSPI: AuthenticationType = "Kerberos" | "NTLM"
+                            // Linux GSSAPI: AuthenticationType = "Negotiate" (even for Kerberos)
+                            if (string.Equals(authType, "NTLM", StringComparison.OrdinalIgnoreCase))
+                            {
+                                logger.LogWarning("NTLM authentication rejected. Only Kerberos is allowed");
+                                context.Fail("Only Kerberos authentication is allowed.");
+                                return Task.CompletedTask;
+                            }
+
+                            if (OperatingSystem.IsWindows() &&
+                                !string.Equals(authType, "Kerberos", StringComparison.OrdinalIgnoreCase))
+                            {
+                                logger.LogWarning(
+                                    "Unsupported Negotiate authentication type rejected: {AuthType}", authType);
+                                context.Fail("Only Kerberos authentication is allowed.");
+                                return Task.CompletedTask;
+                            }
+
+                            logger.LogDebug("Negotiate authentication succeeded, AuthenticationType: {AuthType}", authType);
+                            
+                            return Task.CompletedTask;
+                        },
+
+                        OnAuthenticationFailed = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices
+                                .GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("NegotiateAuthentication");
+
+                            logger.LogWarning(context.Exception, "Negotiate authentication failed");
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             return applicationBuilder;
