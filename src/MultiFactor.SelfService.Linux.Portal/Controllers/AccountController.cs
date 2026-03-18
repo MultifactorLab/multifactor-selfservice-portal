@@ -71,9 +71,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                     return RedirectToAction("NegotiateLogin", sso);
                 }
 
-                return _portalSettings.PreAuthenticationMethod
-                    ? RedirectToAction("Identity", sso)
-                    : RedirectToAction("Login");
+                return RedirectToLoginOrIdentity(sso);
             }
         }
 
@@ -225,7 +223,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 if (!_portalSettings.PreAuthenticationMethod)
                 {
-                    return RedirectToAction("Login");
+                    return RedirectToAction("Login", _safeHttpContextAccessor.SafeGetSsoClaims());
                 }
 
                 var identity = _applicationCache.GetIdentity(requestId);
@@ -289,10 +287,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             var headers = HttpContext.GetRequiredHeaders();
             await signOut.ExecuteAsync(headers);
-            
-            return _portalSettings.PreAuthenticationMethod
-                ? RedirectToAction("Identity")
-                : RedirectToAction("Login");
+
+            return RedirectToLoginOrIdentity(new SingleSignOnDto(null, null));
         }
 
         [HttpPost]
@@ -395,7 +391,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             return _portalSettings.PreAuthenticationMethod
                 ? RedirectToAction("Identity", sso)
-                : RedirectToAction("Login");
+                : RedirectToAction("Login", sso);
         }
 
         private void ClearKerberosAttemptedCookie()
