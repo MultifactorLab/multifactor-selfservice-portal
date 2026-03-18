@@ -60,10 +60,7 @@ public class AccountControllerIntegrationTests : IDisposable
         _idpApiMock.Reset();
         _multiFactorApiMock.Reset();
         _credentialVerifierMock.Reset();
-
-        // Default: credential verification succeeds.
-        // Use a username whose UID ("jdoe") does not match the technical account ("user")
-        // configured in appsettings.xml, otherwise SignInStory rejects it as the service account.
+        
         _credentialVerifierMock
             .Setup(cv => cv.VerifyCredentialAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(CredentialVerificationResult.CreateBuilder(true)
@@ -75,8 +72,7 @@ public class AccountControllerIntegrationTests : IDisposable
             .ReturnsAsync(CredentialVerificationResult.CreateBuilder(true)
                 .SetUsername("jdoe@test.local")
                 .Build());
-
-        // Default: GetUserAuthenticatorsAsync returns one authenticator so IdentityStory proceeds
+        
         _multiFactorApiMock
             .Setup(x => x.GetUserAuthenticatorsAsync(It.IsAny<string>()))
             .ReturnsAsync(new UserAuthenticatorsDto
@@ -86,8 +82,7 @@ public class AccountControllerIntegrationTests : IDisposable
                 MobileAppAuthenticators = [],
                 PhoneAuthenticators = []
             });
-
-        // Default: CreateSamlBypassRequestAsync returns a bypass page
+        
         _multiFactorApiMock
             .Setup(x => x.CreateSamlBypassRequestAsync(It.IsAny<UserProfileDto>(), It.IsAny<string>()))
             .ReturnsAsync(new BypassPageDto("/sso/callback", "sso-access-token"));
@@ -99,24 +94,19 @@ public class AccountControllerIntegrationTests : IDisposable
         {
             builder.ConfigureServices(services =>
             {
-                // Remove ApplicationChecker to prevent LDAP connection errors on startup
                 var checkerDescriptors = services.Where(s =>
                     s.ServiceType == typeof(IHostedService) &&
                     s.ImplementationType != null &&
                     s.ImplementationType.Name == "ApplicationChecker").ToList();
                 foreach (var desc in checkerDescriptors)
                     services.Remove(desc);
-
-                // Replace IMultifactorIdpApi with mock
+                
                 ReplaceService(services, _idpApiMock.Object);
-
-                // Replace IMultiFactorApi with mock
+                
                 ReplaceService(services, _multiFactorApiMock.Object);
-
-                // Replace ICredentialVerifier with mock
+                
                 ReplaceService(services, _credentialVerifierMock.Object);
-
-                // Replace captcha verifier with a no-op that always succeeds
+                
                 var captchaDescriptor = services.FirstOrDefault(s => s.ServiceType == typeof(CaptchaVerifierResolver));
                 if (captchaDescriptor != null) services.Remove(captchaDescriptor);
                 services.AddSingleton<CaptchaVerifierResolver>(() =>
@@ -128,7 +118,7 @@ public class AccountControllerIntegrationTests : IDisposable
                     return captchaMock.Object;
                 });
 
-                // Replace NegotiateHandler with a no-op stub.
+                // Replace NegotiateHandler with a no-operation stub.
                 // The real handler requires Kestrel's IConnectionItemsFeature, which TestServer
                 // does not provide — without this replacement every request returns 500.
                 // We update SchemeMap directly because AddScheme throws when the key already exists.
@@ -188,8 +178,6 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Login_Get_ShouldAlwaysReturnLoginView()
     {
-        // GET /account/login now always shows the login form regardless of auth state.
-        // Auth checking moved to GET /account (Auth endpoint).
         var client = CreateClient();
 
         var response = await client.GetAsync("/account/login");
@@ -202,17 +190,17 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Auth_Get_WithAuthorizedUser_ShouldRedirectToHome()
     {
-        // Arrange: profile load succeeds → user is logged in
+        // Arrange
         var client = CreateClient();
 
         _idpApiMock
             .Setup(x => x.GetUserProfileAsync())
             .ReturnsAsync(new UserProfileDto("userId", "user@test.local"));
 
-        // Act: /account is the Auth entry point that checks auth state
+        // Act
         var response = await client.GetAsync("/account");
 
-        // Assert: authenticated user is redirected away from the auth entry point
+        // Assert
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
                     response.StatusCode == HttpStatusCode.Found);
         Assert.False(string.IsNullOrEmpty(response.Headers.Location?.ToString()));
@@ -261,7 +249,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Login_Post_WithBypassSaml_ShouldRedirectToSsoBypassSession()
     {
-        // Arrange: IDP signals SAML bypass → SignInStory redirects to ByPassSsoSession
+        // Arrange
         var client = CreateClient();
 
         var loginResponse = new LoginResponseDto
@@ -303,7 +291,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Login_Post_WithInvalidCredentials_ShouldReturnViewWithError()
     {
-        // Arrange: IDP rejects login after LDAP credentials are verified
+        // Arrange
         var client = CreateClient();
 
         _idpApiMock
@@ -335,7 +323,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Identity_Get_WithUnauthorized_ShouldRedirectToLogin()
     {
-        // Arrange: PreAuthenticationMethod=false → Identity endpoint redirects to Login when unauthorised
+        // Arrange
         var client = CreateClient();
 
         _idpApiMock
@@ -353,9 +341,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Identity_Post_WithValidUsername_ShouldRedirectOrReturnBadRequest()
     {
-        // Arrange: PreAuthenticationMethod=false → GET /account/identity redirects, so CSRF
-        // extraction fails. The subsequent POST therefore fails CSRF validation and is redirected
-        // to the session-expired error page. The test verifies no 500 occurs.
+        // Arrange
         var identityResponse = new IdentityResponseDto
         {
             Success = true,
@@ -385,7 +371,7 @@ public class AccountControllerIntegrationTests : IDisposable
         // Act
         var response = await client.PostAsync("/account/identity", new FormUrlEncodedContent(formData));
 
-        // Assert: redirect (CSRF failure → SessionExpired) or bad request
+        // Assert
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
                     response.StatusCode == HttpStatusCode.Found ||
                     response.StatusCode == HttpStatusCode.BadRequest);
@@ -398,7 +384,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Identity_Post_WithShowAuthn_ShouldRedirectOrReturnView()
     {
-        // Arrange: same CSRF/redirect situation as above when PreAuthenticationMethod=false
+        // Arrange
         var identityResponse = new IdentityResponseDto
         {
             Success = true,
@@ -426,7 +412,7 @@ public class AccountControllerIntegrationTests : IDisposable
         // Act
         var response = await client.PostAsync("/account/identity", new FormUrlEncodedContent(formData));
 
-        // Assert: OK (Authn view), redirect (CSRF failure), or bad request
+        // Assert
         Assert.True(response.StatusCode == HttpStatusCode.OK ||
                     response.StatusCode == HttpStatusCode.Redirect ||
                     response.StatusCode == HttpStatusCode.Found ||
@@ -436,8 +422,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task Authn_Post_ShouldRedirectWhenPreAuthenticationMethodIsDisabled()
     {
-        // Arrange: PreAuthenticationMethod=false → POST /account/authn immediately redirects to Login.
-        // CSRF extraction fails (identity endpoint redirects), POST fails CSRF validation.
+        // Arrange
         var loginCompletedResponse = new LoginCompletedResponseDto
         {
             Action = LoginCompletedAction.Authenticated,
@@ -466,7 +451,7 @@ public class AccountControllerIntegrationTests : IDisposable
         // Act
         var response = await client.PostAsync("/account/authn", new FormUrlEncodedContent(formData));
 
-        // Assert: any redirect is acceptable (to Login or to session-expired error page)
+        // Assert
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
                     response.StatusCode == HttpStatusCode.Found ||
                     response.StatusCode == HttpStatusCode.BadRequest);
@@ -503,9 +488,7 @@ public class AccountControllerIntegrationTests : IDisposable
     [Fact]
     public async Task PostbackFromMfa_ShouldCompleteAuthenticationAndRedirect()
     {
-        // Arrange: MFA completes, LoginCompleted returns Authenticated.
-        // With PreAuthenticationMethod=false, PostbackFromMfa skips JWT parsing and calls
-        // AuthenticateSessionStory directly → redirects to Home on success.
+        // Arrange
         var client = CreateClient();
 
         _idpApiMock
@@ -526,7 +509,7 @@ public class AccountControllerIntegrationTests : IDisposable
         // Act
         var response = await client.PostAsync("/account/postbackfrommfa", new FormUrlEncodedContent(formData));
 
-        // Assert: redirect to Home (authentication completed)
+        // Assert
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         var location = response.Headers.Location?.ToString();
         Assert.True(!string.IsNullOrEmpty(location));
@@ -544,7 +527,7 @@ public class AccountControllerIntegrationTests : IDisposable
                 It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(new BypassSamlResponseDto { SamlResponseHtml = "<html>SAML Response</html>" });
 
-        // Act: note — ByPassSamlSession uses conventional routing (/Account/ByPassSamlSession)
+        // Act
         var response = await client.GetAsync("/account/bypasssaml?samlSession=test-session-id");
 
         // Assert

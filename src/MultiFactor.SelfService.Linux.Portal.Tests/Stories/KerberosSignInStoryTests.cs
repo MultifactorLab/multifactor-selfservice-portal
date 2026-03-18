@@ -70,11 +70,7 @@ public class KerberosSignInStoryTests
                 It.IsAny<LoginRequestDto>(),
                 It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(response);
-
-    // -------------------------------------------------------------------------
-    // Username extraction
-    // -------------------------------------------------------------------------
-
+    
     [Fact]
     public async Task ExecuteAsync_WhenPrincipalHasNoNameClaim_RedirectsToLogin()
     {
@@ -96,13 +92,7 @@ public class KerberosSignInStoryTests
         _credentialVerifierMock.Verify(
             x => x.VerifyMembership(It.IsAny<string>()), Times.Never);
     }
-
-    // -------------------------------------------------------------------------
-    // Technical-account guard
-    // The technical account in minimal-settings.xml is User="user".
-    // Both UPN and NetBIOS forms of that username must be blocked.
-    // -------------------------------------------------------------------------
-
+    
     [Theory]
     [InlineData("user@domain.local")] // UPN  → UID "user"
     [InlineData("DOMAIN\\user")]      // NetBIOS → UID "user"
@@ -119,11 +109,7 @@ public class KerberosSignInStoryTests
             x => x.LoginAsync(It.IsAny<LoginRequestDto>(), It.IsAny<Dictionary<string, string>>()),
             Times.Never);
     }
-
-    // -------------------------------------------------------------------------
-    // Membership verification
-    // -------------------------------------------------------------------------
-
+    
     [Fact]
     public async Task ExecuteAsync_WhenMembershipVerificationFails_RedirectsToLoginWithoutCallingIdp()
     {
@@ -180,11 +166,7 @@ public class KerberosSignInStoryTests
             x => x.LoginAsync(It.IsAny<LoginRequestDto>(), It.IsAny<Dictionary<string, string>>()),
             Times.Once);
     }
-
-    // -------------------------------------------------------------------------
-    // IDP request payload verification
-    // -------------------------------------------------------------------------
-
+    
     [Fact]
     public async Task ExecuteAsync_SendsKerberosAmrClaimInIdpRequest()
     {
@@ -250,11 +232,7 @@ public class KerberosSignInStoryTests
                 It.Is<Dictionary<string, string>>(h => h["X-Forwarded-For"] == "10.0.0.1")),
             Times.Once);
     }
-
-    // -------------------------------------------------------------------------
-    // HandleLoginResponse — all IDP response outcomes
-    // -------------------------------------------------------------------------
-
+    
     [Fact]
     public async Task ExecuteAsync_WhenIdpReturnsFailure_RedirectsToLogin()
     {
@@ -405,11 +383,7 @@ public class KerberosSignInStoryTests
 
         AssertRedirectToLogin(result);
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
+    
     private static void AssertRedirectToLogin(IActionResult result)
     {
         var redirect = Assert.IsType<RedirectToActionResult>(result);
