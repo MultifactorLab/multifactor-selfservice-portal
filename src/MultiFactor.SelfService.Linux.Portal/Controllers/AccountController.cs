@@ -45,6 +45,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [ConsumeSsoClaims]
         public async Task<IActionResult> Auth([FromServices] LoadIdpProfileStory loadProfile)
         {
+            
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
             {
@@ -68,23 +69,16 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             {
                 if (ShouldAttemptKerberos())
                 {
-                    return RedirectToAction("NegotiateLogin", sso);
+                    return RedirectToAction("SsoEntry", "Account", sso);
                 }
 
                 return RedirectToLoginOrIdentity(sso);
             }
         }
 
-        [HttpGet("account/login")]
-        public IActionResult Login()
-        {
-            return View(new LoginViewModel());
-        }
-
         [HttpGet("account/sso")]
         [ConsumeSsoClaims]
-        public async Task<IActionResult> NegotiateLogin(
-            [FromServices] KerberosSignInStory kerberosSignIn)
+        public IActionResult SsoEntry()
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
 
@@ -95,39 +89,48 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
             if (Request.Cookies.ContainsKey(Constants.COOKIE_NAME))
             {
-                _logger.LogDebug("Negotiate skipped - already authenticated");
+                _logger.LogDebug("SSO skipped - already authenticated");
                 ClearKerberosAttemptedCookie();
-                
+
                 return RedirectToLoginOrIdentity(sso);
             }
-
-            AuthenticateResult authResult;
             
+            if (Request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE))
+            {
+                _logger.LogDebug("Kerberos already attempted, fallback to login");
+
+                return RedirectToLoginOrIdentity(sso);
+            }
+            
+            Response.Cookies.Append(
+                Constants.KERBEROS_ATTEMPTED_COOKIE,
+                "1",
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(2)
+                });
+            
+            return RedirectToAction("Negotiate");
+        }
+        
+        [HttpGet("account/sso/negotiate")]
+        [ConsumeSsoClaims]
+        public async Task<IActionResult> Negotiate(
+            [FromServices] KerberosSignInStory kerberosSignIn)
+        {
+            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+
             try
             {
-                authResult = await HttpContext.AuthenticateAsync(NegotiateDefaults.AuthenticationScheme);
-                
+                var authResult = await HttpContext.AuthenticateAsync(
+                    NegotiateDefaults.AuthenticationScheme);
+
                 if (authResult.None)
                 {
-                    if (Request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE))
-                    {
-                        _logger.LogDebug("Kerberos unavailable, fallback to login");
-
-                        return RedirectToLoginOrIdentity(sso);
-                    }
-
-                    Response.Cookies.Append(
-                        Constants.KERBEROS_ATTEMPTED_COOKIE,
-                        "1",
-                        new CookieOptions
-                        {
-                            HttpOnly = true,
-                            Expires = DateTimeOffset.UtcNow.AddMinutes(2)
-                        });
-                    
                     return Challenge(NegotiateDefaults.AuthenticationScheme);
                 }
-            
+
                 if (!authResult.Succeeded || authResult.Principal == null)
                 {
                     _logger.LogWarning(
@@ -136,34 +139,39 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
 
                     return RedirectToLoginOrIdentity(sso);
                 }
+
+                _logger.LogDebug("Kerberos authentication succeeded for {User}",
+                    authResult.Principal.Identity?.Name);
+
+                ClearKerberosAttemptedCookie();
+
+                var headers = HttpContext.GetRequiredHeaders();
+                headers.Remove("Authorization");
+
+                var postbackUrl = Url.Action(
+                    "PostbackFromMfa",
+                    "Account",
+                    null,
+                    Request.Scheme)!;
+
+                return await kerberosSignIn.ExecuteAsync(
+                    authResult.Principal,
+                    sso,
+                    headers,
+                    postbackUrl);
             }
             catch (Exception e)
             {
-                _logger.LogError(e,"Kerberos authentication failed");
+                _logger.LogError(e, "Kerberos authentication failed");
 
                 return RedirectToLoginOrIdentity(sso);
             }
-            
-            _logger.LogDebug("Kerberos authentication succeeded for {User}",
-                authResult.Principal.Identity?.Name);
-
-            ClearKerberosAttemptedCookie();
-            
-            var headers = HttpContext.GetRequiredHeaders();
-
-            headers.Remove("Authorization");
-
-            var postbackUrl = Url.Action(
-                "PostbackFromMfa",
-                "Account",
-                null,
-                Request.Scheme)!;
-
-            return await kerberosSignIn.ExecuteAsync(
-                authResult.Principal,
-                sso,
-                headers,
-                postbackUrl);
+        }
+        
+        [HttpGet("account/login")]
+        public IActionResult Login()
+        {
+            return View(new LoginViewModel());
         }
 
         [HttpPost("account/login")]
