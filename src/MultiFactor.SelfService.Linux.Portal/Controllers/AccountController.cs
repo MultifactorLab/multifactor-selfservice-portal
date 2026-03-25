@@ -110,8 +110,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                     HttpOnly = true,
                     Expires = DateTimeOffset.UtcNow.AddMinutes(2)
                 });
+
+            ViewBag.NegotiateUrl = Url.Action("Negotiate", "Account", new
+            {
+                samlSessionId = sso.SamlSessionId,
+                oidcSessionId = sso.OidcSessionId
+            });
+            ViewBag.FallbackUrl = GetFallbackUrl(sso);
             
-            return RedirectToAction("Negotiate");
+            return View("SsoEntry");
         }
         
         [HttpGet("account/sso/negotiate")]
@@ -119,6 +126,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         public async Task<IActionResult> Negotiate(
             [FromServices] KerberosSignInStory kerberosSignIn)
         {
+            Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+            
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
 
             try
@@ -137,7 +146,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                         "Kerberos authentication failed: {Failure}",
                         authResult.Failure?.Message ?? "unknown");
 
-                    return RedirectToLoginOrIdentity(sso);
+                    return ParentWindowRedirect(RedirectToLoginOrIdentity(sso));
                 }
 
                 _logger.LogDebug("Kerberos authentication succeeded for {User}",
@@ -154,17 +163,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                     null,
                     Request.Scheme)!;
 
-                return await kerberosSignIn.ExecuteAsync(
+                var result = await kerberosSignIn.ExecuteAsync(
                     authResult.Principal,
                     sso,
                     headers,
                     postbackUrl);
+
+                return ParentWindowRedirect(result);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Kerberos authentication failed");
 
-                return RedirectToLoginOrIdentity(sso);
+                return ParentWindowRedirect(RedirectToLoginOrIdentity(sso));
             }
         }
         
@@ -405,6 +416,30 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         private void ClearKerberosAttemptedCookie()
         {
             Response.Cookies.Delete(Constants.KERBEROS_ATTEMPTED_COOKIE);
+        }
+
+        private IActionResult ParentWindowRedirect(IActionResult result)
+        {
+            var url = ResolveRedirectUrl(result);
+            return url == null ? result : View("ParentWindowRedirect", url);
+        }
+
+        private string? ResolveRedirectUrl(IActionResult result)
+        {
+            return result switch
+            {
+                RedirectResult redirect => redirect.Url,
+                RedirectToActionResult actionRedirect =>
+                    Url.Action(actionRedirect.ActionName, actionRedirect.ControllerName, actionRedirect.RouteValues),
+                _ => null
+            };
+        }
+
+        private string GetFallbackUrl(SingleSignOnDto sso)
+        {
+            return _portalSettings.PreAuthenticationMethod
+                ? Url.Action("Identity", "Account", new { samlSessionId = sso.SamlSessionId, oidcSessionId = sso.OidcSessionId })!
+                : Url.Action("Login", "Account", new { samlSessionId = sso.SamlSessionId, oidcSessionId = sso.OidcSessionId })!;
         }
     }
 }

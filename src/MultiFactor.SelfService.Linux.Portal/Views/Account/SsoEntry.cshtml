@@ -1,0 +1,59 @@
+<div class="login">
+    <div class="form-column" style="text-align: center; padding: 40px 20px;">
+        <div class="sso-spinner"></div>
+        <p style="margin-top: 16px; color: #666;">@SharedLocalizer["PleaseWait"]</p>
+    </div>
+</div>
+
+<noscript>
+    <meta http-equiv="refresh" content="0;url=@ViewBag.FallbackUrl" />
+</noscript>
+
+@section head {
+    <style>
+        .sso-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ddd;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: sso-spin 0.8s linear infinite;
+        }
+        @@keyframes sso-spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        (function () {
+            var negotiateUrl = @Json.Serialize(ViewBag.NegotiateUrl);
+            var fallbackUrl = @Json.Serialize(ViewBag.FallbackUrl);
+            var handled = false;
+
+            window.addEventListener('message', function (e) {
+                if (e.origin !== window.location.origin) return;
+                try {
+                    var data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+                    if (data.type === 'sso-result' && data.url) {
+                        handled = true;
+                        window.location.href = data.url;
+                    }
+                } catch (err) { }
+            });
+
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = negotiateUrl;
+            document.body.appendChild(iframe);
+
+            setTimeout(function () {
+                if (!handled) {
+                    window.location.href = fallbackUrl;
+                }
+            }, 2500);
+        })();
+    </script>
+}
