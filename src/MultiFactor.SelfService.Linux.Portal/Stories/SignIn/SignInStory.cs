@@ -131,6 +131,12 @@ public class SignInStory
 
     private async Task<IActionResult> HandleLoginResponse(LoginResponseDto response, LoginViewModel model, CredentialVerificationResult adValidationResult)
     {
+        if (response.Action == LoginAction.AccessDenied)
+        {
+            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
+            return new RedirectToActionResult("AccessDenied", "Error", null);
+        }
+
         if (!response.Success)
         {
             _logger.LogDebug("Login failed: {Error}", response.ErrorMessage);
@@ -197,12 +203,6 @@ public class SignInStory
             }
 
             return new RedirectToActionResult("Change", "ExpiredPassword", null);
-        }
-        
-        if (response.Action == LoginAction.AccessDenied)
-        {
-            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
-            return new RedirectToActionResult("AccessDenied", "Error", null);
         }
 
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))

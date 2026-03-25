@@ -92,6 +92,12 @@ public class KerberosSignInStory
         string username,
         SingleSignOnDto sso)
     {
+        if (response.Action == LoginAction.AccessDenied)
+        {
+            _logger.LogWarning("Access denied for Kerberos user '{User}'", username);
+            return new RedirectToActionResult("AccessDenied", "Error", null);
+        }
+
         if (!response.Success)
         {
             _logger.LogWarning("IDP login failed for Kerberos user '{User}': {Error}", username, response.ErrorMessage);
@@ -122,12 +128,6 @@ public class KerberosSignInStory
         {
             _logger.LogInformation("Kerberos user '{User}' must change password, redirecting to login form", username);
             return new RedirectToActionResult("Login", "Account", null);
-        }
-
-        if (response.Action == LoginAction.AccessDenied)
-        {
-            _logger.LogWarning("Access denied for Kerberos user '{User}'", username);
-            return new RedirectToActionResult("AccessDenied", "Error", null);
         }
 
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))

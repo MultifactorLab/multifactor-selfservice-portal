@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
 namespace MultiFactor.SelfService.Linux.Portal.Core.Http
@@ -22,6 +22,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
         public async Task<T> Deserialize<T>(HttpContent content, string logPrefix = null)
         {
             var jsonResponse = await content.ReadAsStringAsync();
+            return DeserializeString<T>(jsonResponse, logPrefix);
+        }
+
+        public T DeserializeString<T>(string jsonResponse, string logPrefix = null)
+        {
             _payloadLogger?.LogPayload(jsonResponse, logPrefix);
             return JsonSerializer.Deserialize<T>(jsonResponse, SerializerOptions.JsonSerializerOptions);
         }

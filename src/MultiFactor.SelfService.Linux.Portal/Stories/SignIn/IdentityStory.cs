@@ -148,6 +148,12 @@ public class IdentityStory
 
     private IActionResult HandleIdentityResponse(IdentityResponseDto response, IdentityViewModel model)
     {
+        if (response.Action == IdentityAction.AccessDenied)
+        {
+            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
+            return new RedirectToActionResult("AccessDenied", "Error", null);
+        }
+
         if (!response.Success)
         {
             _logger.LogDebug("Identity verification failed: {Error}", response.ErrorMessage);
@@ -179,12 +185,6 @@ public class IdentityStory
                     }
                 }
             };
-        }
-
-        if (response.Action == IdentityAction.AccessDenied)
-        {
-            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
-            return new RedirectToActionResult("AccessDenied", "Error", null);
         }
 
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
