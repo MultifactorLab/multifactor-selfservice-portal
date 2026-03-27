@@ -113,8 +113,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         
         [HttpGet("account/sso/negotiate")]
         [ConsumeSsoClaims]
-        public async Task<IActionResult> Negotiate(
-            [FromServices] KerberosSignInStory kerberosSignIn)
+        public async Task<IActionResult> Negotiate([FromServices] KerberosSignInStory kerberosSignIn)
         {
             Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
             
@@ -181,6 +180,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [HttpGet("account/login")]
         public IActionResult Login()
         {
+            var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
+            
+            if (_portalSettings.PreAuthenticationMethod)
+            {
+                return RedirectToAction("Identity", sso);
+            }
+
             return View(new LoginViewModel());
         }
 
@@ -401,7 +407,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         
         private IActionResult RedirectToLoginOrIdentity(SingleSignOnDto sso)
         {
-            return RedirectToAction(AccountFlowHelper.GetLoginOrIdentityActionName(_portalSettings), sso);
+            return _portalSettings.PreAuthenticationMethod
+                ? RedirectToAction("Identity", sso)
+                : RedirectToAction("Login", sso);
         }
 
         private IActionResult ParentWindowRedirect(IActionResult result)
@@ -413,7 +421,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         private string GetFallbackUrl(SingleSignOnDto sso)
         {
             return Url.Action(
-                AccountFlowHelper.GetLoginOrIdentityActionName(_portalSettings),
+                _portalSettings.PreAuthenticationMethod ? "Identity" : "Login",
                 "Account",
                 AccountFlowHelper.BuildSsoRouteValues(sso))!;
         }

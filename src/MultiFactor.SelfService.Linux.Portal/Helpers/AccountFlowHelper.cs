@@ -13,11 +13,6 @@ public static class AccountFlowHelper
                && !request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE);
     }
 
-    public static string GetLoginOrIdentityActionName(PortalSettings portalSettings)
-    {
-        return portalSettings.PreAuthenticationMethod ? "Identity" : "Login";
-    }
-
     public static object BuildSsoRouteValues(SingleSignOnDto sso)
     {
         return new
