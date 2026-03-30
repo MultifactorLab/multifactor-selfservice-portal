@@ -68,46 +68,51 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             }
             catch (UnauthorizedException)
             {
-                if (AccountFlowHelper.ShouldAttemptKerberos(_portalSettings, Request))
+                if (!AccountFlowHelper.ShouldAttemptKerberos(_portalSettings, Request))
                 {
-                    return RedirectToAction("SsoEntry", "Account", sso);
+                    return RedirectToLoginOrIdentity(sso);
                 }
 
-                return RedirectToLoginOrIdentity(sso);
+                return RedirectToAction("SsoEntry",
+                    "Account",
+                    AccountFlowHelper.ToRouteValues(sso, 0, Guid.NewGuid().ToString("N")));
             }
         }
 
         [HttpGet("account/sso")]
         [ConsumeSsoClaims]
-        public IActionResult SsoEntry()
+        public IActionResult SsoEntry([FromQuery] int attempt = 0, [FromQuery] string? flowId = null)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
 
-            if (!_portalSettings.KerberosSettings.Enabled)
+            flowId ??= Guid.NewGuid().ToString("N");
+
+            _logger.LogDebug("SSO entry: attempt={Attempt}, flowId={FlowId}", attempt, flowId);
+
+            if (!_portalSettings.KerberosSettings.Enabled || User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToLoginOrIdentity(sso);
             }
 
-            if (Request.Cookies.ContainsKey(Constants.COOKIE_NAME))
+            if (attempt > 0)
             {
-                _logger.LogDebug("SSO skipped - already authenticated");
-                AccountFlowHelper.ClearKerberosAttemptedCookie(Response);
-
+                _logger.LogDebug("SSO fallback triggered: flowId={FlowId}", flowId);
                 return RedirectToLoginOrIdentity(sso);
             }
-            
-            if (Request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE))
-            {
-                _logger.LogDebug("Kerberos already attempted, fallback to login");
 
-                return RedirectToLoginOrIdentity(sso);
-            }
-            
-            AccountFlowHelper.SetKerberosAttemptedCookie(Response, TimeSpan.FromSeconds(10));
+            var negotiateUrl = Url.Action(
+                "Negotiate",
+                "Account",
+                AccountFlowHelper.BuildSsoRouteValues(sso, attempt: 0, flowId))!;
 
-            ViewBag.NegotiateUrl = Url.Action("Negotiate", "Account", AccountFlowHelper.BuildSsoRouteValues(sso));
-            ViewBag.FallbackUrl = GetFallbackUrl(sso);
-            
+            var fallbackUrl = Url.Action(
+                "SsoEntry",
+                "Account",
+                AccountFlowHelper.BuildSsoRouteValues(sso, attempt: 1, flowId))!;
+
+            ViewBag.NegotiateUrl = negotiateUrl;
+            ViewBag.FallbackUrl = fallbackUrl;
+
             return View("SsoEntry");
         }
         
@@ -116,7 +121,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         public async Task<IActionResult> Negotiate([FromServices] KerberosSignInStory kerberosSignIn)
         {
             Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
-            
+
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
 
             try
@@ -124,7 +129,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 if (AccountFlowHelper.IsNtlmToken(Request))
                 {
                     _logger.LogDebug("NTLM token detected, rejecting — Kerberos only");
-                    AccountFlowHelper.SetKerberosAttemptedCookie(Response, TimeSpan.FromMinutes(2));
                     return ParentWindowRedirect(RedirectToLoginOrIdentity(sso));
                 }
 
@@ -142,14 +146,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                         "Kerberos authentication failed: {Failure}",
                         authResult.Failure?.Message ?? "unknown");
 
-                    AccountFlowHelper.SetKerberosAttemptedCookie(Response, TimeSpan.FromMinutes(2));
                     return ParentWindowRedirect(RedirectToLoginOrIdentity(sso));
                 }
 
                 _logger.LogDebug("Kerberos authentication succeeded for {User}",
                     authResult.Principal.Identity?.Name);
-
-                AccountFlowHelper.ClearKerberosAttemptedCookie(Response);
 
                 var headers = HttpContext.GetRequiredHeaders();
                 headers.Remove("Authorization");
@@ -165,14 +166,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                     sso,
                     headers,
                     postbackUrl);
-
+                
                 return ParentWindowRedirect(result);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Kerberos authentication failed");
 
-                AccountFlowHelper.SetKerberosAttemptedCookie(Response, TimeSpan.FromMinutes(2));
                 return ParentWindowRedirect(RedirectToLoginOrIdentity(sso));
             }
         }
@@ -411,19 +411,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 ? RedirectToAction("Identity", sso)
                 : RedirectToAction("Login", sso);
         }
-
+        
         private IActionResult ParentWindowRedirect(IActionResult result)
         {
             var url = AccountFlowHelper.ResolveRedirectUrl(Url, result);
             return url == null ? result : View("ParentWindowRedirect", url);
-        }
-
-        private string GetFallbackUrl(SingleSignOnDto sso)
-        {
-            return Url.Action(
-                _portalSettings.PreAuthenticationMethod ? "Identity" : "Login",
-                "Account",
-                AccountFlowHelper.BuildSsoRouteValues(sso))!;
         }
     }
 }

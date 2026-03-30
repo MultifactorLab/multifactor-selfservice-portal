@@ -86,27 +86,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                                 .CreateLogger("NegotiateAuthentication");
 
                             var authType = context.Principal?.Identity?.AuthenticationType;
-
-                            // Windows SSPI: AuthenticationType = "Kerberos" | "NTLM"
-                            // Linux GSSAPI: AuthenticationType = "Negotiate" (even for Kerberos)
+                            
                             if (string.Equals(authType, "NTLM", StringComparison.OrdinalIgnoreCase))
                             {
-                                logger.LogWarning("NTLM authentication rejected. Only Kerberos is allowed");
+                                logger.LogWarning("NTLM authentication rejected");
                                 context.Fail("Only Kerberos authentication is allowed.");
                                 return Task.CompletedTask;
                             }
-
-                            if (OperatingSystem.IsWindows() &&
-                                !string.Equals(authType, "Kerberos", StringComparison.OrdinalIgnoreCase))
-                            {
-                                logger.LogWarning(
-                                    "Unsupported Negotiate authentication type rejected: {AuthType}", authType);
-                                context.Fail("Only Kerberos authentication is allowed.");
-                                return Task.CompletedTask;
-                            }
-
-                            logger.LogDebug("Negotiate authentication succeeded, AuthenticationType: {AuthType}", authType);
                             
+                            if (OperatingSystem.IsWindows())
+                            {
+                                if (!string.Equals(authType, "Kerberos", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    logger.LogWarning(
+                                        "Unsupported auth type: {AuthType}", authType);
+
+                                    context.Fail("Only Kerberos authentication is allowed.");
+                                    return Task.CompletedTask;
+                                }
+                            }
+
+                            logger.LogDebug("Kerberos auth success: {AuthType}", authType);
+
                             return Task.CompletedTask;
                         },
 

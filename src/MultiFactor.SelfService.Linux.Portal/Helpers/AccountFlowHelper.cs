@@ -12,33 +12,37 @@ public static class AccountFlowHelper
         return portalSettings.KerberosSettings.Enabled
                && !request.Cookies.ContainsKey(Constants.KERBEROS_ATTEMPTED_COOKIE);
     }
-
-    public static object BuildSsoRouteValues(SingleSignOnDto sso)
+    
+    public static object ToRouteValues(SingleSignOnDto sso, int attempt, string flowId)
     {
         return new
         {
+            attempt = attempt,
+            flowId = flowId,
             samlSessionId = sso.SamlSessionId,
-            oidcSessionId = sso.OidcSessionId
+            oidcSessionId = sso.OidcSessionId,
         };
     }
 
-    public static void SetKerberosAttemptedCookie(HttpResponse response, TimeSpan expiresIn)
+    public static IDictionary<string, object?> BuildSsoRouteValues(
+        SingleSignOnDto sso,
+        int attempt,
+        string flowId)
     {
-        response.Cookies.Append(
-            Constants.KERBEROS_ATTEMPTED_COOKIE,
-            "1",
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = DateTimeOffset.UtcNow.Add(expiresIn)
-            });
-    }
+        var dict = new Dictionary<string, object?>();
+        
+        if (!string.IsNullOrEmpty(sso.SamlSessionId))
+            dict[Constants.MultiFactorClaims.SamlSessionId] = sso.SamlSessionId;
 
-    public static void ClearKerberosAttemptedCookie(HttpResponse response)
-    {
-        response.Cookies.Delete(Constants.KERBEROS_ATTEMPTED_COOKIE);
-    }
+        if (!string.IsNullOrEmpty(sso.OidcSessionId))
+            dict[Constants.MultiFactorClaims.OidcSessionId] = sso.OidcSessionId;
 
+        dict["attempt"] = attempt;
+        dict["flowId"] = flowId;
+
+        return dict;
+    }
+    
     public static bool IsNtlmToken(HttpRequest request)
     {
         var authHeader = request.Headers.Authorization.FirstOrDefault();
