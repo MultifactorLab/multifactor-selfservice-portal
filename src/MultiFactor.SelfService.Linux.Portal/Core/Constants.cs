@@ -3,6 +3,7 @@
     public class Constants
     {
         public const string COOKIE_NAME = "multifactor";
+        public const string KERBEROS_ATTEMPTED_COOKIE = "kerberos_attempted";
         public const string SESSION_EXPIRED_PASSWORD_USER_KEY = "multifactor:expired-password:user";
         public const string SESSION_EXPIRED_PASSWORD_CIPHER_KEY = "multifactor:expired-password:cipher";
         public const string PREAUTHENTICATION_AUTHN_SUCCEED_KEY = "multifactor:preauthentication-authn-succesd:user";
@@ -25,6 +26,13 @@
         /// </summary>
         public const string SIGN_UP_GROUPS_REGEX = @"([\wа-я\s\-]+)(\s*;\s*([\wа-я\s\-]+)*)*";
         public const long BYTES_IN_MB = 1048576L;
+
+        public static class AuthenticationClaims
+        {
+            public const string AUTHENTICATION_METHODS_REFERENCES = "amr";
+            public const string PASSWORD_METHOD = "pwd";
+            public const string KERBEROS_METHOD = "kerberos";
+        }
         public static class MultiFactorClaims
         {
             public const string SamlSessionId = "samlSessionId";
