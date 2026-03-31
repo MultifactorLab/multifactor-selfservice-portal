@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
@@ -71,7 +71,13 @@ public class RedirectToCredValidationAfter2FaStory
         try
         {
             var response = await _idpApi.LoginCompletedAsync(request, _contextAccessor.HttpContext.GetRequiredHeaders());
-            
+
+            if (!response.Success)
+            {
+                _logger.LogWarning("LoginCompleted failed after pre-auth MFA: {Error}", response.ErrorMessage);
+                return new RedirectToActionResult("AccessDenied", "Error", null);
+            }
+
             var username = !string.IsNullOrWhiteSpace(response.RawUserName)
                 ? response.RawUserName 
                 : response.Identity;

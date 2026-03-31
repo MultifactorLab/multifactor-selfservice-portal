@@ -17,7 +17,7 @@ public class UnlockUserStory
     private readonly IMultiFactorApi _apiClient;
     private readonly PortalSettings _portalSettings;
     private readonly IStringLocalizer<SharedResource> _localizer;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
     private readonly ILogger<UnlockUserStory> _logger;
 
     public UnlockUserStory(
@@ -25,7 +25,7 @@ public class UnlockUserStory
         IMultiFactorApi apiClient,
         PortalSettings portalSettings,
         IStringLocalizer<SharedResource> localizer,
-        CredentialVerifier credentialVerifier,
+        ICredentialVerifier credentialVerifier,
         ILogger<UnlockUserStory> logger)
     {
         _lockAttributeChanger = lockAttributeChanger;

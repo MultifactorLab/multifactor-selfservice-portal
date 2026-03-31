@@ -1,0 +1,22 @@
+@model string
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<body>
+<script type="text/javascript">
+    (function () {
+        const url = @Json.Serialize(Model);
+
+        if (window.parent !== window) {
+            window.parent.postMessage(JSON.stringify({ type: 'sso-result', url: url }), window.location.origin);
+        } else {
+            window.location.href = url;
+        }
+    })();
+</script>
+</body>
+</html>
+

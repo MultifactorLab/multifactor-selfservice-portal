@@ -1,4 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core.Http;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
@@ -29,14 +29,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             {
                 var auth = GetBasicAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-                
-                var response = await ExecuteAsync(() =>
-                    _clientAdapter.PostAsync<IdpApiResponse<LoginResponseDto>>(
+
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<LoginResponseDto>>(
                     "api/v1/login",
                     request,
-                    headers));
+                    headers,
+                    deserializeWhenNonSuccessStatus: true);
 
-                return response;
+                if (response?.Data != null)
+                {
+                    return response.Data;
+                }
+
+                return LoginResponseDto.Failed(response?.Message ?? "Login request failed");
             }
             catch (Exception ex)
             {
@@ -53,14 +58,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             {
                 var auth = GetBasicAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-                
-                var response = await ExecuteAsync(() =>
-                    _clientAdapter.PostAsync<IdpApiResponse<IdentityResponseDto>>(
+
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<IdentityResponseDto>>(
                     "api/v1/identity",
                     request,
-                    headers));
+                    headers,
+                    deserializeWhenNonSuccessStatus: true);
 
-                return response;
+                if (response?.Data != null)
+                {
+                    return response.Data;
+                }
+
+                return IdentityResponseDto.Failed(response?.Message ?? "Identity request failed");
             }
             catch (Exception ex)
             {
@@ -73,19 +83,33 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         /// </summary>
         public async Task<LoginCompletedResponseDto> LoginCompletedAsync(LoginCompletedRequestDto request, Dictionary<string, string> headers)
         {
-            var auth = GetBasicAuthHeaders();
-            headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-
-            var formData = new[]
+            try
             {
-                new KeyValuePair<string, string>("accessToken", request.AccessToken)
-            };
+                var auth = GetBasicAuthHeaders();
+                headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
 
-            return await ExecuteAsync(() =>
-                _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
+                var formData = new[]
+                {
+                    new KeyValuePair<string, string>("accessToken", request.AccessToken)
+                };
+
+                var response = await _clientAdapter.PostFormAsync<IdpApiResponse<LoginCompletedResponseDto>>(
                     "api/v1/login-completed",
                     formData,
-                    headers));
+                    headers,
+                    deserializeWhenNonSuccessStatus: true);
+
+                if (response?.Data != null)
+                {
+                    return response.Data;
+                }
+
+                return LoginCompletedResponseDto.Failed(response?.Message ?? "Login completed request failed");
+            }
+            catch (Exception ex)
+            {
+                return LoginCompletedResponseDto.Failed(ex.Message);
+            }
         }
 
         /// <summary>
@@ -172,14 +196,19 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
             {
                 var auth = GetBearerAuthHeaders();
                 headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-                
-                var response = await ExecuteAsync(() =>
-                    _clientAdapter.PostAsync<IdpApiResponse<LogoutResponseDto>>(
+
+                var response = await _clientAdapter.PostAsync<IdpApiResponse<LogoutResponseDto>>(
                     "api/v1/logout",
                     request,
-                    headers));
+                    headers,
+                    deserializeWhenNonSuccessStatus: true);
 
-                return response;
+                if (response?.Data != null)
+                {
+                    return response.Data;
+                }
+
+                return LogoutResponseDto.Failed(response?.Message ?? "Logout request failed");
             }
             catch (Exception ex)
             {
@@ -194,18 +223,28 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi
         {
             var auth = GetBearerAuthHeaders();
             headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-                
-            return await ExecuteAsync(() =>
-                _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>("api/v1/saml/bypass", request, headers));
+
+            var response = await _clientAdapter.PostAsync<IdpApiResponse<BypassSamlResponseDto>>(
+                "api/v1/saml/bypass",
+                request,
+                headers,
+                deserializeWhenNonSuccessStatus: true);
+
+            return response?.Data ?? new BypassSamlResponseDto();
         }
 
         public async Task<BypassOidcResponseDto> BypassOidcAsync(BypassOidcRequestDto request, Dictionary<string, string> headers)
         {
             var auth = GetBearerAuthHeaders();
             headers.TryAdd(auth.Keys.FirstOrDefault(), auth.Values.FirstOrDefault());
-            
-            return await ExecuteAsync(() =>
-                _clientAdapter.PostAsync<IdpApiResponse<BypassOidcResponseDto>>("api/v1/oidc/bypass", request, headers));
+
+            var response = await _clientAdapter.PostAsync<IdpApiResponse<BypassOidcResponseDto>>(
+                "api/v1/oidc/bypass",
+                request,
+                headers,
+                deserializeWhenNonSuccessStatus: true);
+
+            return response?.Data ?? new BypassOidcResponseDto();
         }
 
         public async Task<UserProfileDto> GetUserProfileAsync()
