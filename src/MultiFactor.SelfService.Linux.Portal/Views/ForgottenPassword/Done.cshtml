@@ -1,11 +1,16 @@
-﻿<div class="login">
-    <div class="form-column">
-        <h2>@Localizer["Title"]</h2>
-        <p>
+﻿@{
+    ViewBag.UseAuthBackground = true;
+}
+<div class="login login-view restore-done-view">
+    <div class="login-header-plate">
+        <img src="~/@Settings.CompanySettings.LogoUrl" alt="logo" class="login-header-logo" />
+        <span class="login-header-title">@Localizer["Ssp"]</span>
+    </div>
+    <div class="form-column login-form-card restore-done-card">
+        <h2 class="login-title restore-done-title">@Localizer["Title"]</h2>
+        <p class="restore-done-description">
             @Localizer["Info"]
         </p>
-        <ul class="action">
-            <li><a href="~/" class="btn-primary w-100">@Localizer["Ok"]</a></li>
-        </ul>
+        <a href="~/" class="btn-primary w-100 restore-done-button">@Localizer["Ok"]</a>
      </div>
 </div>

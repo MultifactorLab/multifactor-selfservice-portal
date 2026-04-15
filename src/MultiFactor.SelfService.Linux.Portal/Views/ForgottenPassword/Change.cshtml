@@ -3,17 +3,24 @@
 @model MultiFactor.SelfService.Linux.Portal.ViewModels.EnterIdentityForm;
 @{
     ViewBag.Title = @Localizer["Title"];
+    ViewBag.UseAuthBackground = true;
+    var isRestoreCaptchaEnabled = true;
 }
-<div class="login">
-    <div class="form-column">
-        <h2>@Localizer["Title"]</h2>
+<div class="login login-view restore-password-view">
+    <div class="login-header-plate">
+        <img src="~/@Settings.CompanySettings.LogoUrl" alt="logo" class="login-header-logo" />
+        <span class="login-header-title">@Localizer["Ssp"]</span>
+    </div>
+    <div class="form-column login-form-card restore-password-card">
+        <a href="/Account/Login" class="restore-back">@Localizer["Back"]</a>
+        <h2 class="login-title restore-title">@Localizer["Title"]</h2>
         @using (Html.BeginForm("Change", "ForgottenPassword", FormMethod.Post))
         {
             <fieldset>
                 @Html.AntiForgeryToken()
-                <p>@Localizer["EnterLogin"]</p>
-                <div class="form-row">
-                    <div class="input">
+                <p class="restore-description">@Localizer["EnterLogin"]</p>
+                <div class="form-row login-fields restore-fields">
+                    <div class="input login-input restore-login-input">
                         @Html.TextBoxFor(m => m.Identity, 
                             new { 
                                 placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName 
@@ -24,13 +31,14 @@
                         @Html.ValidationMessageFor(m => m.Identity)
                     </div>
                     @Html.ValidationSummary(true)
-                    @{
+                    @if (isRestoreCaptchaEnabled)
+                    {
                         ViewBag.RenderCaptchaScripts = true;
                     }
 
                     @if (Settings.PasswordManagement.AllowUserUnlock)
                     {
-                        <label class ="c-container">
+                        <label class ="c-container restore-unlock-row">
                             @Localizer["UnlockUser"]
                          
                             <input type="checkbox" asp-for="@Model.UnlockUser">
@@ -38,13 +46,18 @@
                         </label>
                     }
 
-                    @await Component.InvokeAsync("Captcha", new { Mode = CaptchaRequired.PasswordRecovery })
+                    @if (isRestoreCaptchaEnabled)
+                    {
+                        <div class="captcha-wrapper login-captcha-wrapper restore-captcha-wrapper">
+                            @await Component.InvokeAsync("Captcha", new { Mode = CaptchaRequired.PasswordRecovery })
+                        </div>
+                    }
 
                 </div>
 
-                <div class="form-row">
+                <div class="form-row restore-submit-row">
                     <input type="hidden" name="myUrl" id="myUrl" />
-                    <input disabled type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" id="submit" />
+                    <input @(isRestoreCaptchaEnabled ? "disabled" : "") type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" id="submit" />
                 </div>
             </fieldset>
         }

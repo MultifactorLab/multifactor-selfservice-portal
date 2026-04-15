@@ -327,7 +327,6 @@ html {
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    scrollbar-gutter: stable both-edges;
 }
 
 body {
@@ -346,6 +345,14 @@ body {
     background-position: center;
     padding: 0;
     overflow-x: hidden;
+}
+
+body.auth-form-background {
+    background-image: url("/images/login_background.png");
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .bg {
@@ -426,7 +433,7 @@ p {
     flex-direction: column;
     align-content: center;
     max-inline-size: 100%;
-    padding-bottom: 80px;
+    padding-bottom: 64px;
 }
 
 #footer {
@@ -435,11 +442,18 @@ p {
     display: flex;
     position: fixed;
     left: 50%;
-    bottom: 12px;
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     width: auto;
     z-index: 20;
     pointer-events: none;
+}
+
+#footer img {
+    display: block;
+    width: 298px;
+    max-width: calc(100vw - 40px);
+    height: auto;
 }
 
 .logo {
@@ -530,6 +544,314 @@ p {
     background: #ECF5FB;
     /* only round bottom corners now */
     border-radius: 0 0 12px 12px;
+}
+
+/* Login page card (Figma-aligned) */
+.login.login-view {
+    max-width: 476px;
+    width: 100%;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.login.login-view .login-header-plate {
+    width: 100%;
+    max-width: 476px;
+    height: 108px;
+    padding: 32px;
+    align-items: flex-start;
+    gap: 32px;
+    border-radius: 20px 20px 0 0;
+    margin: 0;
+}
+
+.login.login-view .login-form-card {
+    width: 476px;
+    max-width: 100%;
+    min-height: 540px;
+    padding: 48px;
+    border: none;
+    border-radius: 0 0 20px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 24px rgba(42, 125, 188, 0.3);
+    justify-content: center;
+}
+
+.login.login-view .login-title {
+    margin: 0 0 32px;
+    color: #2c2c2c;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+}
+
+.login.login-view .login-form fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.login.login-view .login-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+.login.login-view .mb-8 {
+    margin-bottom: 0 !important;
+}
+
+.login.login-view .login-input {
+    margin-bottom: 0;
+}
+
+.login.login-view .login-input input,
+.login.login-view .login-input input[type=email],
+.login.login-view .login-input input[type=password],
+.login.login-view .login-input input[type=text] {
+    margin-bottom: 0;
+    padding: 0 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #e2ecff;
+    color: #32454d;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.login.login-view .login-input input::placeholder {
+    color: #99abc9;
+    letter-spacing: -0.32px;
+}
+
+.login.login-view .login-captcha-wrapper {
+    width: 100%;
+    max-inline-size: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+.login.login-view .login-submit-row {
+    margin-top: 12px;
+}
+
+.login.login-view .login-forgot-row {
+    padding-top: 0;
+    margin-top: 32px;
+}
+
+.login.login-view .forgot {
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+/* Restore password (enter login) form - node 495:50435 */
+.restore-password-view .restore-password-card {
+    min-height: 540px;
+    justify-content: flex-start;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 24px rgba(42, 125, 188, 0.3);
+}
+
+.restore-password-view .restore-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: #99abc9;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.restore-password-view .restore-back::before {
+    content: "\2190";
+    font-size: 24px;
+    line-height: 1;
+}
+
+.restore-password-view .restore-title {
+    margin: 0 0 8px;
+    color: #1d1e21;
+    width: 100%;
+    text-align: left;
+}
+
+.restore-password-view .restore-description {
+    margin: 0;
+    color: #3f3f44;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.restore-password-view .restore-fields {
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.restore-password-view .restore-login-input input,
+.restore-password-view .restore-login-input input[type=text] {
+    margin-bottom: 0;
+}
+
+.restore-password-view .restore-unlock-row {
+    margin-bottom: 0;
+    color: #3f3f44;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.restore-password-view .restore-captcha-wrapper {
+    width: 100%;
+    max-inline-size: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+.restore-password-view .restore-submit-row {
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+/* Reset password form - node 495:50605 */
+.reset-password-view .reset-password-card {
+    min-height: 540px;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+.reset-password-view .reset-title {
+    margin: 0 0 8px;
+    color: #1d1e21;
+    width: 100%;
+    text-align: left;
+}
+
+.reset-password-view .reset-description {
+    color: #3f3f44;
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 24px;
+}
+
+.reset-password-view .restore-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: flex-start;
+    color: #99abc9;
+    margin-bottom: 16px;
+}
+
+.reset-password-view .restore-back::before {
+    content: "\2190";
+    color: #99abc9;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.reset-password-view .reset-description p {
+    margin: 0;
+}
+
+.reset-password-view .reset-description .list {
+    list-style-type: none;
+    margin-top: 0;
+}
+
+.reset-password-view .reset-description .list > li {
+    margin-left: 0;
+}
+
+.reset-password-view .reset-validation {
+    margin-bottom: 0;
+}
+
+.reset-password-view .reset-fields {
+    gap: 12px;
+}
+
+.reset-password-view .reset-submit-row {
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+/* Restore done form - node 1181:7686 */
+.restore-done-view .restore-done-card {
+    min-height: 540px;
+    justify-content: center;
+    align-items: center;
+}
+
+.restore-done-view .restore-done-title {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 8px;
+    color: #1d1e21;
+}
+
+.restore-done-view .restore-done-description {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 48px;
+    color: #3f3f44;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.restore-done-view .restore-done-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* In-session password change form styled like forgot/change */
+.password-change-view .password-change-card {
+    min-height: 540px;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+.password-change-view .password-change-title {
+    width: 100%;
+    text-align: left;
+    margin: 0 0 8px;
+    color: #1d1e21;
+}
+
+.password-change-view .password-change-description {
+    color: #3f3f44;
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 24px;
+}
+
+.password-change-view .password-change-description p {
+    margin: 0;
+}
+
+.password-change-view .password-change-description .list {
+    list-style-type: none;
+    margin-top: 0;
+}
+
+.password-change-view .password-change-description .list > li {
+    margin-left: 0;
+}
+
+.password-change-view .password-change-validation {
+    margin-bottom: 0;
+}
+
+.password-change-view .password-change-fields {
+    gap: 12px;
+}
+
+.password-change-view .password-change-submit-row {
+    margin-top: 12px;
+    margin-bottom: 0;
 }
 
 .login .form-column .success-mark {
@@ -733,6 +1055,37 @@ p {
     border-color: red;
 }
 
+.password-toggle-host {
+    position: relative;
+}
+
+.password-toggle-host input[type=password],
+.password-toggle-host input.password-toggle-input {
+    padding-right: 48px !important;
+}
+
+.password-toggle-button {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.password-toggle-button img {
+    width: 18px;
+    height: 8px;
+}
+
 .login .form-row {
     margin-bottom: 25px;
 }
@@ -905,6 +1258,11 @@ a.active .btn:hover {
     .login .form-column {
         width: 400px;
         max-width: 100%;
+    }
+
+    .login.login-view .login-form-card {
+        width: 100%;
+        padding: 32px 24px;
     }
 
     .success-title {
@@ -1102,7 +1460,7 @@ a.active .btn:hover {
 
 .apps-header-user {
     display: flex;
-    gap: 32px;
+    gap: 0;
     align-items: center;
     flex-shrink: 0;
 }
@@ -1116,6 +1474,7 @@ a.active .btn:hover {
     border-radius: 50%;
     background-color: #579AD7;
     flex-shrink: 0;
+    margin-right: 10px;
 }
 
 .user-avatar-no-sso {
@@ -1148,6 +1507,7 @@ a.active .btn:hover {
     line-height: 1.2;
     color: white;
     white-space: nowrap;
+    margin-right: 32px;
 }
 
 .btn-exit {
@@ -1404,6 +1764,10 @@ a.active .btn:hover {
         gap: 8px;
     }
 
+    .apps-logo img {
+        max-height: 25px;
+    }
+
     .apps-header-user {
         max-width: calc(100% - 110px);
         justify-content: flex-end;
@@ -1413,6 +1777,24 @@ a.active .btn:hover {
 
     .user-name {
         display: block;
+        margin-right: 0;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.3px;
+        text-align: left;
+    }
+
+    .user-avatar {
+        width: 25px;
+        height: 25px;
+        margin-right: 0;
+    }
+
+    .avatar-letter {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.24px;
     }
 
     .btn-exit {

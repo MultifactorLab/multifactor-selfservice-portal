@@ -156,4 +156,7 @@
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Wrong user name or password</value>
   </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Self-service portal</value>
+  </data>
 </root>

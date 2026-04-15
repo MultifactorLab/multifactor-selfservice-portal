@@ -24,7 +24,7 @@
         ></script>
     }
 </head>
-<body>
+<body class="@(ViewBag.UseAuthBackground == true ? "auth-form-background" : "")">
     <div id="wrapper">
         <div class="background-layout">
             <main id="main" class="@(((ViewBag.Home ?? false) && (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)) ? "" : "content-center")">

@@ -1,13 +1,18 @@
 ﻿@using MultiFactor.SelfService.Linux.Portal.Core
 @{
     var isCaptchaEnabled = Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaRequired.Always);
+    ViewBag.UseAuthBackground = true;
 }
 
 @model MultiFactor.SelfService.Linux.Portal.ViewModels.LoginViewModel
 
-<div action="#" class="login">
-    <div class="form-column">
-        <h2>@Localizer["Title"]</h2>
+<div action="#" class="login login-view">
+    <div class="login-header-plate">
+        <img src="~/@Settings.CompanySettings.LogoUrl" alt="logo" class="login-header-logo" />
+        <span class="login-header-title">@Localizer["Ssp"]</span>
+    </div>
+    <div class="form-column login-form-card">
+        <h2 class="login-title">@Localizer["Title"]</h2>
         @using (Html.BeginForm("Login", "Account", new Dictionary<string, string>
         { 
             [Constants.MultiFactorClaims.SamlSessionId] = Context.Request.Query[Constants.MultiFactorClaims.SamlSessionId].FirstOrDefault() ?? string.Empty, 
@@ -16,33 +21,33 @@
         {
             <fieldset>
                 @Html.AntiForgeryToken()
-                <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
-                    <div class="input">
+                <div class="form-row login-fields @(isCaptchaEnabled ? "mb-8" : "")">
+                    <div class="input login-input login-input-username">
                         @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
                             : Localizer.GetString("UserName") })
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
-                    <div class="input">
+                    <div class="input login-input login-input-password">
                         @Html.PasswordFor(m => m.Password, new { placeholder = Localizer.GetString("Password"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @Html.ValidationSummary(true)
                     @if (isCaptchaEnabled) {
                         ViewBag.RenderCaptchaScripts = true;
-                        <div class="captcha-wrapper">
+                        <div class="captcha-wrapper login-captcha-wrapper">
                             @await Component.InvokeAsync("Captcha", new { CaptchaPlace = CaptchaRequired.Always })
                         </div>
                     }
                 </div>
 
-                <div>
+                <div class="login-submit-row">
                     <input type="hidden" name="myUrl" id="myUrl" />
                     <input @(isCaptchaEnabled ? "disabled" : "") type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" id="submit" />
                 </div>
                 @if (Settings.PasswordManagement.AllowPasswordRecovery)
                 {
-                <div class="d-flex content-center pt-8">
+                <div class="d-flex content-center login-forgot-row">
                     <a class="forgot" href="/ForgottenPassword/Change">@Localizer["ForgotPassword"]</a>
                 </div>
                 }

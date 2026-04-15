@@ -1,34 +1,41 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.ResetPasswordForm
 @{
     ViewBag.Title = Localizer["Title"];
+    ViewBag.UseAuthBackground = true;
 }
-<div class="login">
-    <div class="form-column">
-        <h2>@Localizer["Title"]</h2>
+<div class="login login-view reset-password-view">
+    <div class="login-header-plate">
+        <img src="~/@Settings.CompanySettings.LogoUrl" alt="logo" class="login-header-logo" />
+        <span class="login-header-title">@Localizer["Ssp"]</span>
+    </div>
+    <div class="form-column login-form-card reset-password-card">
+        <a href="/ForgottenPassword/Change" class="restore-back">@Localizer["Back"]</a>
+        <h2 class="login-title reset-title">@Localizer["Title"]</h2>
         @using (Html.BeginForm("ConfirmReset", "ForgottenPassword", FormMethod.Post))
         {
             <fieldset>
                 @Html.AntiForgeryToken()
-                @await Html.PartialAsync("_PasswordRequirementsPartial")
-                <br />
-                <div>
+                <div class="reset-description">
+                    @await Html.PartialAsync("_PasswordRequirementsPartial")
+                </div>
+                <div class="reset-validation">
                     @Html.ValidationSummary(true)
                     @Html.ValidationMessageFor(x => x.Identity)
                 </div>
-                <div class="form-row">
+                <div class="form-row login-fields reset-fields">
                     <div class="input">
                         @Html.HiddenFor(m => m.Identity)
                     </div>
-                    <div class="input">
+                    <div class="input login-input reset-input">
                         @Html.PasswordFor(m => m.NewPassword, new { placeholder = Localizer.GetString("NewPassword"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.NewPassword)
                     </div>
-                    <div class="input">
+                    <div class="input login-input reset-input">
                         @Html.PasswordFor(m => m.NewPasswordAgain, new { placeholder = Localizer.GetString("ConfirmPassword"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.NewPasswordAgain)
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="form-row reset-submit-row">
                     <input type="submit" class="btn-primary w-100" value="@Localizer["Submit"]" />
                 </div>
             </fieldset>
