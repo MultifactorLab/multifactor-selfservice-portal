@@ -467,9 +467,9 @@ p {
 
 /* separate header plate above the login form: refined glass with accurate transparency */
 .login-header-plate {
-    width: 440px;
-    margin: 0 auto;
-    height: 122px;
+    width: 440px; /* match .form-column width */
+    margin: 0 auto; /* center within login container */
+    height: 110px; /* increased per request */
     display: flex;
     align-items: center; /* vertical centering of children */
     gap: 32px; /* space between logo and title */
@@ -477,8 +477,8 @@ p {
     /* lighter opacity for a more realistic glass look */
     background: rgba(255,255,255,0.15);
     /* slightly stronger blur to diffuse background more */
-    backdrop-filter: blur(2.4px);
-    -webkit-backdrop-filter: blur(2.4px);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border-radius: 20px 20px 0 0;
     box-sizing: border-box;
     /* border only top and sides, softer color */
@@ -488,10 +488,11 @@ p {
     border-bottom: none;
     /* subtle drop shadow to lift from background */
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    /* flush with form below */
     margin-bottom: 0;
-    padding-bottom: 18px;
     position: relative;
 }
+
 
 .login-header-logo {
     height: 40px;
@@ -511,15 +512,14 @@ p {
     flex-direction: column;
     padding: 48px;
     width: 440px;
-    margin-top: -18px;
-    z-index: 999;
     /* hide the top border so upper plate's border appears continuous */
     border-left: 1px solid rgba(87, 154, 215, 0.2);
     border-right: 1px solid rgba(87, 154, 215, 0.2);
     border-bottom: 1px solid rgba(87, 154, 215, 0.2);
     border-top: none;
     background: #ECF5FB;
-    border-radius: 20px;
+    /* only round bottom corners now */
+    border-radius: 0 0 12px 12px;
 }
 
 .login .form-column .success-mark {
@@ -891,19 +891,14 @@ a.active .btn:hover {
     }
 }
 
-@media screen and (max-width: 500px) {
-    .login .form-column,
-    .login-header-plate {
+@media screen and (max-width: 535px) {
+    .login .form-column {
         width: 400px;
         max-width: 100%;
     }
 
     .success-title {
         width: 12.5em;
-    }
-    
-    .login-header-title {
-        font-size: 16px;
     }
 }
 
@@ -1198,26 +1193,14 @@ a.active .btn:hover {
     justify-content: center;
 }
 
-.apps-grid:has(:nth-child(5)) {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    padding-bottom: 54px;
-    border-radius: 20px;
-    box-sizing: border-box;
+.apps-grid:not(:has(:nth-child(5))) .app-card {
+    width: 200px;
+    margin: 0 10px;
 }
 
-.apps-grid:has(:nth-child(2)):not(:has(:nth-child(5))) .app-card {
-    width: 420px;
-}
-
-.apps-grid:has(:nth-child(3)):not(:has(:nth-child(5))) .app-card {
-    width: 355px;
-}
-
-.apps-grid:has(:nth-child(4)):not(:has(:nth-child(5))) .app-card {
-    width: 260px;
+.apps-grid:not(:has(:nth-child(3))) .app-card {
+    width: 344px;
+    margin: 0 10px;
 }
 
 .app-card {
