@@ -20,6 +20,7 @@
                 {
                     <a href="~/ExchangeActiveSyncDevices" class="btn-header">@Localizer["ManageActiveSyncDevices"]</a>
                 }
+                <a href="~/account/logout" class="btn-header btn-header-exit">@Localizer["Exit"]</a>
             </div>
             <div class="apps-header-user">
                 <div class="user-avatar">
@@ -27,9 +28,9 @@
                 </div>
                 <span class="user-name">@(Model?.Profile?.Name ?? Model?.Profile?.Identity)</span>
                 <a href="~/account/logout" class="btn-exit">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 17H19V5H15M11 17V15M11 13V11M11 9V3M7 21H17C18.1 21 19 20.1 19 19V5C19 3.9 18.1 3 17 3H7C5.9 3 5 3.9 5 5V19C5 20.1 5.9 21 7 21Z" 
-                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg width="24" height="24" viewBox="0 0 15.5 17.5" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M10.75 0.75H0.75V14.75C0.75 15.2804 0.960714 15.7891 1.33579 16.1642C1.71086 16.5393 2.21957 16.75 2.75 16.75H10.75M11.75 11.75L14.75 8.75M14.75 8.75L11.75 5.75M14.75 8.75H4.75"
+                              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </a>
             </div>

@@ -327,6 +327,7 @@ html {
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scrollbar-gutter: stable both-edges;
 }
 
 body {
@@ -344,6 +345,7 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     padding: 0;
+    overflow-x: hidden;
 }
 
 .bg {
@@ -424,12 +426,20 @@ p {
     flex-direction: column;
     align-content: center;
     max-inline-size: 100%;
+    padding-bottom: 80px;
 }
 
 #footer {
     justify-content: center;
     align-items: center;
     display: flex;
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    width: auto;
+    z-index: 20;
+    pointer-events: none;
 }
 
 .logo {
@@ -1022,6 +1032,11 @@ a.active .btn:hover {
     display: flex;
     flex-direction: column;
     align-self: center;
+    margin: 0 auto;
+    box-sizing: border-box;
+    left: 0;
+    right: 0;
+    padding: 0 20px 20px;
 }
 
 .apps-header {
@@ -1029,7 +1044,7 @@ a.active .btn:hover {
     top: 0;
     z-index: 100;
     background: transparent;
-    padding: 27px 130px;
+    padding: 27px 20px;
     height: 90px;
     display: flex;
     align-items: center;
@@ -1040,8 +1055,9 @@ a.active .btn:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 1180px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
 }
 
 .apps-logo {
@@ -1078,6 +1094,10 @@ a.active .btn:hover {
 .btn-header:hover {
     text-decoration: underline;
     text-underline-offset: 10px;
+}
+
+.btn-header-exit {
+    display: none;
 }
 
 .apps-header-user {
@@ -1164,8 +1184,9 @@ a.active .btn:hover {
 }
 
 .apps-title-section {
-    margin-bottom: 40px;
-    padding-top: 54px;
+    width: 100%;
+    padding: 54px 20px 40px;
+    margin-bottom: 0;
 }
 
 .apps-title {
@@ -1255,10 +1276,6 @@ a.active .btn:hover {
 
 /* Responsive Design */
 @media (max-width: 1440px) {
-    .apps-header {
-        padding: 20px 60px;
-    }
-
     .apps-content {
 
     }
@@ -1272,12 +1289,12 @@ a.active .btn:hover {
 }
 
 @media (max-width: 1024px) {
-    .apps-header {
-        padding: 15px 30px;
-    }
-
     .apps-content {
         padding: 0 30px 30px;
+    }
+
+    .apps-title-section {
+        padding: 54px 20px 40px;
     }
 
     .apps-header-actions {
@@ -1292,11 +1309,10 @@ a.active .btn:hover {
     .apps-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 15px;
-        padding: 30px;
     }
 
     .apps-title {
-        font-size: 24px;
+        font-size: 30px;
     }
 
     .app-card {
@@ -1305,7 +1321,7 @@ a.active .btn:hover {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 920px) {
     .apps-header {
         height: auto;
         padding: 12px 20px;
@@ -1341,9 +1357,6 @@ a.active .btn:hover {
         padding: 12px;
     }
 
-    .user-name {
-        display: none;
-    }
 }
 
 @media (max-width: 480px) {
@@ -1370,12 +1383,139 @@ a.active .btn:hover {
         padding: 10px;
     }
 
-    .apps-logo img {
-        max-height: 20px;
-    }
-
     .btn-header {
         padding: 5px 8px;
         font-size: 10px;
+    }
+}
+
+/* Mobile showcase variant (showcase enabled, 360px baseline) */
+@media (max-width: 920px) {
+    .apps-header {
+        position: static;
+        height: auto;
+        padding: 20px;
+    }
+
+    .apps-header-top {
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .apps-header-user {
+        max-width: calc(100% - 110px);
+        justify-content: flex-end;
+        flex-direction: row-reverse;
+        gap: 10px;
+    }
+
+    .user-name {
+        display: block;
+    }
+
+    .btn-exit {
+        display: none;
+    }
+
+    .apps-header-actions {
+        width: 100%;
+        order: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .btn-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 56px;
+        border-radius: 4px;
+        padding: 12px 16px;
+        background: linear-gradient(90deg, #579ad7 0%, #75b8f5 100%);
+        color: #ffffff !important;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-header-exit {
+        display: flex;
+        color: #579ad7 !important;
+        border: 1.5px solid #579ad7;
+        background: transparent;
+    }
+
+    .btn-header:hover,
+    .btn-header:focus {
+        text-decoration: none;
+        opacity: 0.95;
+    }
+
+    .apps-container {
+        height: auto;
+        max-width: 100%;
+        padding: 0 20px 16px;
+    }
+
+    .apps-content {
+        width: 100%;
+        padding: 24px 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .apps-title-section {
+        width: 100%;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .apps-title {
+        font-size: 22px;
+        letter-spacing: -0.44px;
+        text-align: center;
+    }
+
+    .apps-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 0;
+    }
+
+    .app-card {
+        min-height: 133px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .app-card-image {
+        margin-bottom: 10px;
+        max-height: 88px;
+    }
+}
+
+@media (max-width: 390px) {
+    .user-name {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.2;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .avatar-letter {
+        font-size: 12px;
+        letter-spacing: 0.24px;
     }
 }
