@@ -30,7 +30,7 @@ public class SignInStory
     private readonly ILogger<SignInStory> _logger;
     private readonly IApplicationCache _applicationCache;
     private readonly ClaimsProvider _claimsProvider;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
 
     public SignInStory(
         IMultifactorIdpApi idpApiClient,
@@ -42,7 +42,7 @@ public class SignInStory
         IStringLocalizer<SharedResource> localizer,
         ILogger<SignInStory> logger,
         ClaimsProvider claimsProvider,
-        CredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier)
     {
         _idpApiClient = idpApiClient;
         _apiClient = apiClient;
@@ -82,7 +82,7 @@ public class SignInStory
         
         _logger.LogDebug("Verifying credentials locally for user '{User}'", username);
         var credentialResult = await _credentialVerifier.VerifyCredentialAsync(username, password);
-        
+
         if (!credentialResult.IsAuthenticated && !credentialResult.UserMustChangePassword)
         {
             _logger.LogWarning("Credential verification failed for user '{User}': {Reason}", username, credentialResult.Reason);
@@ -92,7 +92,11 @@ public class SignInStory
 
         _logger.LogInformation("User '{User}' credentials verified successfully", username);
 
-        var claims = _claimsProvider.GetClaims();
+        var claims = new Dictionary<string, string>(_claimsProvider.GetClaims())
+        {
+            { Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES, Constants.AuthenticationClaims.PASSWORD_METHOD }
+        };
+        
         var sso = _contextAccessor.SafeGetSsoClaims();
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
         
@@ -127,6 +131,12 @@ public class SignInStory
 
     private async Task<IActionResult> HandleLoginResponse(LoginResponseDto response, LoginViewModel model, CredentialVerificationResult adValidationResult)
     {
+        if (response.Action == LoginAction.AccessDenied)
+        {
+            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
+            return new RedirectToActionResult("AccessDenied", "Error", null);
+        }
+
         if (!response.Success)
         {
             _logger.LogDebug("Login failed: {Error}", response.ErrorMessage);
@@ -135,6 +145,13 @@ public class SignInStory
         
         if (response.Action == LoginAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
+            if (_settings.PreAuthenticationMethod)
+            {
+                _applicationCache.SetPreauthenticationAuthn(
+                    ApplicationCacheKeyFactory.CreatePreAuthenticationAuthnSucceedKey(adValidationResult.Username),
+                    true);
+            }
+
             _logger.LogDebug("Redirecting user to MFA page");
             return new RedirectResult(response.RedirectUrl, true);
         }
@@ -186,12 +203,6 @@ public class SignInStory
             }
 
             return new RedirectToActionResult("Change", "ExpiredPassword", null);
-        }
-        
-        if (response.Action == LoginAction.AccessDenied)
-        {
-            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
-            return new RedirectToActionResult("AccessDenied", "Error", null);
         }
 
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))

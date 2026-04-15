@@ -62,7 +62,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<JsonDataSerializer>()
                 .AddSingleton<JsonPayloadLogger>()
                 .AddSingleton<DeviceAccessStateNameLocalizer>()
-                .AddSingleton<CredentialVerifier>()
+                .AddSingleton<ICredentialVerifier, CredentialVerifier>()
                 .AddSingleton<HttpClientTokenProvider>()
                 .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
                 .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
@@ -91,6 +91,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<ICaptchaVerifier, GoogleReCaptchaVerifier>()
 
                 .AddTransient<SignInStory>()
+                .AddTransient<KerberosSignInStory>()
                 .AddTransient<IdentityStory>()
                 .AddTransient<RedirectToCredValidationAfter2FaStory>()
                 .AddTransient<AuthnStory>()

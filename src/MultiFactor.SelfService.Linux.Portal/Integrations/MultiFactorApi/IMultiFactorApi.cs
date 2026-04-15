@@ -17,6 +17,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
         Task<AccessPageDto> CreateAccessRequestAsync(string username, string displayName, string email,
             string phone, string postbackUrl, IReadOnlyDictionary<string, string> claims);
         Task<UserProfileDto> GetUserProfileAsync();
+        Task<UserAuthenticatorsDto> GetUserAuthenticatorsAsync(string identity);
         Task<ScopeSupportInfoDto> GetScopeSupportInfo();
         Task<ApiResponse<EnrollmentPageDto>> CreateEnrollmentRequest();
     }

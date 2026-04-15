@@ -1,4 +1,4 @@
-﻿using LdapForNet;
+using LdapForNet;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
@@ -11,7 +11,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
     /// <summary>
     /// First factor credentials verifier.
     /// </summary>
-    public class CredentialVerifier
+    public class CredentialVerifier : ICredentialVerifier
     {
         private readonly LdapConnectionAdapterFactory _connectionFactory;
         private readonly PortalSettings _settings;
@@ -137,7 +137,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     resultBuilder.SetCustomIdentity(profile.CustomIdentity);
                 }
 
-                resultBuilder.SetUsername(username);
+                var verifiedUsername = !string.IsNullOrWhiteSpace(profile.CustomIdentity)
+                    ? profile.CustomIdentity.ToLowerInvariant()
+                    : username.ToLowerInvariant();
+                resultBuilder.SetUsername(verifiedUsername);
 
                 var result = resultBuilder.Build();
                 _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;
@@ -272,7 +275,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 resultBuilder.SetCustomIdentity(profile.CustomIdentity);
             }
 
-            resultBuilder.SetUsername(username);
+            var verifiedUsername = !string.IsNullOrWhiteSpace(profile.CustomIdentity)
+                ? profile.CustomIdentity.ToLowerInvariant()
+                : username.ToLowerInvariant();
+            resultBuilder.SetUsername(verifiedUsername);
 
             var result = resultBuilder.Build();
             _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = result;

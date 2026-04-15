@@ -1,4 +1,4 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -50,8 +50,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
 
             return await _jsonDataSerializer.Deserialize<T>(resp.Content, "Response from API");
         }
-
-        public async Task<T> PostAsync<T>(string uri, object data = null, IReadOnlyDictionary<string, string> headers = null)
+        
+        public async Task<T> PostAsync<T>(
+            string uri,
+            object data = null,
+            IReadOnlyDictionary<string, string> headers = null,
+            bool deserializeWhenNonSuccessStatus = false)
         {
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
@@ -60,10 +64,45 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
                 message.Content = _jsonDataSerializer.Serialize(data, "Request to API");
             }
 
-            var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
-            if (resp.Content == null) return default;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            return await _jsonDataSerializer.Deserialize<T>(resp.Content, "Response from API");
+            if (deserializeWhenNonSuccessStatus)
+            {
+                var resp = await _client.SendAsync(message);
+
+                if (resp.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedException();
+                }
+
+                if (resp.Content == null)
+                {
+                    return default;
+                }
+
+                var jsonResponse = await resp.Content.ReadAsStringAsync();
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "Non-success HTTP status {StatusCode} from {Uri}. Content: {Content}",
+                        (int)resp.StatusCode,
+                        uri,
+                        jsonResponse);
+                }
+
+                if (string.IsNullOrWhiteSpace(jsonResponse))
+                {
+                    return default;
+                }
+
+                return _jsonDataSerializer.DeserializeString<T>(jsonResponse, "Response from API");
+            }
+
+            var successResp = await ExecuteHttpMethod(() => _client.SendAsync(message));
+            if (successResp.Content == null) return default;
+
+            return await _jsonDataSerializer.Deserialize<T>(successResp.Content, "Response from API");
         }
 
         public async Task<string> PostAsync(string uri, object data = null, IReadOnlyDictionary<string, string> headers = null)
@@ -81,7 +120,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
             return await resp.Content.ReadAsStringAsync();
         }
 
-        public async Task<T> PostFormAsync<T>(string uri, IEnumerable<KeyValuePair<string, string>> formData, IReadOnlyDictionary<string, string> headers = null)
+        public async Task<T> PostFormAsync<T>(
+            string uri,
+            IEnumerable<KeyValuePair<string, string>> formData,
+            IReadOnlyDictionary<string, string> headers = null,
+            bool deserializeWhenNonSuccessStatus = false)
         {
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             HttpClientUtils.AddHeadersIfExist(message, headers);
@@ -92,10 +135,45 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Http
                 message.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
             }
 
-            var resp = await ExecuteHttpMethod(() => _client.SendAsync(message));
-            if (resp.Content == null) return default;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            return await _jsonDataSerializer.Deserialize<T>(resp.Content, "Response from API");
+            if (deserializeWhenNonSuccessStatus)
+            {
+                var resp = await _client.SendAsync(message);
+
+                if (resp.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedException();
+                }
+
+                if (resp.Content == null)
+                {
+                    return default;
+                }
+
+                var jsonResponse = await resp.Content.ReadAsStringAsync();
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "Non-success HTTP status {StatusCode} from {Uri}. Content: {Content}",
+                        (int)resp.StatusCode,
+                        uri,
+                        jsonResponse);
+                }
+
+                if (string.IsNullOrWhiteSpace(jsonResponse))
+                {
+                    return default;
+                }
+
+                return _jsonDataSerializer.DeserializeString<T>(jsonResponse, "Response from API");
+            }
+
+            var successResp = await ExecuteHttpMethod(() => _client.SendAsync(message));
+            if (successResp.Content == null) return default;
+
+            return await _jsonDataSerializer.Deserialize<T>(successResp.Content, "Response from API");
         }
 
         public async Task<T> DeleteAsync<T>(string uri, IReadOnlyDictionary<string, string> headers = null)

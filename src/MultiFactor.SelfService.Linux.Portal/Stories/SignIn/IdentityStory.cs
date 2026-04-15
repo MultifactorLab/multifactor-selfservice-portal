@@ -2,12 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
+using MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
@@ -18,23 +20,26 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 
 public class IdentityStory
 {
+    private readonly IMultiFactorApi _multifactorApiClient;
     private readonly IMultifactorIdpApi _idpApiClient;
     private readonly SafeHttpContextAccessor _contextAccessor;
     private readonly PortalSettings _settings;
     private readonly IStringLocalizer _localizer;
     private readonly ILogger<IdentityStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
-    private readonly CredentialVerifier _credentialVerifier;
+    private readonly ICredentialVerifier _credentialVerifier;
 
     public IdentityStory(
+        IMultiFactorApi multifactorApiClient,
         IMultifactorIdpApi idpApiClient,
         SafeHttpContextAccessor contextAccessor,
         PortalSettings settings,
         IStringLocalizer<SharedResource> localizer,
         ILogger<IdentityStory> logger,
         ClaimsProvider claimsProvider,
-        CredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier)
     {
+        _multifactorApiClient = multifactorApiClient;
         _idpApiClient = idpApiClient;
         _contextAccessor = contextAccessor;
         _settings = settings;
@@ -48,7 +53,7 @@ public class IdentityStory
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(headers);
-        
+
         var username = model.UserName.Trim();
 
         // Validate username format if UPN is required
@@ -66,14 +71,16 @@ public class IdentityStory
             _logger.LogWarning("Attempt to use identity as technical account user '{User}'", username);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-        
+
         VerifiedMembershipDto verifiedMembership = null;
+        var verifiedUsername = default(string);
         // Verify membership locally if prebind info is needed
         if (_settings.NeedPrebindInfo())
         {
             _logger.LogDebug("Verifying membership locally for user '{User}'", username);
             var membershipResult = await _credentialVerifier.VerifyMembership(username);
-            
+            verifiedUsername = membershipResult.Username;
+
             if (!membershipResult.IsAuthenticated)
             {
                 _logger.LogWarning("Membership verification failed for user '{User}': {Reason}", username, membershipResult.Reason);
@@ -83,14 +90,35 @@ public class IdentityStory
             _logger.LogInformation("User '{User}' membership verified successfully", username);
             verifiedMembership = MapToVerifiedMembershipDto(membershipResult);
         }
+
+        var authenticators = await _multifactorApiClient.GetUserAuthenticatorsAsync(username);
+        if (!authenticators.GetAuthenticators().Any())
+        {
+            return new ViewResult
+            {
+                ViewName = "Login",
+                ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                {
+                    Model = new LoginViewModel()
+                    {
+                        UserName = username
+                    }
+
+                }
+            };
+        }
+
+        var claims = new Dictionary<string, string>(_claimsProvider.GetClaims())
+        {
+            { Constants.AuthenticationClaims.AUTHENTICATION_METHODS_REFERENCES, Constants.AuthenticationClaims.PASSWORD_METHOD }
+        };
         
-        var claims = _claimsProvider.GetClaims();
         var sso = _contextAccessor.SafeGetSsoClaims();
         var postbackUrl = model.MyUrl.BuildPostbackUrl();
-        
+
         var request = new IdentityRequestDto
         {
-            Username = username,
+            Username = verifiedUsername,
             VerifiedMembership = verifiedMembership,
             SamlSessionId = sso.SamlSessionId,
             OidcSessionId = sso.OidcSessionId,
@@ -98,9 +126,9 @@ public class IdentityStory
             AdditionalClaims = claims.ToDictionary(x => x.Key, x => x.Value),
             Settings = BuildSspSettings()
         };
-        
+
         var response = await _idpApiClient.IdentityAsync(request, headers);
-        
+
         return HandleIdentityResponse(response, model);
     }
 
@@ -120,18 +148,24 @@ public class IdentityStory
 
     private IActionResult HandleIdentityResponse(IdentityResponseDto response, IdentityViewModel model)
     {
+        if (response.Action == IdentityAction.AccessDenied)
+        {
+            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
+            return new RedirectToActionResult("AccessDenied", "Error", null);
+        }
+
         if (!response.Success)
         {
             _logger.LogDebug("Identity verification failed: {Error}", response.ErrorMessage);
             throw new ModelStateErrorException(_localizer.GetString("WrongUserNameOrPassword"));
         }
-        
+
         if (response.Action == IdentityAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             _logger.LogDebug("Redirecting user '{User}' to MFA page", model.UserName);
             return new RedirectResult(response.RedirectUrl, true);
         }
-        
+
         if (response.Action == IdentityAction.ShowAuthn)
         {
             var identity = response.Username ?? model.UserName;
@@ -152,13 +186,7 @@ public class IdentityStory
                 }
             };
         }
-        
-        if (response.Action == IdentityAction.AccessDenied)
-        {
-            _logger.LogWarning("Access denied for user '{User}'", model.UserName);
-            return new RedirectToActionResult("AccessDenied", "Error", null);
-        }
-        
+
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
             return new RedirectResult(response.RedirectUrl, true);

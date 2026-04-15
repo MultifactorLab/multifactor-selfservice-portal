@@ -1,10 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
+using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
@@ -15,20 +16,23 @@ public class RedirectToCredValidationAfter2FaStory
     private readonly IApplicationCache _applicationCache;
     private readonly IMultifactorIdpApi _idpApi;
     private readonly SafeHttpContextAccessor _contextAccessor;
+    private readonly AuthenticateSessionStory _authenticateSessionStory;
 
     public RedirectToCredValidationAfter2FaStory(
         IApplicationCache applicationCache,
         ILogger<RedirectToCredValidationAfter2FaStory> logger,
         IMultifactorIdpApi idpApi,
+        AuthenticateSessionStory authenticateSessionStory,
         SafeHttpContextAccessor contextAccessor)
     {
         _logger = logger;
         _applicationCache = applicationCache;
         _idpApi = idpApi;
+        _authenticateSessionStory = authenticateSessionStory;
         _contextAccessor = contextAccessor;
     }
-    
-    public async Task<ActionResult> ExecuteAsync(string accessToken)
+
+    public async Task<IActionResult> ExecuteAsync(string accessToken)
     {
         ArgumentNullException.ThrowIfNull(accessToken);
         _logger.LogDebug("Extracting token information for PreAuthenticationMethod flow");
@@ -57,14 +61,30 @@ public class RedirectToCredValidationAfter2FaStory
             AccessToken = accessToken
         };
 
+        var authCacheResult = _applicationCache.GetPreauthenticationAuthn(ApplicationCacheKeyFactory.CreatePreAuthenticationAuthnSucceedKey(token.Subject));
+        if (!authCacheResult.IsEmpty && authCacheResult.Value)
+        {
+            _applicationCache.Remove(ApplicationCacheKeyFactory.CreatePreAuthenticationAuthnSucceedKey(token.Subject));
+            return await _authenticateSessionStory.Execute(accessToken);
+        }
+
         try
         {
             var response = await _idpApi.LoginCompletedAsync(request, _contextAccessor.HttpContext.GetRequiredHeaders());
+
+            if (!response.Success)
+            {
+                _logger.LogWarning("LoginCompleted failed after pre-auth MFA: {Error}", response.ErrorMessage);
+                return new RedirectToActionResult("AccessDenied", "Error", null);
+            }
+
+            var username = !string.IsNullOrWhiteSpace(response.RawUserName)
+                ? response.RawUserName 
+                : response.Identity;
             
-            var username = response.RawUserName ?? response.Identity;
             if (string.IsNullOrEmpty(username))
             {
-                _logger.LogError("Cannot determine username from token");
+                _logger.LogError("Can't determine username from token");
                 return new RedirectToActionResult("Login", "Account", null);
             }
             
