@@ -534,8 +534,10 @@ p {
 .login .form-column {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     padding: 48px;
     width: 440px;
+    min-height: 540px;
     /* hide the top border so upper plate's border appears continuous */
     border-left: 1px solid rgba(87, 154, 215, 0.2);
     border-right: 1px solid rgba(87, 154, 215, 0.2);
@@ -546,7 +548,6 @@ p {
     border-radius: 0 0 12px 12px;
 }
 
-/* Login page card (Figma-aligned) */
 .login.login-view {
     max-width: 476px;
     width: 100%;
@@ -736,7 +737,8 @@ p {
     margin-bottom: 24px;
 }
 
-.reset-password-view .restore-back {
+.reset-password-view .restore-back,
+.password-change-view .restore-back {
     display: inline-flex;
     align-items: center;
     gap: 12px;
@@ -745,7 +747,8 @@ p {
     margin-bottom: 16px;
 }
 
-.reset-password-view .restore-back::before {
+.reset-password-view .restore-back::before,
+.password-change-view .restore-back::before {
     content: "\2190";
     color: #99abc9;
     font-size: 18px;
@@ -1196,7 +1199,7 @@ table.authenticators tr {
 
 
 ul.action li {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 ul.action li:last-child {

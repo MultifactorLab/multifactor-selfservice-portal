@@ -11,6 +11,7 @@
         <span class="login-header-title">@Localizer["Ssp"]</span>
     </div>
     <div class="form-column login-form-card password-change-card">
+        <a href="~/" class="restore-back">@Localizer["Back"]</a>
         <h2 class="login-title password-change-title">@Localizer["Title"]</h2>
         @using (Html.BeginForm("Change", "Password", new { ReturnUrl = "/" }, FormMethod.Post))
         {

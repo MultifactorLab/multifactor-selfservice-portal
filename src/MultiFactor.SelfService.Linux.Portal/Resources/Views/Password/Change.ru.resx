@@ -120,6 +120,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
   <data name="ConfirmPassword" xml:space="preserve">
     <value>Еще раз новый пароль</value>
   </data>
