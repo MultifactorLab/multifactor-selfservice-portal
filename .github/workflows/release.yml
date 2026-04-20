@@ -15,22 +15,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Важно для git show
 
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore src/MultiFactor.SelfService.Linux.Portal.sln
-
-      - name: Publish Release (Self-contained)
+      - name: Publish Release
         run: |
           dotnet publish src/MultiFactor.SelfService.Linux.Portal/MultiFactor.SelfService.Linux.Portal.csproj \
             --configuration Release \
             --runtime linux-x64 \
-            --self-contained true \
+            --self-contained false \
             --output ./publish-artifact
 
       - name: Create ZIP archive
@@ -39,16 +36,19 @@ jobs:
           zip -r ../MultiFactor.SelfService.Linux.Portal.zip .
           cd ..
 
-      - name: Extract tag message
+      - name: Get tag message
         run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          git tag -l --format='%(contents)' "$TAG_NAME" > release-notes.txt
+          git show "${{ github.ref_name }}" -s --format="%b" > release-notes.txt
+          cat release-notes.txt
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           body_path: release-notes.txt
           files: MultiFactor.SelfService.Linux.Portal.zip
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
