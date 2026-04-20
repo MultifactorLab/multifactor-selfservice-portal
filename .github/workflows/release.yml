@@ -1,0 +1,54 @@
+name: Build & Release on Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/MultiFactor.SelfService.Linux.Portal.sln
+
+      - name: Publish Release
+        run: |
+          dotnet publish src/MultiFactor.SelfService.Linux.Portal.sln \
+            --configuration Release \
+            --no-restore \
+            --output ./publish-artifact \
+            --runtime linux-x64 --self-contained true
+
+      - name: Create ZIP archive
+        run: |
+          cd ./publish-artifact
+          zip -r ../MultiFactor.SelfService.Linux.Portal.zip .
+          cd ..
+
+      - name: Extract tag message
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          git tag -l --format='%(contents)' "$TAG_NAME" > release-notes.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: release-notes.txt
+          files: MultiFactor.SelfService.Linux.Portal.zip
+          draft: false
+          prerelease: false
