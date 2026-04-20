@@ -150,4 +150,7 @@
   <data name="AuthnInvitation" xml:space="preserve">
     <value>Введите пароль для учетной записи</value>
   </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Портал самообслуживания</value>
+  </data>
 </root>
