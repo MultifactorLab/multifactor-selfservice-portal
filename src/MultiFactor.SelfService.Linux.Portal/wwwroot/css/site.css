@@ -437,23 +437,15 @@ p {
 }
 
 #footer {
-    justify-content: center;
-    align-items: center;
     display: flex;
-    position: fixed;
-    left: 50%;
-    bottom: max(8px, env(safe-area-inset-bottom, 0px));
-    transform: translateX(-50%);
-    width: auto;
-    z-index: 20;
-    pointer-events: none;
-}
-
-#footer img {
-    display: block;
-    width: 298px;
-    max-width: calc(100vw - 40px);
-    height: auto;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    margin-block-start: auto;
+    inline-size: 100%;
 }
 
 .logo {
@@ -1232,6 +1224,13 @@ a.active .btn {
 a.active .btn:hover {
     background: #fff;
     color: #4082BC;
+}
+
+@media (width >= 1920px) {
+    .footer-icon {
+        inline-size: 100%;
+        max-inline-size: 476px;
+    }
 }
 
 @media screen and (max-width: 933px) {
