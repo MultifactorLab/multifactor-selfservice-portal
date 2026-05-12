@@ -25,11 +25,11 @@
                     <div class="input login-input login-input-username">
                         @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
-                            : Localizer.GetString("UserName") , @class = "blur-30"})
+                            : Localizer.GetString("UserName") })
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input login-input login-input-password">
-                        @Html.PasswordFor(m => m.Password, new { placeholder = Localizer.GetString("Password"), autocomplete = "off",  @class = "blur-30" })
+                        @Html.PasswordFor(m => m.Password, new { placeholder = Localizer.GetString("Password"), autocomplete = "off" })
                         @Html.ValidationMessageFor(m => m.Password)
                     </div>
                     @Html.ValidationSummary(true)

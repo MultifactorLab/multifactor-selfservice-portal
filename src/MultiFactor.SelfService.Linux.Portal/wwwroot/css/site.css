@@ -568,6 +568,7 @@ p {
     background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 4px 24px rgba(42, 125, 188, 0.3);
     justify-content: center;
+    backdrop-filter: blur(30px);
 }
 
 .login.login-view .login-title {
@@ -802,7 +803,6 @@ p {
     justify-content: center;
 }
 
-/* In-session password change form styled like forgot/change */
 .password-change-view .password-change-card {
     min-height: 540px;
     justify-content: flex-start;
@@ -1459,10 +1459,6 @@ a.active .btn:hover {
 
 .btn-header-exit {
     display: none;
-}
-
-.blur-30 {
-    backdrop-filter: blur(30px);
 }
 
 .apps-header-user {
