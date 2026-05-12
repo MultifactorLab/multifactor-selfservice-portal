@@ -1,0 +1,54 @@
+name: Build & Release on Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Важно для git show
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish Release
+        run: |
+          dotnet publish src/MultiFactor.SelfService.Linux.Portal/MultiFactor.SelfService.Linux.Portal.csproj \
+            --configuration Release \
+            --runtime linux-x64 \
+            --self-contained false \
+            --output ./publish-artifact
+
+      - name: Create ZIP archive
+        run: |
+          cd ./publish-artifact
+          zip -r ../MultiFactor.SelfService.Linux.Portal.zip .
+          cd ..
+
+      - name: Get tag message
+        run: |
+          git show "${{ github.ref_name }}" -s --format="%b" > release-notes.txt
+          cat release-notes.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body_path: release-notes.txt
+          files: MultiFactor.SelfService.Linux.Portal.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
