@@ -552,7 +552,7 @@ p {
     max-width: 476px;
     height: 108px;
     padding: 32px;
-    align-items: flex-start;
+    align-items: center;
     gap: 32px;
     border-radius: 20px 20px 0 0;
     margin: 0;
@@ -1427,7 +1427,8 @@ a.active .btn:hover {
 }
 
 .apps-logo img {
-    width: auto;
+    max-width: 180px;
+    max-height: 40px;
 }
 
 .apps-header-actions {
@@ -1458,6 +1459,10 @@ a.active .btn:hover {
 
 .btn-header-exit {
     display: none;
+}
+
+.blur-30 {
+    backdrop-filter: blur(30px);
 }
 
 .apps-header-user {
