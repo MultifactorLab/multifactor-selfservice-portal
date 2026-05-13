@@ -69,7 +69,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
         public bool UserMustChangePassword()
         {
             // = "User must change password at next logon" setting
-            var userMustChangePasswordHasValue = int.TryParse(Attributes.GetValue("pwdLastSet"), out var pwdLastSet);
+            var userMustChangePasswordHasValue = long.TryParse(Attributes.GetValue("pwdLastSet"), out var pwdLastSet);
             if (userMustChangePasswordHasValue && pwdLastSet == 0)
                 return true;
 

@@ -1,3 +1,5 @@
+using MultiFactor.SelfService.Linux.Portal.Core;
+
 namespace MultiFactor.SelfService.Linux.Portal.Extensions;
 
 public static class HttpContextExtensions
@@ -15,6 +17,12 @@ public static class HttpContextExtensions
         }
 
         return headers;
+    }
+
+    public static string? GetRawUserName(this HttpContext httpContext)
+    {
+        var rawUserName = httpContext.User.Claims.FirstOrDefault(x => x.Type == Constants.MultiFactorClaims.RawUserName);
+        return rawUserName?.Value;
     }
     
     private static bool ShouldForwardHeader(string key)
