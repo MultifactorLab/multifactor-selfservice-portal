@@ -1238,6 +1238,18 @@ a.active .btn:hover {
         position: relative;
         min-height: 0;
     }
+
+    .login-header-title {
+        font-size: 18px;
+    }
+
+    .login.login-view .login-title {
+        margin: 0 0 16px;
+    }
+
+    .password-change-view .password-change-description {
+        margin-bottom: 16px;
+    }
 }
 
 @media screen and (max-width: 340px) {
@@ -1254,6 +1266,10 @@ a.active .btn:hover {
     .login .form-column {
         width: 100% !important;
     }
+
+    .login-header-title {
+        overflow-wrap: anywhere;
+    }
 }
 
 @media screen and (max-width: 535px) {
@@ -1264,7 +1280,7 @@ a.active .btn:hover {
 
     .login.login-view .login-form-card {
         width: 100%;
-        padding: 32px 24px;
+        padding: 24px;
     }
 
     .success-title {
