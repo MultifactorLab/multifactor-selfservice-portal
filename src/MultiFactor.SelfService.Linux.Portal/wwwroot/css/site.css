@@ -1711,6 +1711,17 @@ a.active .btn:hover {
         padding: 20px;
     }
 
+    .apps-grid:not(:has(:nth-child(5))) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))) .app-card {
+        width: auto;
+        margin: 0;
+    }
+
     .apps-title {
         font-size: 20px;
     }
@@ -1735,6 +1746,17 @@ a.active .btn:hover {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         padding: 15px;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))) .app-card {
+        width: auto;
+        margin: 0;
     }
 
     .apps-title {
@@ -1873,6 +1895,17 @@ a.active .btn:hover {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         padding: 0;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))) .app-card {
+        width: auto;
+        margin: 0;
     }
 
     .app-card {
