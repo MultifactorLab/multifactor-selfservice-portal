@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Authentication;
+using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.PasswordChanging;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -11,13 +13,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPassword
     {
         private readonly PortalSettings _settings;
         private readonly UserPasswordChanger _passwordChanger;
-        private readonly TokenClaimsAccessor _claimsAccessor;
+        private readonly SafeHttpContextAccessor _contextAccessor;
 
-        public ChangeValidPasswordStory(PortalSettings settings, UserPasswordChanger passwordChanger, TokenClaimsAccessor claimsAccessor)
+        public ChangeValidPasswordStory(PortalSettings settings, UserPasswordChanger passwordChanger, TokenClaimsAccessor claimsAccessor, SafeHttpContextAccessor contextAccessor)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _passwordChanger = passwordChanger ?? throw new ArgumentNullException(nameof(passwordChanger));
-            _claimsAccessor = claimsAccessor ?? throw new ArgumentNullException(nameof(claimsAccessor));
+            _contextAccessor = contextAccessor;
         }
 
         public async Task<IActionResult> ExecuteAsync(ChangePasswordViewModel model)
@@ -28,10 +30,15 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPassword
             {
                 return new RedirectToActionResult("Logout", "Account", new { });
             }
-            var username = _claimsAccessor.GetTokenClaims().RawUserName;
+            
+            var rawUserName = _contextAccessor.HttpContext.GetRawUserName();
+            if (string.IsNullOrWhiteSpace(rawUserName))
+            {
+                throw new UnauthorizedException("Invalid user");
+            }
 
             var res = await _passwordChanger.ChangePassword(
-                username,
+                rawUserName,
                 model.Password,
                 model.NewPassword,
                 _settings.PasswordManagement.ChangeValidPasswordMode);
