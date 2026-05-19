@@ -433,7 +433,7 @@ p {
     flex-direction: column;
     align-content: center;
     max-inline-size: 100%;
-    padding-bottom: 64px;
+    padding-bottom: 47px;
 }
 
 #footer {
@@ -1265,10 +1265,6 @@ a.active .btn:hover {
 
     .login .form-column {
         width: 100% !important;
-    }
-
-    .login-header-title {
-        overflow-wrap: anywhere;
     }
 }
 
