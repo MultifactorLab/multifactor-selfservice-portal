@@ -3,6 +3,16 @@
 
 // Password visibility toggle for all password fields.
 (function () {
+    const eyeOpenIcon = '/images/password-eye-open.svg';
+    const eyeClosedIcon = '/images/password-eye-closed.svg';
+
+    function updateToggleState(input, button, icon) {
+        const isPasswordVisible = input.type === 'text';
+        icon.src = isPasswordVisible ? eyeClosedIcon : eyeOpenIcon;
+        button.setAttribute('aria-pressed', isPasswordVisible ? 'true' : 'false');
+        button.setAttribute('aria-label', isPasswordVisible ? 'Hide password' : 'Show password');
+    }
+
     function initializePasswordToggles() {
         const passwordInputs = document.querySelectorAll('input[type="password"]');
 
@@ -27,18 +37,19 @@
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'password-toggle-button';
-            button.setAttribute('aria-label', 'Toggle password visibility');
             button.setAttribute('aria-pressed', 'false');
+            button.setAttribute('aria-label', 'Show password');
 
             const icon = document.createElement('img');
-            icon.src = '/images/password-eye-closed.svg';
             icon.alt = '';
             button.appendChild(icon);
+
+            updateToggleState(input, button, icon);
 
             button.addEventListener('click', function () {
                 const showPassword = input.type === 'password';
                 input.type = showPassword ? 'text' : 'password';
-                button.setAttribute('aria-pressed', showPassword ? 'true' : 'false');
+                updateToggleState(input, button, icon);
             });
 
             host.appendChild(button);

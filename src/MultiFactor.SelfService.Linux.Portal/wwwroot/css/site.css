@@ -312,15 +312,20 @@ textarea {
 
 @font-face {
     font-family: 'Inter';
-    src: url("../fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
-    font-weight: normal;
+    src: url("../fonts/Inter-VariableFont_opsz,wght.woff2") format("woff2");
+    font-weight: 100 900;
     font-style: normal;
+    font-display: swap;
 }
 
 /**
 * Main styles
 * -
 */
+:root {
+    --footer-block-size: 47px;
+}
+
 html {
     font-size: 100%;
     -ms-text-size-adjust: 100%;
@@ -418,7 +423,8 @@ p {
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
     flex-direction: column;
-    min-block-size: 0;
+    min-block-size: 100dvh;
+    inline-size: 100%;
 }
 
 #header {
@@ -433,10 +439,11 @@ p {
     flex-direction: column;
     align-content: center;
     max-inline-size: 100%;
-    padding-bottom: 47px;
+    box-sizing: border-box;
 }
 
 #footer {
+    flex-shrink: 0;
     display: flex;
     -webkit-box-align: center;
     -ms-flex-align: center;
@@ -444,8 +451,17 @@ p {
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
-    margin-block-start: auto;
     inline-size: 100%;
+    margin-block-start: 1em;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+}
+
+.footer-icon {
+    display: block;
+    block-size: var(--footer-block-size);
+    inline-size: auto;
+    max-inline-size: min(100%, 476px);
 }
 
 .logo {
@@ -1008,6 +1024,8 @@ p {
     flex-direction: column;
     border-radius: 24px;
     flex: 1;
+    min-block-size: 100%;
+    box-sizing: border-box;
 }
 
 .stage {
@@ -1077,8 +1095,14 @@ p {
 }
 
 .password-toggle-button img {
+    display: block;
     width: 18px;
     height: 8px;
+    object-fit: contain;
+}
+
+.password-toggle-button[aria-pressed="false"] img {
+    height: 12px;
 }
 
 .login .form-row {
@@ -1229,7 +1253,6 @@ a.active .btn:hover {
 @media (width >= 1920px) {
     .footer-icon {
         inline-size: 100%;
-        max-inline-size: 476px;
     }
 }
 
@@ -1277,6 +1300,7 @@ a.active .btn:hover {
     .login.login-view .login-form-card {
         width: 100%;
         padding: 24px;
+        justify-content: flex-start;
     }
 
     .success-title {
@@ -1400,7 +1424,8 @@ a.active .btn:hover {
     position: relative;
     width: 100%;
     max-width: 1180px;
-    height: 604px;
+    min-height: 604px;
+    height: auto;
     display: flex;
     flex-direction: column;
     align-self: center;
@@ -1620,21 +1645,25 @@ a.active .btn:hover {
 }
 
 .app-card-image {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-height: 160px;
+    height: 100px;
     margin-bottom: 16px;
     border-radius: 10px;
     overflow: hidden;
 }
 
+.app-card-image img,
 .app-logo {
-    max-width: 100%;
-    max-height: 100%;
+    width: 80px;
+    height: 80px;
+    max-width: none;
+    max-height: none;
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 .app-card-title {
@@ -1702,6 +1731,10 @@ a.active .btn:hover {
         padding: 12px 20px;
     }
 
+    .apps-container {
+        min-height: 0;
+    }
+
     .apps-header-top {
         flex-wrap: wrap;
         gap: 10px;
@@ -1729,6 +1762,14 @@ a.active .btn:hover {
         justify-content: stretch;
     }
 
+    .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .apps-grid:not(:has(:nth-child(3))) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .apps-grid:not(:has(:nth-child(5))) .app-card {
         width: auto;
         margin: 0;
@@ -1741,6 +1782,17 @@ a.active .btn:hover {
     .app-card {
         min-height: 140px;
         padding: 12px;
+    }
+
+    .app-card-image {
+        height: 64px;
+        margin-bottom: 10px;
+    }
+
+    .app-card-image img,
+    .app-logo {
+        width: 56px;
+        height: 56px;
     }
 
 }
@@ -1879,6 +1931,7 @@ a.active .btn:hover {
     }
 
     .apps-container {
+        min-height: 0;
         height: auto;
         max-width: 100%;
         padding: 0 20px 16px;
@@ -1904,7 +1957,7 @@ a.active .btn:hover {
     }
 
     .apps-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
         padding: 0;
     }
@@ -1913,6 +1966,14 @@ a.active .btn:hover {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         justify-content: stretch;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .apps-grid:not(:has(:nth-child(3))) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .apps-grid:not(:has(:nth-child(5))) .app-card {
@@ -1927,8 +1988,30 @@ a.active .btn:hover {
     }
 
     .app-card-image {
+        height: 64px;
         margin-bottom: 10px;
-        max-height: 88px;
+    }
+
+    .app-card-image img,
+    .app-logo {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+@media (max-width: 568px) {
+    .apps-grid,
+    .apps-grid:not(:has(:nth-child(5))),
+    .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)),
+    .apps-grid:not(:has(:nth-child(3))) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+    }
+
+    .apps-grid:not(:has(:nth-child(5))) .app-card {
+        width: auto;
+        margin: 0;
     }
 }
 
