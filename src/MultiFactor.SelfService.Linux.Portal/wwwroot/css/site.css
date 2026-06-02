@@ -1,9 +1,3 @@
-/**
- * ===================================================================
- * reset - normalize.css v3.0.2 | MIT License | git.io/normalize
- *
- * -------------------------------------------------------------------
- */
 html {
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
@@ -188,12 +182,6 @@ td, th {
     padding: 0;
 }
 
-/**
- * ===================================================================
- * basic/base setup styles
- *
- * -------------------------------------------------------------------
- */
 * {
     outline: none;
     -webkit-box-sizing: border-box;
@@ -215,19 +203,11 @@ body, input, button {
     -webkit-font-smoothing: antialiased;
 }
 
-/**
- * Media
- * -
- */
 img, video {
     max-width: 100%;
     height: auto;
 }
 
-/**
- * Typography resets
- * -
- */
 div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, p, blockquote, th, td {
     margin: 0;
     padding: 0;
@@ -263,10 +243,6 @@ li {
     display: block;
 }
 
-/**
- * links
- * -
- */
 a {
     text-decoration: none;
     line-height: inherit;
@@ -285,10 +261,6 @@ a img {
     border: none;
 }
 
-/**
- * inputs
- * -
- */
 fieldset {
     margin: 0;
     padding: 0;
@@ -318,10 +290,6 @@ textarea {
     font-display: swap;
 }
 
-/**
-* Main styles
-* -
-*/
 :root {
     --footer-block-size: 47px;
 }
@@ -339,7 +307,7 @@ body {
     min-width: 320px;
     margin: 0;
     color: #32454D;
-    font: 16px / 1.2 Inter, helvetica, arial, sans-serif;
+    font: 15px / 1.2 Inter, helvetica, arial, sans-serif;
     font-weight: normal;
     font-style: normal;
     background: url("/images/background_light.png");
@@ -360,13 +328,6 @@ body.auth-form-background {
     background-position: center;
 }
 
-.bg {
-    background-attachment: fixed;
-    min-block-size: 100dvh;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-}
 
 img {
     border-style: none;
@@ -464,30 +425,7 @@ p {
     max-inline-size: min(100%, 476px);
 }
 
-.logo {
-    display: block;
-    margin: 0 auto 26px;
-}
-
-.logo a {
-    display: block;
-    height: 100%;
-}
-
-.container {
-    max-width: 1023px;
-    padding: 0 15px;
-    margin: 0 auto;
-}
-
-.showcase-layout {
-    max-width: 1180px;
-    height: 824px;
-    background-color: rgba(255, 255, 255, 0.7);
-}
-
 .login {
-    /* legacy login container (unused for new design) */
     max-width: 1023px;
     padding: 15px;
     margin: 0 auto;
@@ -497,30 +435,24 @@ p {
 }
 
 
-/* separate header plate above the login form: refined glass with accurate transparency */
 .login-header-plate {
-    width: 440px; /* match .form-column width */
-    margin: 0 auto; /* center within login container */
-    height: 110px; /* increased per request */
+    width: 440px;
+    margin: 0 auto;
+    height: 110px;
     display: flex;
-    align-items: center; /* vertical centering of children */
-    gap: 32px; /* space between logo and title */
+    align-items: center;
+    gap: 32px;
     padding: 0 32px;
-    /* lighter opacity for a more realistic glass look */
     background: rgba(255,255,255,0.15);
-    /* slightly stronger blur to diffuse background more */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-radius: 20px 20px 0 0;
     box-sizing: border-box;
-    /* border only top and sides, softer color */
     border-top: 1px solid rgba(255,255,255,0.8);
     border-left: 1px solid rgba(255,255,255,0.8);
     border-right: 1px solid rgba(255,255,255,0.8);
     border-bottom: none;
-    /* subtle drop shadow to lift from background */
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    /* flush with form below */
     margin-bottom: 0;
     position: relative;
 }
@@ -546,13 +478,11 @@ p {
     padding: 48px;
     width: 440px;
     min-height: 540px;
-    /* hide the top border so upper plate's border appears continuous */
     border-left: 1px solid rgba(87, 154, 215, 0.2);
     border-right: 1px solid rgba(87, 154, 215, 0.2);
     border-bottom: 1px solid rgba(87, 154, 215, 0.2);
     border-top: none;
     background: #ECF5FB;
-    /* only round bottom corners now */
     border-radius: 0 0 12px 12px;
 }
 
@@ -626,7 +556,7 @@ p {
     background: rgba(255, 255, 255, 0.7);
     border: 1px solid #e2ecff;
     color: #32454d;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 400;
     line-height: 1.2;
 }
@@ -653,14 +583,13 @@ p {
 }
 
 .login.login-view .forgot {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.35;
 }
 
-/* Restore password (enter login) form - node 495:50435 */
 .restore-password-view .restore-password-card {
     min-height: 540px;
-    justify-content: flex-start;
+    justify-content: flex-start !important;
     gap: 0;
     background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 4px 24px rgba(42, 125, 188, 0.3);
@@ -672,7 +601,7 @@ p {
     gap: 12px;
     margin-bottom: 16px;
     color: #99abc9;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.5;
 }
 
@@ -683,7 +612,7 @@ p {
 }
 
 .restore-password-view .restore-title {
-    margin: 0 0 8px;
+    margin: 0 0 8px !important;
     color: #1d1e21;
     width: 100%;
     text-align: left;
@@ -692,13 +621,13 @@ p {
 .restore-password-view .restore-description {
     margin: 0;
     color: #3f3f44;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.4;
 }
 
 .restore-password-view .restore-fields {
-    gap: 12px;
-    margin-top: 24px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .restore-password-view .restore-login-input input,
@@ -709,7 +638,7 @@ p {
 .restore-password-view .restore-unlock-row {
     margin-bottom: 0;
     color: #3f3f44;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.35;
 }
 
@@ -725,7 +654,6 @@ p {
     margin-bottom: 0;
 }
 
-/* Reset password form - node 495:50605 */
 .reset-password-view .reset-password-card {
     min-height: 540px;
     justify-content: flex-start;
@@ -741,7 +669,7 @@ p {
 
 .reset-password-view .reset-description {
     color: #3f3f44;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.4;
     margin-bottom: 24px;
 }
@@ -790,7 +718,6 @@ p {
     margin-bottom: 0;
 }
 
-/* Restore done form - node 1181:7686 */
 .restore-done-view .restore-done-card {
     min-height: 540px;
     justify-content: center;
@@ -809,7 +736,7 @@ p {
     text-align: center;
     margin: 0 0 48px;
     color: #3f3f44;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.4;
 }
 
@@ -828,15 +755,15 @@ p {
 .password-change-view .password-change-title {
     width: 100%;
     text-align: left;
-    margin: 0 0 8px;
+    margin: 0 0 8px !important;
     color: #1d1e21;
 }
 
 .password-change-view .password-change-description {
     color: #3f3f44;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.4;
-    margin-bottom: 24px;
+    margin: 0;
 }
 
 .password-change-view .password-change-description p {
@@ -853,15 +780,21 @@ p {
 }
 
 .password-change-view .password-change-validation {
-    margin-bottom: 0;
+    margin: 8px 0 0;
 }
 
 .password-change-view .password-change-fields {
-    gap: 12px;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.password-change-view .password-change-input input,
+.password-change-view .password-change-input input[type=password] {
+    margin-bottom: 0;
 }
 
 .password-change-view .password-change-submit-row {
-    margin-top: 12px;
+    margin-top: 8px;
     margin-bottom: 0;
 }
 
@@ -884,7 +817,7 @@ p {
 
 .btn-primary {
     height: 56px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     border-radius: 4px;
     line-height: 120%;
@@ -910,7 +843,7 @@ p {
     height: 56px;
     line-height: 46px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
     text-decoration: none;
     gap: 10px;
 }
@@ -935,10 +868,6 @@ p {
 
 .pt-4 {
     padding-top: 1.25em;
-}
-
-.pt-8 {
-    padding-top: 2em;
 }
 
 .forgot {
@@ -973,17 +902,6 @@ p {
     scrollbar-color: #579ad7 #fff;
 }
 
-.showcase-link-image {
-    max-width: 4em;
-    max-height: 4em;
-    min-width: 4em;
-    min-height: 4em;
-    margin-bottom: 0.5em;
-}
-
-.showcase-no-top-padding {
-    padding-top: 0 !important;
-}
 
 .login .form-column .auth-details .auth-username p {
     margin: 0;
@@ -1028,11 +946,6 @@ p {
     box-sizing: border-box;
 }
 
-.stage {
-    display: flex;
-    flex: 1;
-    background: url(../images/stage.svg) center center no-repeat;
-}
 
 .input {
     margin-bottom: 14px;
@@ -1063,9 +976,210 @@ p {
 }
 
 .input input.input-validation-error,
+.input input[type=email].input-validation-error,
 .input input[type=password].input-validation-error,
 .input input[type=text].input-validation-error {
-    border-color: red;
+    border-color: #EC2424;
+}
+
+.input input.input-validation-error:hover,
+.input input[type=email].input-validation-error:hover,
+.input input[type=password].input-validation-error:hover,
+.input input[type=text].input-validation-error:hover,
+.input input.input-validation-error:focus,
+.input input[type=email].input-validation-error:focus,
+.input input[type=password].input-validation-error:focus,
+.input input[type=text].input-validation-error:focus {
+    border-color: #EC2424;
+}
+
+.login .input input,
+.login .input input[type=email],
+.login .input input[type=password],
+.login .input input[type=text] {
+    height: 56px;
+    padding: 12px 16px;
+    color: #99ABC9;
+    font-family: Inter, helvetica, arial, sans-serif;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 19.2px;
+    letter-spacing: -0.32px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #E2ECFF;
+    border-radius: 4px;
+    transition: border-color 0.15s ease, padding 0.15s ease, color 0.15s ease;
+}
+
+.login .input input::placeholder,
+.login .input input[type=email]::placeholder,
+.login .input input[type=password]::placeholder,
+.login .input input[type=text]::placeholder {
+    color: #99ABC9;
+    font-weight: 400;
+    line-height: 19.2px;
+    opacity: 1;
+    transform: none;
+}
+
+.login .input input:hover,
+.login .input input[type=email]:hover,
+.login .input input[type=password]:hover,
+.login .input input[type=text]:hover {
+    border-color: #C9DBFF;
+}
+
+.login .input input:focus,
+.login .input input[type=email]:focus,
+.login .input input[type=password]:focus,
+.login .input input[type=text]:focus {
+    border-color: #75B8F5;
+}
+
+.login .input input:focus::placeholder,
+.login .input input[type=email]:focus::placeholder,
+.login .input input[type=password]:focus::placeholder,
+.login .input input[type=text]:focus::placeholder {
+    color: #99ABC9;
+    opacity: 1;
+}
+
+.login .input input:not(:placeholder-shown),
+.login .input input[type=email]:not(:placeholder-shown),
+.login .input input[type=password]:not(:placeholder-shown),
+.login .input input[type=text]:not(:placeholder-shown) {
+    color: #1D1E21;
+    font-weight: 500;
+}
+
+.login .input input:disabled,
+.login .input input[type=email]:disabled,
+.login .input input[type=password]:disabled,
+.login .input input[type=text]:disabled {
+    background: #E2ECFF;
+    border-color: #E2ECFF;
+    color: #99ABC9;
+    cursor: not-allowed;
+}
+
+.login .input input:disabled::placeholder,
+.login .input input[type=email]:disabled::placeholder,
+.login .input input[type=password]:disabled::placeholder,
+.login .input input[type=text]:disabled::placeholder {
+    color: #99ABC9;
+    opacity: 1;
+}
+
+.login .input span {
+    color: #99ABC9;
+    font-family: Inter, helvetica, arial, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.24px;
+}
+
+.login .input.input-has-error {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.login .input.input-has-error input,
+.login .input.input-has-error input[type=email],
+.login .input.input-has-error input[type=password],
+.login .input.input-has-error input[type=text] {
+    border-color: #EC2424;
+}
+
+.login .input.input-has-error input:hover,
+.login .input.input-has-error input[type=email]:hover,
+.login .input.input-has-error input[type=password]:hover,
+.login .input.input-has-error input[type=text]:hover,
+.login .input.input-has-error input:focus,
+.login .input.input-has-error input[type=email]:focus,
+.login .input.input-has-error input[type=password]:focus,
+.login .input.input-has-error input[type=text]:focus {
+    border-color: #EC2424;
+}
+
+.login .input .field-validation-error {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    color: #EC2424;
+    font-family: Inter, helvetica, arial, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.24px;
+}
+
+.login .input .field-validation-error span {
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+}
+
+.login .input .field-validation-valid {
+    display: none;
+}
+
+.login .input {
+    position: relative;
+}
+
+.login .input.input-has-value::before,
+.login .input.input-is-focused::before {
+    content: attr(data-floating-label);
+    position: absolute;
+    left: 16px;
+    top: 10px;
+    color: #99ABC9;
+    font-family: Inter, helvetica, arial, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.24px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.login .input.input-has-value input,
+.login .input.input-has-value input[type=email],
+.login .input.input-has-value input[type=password],
+.login .input.input-has-value input[type=text],
+.login .input.input-is-focused input,
+.login .input.input-is-focused input[type=email],
+.login .input.input-is-focused input[type=password],
+.login .input.input-is-focused input[type=text] {
+    padding-top: 24px;
+    padding-bottom: 5px;
+    color: #1D1E21;
+    font-weight: 500;
+}
+
+.login .input.input-has-value input::placeholder,
+.login .input.input-has-value input[type=email]::placeholder,
+.login .input.input-has-value input[type=password]::placeholder,
+.login .input.input-has-value input[type=text]::placeholder,
+.login .input.input-is-focused input::placeholder,
+.login .input.input-is-focused input[type=email]::placeholder,
+.login .input.input-is-focused input[type=password]::placeholder,
+.login .input.input-is-focused input[type=text]::placeholder {
+    color: transparent;
+}
+
+.login .input input:disabled ~ .password-toggle-button,
+.login .input input[type=password]:disabled ~ .password-toggle-button {
+    opacity: 0.6;
 }
 
 .password-toggle-host {
@@ -1097,12 +1211,48 @@ p {
 .password-toggle-button img {
     display: block;
     width: 18px;
-    height: 8px;
+    height: 12px;
     object-fit: contain;
 }
 
-.password-toggle-button[aria-pressed="false"] img {
-    height: 12px;
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+    box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+    -webkit-text-fill-color: inherit !important;
+    caret-color: inherit !important;
+    transition: background-color 999999s ease-out 0s, color 999999s ease-out 0s;
+}
+
+input:-internal-autofill-selected,
+textarea:-internal-autofill-selected,
+select:-internal-autofill-selected {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-image: none !important;
+    background-color: #FFFFFF !important;
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+    -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+    box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+}
+
+.login .input input:-webkit-autofill,
+.login .input input:-webkit-autofill:hover,
+.login .input input:-webkit-autofill:focus,
+.login .input input:-webkit-autofill:active,
+.login .input input:-internal-autofill-selected {
+    -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.7) inset !important;
+    box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.7) inset !important;
+    background-color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .login .form-row {
@@ -1115,15 +1265,6 @@ p {
 
 .mb-8 {
     margin-bottom: 16px !important;
-}
-.p-8 {
-    padding: 8px;
-}
-
-.align-row-right {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-end;
 }
 
 .login form.active {
@@ -1139,10 +1280,6 @@ p {
     display: none;
 }
 
-.change-pwd .form-column {
-    padding: 5px 0 0;
-    width: 465px;
-}
 
 ul.list {
     list-style-type: disc;
@@ -1173,47 +1310,6 @@ table.authenticators tr {
     border-top: 1px solid rgba(0, 0, 0, 0.0625);
 }
 
-.block {
-    background: #FFFFFE;
-    -webkit-box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.15);
-    box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.15);
-    padding: 7vh 0;
-    text-align: center;
-}
-
-.block h2 {
-    display: inline-block;
-    vertical-align: top;
-    position: relative;
-    margin-bottom: 10vh;
-    padding: 0 50px;
-}
-
-.block h2:before {
-    position: absolute;
-    top: -5px;
-    left: 15px;
-    background: url(../content/images/icon_left.svg) no-repeat;
-    width: 24px;
-    height: 47px;
-    content: "";
-}
-
-.block h2:after {
-    position: absolute;
-    top: -11px;
-    right: 11px;
-    background: url(../content/images/icon_right.svg) no-repeat;
-    width: 34px;
-    height: 53px;
-    content: "";
-}
-
-.block p {
-    margin-bottom: 19px;
-}
-
-
 ul.action li {
     margin-bottom: 12px;
 }
@@ -1230,7 +1326,7 @@ a.btn {
     height: 50px;
     line-height: 46px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
     text-decoration: none;
     text-align: center;
 }
@@ -1271,7 +1367,7 @@ a.active .btn:hover {
     }
 
     .password-change-view .password-change-description {
-        margin-bottom: 16px;
+        margin-bottom: 0;
     }
 }
 
@@ -1316,24 +1412,6 @@ a.active .btn:hover {
     #header h1 {
         margin-bottom: 10px;
     }
-
-    .block h2 {
-        margin-bottom: 30px;
-    }
-
-    .block h2:before {
-        top: 50%;
-        -webkit-transform: translateY(-50%);
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
-    }
-
-    .block h2:after {
-        top: 50%;
-        -webkit-transform: translateY(-50%);
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
-    }
 }
 
 .c-container {
@@ -1349,7 +1427,6 @@ a.active .btn:hover {
     user-select: none;
 }
 
-/* Hide the browser's default checkbox */
 .c-container input {
     position: absolute;
     opacity: 0;
@@ -1358,7 +1435,6 @@ a.active .btn:hover {
     width: 0;
 }
 
-/* Create a custom checkbox */
 .c-checkmark {
     position: absolute;
     top: 0;
@@ -1369,29 +1445,20 @@ a.active .btn:hover {
     border: 2px solid #CCE0F2;
 }
 
-/* On mouse-over, add a grey background color */
-.c-container:hover input ~ .c-checkmark {
-    /*    background-color: #ccc;*/
-}
-
-/* When the checkbox is checked, add a blue background */
 .c-container input:checked ~ .c-checkmark {
     background-color: #579AD7;
 }
 
-/* Create the checkmark/indicator (hidden when not checked) */
 .c-checkmark:after {
     content: "";
     position: absolute;
     display: none;
 }
 
-/* Show the checkmark when checked */
 .c-container input:checked ~ .c-checkmark:after {
     display: block;
 }
 
-/* Style the checkmark/indicator */
 .c-container .c-checkmark:after {
     left: 5px;
     top: 0.01px;
@@ -1415,10 +1482,6 @@ a.active .btn:hover {
     overflow: hidden;
 }
 
-/* ===================================================================
- * Applications Page Styles
- * ===================================================================
- */
 
 .apps-container {
     position: relative;
@@ -1531,7 +1594,7 @@ a.active .btn:hover {
 
 .avatar-letter {
     font-family: 'Inter', sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     line-height: 1;
     color: white;
@@ -1542,7 +1605,7 @@ a.active .btn:hover {
 
 .user-name {
     font-family: 'Inter', sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     line-height: 1.2;
     color: white;
@@ -1574,11 +1637,11 @@ a.active .btn:hover {
 }
 
 .apps-content {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 35px;
+    padding: 0 35px 24px;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 20px;
 }
@@ -1603,39 +1666,89 @@ a.active .btn:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
-    padding-bottom: 54px;
+    padding-bottom: 0;
     border-radius: 20px;
     box-sizing: border-box;
 }
 
-.apps-grid:not(:has(:nth-child(5))) {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+.apps-grid:has(> .app-card:nth-child(1)):not(:has(> .app-card:nth-child(2))) {
+    width: 100%;
+    max-width: 344px;
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0 auto;
 }
 
-.apps-grid:not(:has(:nth-child(5))) .app-card {
-    width: 200px;
-    margin: 0 10px;
+.apps-grid:has(> .app-card:nth-child(2)):not(:has(> .app-card:nth-child(3))) {
+    width: 100%;
+    max-width: 708px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0 auto;
 }
 
-.apps-grid:not(:has(:nth-child(3))) .app-card {
-    width: 344px;
-    margin: 0 10px;
+.apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
+    width: 100%;
+    max-width: 1072px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 auto;
+}
+
+.apps-grid:has(> .app-card:nth-child(4)):not(:has(> .app-card:nth-child(5))) {
+    width: 100%;
+    max-width: 1072px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0 auto;
+}
+
+.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))),
+.apps-grid:has(> .app-card:nth-child(6)):not(:has(> .app-card:nth-child(7))) {
+    width: 100%;
+    max-width: 1072px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 200px);
+    margin: 0 auto;
+}
+
+.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
 }
 
 .app-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+    gap: 10px;
+    min-width: 0;
     padding: 20px;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     text-decoration: none;
     color: inherit;
     transition: all 0.2s ease;
+    height: 200px;
     min-height: 200px;
+    overflow: hidden;
 }
 
 .app-card:hover {
@@ -1645,13 +1758,15 @@ a.active .btn:hover {
 }
 
 .app-card-image {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 100px;
-    margin-bottom: 16px;
+    height: auto;
+    max-height: calc(100% - 22px);
+    min-height: 0;
+    margin-bottom: 0;
     border-radius: 10px;
     overflow: hidden;
 }
@@ -1672,29 +1787,32 @@ a.active .btn:hover {
     font-weight: 400;
     line-height: 1.2;
     color: #3f3f44;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-height: 0;
     text-align: center;
     width: 100%;
-    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     letter-spacing: -0.24px;
 }
 
-/* Responsive Design */
 @media (max-width: 1440px) {
-    .apps-content {
-
-    }
-
-    .apps-grid {
-    }
-
     .apps-header-top {
         width: 100%;
     }
 }
 
 @media (max-width: 1024px) {
+    .apps-container {
+        min-height: 0;
+    }
+
     .apps-content {
-        padding: 0 30px 30px;
+        padding: 0 30px 24px;
     }
 
     .apps-title-section {
@@ -1712,7 +1830,6 @@ a.active .btn:hover {
 
     .apps-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
     }
 
     .apps-title {
@@ -1766,6 +1883,11 @@ a.active .btn:hover {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
+        max-width: 708px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .apps-grid:not(:has(:nth-child(3))) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1785,8 +1907,8 @@ a.active .btn:hover {
     }
 
     .app-card-image {
-        height: 64px;
-        margin-bottom: 10px;
+        min-height: 0;
+        margin-bottom: 0;
     }
 
     .app-card-image img,
@@ -1838,7 +1960,6 @@ a.active .btn:hover {
     }
 }
 
-/* Mobile showcase variant (showcase enabled, 360px baseline) */
 @media (max-width: 920px) {
     .apps-header {
         position: static;
@@ -1909,7 +2030,7 @@ a.active .btn:hover {
         padding: 12px 16px;
         background: linear-gradient(90deg, #579ad7 0%, #75b8f5 100%);
         color: #ffffff !important;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         letter-spacing: 0;
         text-transform: none;
@@ -1972,6 +2093,11 @@ a.active .btn:hover {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
+        max-width: 708px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .apps-grid:not(:has(:nth-child(3))) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -1988,8 +2114,8 @@ a.active .btn:hover {
     }
 
     .app-card-image {
-        height: 64px;
-        margin-bottom: 10px;
+        min-height: 0;
+        margin-bottom: 0;
     }
 
     .app-card-image img,
@@ -2005,8 +2131,13 @@ a.active .btn:hover {
     .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)),
     .apps-grid:not(:has(:nth-child(3))) {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         justify-content: stretch;
+    }
+
+    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
+        max-width: 100% !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
     .apps-grid:not(:has(:nth-child(5))) .app-card {

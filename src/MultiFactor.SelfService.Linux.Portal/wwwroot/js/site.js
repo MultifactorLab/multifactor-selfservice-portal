@@ -8,9 +8,14 @@
 
     function updateToggleState(input, button, icon) {
         const isPasswordVisible = input.type === 'text';
-        icon.src = isPasswordVisible ? eyeClosedIcon : eyeOpenIcon;
+        icon.src = isPasswordVisible ? eyeOpenIcon : eyeClosedIcon;
         button.setAttribute('aria-pressed', isPasswordVisible ? 'true' : 'false');
         button.setAttribute('aria-label', isPasswordVisible ? 'Hide password' : 'Show password');
+    }
+
+    function positionToggleButton(input, button) {
+        const top = input.offsetTop + (input.offsetHeight / 2);
+        button.style.top = `${top}px`;
     }
 
     function initializePasswordToggles() {
@@ -45,11 +50,17 @@
             button.appendChild(icon);
 
             updateToggleState(input, button, icon);
+            positionToggleButton(input, button);
 
             button.addEventListener('click', function () {
                 const showPassword = input.type === 'password';
                 input.type = showPassword ? 'text' : 'password';
                 updateToggleState(input, button, icon);
+                positionToggleButton(input, button);
+            });
+
+            window.addEventListener('resize', function () {
+                positionToggleButton(input, button);
             });
 
             host.appendChild(button);
@@ -57,9 +68,75 @@
         });
     }
 
+    function updateFloatingInputState(input) {
+        const host = input.closest('.input');
+        if (!host) {
+            return;
+        }
+
+        const placeholder = input.getAttribute('placeholder');
+        if (placeholder && !host.dataset.floatingLabel) {
+            host.dataset.floatingLabel = placeholder;
+        }
+
+        const hasValue = input.value.trim().length > 0;
+        const isFocused = document.activeElement === input;
+
+        host.classList.toggle('input-has-value', hasValue);
+        host.classList.toggle('input-is-focused', isFocused);
+    }
+
+    function updateInputValidationState(input) {
+        const host = input.closest('.input');
+        if (!host) {
+            return;
+        }
+
+        const validationMessage = host.querySelector('.field-validation-error');
+        const hasVisibleValidationError = validationMessage && validationMessage.textContent && validationMessage.textContent.trim().length > 0;
+        const hasError = input.classList.contains('input-validation-error') || hasVisibleValidationError;
+        host.classList.toggle('input-has-error', hasError);
+    }
+
+    function initializeFloatingInputs() {
+        const textLikeInputs = document.querySelectorAll('.login .input input[type="text"], .login .input input[type="email"], .login .input input[type="password"]');
+
+        textLikeInputs.forEach(function (input) {
+            if (input.dataset.floatingInputInitialized === "true") {
+                updateFloatingInputState(input);
+                updateInputValidationState(input);
+                return;
+            }
+
+            updateFloatingInputState(input);
+            updateInputValidationState(input);
+            input.addEventListener('input', function () { updateFloatingInputState(input); });
+            input.addEventListener('focus', function () { updateFloatingInputState(input); });
+            input.addEventListener('blur', function () {
+                updateFloatingInputState(input);
+                updateInputValidationState(input);
+            });
+
+            const validationObserver = new MutationObserver(function () {
+                updateInputValidationState(input);
+            });
+
+            validationObserver.observe(input, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+
+            input.dataset.floatingInputInitialized = "true";
+        });
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializePasswordToggles);
+        document.addEventListener('DOMContentLoaded', function () {
+            initializePasswordToggles();
+            initializeFloatingInputs();
+        });
     } else {
         initializePasswordToggles();
+        initializeFloatingInputs();
     }
 })();
