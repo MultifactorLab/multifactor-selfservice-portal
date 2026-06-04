@@ -50,6 +50,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Change(EnterIdentityForm form)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(form);
+            }
+
             try
             {
                 if (form.UnlockUser)
