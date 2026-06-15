@@ -1050,7 +1050,7 @@ p {
 .login .input input[type=password]:not(:placeholder-shown),
 .login .input input[type=text]:not(:placeholder-shown) {
     color: #1D1E21;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .login .input input:disabled,
@@ -1163,7 +1163,7 @@ p {
     padding-top: 24px;
     padding-bottom: 5px;
     color: #1D1E21;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .login .input.input-has-value input::placeholder,
@@ -1211,8 +1211,15 @@ p {
 .password-toggle-button img {
     display: block;
     width: 18px;
-    height: 12px;
     object-fit: contain;
+}
+
+.password-toggle-button img[src*="password-eye-open"] {
+    height: 12px;
+}
+
+.password-toggle-button img[src*="password-eye-closed"] {
+    height: 8px;
 }
 
 input:-webkit-autofill,
@@ -1396,7 +1403,6 @@ a.active .btn:hover {
     .login.login-view .login-form-card {
         width: 100%;
         padding: 24px;
-        justify-content: flex-start;
     }
 
     .success-title {
@@ -1496,7 +1502,7 @@ a.active .btn:hover {
     box-sizing: border-box;
     left: 0;
     right: 0;
-    padding: 0 20px 20px;
+    padding: 0 0 20px;
 }
 
 .apps-header {
@@ -1640,15 +1646,19 @@ a.active .btn:hover {
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 0 35px 24px;
+    align-items: stretch;
+    gap: 40px;
+    width: 100%;
+    min-height: 0;
+    padding: 54px;
+    box-sizing: border-box;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 20px;
 }
 
 .apps-title-section {
     width: 100%;
-    padding: 54px 20px 40px;
+    padding: 0;
     margin-bottom: 0;
 }
 
@@ -1665,80 +1675,19 @@ a.active .btn:hover {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    justify-content: center;
     gap: 20px;
     padding-bottom: 0;
     border-radius: 20px;
     box-sizing: border-box;
 }
 
-.apps-grid:has(> .app-card:nth-child(1)):not(:has(> .app-card:nth-child(2))) {
-    width: 100%;
-    max-width: 344px;
-    grid-template-columns: minmax(0, 1fr);
-    margin: 0 auto;
-}
-
-.apps-grid:has(> .app-card:nth-child(2)):not(:has(> .app-card:nth-child(3))) {
-    width: 100%;
-    max-width: 708px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin: 0 auto;
-}
-
-.apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
-    width: 100%;
-    max-width: 1072px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin: 0 auto;
-}
-
-.apps-grid:has(> .app-card:nth-child(4)):not(:has(> .app-card:nth-child(5))) {
-    width: 100%;
-    max-width: 1072px;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: 0 auto;
-}
-
-.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))),
-.apps-grid:has(> .app-card:nth-child(6)):not(:has(> .app-card:nth-child(7))) {
-    width: 100%;
-    max-width: 1072px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(2, 200px);
-    margin: 0 auto;
-}
-
-.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-}
-
-.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(2) {
-    grid-column: 2;
-    grid-row: 1;
-}
-
-.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(3) {
-    grid-column: 3;
-    grid-row: 1;
-}
-
-.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(4) {
-    grid-column: 1;
-    grid-row: 2;
-}
-
-.apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))) > .app-card:nth-child(5) {
-    grid-column: 2;
-    grid-row: 2;
-}
-
 .app-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
     min-width: 0;
     padding: 20px;
     background: rgba(255, 255, 255, 0.8);
@@ -1749,6 +1698,7 @@ a.active .btn:hover {
     height: 200px;
     min-height: 200px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .app-card:hover {
@@ -1758,13 +1708,11 @@ a.active .btn:hover {
 }
 
 .app-card-image {
-    flex: 0 1 auto;
+    flex: 1 1 0;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: auto;
-    max-height: calc(100% - 22px);
     min-height: 0;
     margin-bottom: 0;
     border-radius: 10px;
@@ -1788,10 +1736,10 @@ a.active .btn:hover {
     line-height: 1.2;
     color: #3f3f44;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    flex: 0 0 auto;
-    min-height: 0;
+    flex: 0 0 14px;
+    min-height: 14px;
     text-align: center;
     width: 100%;
     overflow: hidden;
@@ -1809,10 +1757,6 @@ a.active .btn:hover {
 @media (max-width: 1024px) {
     .apps-container {
         min-height: 0;
-    }
-
-    .apps-content {
-        padding: 0 30px 24px;
     }
 
     .apps-title-section {
@@ -1857,64 +1801,14 @@ a.active .btn:hover {
         gap: 10px;
     }
 
-    .apps-content {
-        padding: 0 20px 20px;
-    }
-
     .apps-header-actions {
         order: 3;
         width: 100%;
         flex-wrap: wrap;
     }
 
-    .apps-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        padding: 20px;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        justify-content: stretch;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
-        max-width: 708px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .apps-grid:not(:has(:nth-child(3))) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) .app-card {
-        width: auto;
-        margin: 0;
-    }
-
     .apps-title {
         font-size: 20px;
-    }
-
-    .app-card {
-        min-height: 140px;
-        padding: 12px;
-    }
-
-    .app-card-image {
-        min-height: 0;
-        margin-bottom: 0;
-    }
-
-    .app-card-image img,
-    .app-logo {
-        width: 56px;
-        height: 56px;
     }
 
 }
@@ -1924,34 +1818,8 @@ a.active .btn:hover {
         padding: 10px;
     }
 
-    .apps-content {
-        padding: 0 10px 15px;
-    }
-
-    .apps-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        padding: 15px;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        justify-content: stretch;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) .app-card {
-        width: auto;
-        margin: 0;
-    }
-
     .apps-title {
         font-size: 18px;
-    }
-
-    .app-card {
-        min-height: 120px;
-        padding: 10px;
     }
 
     .btn-header {
@@ -2060,7 +1928,9 @@ a.active .btn:hover {
 
     .apps-content {
         width: 100%;
+        min-height: 0;
         padding: 24px 20px;
+        gap: 0;
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.6);
     }
@@ -2075,74 +1945,6 @@ a.active .btn:hover {
         font-size: 22px;
         letter-spacing: -0.44px;
         text-align: center;
-    }
-
-    .apps-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-        padding: 0;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        justify-content: stretch;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
-        max-width: 708px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .apps-grid:not(:has(:nth-child(3))) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) .app-card {
-        width: auto;
-        margin: 0;
-    }
-
-    .app-card {
-        min-height: 133px;
-        padding: 10px;
-        border-radius: 10px;
-    }
-
-    .app-card-image {
-        min-height: 0;
-        margin-bottom: 0;
-    }
-
-    .app-card-image img,
-    .app-logo {
-        width: 56px;
-        height: 56px;
-    }
-}
-
-@media (max-width: 568px) {
-    .apps-grid,
-    .apps-grid:not(:has(:nth-child(5))),
-    .apps-grid:not(:has(:nth-child(5))):has(:nth-child(3)),
-    .apps-grid:not(:has(:nth-child(3))) {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        justify-content: stretch;
-    }
-
-    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
-        max-width: 100% !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-
-    .apps-grid:not(:has(:nth-child(5))) .app-card {
-        width: auto;
-        margin: 0;
     }
 }
 
@@ -2161,5 +1963,118 @@ a.active .btn:hover {
     .avatar-letter {
         font-size: 12px;
         letter-spacing: 0.24px;
+    }
+}
+
+@media (min-width: 921px) {
+    .apps-container {
+        padding: 0 0 20px;
+    }
+
+    .apps-content {
+        padding: 54px;
+        gap: 40px;
+        min-height: 606px;
+    }
+
+    .apps-title-section {
+        padding: 0;
+    }
+
+    .apps-grid {
+        width: 100%;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .apps-grid:has(> .app-card:nth-child(1)):not(:has(> .app-card:nth-child(2))) {
+        grid-template-columns: 344px;
+    }
+
+    .apps-grid:has(> .app-card:nth-child(2)):not(:has(> .app-card:nth-child(3))) {
+        grid-template-columns: repeat(auto-fit, 344px);
+        grid-auto-rows: 200px;
+    }
+
+    .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
+        grid-template-columns: repeat(auto-fit, 344px);
+        grid-auto-rows: 200px;
+    }
+
+    .apps-grid:has(> .app-card:nth-child(4)):not(:has(> .app-card:nth-child(5))) {
+        grid-template-columns: repeat(auto-fit, 253px);
+        grid-auto-rows: 200px;
+    }
+
+    .apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))),
+    .apps-grid:has(> .app-card:nth-child(6)):not(:has(> .app-card:nth-child(7))) {
+        grid-template-columns: repeat(auto-fit, 344px);
+        grid-auto-rows: 200px;
+    }
+
+    .app-card {
+        width: auto;
+        height: 200px;
+        min-height: 200px;
+        max-height: 200px;
+        padding: 20px;
+    }
+}
+
+@media (368px <= width <= 920px) {
+    .apps-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        justify-content: center;
+        padding: 0;
+        width: 100%;
+    }
+
+    .app-card {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        aspect-ratio: 1;
+        padding: 10px;
+        border-radius: 10px;
+    }
+}
+
+@media (width < 422px) {
+    .app-card-image img,
+    .app-logo {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+@media (width < 368px) {
+    .apps-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        justify-content: center;
+        padding: 0;
+        width: 100%;
+    }
+
+    .app-card {
+        width: 100%;
+        height: auto;
+        min-width: 0;
+        min-height: 0;
+        max-width: none;
+        max-height: none;
+        aspect-ratio: 1;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .app-card-image img,
+    .app-logo {
+        width: min(56px, 100%);
+        height: min(56px, 100%);
     }
 }
