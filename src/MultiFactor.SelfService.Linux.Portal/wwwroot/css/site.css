@@ -595,20 +595,42 @@ p {
     box-shadow: 0 4px 24px rgba(42, 125, 188, 0.3);
 }
 
-.restore-password-view .restore-back {
-    display: inline-flex;
+.restore-back {
+    display: flex;
     align-items: center;
-    gap: 12px;
     margin-bottom: 16px;
-    color: #99abc9;
-    font-size: 15px;
-    line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.restore-password-view .restore-back::before {
-    content: "\2190";
-    font-size: 24px;
-    line-height: 1;
+.restore-back-box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.restore-back-image {
+    color: #99abc9;
+    width: 20px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.restore-back-text {
+    color: #99abc9;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 135%;
+}
+
+.restore-back:hover .restore-back-image,
+.restore-back:hover .restore-back-text {
+    color: #75b8f5;
 }
 
 .restore-password-view .restore-title {
@@ -672,24 +694,6 @@ p {
     font-size: 15px;
     line-height: 1.4;
     margin-bottom: 24px;
-}
-
-.reset-password-view .restore-back,
-.password-change-view .restore-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    align-self: flex-start;
-    color: #99abc9;
-    margin-bottom: 16px;
-}
-
-.reset-password-view .restore-back::before,
-.password-change-view .restore-back::before {
-    content: "\2190";
-    color: #99abc9;
-    font-size: 18px;
-    font-weight: 400;
 }
 
 .reset-password-view .reset-description p {
