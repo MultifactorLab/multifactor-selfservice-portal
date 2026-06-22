@@ -1766,38 +1766,6 @@ a.active .btn:hover {
     }
 }
 
-@media (max-width: 1024px) {
-    .apps-container {
-        min-height: 0;
-    }
-
-    .apps-title-section {
-        padding: 54px 20px 40px;
-    }
-
-    .apps-header-actions {
-        gap: 5px;
-    }
-
-    .btn-header {
-        padding: 6px 10px;
-        font-size: 11px;
-    }
-
-    .apps-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .apps-title {
-        font-size: 30px;
-    }
-
-    .app-card {
-        min-height: 160px;
-        padding: 15px;
-    }
-}
-
 @media (max-width: 480px) {
     .apps-header {
         padding: 10px;
@@ -1908,14 +1876,14 @@ a.active .btn:hover {
         min-height: 0;
         height: auto;
         max-width: 100%;
-        padding: 0 20px 16px;
+        padding: 0 20px 20px;
     }
 
     .apps-content {
         width: 100%;
         min-height: 0;
         padding: 24px 20px;
-        gap: 0;
+        gap: 24px;
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.6);
     }
@@ -1923,13 +1891,70 @@ a.active .btn:hover {
     .apps-title-section {
         width: 100%;
         padding: 0;
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
 
     .apps-title {
         font-size: 22px;
         letter-spacing: -0.44px;
         text-align: center;
+    }
+
+    .apps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 145px), 1fr));
+        gap: 10px;
+        justify-content: stretch;
+        padding: 0;
+        width: 100%;
+    }
+
+    .app-card {
+        width: 100%;
+        height: 133px;
+        min-height: 133px;
+        max-height: 133px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .app-card-image {
+        min-height: 0;
+        margin-bottom: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .app-card-image img,
+    .app-logo {
+        width: auto;
+        height: auto;
+        max-width: 90px;
+        max-height: 72px;
+        object-fit: contain;
+    }
+}
+
+@media (536px <= width <= 920px) {
+    .apps-content {
+        min-height: 517px;
+    }
+
+    .apps-grid {
+        min-height: 419px;
+        align-content: start;
+    }
+}
+
+@media (max-width: 535px) {
+    .apps-content {
+        min-height: 0;
+    }
+
+    .apps-grid {
+        min-height: 0;
+        align-content: start;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -1953,7 +1978,7 @@ a.active .btn:hover {
 
 @media (min-width: 921px) {
     .apps-container {
-        padding: 0 0 20px;
+        padding: 0 20px 20px;
     }
 
     .apps-content {
@@ -1969,28 +1994,38 @@ a.active .btn:hover {
     .apps-grid {
         width: 100%;
         gap: 20px;
-        justify-content: center;
     }
 
     .apps-grid:has(> .app-card:nth-child(1)):not(:has(> .app-card:nth-child(2))) {
-        grid-template-columns: 344px;
+        grid-template-columns: minmax(0, 344px);
+        justify-content: center;
+        max-width: 344px;
+        margin-inline: auto;
     }
 
-    .apps-grid:has(> .app-card:nth-child(2)):not(:has(> .app-card:nth-child(3))),
+    .apps-grid:has(> .app-card:nth-child(2)):not(:has(> .app-card:nth-child(3))) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 708px;
+        margin-inline: auto;
+    }
+
     .apps-grid:has(> .app-card:nth-child(3)):not(:has(> .app-card:nth-child(4))) {
-        grid-template-columns: repeat(auto-fit, 344px);
-        grid-auto-rows: 200px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-width: 1072px;
+        margin-inline: auto;
     }
 
     .apps-grid:has(> .app-card:nth-child(4)):not(:has(> .app-card:nth-child(5))) {
-        grid-template-columns: repeat(auto-fit, 253px);
-        grid-auto-rows: 200px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        max-width: 1072px;
+        margin-inline: auto;
     }
 
     .apps-grid:has(> .app-card:nth-child(5)):not(:has(> .app-card:nth-child(6))),
     .apps-grid:has(> .app-card:nth-child(6)):not(:has(> .app-card:nth-child(7))) {
-        grid-template-columns: repeat(auto-fit, 344px);
-        grid-auto-rows: 200px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-width: 1072px;
+        margin-inline: auto;
     }
 
     .app-card {
@@ -2012,47 +2047,5 @@ a.active .btn:hover {
         height: auto;
         max-width: 100%;
         max-height: 100%;
-    }
-}
-
-@media (368px <= width <= 920px), (width < 368px) {
-    .apps-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        justify-content: center;
-        padding: 0;
-        width: 100%;
-    }
-
-    .app-card {
-        width: 100%;
-        height: auto;
-        min-height: 0;
-        max-height: none;
-        aspect-ratio: 1;
-        padding: 10px;
-        border-radius: 10px;
-    }
-}
-
-@media (width < 422px) {
-    .app-card-image img,
-    .app-logo {
-        width: 56px;
-        height: 56px;
-    }
-}
-
-@media (width < 368px) {
-    .app-card {
-        min-width: 0;
-        max-width: none;
-    }
-
-    .app-card-image img,
-    .app-logo {
-        width: min(56px, 100%);
-        height: min(56px, 100%);
     }
 }
