@@ -28,6 +28,14 @@
                         })
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
+                    <div class="input">
+                        <span>@Localizer["Password"]</span>
+                        @Html.PasswordFor(m => m.Password, new
+                        {
+                            placeholder = Localizer.GetString("Password")
+                        })
+                        @Html.ValidationMessageFor(m => m.Password)
+                    </div>
                     @Html.ValidationSummary(true)
                     @if (isCaptchaEnabled)
                     {

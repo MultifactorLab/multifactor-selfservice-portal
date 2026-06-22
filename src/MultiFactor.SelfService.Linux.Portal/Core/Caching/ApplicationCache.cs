@@ -63,6 +63,24 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
                 : CachedItem<bool>.Empty;
         }
 
+
+        public void SetPreauthenticationIdentity(string key, IdentityViewModel value)
+        {
+            var options = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(_config.AbsoluteExpiration)
+                .SetSize(GetDataSize(value));
+            _cache.Set(key, value, options);
+        }
+
+        public CachedItem<IdentityViewModel> GetPreauthenticationIdentity(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return CachedItem<IdentityViewModel>.Empty;
+            return _cache.TryGetValue(key, out IdentityViewModel value)
+                ? new CachedItem<IdentityViewModel>(value)
+                : CachedItem<IdentityViewModel>.Empty;
+        }
+
         public void Remove(string key)
         {
             _cache.Remove(key);
@@ -75,7 +93,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
         
         private static long GetDataSize(IdentityViewModel data)
         {
-            return CalculateStringSize(data.AccessToken) +
+            return CalculateStringSize(data.AccessToken ?? string.Empty) +
                    CalculateStringSize(data.UserName);
         }
         

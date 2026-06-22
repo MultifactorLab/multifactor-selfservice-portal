@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
+using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
 using MultiFactor.SelfService.Linux.Portal.Extensions;
@@ -28,6 +29,8 @@ public class IdentityStory
     private readonly ILogger<IdentityStory> _logger;
     private readonly ClaimsProvider _claimsProvider;
     private readonly ICredentialVerifier _credentialVerifier;
+    private readonly AuthnStory _authnStory;
+    private readonly IApplicationCache _applicationCache;
 
     public IdentityStory(
         IMultiFactorApi multifactorApiClient,
@@ -37,7 +40,9 @@ public class IdentityStory
         IStringLocalizer<SharedResource> localizer,
         ILogger<IdentityStory> logger,
         ClaimsProvider claimsProvider,
-        ICredentialVerifier credentialVerifier)
+        ICredentialVerifier credentialVerifier,
+        AuthnStory authnStory,
+        IApplicationCache applicationCache)
     {
         _multifactorApiClient = multifactorApiClient;
         _idpApiClient = idpApiClient;
@@ -47,6 +52,8 @@ public class IdentityStory
         _logger = logger;
         _claimsProvider = claimsProvider;
         _credentialVerifier = credentialVerifier;
+        _authnStory = authnStory;
+        _applicationCache = applicationCache;
     }
 
     public async Task<IActionResult> ExecuteAsync(IdentityViewModel model, Dictionary<string, string> headers)
@@ -129,7 +136,7 @@ public class IdentityStory
 
         var response = await _idpApiClient.IdentityAsync(request, headers);
 
-        return HandleIdentityResponse(response, model);
+        return await HandleIdentityResponse(response, model, verifiedUsername);
     }
 
     private IdentitySspSettingsDto BuildSspSettings()
@@ -146,7 +153,7 @@ public class IdentityStory
         };
     }
 
-    private IActionResult HandleIdentityResponse(IdentityResponseDto response, IdentityViewModel model)
+    private async Task<IActionResult> HandleIdentityResponse(IdentityResponseDto response, IdentityViewModel model, string verifiedUsername)
     {
         if (response.Action == IdentityAction.AccessDenied)
         {
@@ -162,6 +169,10 @@ public class IdentityStory
 
         if (response.Action == IdentityAction.MfaRequired && !string.IsNullOrWhiteSpace(response.RedirectUrl))
         {
+            _applicationCache.SetPreauthenticationIdentity(
+                ApplicationCacheKeyFactory.CreatePreAuthenticationIdentityKey(verifiedUsername),
+                model);
+
             _logger.LogDebug("Redirecting user '{User}' to MFA page", model.UserName);
             return new RedirectResult(response.RedirectUrl, true);
         }
@@ -171,20 +182,30 @@ public class IdentityStory
             var identity = response.Username ?? model.UserName;
             _logger.LogInformation("Bypass second factor for user '{User}', showing password form", identity);
 
-            return new ViewResult
+            try
             {
-                ViewName = "Authn",
-                ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                return await _authnStory.ExecuteAsync(model);
+            }
+            catch (ModelStateErrorException ex)
+            {
+                var modelState = new ModelStateDictionary();
+                modelState.AddModelError(string.Empty, ex.Message);
+
+                return new ViewResult
                 {
-                    Model = new IdentityViewModel
+                    ViewName = "Authn",
+                    ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), modelState)
                     {
-                        UserName = identity,
-                        Password = model.Password,
-                        MyUrl = model.MyUrl,
-                        AccessToken = model.AccessToken
+                        Model = new IdentityViewModel
+                        {
+                            UserName = identity,
+                            Password = model.Password,
+                            MyUrl = model.MyUrl,
+                            AccessToken = model.AccessToken
+                        }
                     }
-                }
-            };
+                };
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))

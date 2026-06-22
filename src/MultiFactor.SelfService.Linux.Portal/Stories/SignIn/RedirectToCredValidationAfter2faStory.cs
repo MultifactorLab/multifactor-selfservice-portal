@@ -6,7 +6,6 @@ using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
-using MultiFactor.SelfService.Linux.Portal.ViewModels;
 
 namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 
@@ -87,13 +86,16 @@ public class RedirectToCredValidationAfter2FaStory
                 _logger.LogError("Can't determine username from token");
                 return new RedirectToActionResult("Login", "Account", null);
             }
-            
-            _applicationCache.SetIdentity(requestId,
-                new IdentityViewModel 
-                { 
-                    UserName = username, 
-                    AccessToken = accessToken 
-                });
+
+            var cachedModel = _applicationCache.GetPreauthenticationIdentity(ApplicationCacheKeyFactory.CreatePreAuthenticationIdentityKey(username));
+            var identityModel = !cachedModel.IsEmpty
+                ? cachedModel.Value
+                : new();
+            _applicationCache.Remove(ApplicationCacheKeyFactory.CreatePreAuthenticationIdentityKey(username));
+
+            identityModel.UserName = username;
+            identityModel.AccessToken = accessToken;
+            _applicationCache.SetIdentity(requestId, identityModel);
 
             object routeValue = new { requestId = requestId };
             

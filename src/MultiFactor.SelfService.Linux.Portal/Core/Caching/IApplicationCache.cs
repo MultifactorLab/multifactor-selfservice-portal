@@ -6,12 +6,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Core.Caching
     {
         void Set(string key, string value);
         CachedItem<string> Get(string key);
+        void Remove(string key);
         void SetIdentity(string key, IdentityViewModel value);
         CachedItem<IdentityViewModel> GetIdentity(string key);
-        void Remove(string key);
         void SetSupportInfo(string key, SupportViewModel value);
         CachedItem<SupportViewModel> GetSupportInfo(string key);
         void SetPreauthenticationAuthn(string key, bool value);
         CachedItem<bool> GetPreauthenticationAuthn(string key);
+        void SetPreauthenticationIdentity(string key, IdentityViewModel value);
+        CachedItem<IdentityViewModel> GetPreauthenticationIdentity(string key);
     }
 }

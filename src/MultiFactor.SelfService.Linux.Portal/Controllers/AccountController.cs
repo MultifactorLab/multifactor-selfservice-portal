@@ -222,7 +222,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         /// <returns></returns>
         [HttpGet("account/identity")]
         [ConsumeSsoClaims]
-        public async Task<ActionResult> Identity(string requestId, [FromServices] LoadIdpProfileStory loadProfile)
+        public async Task<IActionResult> Identity(string requestId, [FromServices] LoadIdpProfileStory loadProfile, [FromServices] AuthnStory authnStoryHandler)
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();
             try
@@ -251,9 +251,25 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
                 }
 
                 var identity = _applicationCache.GetIdentity(requestId);
-                return !identity.IsEmpty
-                    ? View("Authn", identity.Value)
-                    : View(new IdentityViewModel());
+                if (identity.IsEmpty)
+                {
+                    return View(new IdentityViewModel());
+                }
+
+                if (!string.IsNullOrWhiteSpace(identity.Value.Password))
+                {
+                    try
+                    {
+                        return await authnStoryHandler.ExecuteAsync(identity.Value);
+                    }
+                    catch (ModelStateErrorException authnEx)
+                    {
+                        ModelState.AddModelError(string.Empty, authnEx.Message);
+                        return View("Authn", identity.Value);
+                    }
+                }
+
+                return View("Authn", identity.Value);
             }
         }
 
