@@ -22,10 +22,11 @@
             <fieldset>
                 @Html.AntiForgeryToken()
                 <div class="form-row login-fields @(isCaptchaEnabled ? "mb-8" : "")">
-                    <div class="input login-input login-input-username">
+                    <div class="input login-input login-input-username username-help-host">
                         @Html.TextBoxFor(m => m.UserName, new { placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
                             ? Localizer.GetString("UserNameUpn") 
                             : Localizer.GetString("UserName") })
+                        <partial name="_UsernameHelpTooltip" />
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input login-input login-input-password">

@@ -27,7 +27,7 @@
                 @Html.AntiForgeryToken()
                 <p class="restore-description">@Localizer["EnterLogin"]</p>
                 <div class="form-row login-fields restore-fields">
-                    <div class="input login-input restore-login-input">
+                    <div class="input login-input restore-login-input username-help-host">
                         @Html.TextBoxFor(m => m.Identity, 
                             new { 
                                 placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName 
@@ -35,6 +35,7 @@
                                     :  Localizer.GetString("UserName"),
                                 autocomplete = "off"
                             })
+                        <partial name="_UsernameHelpTooltip" />
                         @Html.ValidationMessageFor(m => m.Identity)
                     </div>
                     @Html.ValidationSummary(true)
@@ -45,11 +46,10 @@
 
                     @if (Settings.PasswordManagement.AllowUserUnlock)
                     {
-                        <label class ="c-container restore-unlock-row">
-                            @Localizer["UnlockUser"]
-                         
+                        <label class="c-container restore-unlock-row">
                             <input type="checkbox" asp-for="@Model.UnlockUser">
-                            <span class="c-checkmark"></span>
+                            <span class="c-checkmark" aria-hidden="true"></span>
+                            <span class="c-container-label">@Localizer["UnlockUser"]</span>
                         </label>
                     }
 

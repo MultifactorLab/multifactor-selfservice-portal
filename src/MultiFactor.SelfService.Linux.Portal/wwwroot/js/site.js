@@ -130,13 +130,49 @@
         });
     }
 
+    function initializeUsernameHelpTooltips() {
+        const helpAnchors = document.querySelectorAll('.username-help-anchor');
+
+        helpAnchors.forEach(function (anchor) {
+            if (anchor.dataset.usernameHelpInitialized === 'true') {
+                return;
+            }
+
+            const button = anchor.querySelector('.username-help-button');
+            const tooltip = anchor.querySelector('.username-help-tooltip');
+            if (!button || !tooltip) {
+                return;
+            }
+
+            const showTooltip = function () {
+                anchor.classList.add('is-active');
+                tooltip.classList.add('is-visible');
+            };
+
+            const hideTooltip = function () {
+                anchor.classList.remove('is-active');
+                tooltip.classList.remove('is-visible');
+            };
+
+            anchor.addEventListener('mouseenter', showTooltip);
+            anchor.addEventListener('mouseleave', hideTooltip);
+            button.addEventListener('focus', showTooltip);
+            button.addEventListener('blur', hideTooltip);
+
+            anchor.dataset.usernameHelpInitialized = 'true';
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initializePasswordToggles();
             initializeFloatingInputs();
+            initializeUsernameHelpTooltips();
         });
     } else {
         initializePasswordToggles();
         initializeFloatingInputs();
+        initializeUsernameHelpTooltips();
     }
+
 })();
