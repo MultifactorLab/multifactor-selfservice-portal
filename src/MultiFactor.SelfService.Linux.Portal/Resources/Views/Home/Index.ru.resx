@@ -138,4 +138,10 @@
   <data name="Configure2FA" xml:space="preserve">
     <value>Настроить 2FA</value>
   </data>
+  <data name="ShouldChangePassword" xml:space="preserve">
+    <value>Необходимо изменить пароль!</value>
+  </data>
+  <data name="PasswordExpirationDaysLeft" xml:space="preserve">
+    <value>Осталось дней</value>
+  </data>
 </root>

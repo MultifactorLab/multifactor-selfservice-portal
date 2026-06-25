@@ -139,6 +139,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                             })
                             .WithMessage("Minimum length must be less than maximum length");
                     });
+
+                RuleFor(c => c.NotifyOnPasswordExpirationDaysLeft)
+                    .InclusiveBetween(0, 365)
+                    .WithMessage($"'{nameof(PortalSettings.NotifyOnPasswordExpirationDaysLeft)}' must be in range between 0 and 365.");
             }
 
             private static string GetErrorMessage<TProperty>(Expression<Func<PortalSettings, TProperty>> propertySelector)

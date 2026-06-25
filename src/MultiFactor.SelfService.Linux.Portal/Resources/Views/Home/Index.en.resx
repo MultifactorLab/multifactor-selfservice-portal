@@ -138,4 +138,10 @@
   <data name="Configure2FA" xml:space="preserve">
     <value>Configure 2FA</value>
   </data>
+  <data name="ShouldChangePassword" xml:space="preserve">
+    <value>You must change your password!</value>
+  </data>
+  <data name="PasswordExpirationDaysLeft" xml:space="preserve">
+    <value>Days left</value>
+  </data>
 </root>

@@ -24,6 +24,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public bool PreAuthenticationMethod { get; private set; }
         public KerberosSettings KerberosSettings { get; set; } = new();
 
+        /// <summary>
+        /// Notify a user on their password expiration when this many days (or less) are left.
+        /// Value must be in range between 0 and 365. 0 disables the notification.
+        /// </summary>
+        public int NotifyOnPasswordExpirationDaysLeft { get; private set; }
+
         public PortalSettings(){}
 
         public PortalSettings(CompanySettings companySettings, ActiveDirectorySettings activeDirectorySettings)

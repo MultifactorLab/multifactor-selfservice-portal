@@ -1,6 +1,9 @@
-﻿using MultiFactor.SelfService.Linux.Portal.Core;
+﻿using Microsoft.Extensions.Options;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Settings;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace MultiFactor.SelfService.Linux.Portal.Authentication
@@ -8,11 +11,13 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
     public class TokenVerifier
     {
         private readonly IConfiguration _config;
+        private readonly PortalSettings _settings;
         private readonly ILogger<TokenVerifier> _logger;
 
-        public TokenVerifier(IConfiguration config, ILogger<TokenVerifier> logger)
+        public TokenVerifier(IConfiguration config, IOptions<PortalSettings> settings, ILogger<TokenVerifier> logger)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -37,6 +42,21 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                     claimsPrincipal.Claims.Any(claim => claim.Type == Constants.MultiFactorClaims.ResetPassword);
                 var samlClaim = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.SamlSessionId)?.Value;
                 var oidcClaim = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.OidcSessionId)?.Value;
+
+                DateTime? passwordExpirationDate = null;
+                if (_settings.NotifyOnPasswordExpirationDaysLeft > 0)
+                {
+                    var raw = claimsPrincipal.Claims
+                        .FirstOrDefault(claim => claim.Type == Constants.MultiFactorClaims.PasswordExpirationDate)?.Value;
+                    if (!string.IsNullOrWhiteSpace(raw)
+                        && DateTime.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
+                        && parsed > DateTime.MinValue
+                        && parsed < DateTime.MaxValue)
+                    {
+                        passwordExpirationDate = parsed;
+                    }
+                }
+
                 // use raw user name when possible couse multifactor may transform identity depend by settings
                 return new TokenClaims(
                     Id: jwtSecurityToken.Id,
@@ -47,7 +67,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                     MustResetPassword: mustResetPassword,
                     SamlClaim: samlClaim,
                     OidcClaim: oidcClaim,
-                    MustUnlockUser: unlockUser);
+                    MustUnlockUser: unlockUser,
+                    PasswordExpirationDate: passwordExpirationDate);
             }
             catch (Exception ex)
             {

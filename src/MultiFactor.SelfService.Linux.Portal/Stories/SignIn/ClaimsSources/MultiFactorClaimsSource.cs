@@ -29,8 +29,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Stories.SignIn.ClaimsSources
                 return claims;
             }
 
-            claims.Add(Constants.MultiFactorClaims.PasswordExpirationDate,
-                result.PasswordExpirationDate.ToString(CultureInfo.InvariantCulture));
+            if (result.PasswordExpirationDate > DateTime.MinValue
+                && result.PasswordExpirationDate < DateTime.MaxValue)
+            {
+                claims.Add(Constants.MultiFactorClaims.PasswordExpirationDate,
+                    result.PasswordExpirationDate.ToString(CultureInfo.InvariantCulture));
+            }
 
             return claims;
         }

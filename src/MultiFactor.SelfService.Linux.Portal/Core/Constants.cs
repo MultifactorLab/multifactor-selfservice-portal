@@ -16,6 +16,7 @@
         public const string CredentialVerificationResult = "CredentialVerificationResult";
         public const string SsoClaims = "SsoClaims";
         public const string LoadedLdapAttributes = "LoadedLdapAttributes";
+        public const string PasswordExpirationDate = "passwordExpirationDate";
 
         public static readonly string WORKING_DIRECTORY = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
         public static readonly string LOG_DIRECTORY = $"{WORKING_DIRECTORY}/logs";
