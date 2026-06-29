@@ -126,7 +126,12 @@
 		<!-- FreeIPA support -->
 		<!--<LdapBaseDn></LdapBaseDn>-->
         <PreAuthenticationMethod>false</PreAuthenticationMethod>
-        
+
+        <!-- Notify a user on the login page that their password will expire soon. -->
+        <!-- Value: number of days. 0 (or omitted) disables the notification. Max: 365. -->
+        <!-- Example: with value 7, the warning appears when 7 or fewer days are left until password expiry. -->
+        <!--<NotifyOnPasswordExpirationDaysLeft>7</NotifyOnPasswordExpirationDaysLeft>-->
+
         <!-- Kerberos (Negotiate) silent authentication -->
         <!-- When enabled, users in the Intranet zone will be authenticated automatically via Kerberos -->
         <!-- Requires IIS Windows Authentication with Negotiate provider (NTLM must be disabled) -->
