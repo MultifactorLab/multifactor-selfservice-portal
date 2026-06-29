@@ -75,7 +75,7 @@
                      && Model.Profile.PasswordExpirationDaysLeft > 0
                      && Model.Profile.PasswordExpirationDaysLeft <= PortalSettings.NotifyOnPasswordExpirationDaysLeft)
                 {
-                    // Временный дизайн
+                    @* Временный дизайн *@
                     <div class="alert">
                         <h4>@Localizer["ShouldChangePassword"]</h4>
                         <h5>@Localizer["PasswordExpirationDaysLeft"]: @Model.Profile.PasswordExpirationDaysLeft</h5>
