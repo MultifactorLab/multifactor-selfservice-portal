@@ -14,10 +14,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
         private readonly PortalSettings _settings;
         private readonly ILogger<TokenVerifier> _logger;
 
-        public TokenVerifier(IConfiguration config, IOptions<PortalSettings> settings, ILogger<TokenVerifier> logger)
+        public TokenVerifier(IConfiguration config, PortalSettings settings, ILogger<TokenVerifier> logger)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
-            _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

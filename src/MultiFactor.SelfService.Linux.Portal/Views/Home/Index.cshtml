@@ -1,11 +1,11 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.ShowcaseViewModel
-@inject Microsoft.Extensions.Options.IOptions<MultiFactor.SelfService.Linux.Portal.Settings.PortalSettings> PortalSettings
+@inject PortalSettings PortalSettings
 
 <div class="login">
-    <div class="form-column @(@ShowcaseSettings.CurrentValue?.Enabled == true ? "showcase-no-top-padding" : "") ">
-        @if (PortalSettings.Value.NotifyOnPasswordExpirationDaysLeft > 0
+    <div class="form-column @(ShowcaseSettings.CurrentValue?.Enabled == true ? "showcase-no-top-padding" : "") ">
+        @if (PortalSettings.NotifyOnPasswordExpirationDaysLeft > 0
              && Model.Profile.PasswordExpirationDaysLeft > 0
-             && Model.Profile.PasswordExpirationDaysLeft <= PortalSettings.Value.NotifyOnPasswordExpirationDaysLeft)
+             && Model.Profile.PasswordExpirationDaysLeft <= PortalSettings.NotifyOnPasswordExpirationDaysLeft)
         {
             <div class="alert">
                 <h4>@Localizer["ShouldChangePassword"]</h4>
