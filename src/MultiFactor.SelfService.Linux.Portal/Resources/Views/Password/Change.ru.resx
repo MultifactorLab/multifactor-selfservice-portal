@@ -120,6 +120,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
   <data name="ConfirmPassword" xml:space="preserve">
     <value>Еще раз новый пароль</value>
   </data>
@@ -155,5 +158,8 @@
   </data>
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Неверное имя пользователя или пароль</value>
+  </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Портал самообслуживания</value>
   </data>
 </root>

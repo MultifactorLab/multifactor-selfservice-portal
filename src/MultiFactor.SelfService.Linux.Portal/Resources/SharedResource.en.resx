@@ -159,6 +159,12 @@
   <data name="UserNameUpnRequired" xml:space="preserve">
     <value>Please enter user name as user@domain.loc format</value>
   </data>
+  <data name="UserNameHint" xml:space="preserve">
+    <value>Username or email address. For example, {0} or {1}</value>
+  </data>
+  <data name="UserNameHintAriaLabel" xml:space="preserve">
+    <value>Username field hint</value>
+  </data>
   <data name="WrongOtp" xml:space="preserve">
     <value>Wrong code</value>
   </data>

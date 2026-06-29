@@ -24,22 +24,14 @@
         ></script>
     }
 </head>
-<body>
+<body class="@(ViewBag.UseAuthBackground == true ? "auth-form-background" : "")">
     <div id="wrapper">
         <div class="background-layout">
-            <header id="header">
-                <strong class="logo">
-                    <img src="~/@Settings.CompanySettings.LogoUrl" style="max-height:100px" />
-                </strong>
-                <h1>@ViewBag.Title</h1>
-            </header>
-            <div class="stage">
-                <main id="main">
-                    @RenderBody()
-                </main>
-            </div>
+            <main id="main" class="@(((ViewBag.Home ?? false) && (@ShowcaseSettings.CurrentValue != null && @ShowcaseSettings.CurrentValue.Enabled)) ? "" : "content-center")">
+                @RenderBody()
+            </main>
             <footer id="footer">
-                <em class="copyright">&copy; @Settings.CompanySettings.Name @DateTime.Now.Year</em>
+                <img class="footer-icon" src="~/images/footer.svg"/>
             </footer>
         </div>
     </div>

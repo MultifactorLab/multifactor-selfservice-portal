@@ -120,6 +120,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
   <data name="ConfirmPassword" xml:space="preserve">
     <value>Confirm new password</value>
   </data>
@@ -155,5 +158,8 @@
   </data>
   <data name="WrongUserNameOrPassword" xml:space="preserve">
     <value>Wrong user name or password</value>
+  </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Self-service Portal</value>
   </data>
 </root>
