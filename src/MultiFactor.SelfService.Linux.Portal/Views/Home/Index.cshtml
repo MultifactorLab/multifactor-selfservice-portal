@@ -1,4 +1,5 @@
 ﻿@model MultiFactor.SelfService.Linux.Portal.ViewModels.ShowcaseViewModel
+@inject MultiFactor.SelfService.Linux.Portal.Settings.PortalSettings PortalSettings
 @{
     ViewBag.Home = true;
 }
@@ -70,6 +71,16 @@
         </div>
         <div class="form-column">
             <div class="auth-details">
+                @if (PortalSettings.NotifyOnPasswordExpirationDaysLeft > 0
+                     && Model.Profile.PasswordExpirationDaysLeft > 0
+                     && Model.Profile.PasswordExpirationDaysLeft <= PortalSettings.NotifyOnPasswordExpirationDaysLeft)
+                {
+                    // Временный дизайн
+                    <div class="alert">
+                        <h4>@Localizer["ShouldChangePassword"]</h4>
+                        <h5>@Localizer["PasswordExpirationDaysLeft"]: @Model.Profile.PasswordExpirationDaysLeft</h5>
+                    </div>
+                }
                 <div class="user-avatar-no-sso">
                     <span class="avatar-letter">@(Model?.Profile?.Name?[0] ?? Model?.Profile?.Identity?[0])</span>
                 </div>
