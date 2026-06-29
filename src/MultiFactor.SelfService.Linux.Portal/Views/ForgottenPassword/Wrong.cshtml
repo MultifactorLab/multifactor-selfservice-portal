@@ -1,13 +1,16 @@
 ﻿@model string
 @{
     ViewBag.Title = @Localizer["Title"];
+    ViewBag.UseAuthBackground = true;
 }
 
-<div class="login">
-    <div class="form-column">
-        <h2>@Localizer["Title"]</h2>
-        <hgroup>
-            <h2>@Html.Raw(Model)</h2>
-        </hgroup>
+<div class="login login-view restore-done-view">
+    <div class="login-header-plate">
+        <img src="~/@Settings.CompanySettings.LogoUrl" alt="logo" class="login-header-logo" />
+        <span class="login-header-title">@SharedLocalizer["Ssp"]</span>
+    </div>
+    <div class="form-column login-form-card restore-done-card">
+        <h2 class="login-title restore-done-title">@Localizer["Title"]</h2>
+        <p class="restore-done-description">@Html.Raw(Model)</p>
     </div>
 </div>

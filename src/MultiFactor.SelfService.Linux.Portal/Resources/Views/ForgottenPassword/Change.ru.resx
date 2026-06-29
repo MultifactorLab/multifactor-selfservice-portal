@@ -160,6 +160,10 @@
     <value>user@domain.loc</value>
   </data>
   <data name="UnlockUser" xml:space="preserve">
-    <value>Разблокировать пользователя без смены пароля</value>
+    <value>Разблокировать пользователя
+без смены пароля</value>
+  </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Портал самообслуживания</value>
   </data>
 </root>

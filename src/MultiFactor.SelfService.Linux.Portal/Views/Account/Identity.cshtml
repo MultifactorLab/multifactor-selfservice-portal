@@ -18,7 +18,7 @@
                 @Html.AntiForgeryToken()
                 <p>@Localizer["IdentityInvitation"]</p>
                 <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
-                    <div class="input">
+                    <div class="input login-input login-input-username username-help-host">
                         <span>@Localizer["UserName"]</span>
                         @Html.TextBoxFor(m => m.UserName, new
                         {
@@ -26,6 +26,7 @@
                                 ? Localizer.GetString("UserNameUpn")
                                 : Localizer.GetString("UserName")
                         })
+                        <partial name="_UsernameHelpTooltip" />
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input">

@@ -138,4 +138,7 @@
   <data name="Configure2FA" xml:space="preserve">
     <value>Настроить 2FA</value>
   </data>
+  <data name="Ssp" xml:space="preserve">
+    <value>Портал самообслуживания</value>
+  </data>
 </root>
