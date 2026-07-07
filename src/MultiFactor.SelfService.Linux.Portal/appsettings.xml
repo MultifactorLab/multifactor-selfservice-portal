@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
 
 	<Environment></Environment>
@@ -127,7 +127,7 @@
 		<!--<LdapBaseDn></LdapBaseDn>-->
         <PreAuthenticationMethod>false</PreAuthenticationMethod>
 
-        <!-- Notify a user on the login page that their password will expire soon. -->
+        <!-- After login, notify the user on the portal home page that their password will expire soon. -->
         <!-- Value: number of days. 0 (or omitted) disables the notification. Max: 365. -->
         <!-- Example: with value 7, the warning appears when 7 or fewer days are left until password expiry. -->
         <!--<NotifyOnPasswordExpirationDaysLeft>7</NotifyOnPasswordExpirationDaysLeft>-->
