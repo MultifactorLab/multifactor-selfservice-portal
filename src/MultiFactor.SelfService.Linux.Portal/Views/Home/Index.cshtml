@@ -100,3 +100,10 @@
     </div>
 
 }
+
+@if (Settings.NotifyOnPasswordExpirationDaysLeft > 0
+     && Model.Profile.PasswordExpirationDaysLeft is { } daysLeft and >= 0
+     && daysLeft <= Settings.NotifyOnPasswordExpirationDaysLeft)
+{
+    <partial name="_PasswordExpirationNotification" model="daysLeft" />
+}

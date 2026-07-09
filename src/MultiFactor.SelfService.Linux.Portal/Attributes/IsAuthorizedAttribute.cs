@@ -56,6 +56,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
                     { "controller", "ExpiredPassword" }
                 });
             }
+
+            if (tokenClaims.PasswordExpirationDate.HasValue)
+            {
+                context.HttpContext.Items[Constants.MultiFactorClaims.PasswordExpirationDate] = tokenClaims.PasswordExpirationDate.Value;
+            }
         }
     }
 }

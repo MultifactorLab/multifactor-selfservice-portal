@@ -10,6 +10,7 @@
         
         public bool EnablePasswordManagement { get; init; }
         public bool EnableExchangeActiveSyncDevicesManagement { get; init; }
+        public int? PasswordExpirationDaysLeft { get; set; }
 
         public UserProfileDto(string id, string identity)
         {

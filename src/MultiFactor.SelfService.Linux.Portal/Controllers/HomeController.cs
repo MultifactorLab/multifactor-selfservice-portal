@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiFactor.SelfService.Linux.Portal.Attributes;
+using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Dto;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.ViewModels;
@@ -23,6 +24,11 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
             if (claims.HasOidcSession())
             {
                 return new RedirectToActionResult("ByPassOidcSession", "Account", new { username = userProfile.Identity, oidcSession = claims.OidcSessionId });
+            }
+
+            if (HttpContext.Items[Constants.MultiFactorClaims.PasswordExpirationDate] is DateTime expiration)
+            {
+                userProfile.PasswordExpirationDaysLeft = (int)Math.Floor((expiration - DateTime.Now).TotalDays);
             }
 
             var showcaseLinks = filterShowcaseLinks.Execute(userProfile.Policy);

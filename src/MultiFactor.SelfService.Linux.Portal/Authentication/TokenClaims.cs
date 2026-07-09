@@ -4,10 +4,11 @@
         string Id,
         string Identity,
         string RawUserName,
-        bool MustChangePassword, 
+        bool MustChangePassword,
         DateTime ValidTo,
         bool MustResetPassword,
         string SamlClaim,
         string OidcClaim,
-        bool MustUnlockUser = false);
+        bool MustUnlockUser = false,
+        DateTime? PasswordExpirationDate = null);
 }

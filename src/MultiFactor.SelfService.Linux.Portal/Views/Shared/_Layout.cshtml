@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewData["Title"]</title>
     @RenderSection("head", false)
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="icon" type="image/x-icon" href="~/favicon.ico">
     @if (ViewBag.RenderCaptchaScripts == true && Settings.CaptchaSettings.IsCaptchaEnabled(CaptchaType.Google))
     {
