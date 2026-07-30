@@ -75,10 +75,20 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
             var attributes = entry.DirectoryAttributes;
 
             foreach (var attr in allAttrs.Where(x => !x.Equals(_memberOfAttr, StringComparison.OrdinalIgnoreCase)))
-            {
+            {        
+
                 if (attributes.TryGetValue(attr, out var attrValue))
-                {
-                    builder.AddAttribute(attr, attrValue.GetValues<string>());
+                {                
+                    if (string.Equals(attr, "objectGUID", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var value = attrValue.GetValues<byte[]>();
+                        builder.AddAttribute(attr, value.Select(v => new Guid(v).ToString())
+                            .ToList());
+                    }
+                    else
+                    {
+                        builder.AddAttribute(attr, attrValue.GetValues<string>());
+                    }
                 }
             }
 
