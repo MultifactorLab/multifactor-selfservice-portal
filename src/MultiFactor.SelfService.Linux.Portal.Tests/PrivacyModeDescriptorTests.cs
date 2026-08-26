@@ -52,4 +52,16 @@ public class PrivacyModeDescriptorTests
         Assert.True(descriptor.HasField(phone));
         Assert.True(descriptor.HasField(email));
     }
+
+    [Theory]
+    [InlineData(null, "None")]
+    [InlineData("Full", "Full")]
+    [InlineData("Partial", "Partial")]
+    [InlineData("Partial:Name,Email,Phone", "Partial:Name,Email,Phone")]
+    public void ToString_ShouldSerializeModeWithFields(string value, string expected)
+    {
+        var descriptor = PrivacyModeDescriptor.Create(value);
+
+        Assert.Equal(expected, descriptor.ToString());
+    }
 }

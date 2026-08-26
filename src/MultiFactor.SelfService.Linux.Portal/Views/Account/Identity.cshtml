@@ -19,7 +19,6 @@
                 <p>@Localizer["IdentityInvitation"]</p>
                 <div class="form-row @(isCaptchaEnabled ? "mb-8" : "")">
                     <div class="input login-input login-input-username username-help-host">
-                        <span>@Localizer["UserName"]</span>
                         @Html.TextBoxFor(m => m.UserName, new
                         {
                             placeholder = Settings.ActiveDirectorySettings.RequiresUserPrincipalName
@@ -30,7 +29,6 @@
                         @Html.ValidationMessageFor(m => m.UserName)
                     </div>
                     <div class="input">
-                        <span>@Localizer["Password"]</span>
                         @Html.PasswordFor(m => m.Password, new
                         {
                             placeholder = Localizer.GetString("Password")

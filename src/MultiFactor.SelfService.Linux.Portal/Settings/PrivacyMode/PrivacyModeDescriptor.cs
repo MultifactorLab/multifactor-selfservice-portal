@@ -17,6 +17,13 @@ public class PrivacyModeDescriptor
         return _fields.Any(x => x.Equals(field, StringComparison.OrdinalIgnoreCase));
     }
 
+    public override string ToString()
+    {
+        return Mode == PrivacyMode.Partial && _fields.Length > 0
+            ? $"{Mode}:{string.Join(',', _fields)}"
+            : Mode.ToString();
+    }
+
     private PrivacyModeDescriptor(PrivacyMode mode, params string[] fields)
     {
         Mode = mode;
