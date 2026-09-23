@@ -7,7 +7,6 @@ using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AdditionalClaims.
 using MultiFactor.SelfService.Linux.Portal.Core.Authentication.AuthenticationClaims;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Core.Metadata;
-using MultiFactor.SelfService.Linux.Portal.Integrations.ActiveDirectory.ExchangeActiveSync;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
@@ -29,7 +28,6 @@ using MultiFactor.SelfService.Linux.Portal.Stories;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Services;
 using MultiFactor.SelfService.Linux.Portal.Stories.Authenticate;
-using MultiFactor.SelfService.Linux.Portal.Stories.ChangeActiveSyncDeviceState;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeExpiredPassword;
 using MultiFactor.SelfService.Linux.Portal.Stories.ChangeValidPassword;
 using MultiFactor.SelfService.Linux.Portal.Stories.CheckExpiredPasswordSession;
@@ -37,7 +35,6 @@ using MultiFactor.SelfService.Linux.Portal.Stories.GetApplicationInfo;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfile;
 using MultiFactor.SelfService.Linux.Portal.Stories.LoadProfileStory;
 using MultiFactor.SelfService.Linux.Portal.Stories.RecoverPassword;
-using MultiFactor.SelfService.Linux.Portal.Stories.SearchExchangeActiveSyncDevices;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignIn;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignIn.ClaimsSources;
 using MultiFactor.SelfService.Linux.Portal.Stories.SignOut;
@@ -61,11 +58,8 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddSingleton<DataProtection>()
                 .AddSingleton<JsonDataSerializer>()
                 .AddSingleton<JsonPayloadLogger>()
-                .AddSingleton<DeviceAccessStateNameLocalizer>()
                 .AddSingleton<ICredentialVerifier, CredentialVerifier>()
                 .AddSingleton<HttpClientTokenProvider>()
-                .AddSingleton<ExchangeActiveSyncDevicesSearcher>()
-                .AddSingleton<ExchangeActiveSyncDeviceStateChanger>()
                 .AddSingleton<LdapServerInfoFactory>()
                 .AddSingleton(services =>
                 {
@@ -105,8 +99,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 .AddTransient<CheckExpiredPasswordSessionStory>()
                 .AddTransient<ChangeExpiredPasswordStory>()
                 .AddTransient<ChangeValidPasswordStory>()
-                .AddTransient<SearchExchangeActiveSyncDevicesStory>()
-                .AddTransient<ChangeActiveSyncDeviceStateStory>()
                 .AddPasswordRequirements()
                 .AddSingleton<IUserAttributeChanger, UserAttributeChanger>()
                 .AddSingleton<LockAttributeChangerFactory>()

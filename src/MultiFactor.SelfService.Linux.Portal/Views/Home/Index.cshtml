@@ -16,10 +16,6 @@
                 {
                     <a href="~/password/change" class="btn-header">@Localizer["ChangePassword"]</a>
                 }
-                @if (Model.Profile.EnableExchangeActiveSyncDevicesManagement)
-                {
-                    <a href="~/ExchangeActiveSyncDevices" class="btn-header">@Localizer["ManageActiveSyncDevices"]</a>
-                }
                 <a href="~/account/logout" class="btn-header btn-header-exit">@Localizer["Exit"]</a>
             </div>
             <div class="apps-header-user">
@@ -86,12 +82,6 @@
                 {
                     <li><a href="~/password/change">
                         <input type="button" class="w-100 btn-primary" value="@Localizer["ChangePassword"]" />
-                    </a></li>
-                }
-                @if (Model.Profile.EnableExchangeActiveSyncDevicesManagement)
-                {
-                    <li><a href="~/ExchangeActiveSyncDevices">
-                        <input type="button" class="w-100 btn-primary" value="@Localizer["ManageActiveSyncDevices"]" />
                     </a></li>
                 }
                 <li><a href="~/account/logout" class="btn btn-secondary">@Localizer["Exit"]</a></li>

@@ -144,15 +144,6 @@
   <data name="SiteName" xml:space="preserve">
     <value>{0} MFA Portal</value>
   </data>
-  <data name="SyncDeviceAccessStateAllowed" xml:space="preserve">
-    <value>Allowed</value>
-  </data>
-  <data name="SyncDeviceAccessStateBlocked" xml:space="preserve">
-    <value>Blocked</value>
-  </data>
-  <data name="SyncDeviceAccessStateQuarantined" xml:space="preserve">
-    <value>Quarantined</value>
-  </data>
   <data name="UnableToRecoverPassword" xml:space="preserve">
     <value>Unable to set the new password</value>
   </data>

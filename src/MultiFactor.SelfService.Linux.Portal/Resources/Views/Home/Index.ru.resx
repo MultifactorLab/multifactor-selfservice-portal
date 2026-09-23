@@ -132,9 +132,6 @@
   <data name="Welcome" xml:space="preserve">
     <value>Вы вошли под учетной записью</value>
   </data>
-  <data name="ManageActiveSyncDevices" xml:space="preserve">
-    <value>Проверить устройства с почтой</value>
-  </data>
   <data name="Configure2FA" xml:space="preserve">
     <value>Настроить 2FA</value>
   </data>

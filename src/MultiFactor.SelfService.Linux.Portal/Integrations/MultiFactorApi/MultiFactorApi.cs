@@ -116,7 +116,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
                     AllResourcesPermitted = response.Policy?.AllResourcesPermitted ?? false,
                     PermittedResources = response.Policy?.PermittedResources ?? []
                 },
-                EnableExchangeActiveSyncDevicesManagement = _settings.ExchangeActiveSyncDevicesManagement.Enabled,
             };
         }
 

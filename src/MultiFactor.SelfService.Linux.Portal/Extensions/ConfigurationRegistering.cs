@@ -63,15 +63,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Extensions
                 };
             }
 
-            if (settings.ExchangeActiveSyncDevicesManagement == null ||
-                settings.EnableExchangeActiveSyncDevicesManagement)
-            {
-                settings.ExchangeActiveSyncDevicesManagement = new ExchangeActiveSyncDevicesManagement
-                {
-                    Enabled = settings.EnableExchangeActiveSyncDevicesManagement
-                };
-            }
-
             if (settings.RequiresUserPrincipalName)
             {
                 settings.ActiveDirectorySettings = new ActiveDirectorySettings(

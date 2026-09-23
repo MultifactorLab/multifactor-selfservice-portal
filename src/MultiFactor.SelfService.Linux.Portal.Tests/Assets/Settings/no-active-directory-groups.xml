@@ -40,7 +40,5 @@
 
         <PasswordManagement enabled="false" allowPasswordRecovery="false">
         </PasswordManagement>
-
-        <ExchangeActiveSyncDevicesManagement enabled="false" />
     </PortalSettings>
 </configuration>

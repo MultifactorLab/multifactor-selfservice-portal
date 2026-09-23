@@ -78,9 +78,6 @@
 			<!-- </PwdRequirement> -->
 		</PasswordRequirements>
 
-		<!-- Enable user Exchange AciveSync devices provisioning. Doesn't work with Samba. -->
-		<ExchangeActiveSyncDevicesManagement enabled="false" />
-
 		<!--<UICulture>auto:en</UICulture>-->
 
 		<!--<GroupPolicyPreset>-->

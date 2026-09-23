@@ -88,15 +88,4 @@ public class LoadDefaultSettingsTests
         Assert.False(passwordManagementSettings.Enabled);
         Assert.False(passwordManagementSettings.AllowPasswordRecovery);
     }
-    
-    [Fact]
-    public void LoadDefaultSettings_ShouldLoadExchangeActiveSyncDevicesManagementSettings()
-    {
-        var configPath = TestEnvironment.GetAssetPath($"Settings{Path.DirectorySeparatorChar}minimal-settings.xml");
-        var portalSettings = TestEnvironment.LoadPortalSettings(configPath);
-        var exchangeActiveSyncDevicesManagementSettings = portalSettings.ExchangeActiveSyncDevicesManagement;
-        
-        Assert.NotNull(exchangeActiveSyncDevicesManagementSettings);
-        Assert.False(exchangeActiveSyncDevicesManagementSettings.Enabled);
-    }
 }

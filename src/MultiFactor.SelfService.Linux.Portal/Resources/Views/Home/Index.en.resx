@@ -132,9 +132,6 @@
   <data name="Greetings" xml:space="preserve">
     <value>Hello,</value>
   </data>
-  <data name="ManageActiveSyncDevices" xml:space="preserve">
-    <value>Manage ActiveSync devices</value>
-  </data>
   <data name="Configure2FA" xml:space="preserve">
     <value>Configure 2FA</value>
   </data>

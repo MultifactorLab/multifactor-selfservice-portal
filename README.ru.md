@@ -101,9 +101,6 @@ MultiFactor SelfService Portal (версия для Linux) &mdash; веб-сай
 		<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 	</PasswordManagement>
 
-	<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
-	<ExchangeActiveSyncDevicesManagement enabled="false" />
-
 	<!--<UICulture>auto:en</UICulture>-->
 
 	<!--<GroupPolicyPreset>-->

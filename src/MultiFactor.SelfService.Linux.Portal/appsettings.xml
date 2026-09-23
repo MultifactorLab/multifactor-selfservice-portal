@@ -102,9 +102,6 @@
 			<Link Url=">https://multifactor.ru/docs/self-service-portal/windows-3" Title="multifactor" Image="logo1.svg" OpenInNewTab="true" />
 		</LinksShowcase>-->
 
-		<!-- Enable user Exchange ActiveSync devices provisioning. Doesn't work with Samba. -->
-		<ExchangeActiveSyncDevicesManagement enabled="false" />
-
 		<!-- Load Nested Groups during the profile loading -->
 		<!--LoadActiveDirectoryNestedGroups>false</LoadActiveDirectoryNestedGroups-->
 

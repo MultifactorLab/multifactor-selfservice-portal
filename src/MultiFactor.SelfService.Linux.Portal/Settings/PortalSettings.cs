@@ -15,7 +15,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
         public AdditionalClaims AdditionalClaims { get; private set; } = new();
         public CaptchaSettings CaptchaSettings { get; set; } = new();
         public PasswordManagementSettings PasswordManagement { get; set; }
-        public ExchangeActiveSyncDevicesManagement ExchangeActiveSyncDevicesManagement { get; set; }
         public PasswordRequirementsSection PasswordRequirements { get; init; } = new();
         public string LoggingLevel { get; private set; }
         public string LoggingFormat { get; private set; }
@@ -53,9 +52,6 @@ namespace MultiFactor.SelfService.Linux.Portal.Settings
                 || ActiveDirectorySettings.SplittedActiveDirectoryGroups.Length != 0
                 || PasswordManagement.Enabled;
         }
-
-        [Obsolete("Use ExchangeActiveSyncDevicesManagement.Enable instead")]
-        public bool EnableExchangeActiveSyncDevicesManagement { get; private set; }
 
         [Obsolete("Use PasswordChangingManagementSettings.Enable property instead")]
         public bool EnablePasswordManagement { get; private set; }

@@ -102,9 +102,6 @@ Portal settings are stored in the `appsettings.production.xml` file in XML forma
 		<!-- <PasswordChangingSessionCachesize>5242880</PasswordChangingSessionCachesize> -->
 	</PasswordManagement>
 
-	<!-- Enable user Exchange AciveSync devices provisioning. Don't works with Samba. -->
-	<ExchangeActiveSyncDevicesManagement enabled="false" />
-
 	<!--<UICulture>auto:en</UICulture>-->
 
 	<!--<GroupPolicyPreset>-->
