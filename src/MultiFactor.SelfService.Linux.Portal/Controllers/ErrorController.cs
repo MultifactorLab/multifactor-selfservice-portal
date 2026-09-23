@@ -8,10 +8,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
     public class ErrorController : ControllerBase
     {
         private readonly ScopeInfoService _scopeInfoService;
+
         public ErrorController(ScopeInfoService scopeInfoService)
         {
             _scopeInfoService = scopeInfoService;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -21,7 +23,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         {
             return View();
         }
-        
+
         public async Task<IActionResult> AccessDenied()
         {
             var adminInfo = await _scopeInfoService.GetSupportInfo();
