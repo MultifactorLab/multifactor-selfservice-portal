@@ -20,17 +20,18 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading
 
         public ILdapFilter GetProfileSearchFilter(LdapIdentity user)
         {
-            var searchFilter = LdapFilter.Create("objectClass", "user", "person", "memberof");
             switch (_serverInfo.Implementation)
             {
                 case LdapImplementation.FreeIPA:
                 case LdapImplementation.OpenLdap:
                     {
+                        var searchFilter = LdapFilter.Create("objectClass", "user", "person", "memberof");
                         return searchFilter.And(LdapFilter.Create("uid", $"{user.GetUid()}"));
                     }
                 case LdapImplementation.ActiveDirectory:
                 case LdapImplementation.Samba:
                     {
+                        var searchFilter = LdapFilter.Create("objectClass", "user");
                         if (user.Type == IdentityType.UserPrincipalName)
                         {
                             return searchFilter.And(LdapFilter.Create("userPrincipalName", user.Name));

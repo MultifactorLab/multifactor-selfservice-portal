@@ -1,8 +1,8 @@
 ﻿using LdapForNet;
 using Microsoft.Extensions.Caching.Memory;
 using MultiFactor.SelfService.Linux.Portal.Abstractions.Ldap;
-using MultiFactor.SelfService.Linux.Portal.Core.LdapFilterBuilding;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
+using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.ProfileLoading;
 using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
@@ -13,6 +13,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
         private readonly ILogger<LdapConnectionAdapterFactory> _logger;
         private readonly IBindIdentityFormatter _bindDnFormatter;
         private readonly ILdapConnectionAdapter _ldapConnectionAdapter;
+        private readonly ILdapProfileFilterProvider _profileFilterProvider;
         private readonly IMemoryCache _memoryCache;
 
         public LdapConnectionAdapterFactory(
@@ -20,12 +21,14 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             ILogger<LdapConnectionAdapterFactory> logger, 
             IBindIdentityFormatter bindDnFormatter,
             ILdapConnectionAdapter ldapConnectionAdapter,
+            ILdapProfileFilterProvider profileFilterProvider,
             IMemoryCache memoryCache)
         {
             _settings = settings;
             _logger = logger;
             _bindDnFormatter = bindDnFormatter;
             _ldapConnectionAdapter = ldapConnectionAdapter;
+            _profileFilterProvider = profileFilterProvider ?? throw new ArgumentNullException(nameof(profileFilterProvider));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
@@ -90,11 +93,10 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.Connection
             }
         }
 
-        private static async Task<LdapIdentity> FindUserByUidAsync(string username, LdapDomain domain, ILdapConnectionAdapter connection)
+        private async Task<LdapIdentity> FindUserByUidAsync(string username, LdapDomain domain, ILdapConnectionAdapter connection)
         {
             var user = LdapIdentity.ParseUser(username);
-            var filter = LdapFilter.Create("objectclass", "user").Or("objectclass", "person")
-                    .And(LdapFilter.Create("uid", user.GetUid()).Or("sAMAccountName", user.GetUid()));
+            var filter = _profileFilterProvider.GetProfileSearchFilter(user);
 
             var attrs = new[] { "uid", "sAMAccountName", "distinguishedName" };
             var result = await connection.SearchQueryAsync(domain.Name, filter.Build(), LdapForNet.Native.Native.LdapSearchScope.LDAP_SCOPE_SUBTREE, attrs);
