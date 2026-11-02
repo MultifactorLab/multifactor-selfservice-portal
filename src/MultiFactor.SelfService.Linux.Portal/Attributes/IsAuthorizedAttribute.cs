@@ -48,7 +48,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Attributes
                 return;
             }
             var tokenClaims = tokenVerifier.Verify(cookie);
-            if(tokenClaims.MustChangePassword && !_skipPasswordVerification)
+            if (tokenClaims.MustChangePassword && !_skipPasswordVerification)
             {
                 context.Result = new RedirectToRouteResult(new RouteValueDictionary
                 {

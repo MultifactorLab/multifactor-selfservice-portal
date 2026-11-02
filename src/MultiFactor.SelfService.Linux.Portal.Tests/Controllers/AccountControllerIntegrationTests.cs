@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,7 @@ using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Dto;
 using MultiFactor.SelfService.Linux.Portal.Integrations.MultifactorIdpApi.Enums;
 using MultiFactor.SelfService.Linux.Portal.Tests.Fixtures;
+using MultiFactor.SelfService.Linux.Portal.Settings;
 
 namespace MultiFactor.SelfService.Linux.Portal.Tests.Controllers;
 
@@ -55,7 +57,7 @@ public class AccountControllerIntegrationTests : IDisposable
         _credentialVerifierMock = new Mock<ICredentialVerifier>();
     }
 
-    private HttpClient CreateClient()
+    private HttpClient CreateClient(bool captchaSuccess = true)
     {
         _idpApiMock.Reset();
         _multiFactorApiMock.Reset();
@@ -114,7 +116,7 @@ public class AccountControllerIntegrationTests : IDisposable
                     var captchaMock = new Mock<ICaptchaVerifier>();
                     captchaMock
                         .Setup(v => v.VerifyCaptchaAsync(It.IsAny<HttpRequest>()))
-                        .ReturnsAsync(new CaptchaVerificationResult(true));
+                        .ReturnsAsync(new CaptchaVerificationResult(captchaSuccess));
                     return captchaMock.Object;
                 });
 
@@ -455,6 +457,38 @@ public class AccountControllerIntegrationTests : IDisposable
         Assert.True(response.StatusCode == HttpStatusCode.Redirect ||
                     response.StatusCode == HttpStatusCode.Found ||
                     response.StatusCode == HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Authn_WithoutAccessToken_ShowsProtectedLoginAndCannotBypassCaptcha()
+    {
+        var client = CreateClient(captchaSuccess: false);
+        var token = await ExtractAntiForgeryTokenAsync(client, "/account/login");
+        Assert.NotNull(token);
+        var settings = _factory!.Services.GetRequiredService<PortalSettings>();
+        new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            [nameof(PortalSettings.PreAuthenticationMethod)] = "true"
+        }).Build().Bind(settings, options => options.BindNonPublicProperties = true);
+        settings.CaptchaSettings = new CaptchaSettings { Enabled = true, Key = "test-key" };
+        var form = new Dictionary<string, string>
+        {
+            ["UserName"] = "jdoe@test.local", ["Password"] = "password123",
+            ["MyUrl"] = "https://portal.example.com", ["__RequestVerificationToken"] = token!
+        };
+
+        var response = await client.PostAsync("/account/authn?samlSessionId=saml-session",
+            new FormUrlEncodedContent(form));
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("/account/login?samlSessionId=saml-session", html);
+        _credentialVerifierMock.Verify(x => x.VerifyCredentialAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _idpApiMock.Verify(x => x.LoginAsync(It.IsAny<LoginRequestDto>(), It.IsAny<Dictionary<string, string>>()), Times.Never);
+
+        var denied = await client.PostAsync("/account/login?samlSessionId=saml-session", new FormUrlEncodedContent(form));
+        Assert.Equal(HttpStatusCode.OK, denied.StatusCode);
+        _credentialVerifierMock.Verify(x => x.VerifyCredentialAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]

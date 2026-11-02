@@ -76,5 +76,35 @@ namespace MultiFactor.SelfService.Linux.Portal.Authentication
                 throw new UnauthorizedException("Error verifying token", ex);
             }
         }
+
+        public Dictionary<string, string> GetPasswordChangeClaims(string accessToken)
+        {
+            var verified = Verify(accessToken);
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+            var excluded = new HashSet<string>(StringComparer.Ordinal)
+            {
+                "iss", "aud", "sub", "jti", "exp", "iat", "nbf", "cnf", "name", "email",
+                Constants.MultiFactorClaims.ChangePassword
+            };
+            var claims = token.Payload.Where(pair => !excluded.Contains(pair.Key))
+                .ToDictionary(pair => pair.Key, pair => pair.Value is string value
+                    ? value
+                    : System.Text.Json.JsonSerializer.Serialize(pair.Value));
+
+            if (token.Payload.TryGetValue("cnf", out var confirmation))
+            {
+                using var json = System.Text.Json.JsonDocument.Parse(System.Text.Json.JsonSerializer.Serialize(confirmation));
+                claims["cnf_jkt"] = json.RootElement.GetProperty("jkt").GetString()
+                    ?? throw new InvalidOperationException("Token binding is missing.");
+            }
+
+            claims[Constants.MultiFactorClaims.RawUserName] = verified.RawUserName ?? verified.Identity;
+            if (!string.IsNullOrEmpty(verified.SamlClaim) || !string.IsNullOrEmpty(verified.OidcClaim))
+            {
+                claims[Constants.MultiFactorClaims.AdditionSsoStep] = "true";
+            }
+
+            return claims;
+        }
     }
 }

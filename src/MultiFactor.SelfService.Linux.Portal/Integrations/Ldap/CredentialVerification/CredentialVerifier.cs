@@ -104,7 +104,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                     {
                         _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
                             _settings.ActiveDirectorySettings.SecondFactorGroups);
-                        return CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
+                        var bypassResult = CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
+                        _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = bypassResult;
+                        return bypassResult;
                     }
 
                     _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user,
@@ -242,7 +244,9 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerif
                 {
                     _logger.LogInformation("User '{user:l}' is not member of {2FaGroup:l} group", user,
                         _settings.ActiveDirectorySettings.SecondFactorGroups);
-                    return CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
+                    var bypassResult = CredentialVerificationResult.ByPass(username, profile.Upn, profile.UserMustChangePassword());
+                    _httpContextAccessor.HttpContext.Items[Constants.CredentialVerificationResult] = bypassResult;
+                    return bypassResult;
                 }
 
                 _logger.LogInformation("User '{user:l}' is member of {2FaGroup:l} group", user,

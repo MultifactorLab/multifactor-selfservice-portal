@@ -65,6 +65,12 @@ public class KerberosSignInStory
             return new RedirectToActionResult("Login", "Account", null);
         }
 
+        if (credentialResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
+        {
+            return new RedirectToActionResult("Login", "Account",
+                new { samlSessionId = sso.SamlSessionId, oidcSessionId = sso.OidcSessionId });
+        }
+
         _logger.LogDebug("Kerberos user '{User}' membership verified successfully", username);
 
         var claims = new Dictionary<string, string>(_claimsProvider.GetClaims())
@@ -127,7 +133,8 @@ public class KerberosSignInStory
         if (response.Action == LoginAction.ChangePassword)
         {
             _logger.LogInformation("Kerberos user '{User}' must change password, redirecting to login form", username);
-            return new RedirectToActionResult("Login", "Account", null);
+            return new RedirectToActionResult("Login", "Account",
+                new { samlSessionId = sso.SamlSessionId, oidcSessionId = sso.OidcSessionId });
         }
 
         if (!string.IsNullOrWhiteSpace(response.RedirectUrl))

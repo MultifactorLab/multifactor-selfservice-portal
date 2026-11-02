@@ -26,6 +26,17 @@ namespace MultiFactor.SelfService.Linux.Portal.Integrations.MultiFactorApi
             return ExecuteAsync(() => _clientAdapter.GetAsync<ApiResponse>("ping"));
         }
 
+        public Task<string> RefreshAccessTokenAsync(string accessToken, IReadOnlyDictionary<string, string> claims)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+            ArgumentNullException.ThrowIfNull(claims);
+
+            return ExecuteAsync(() => _clientAdapter.PostAsync<ApiResponse<string>>(
+                "token/refresh",
+                new { AccessToken = accessToken, Claims = claims },
+                GetBasicAuthHeaders()));
+        }
+
         public async Task<ShowcaseSettings> GetShowcaseSettingsAsync()
         {
             var response = await _clientAdapter.GetAsync<ShowcaseSettingsDto>("self-service/settings/showcase", GetBasicAuthHeaders());

@@ -166,6 +166,35 @@ public class KerberosSignInStoryTests
             x => x.LoginAsync(It.IsAny<LoginRequestDto>(), It.IsAny<Dictionary<string, string>>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenPasswordExpiredWithSamlSession_RedirectsToPasswordLogin()
+    {
+        var settings = TestEnvironment.LoadPortalSettings(
+            TestEnvironment.GetAssetPath($"Settings{Path.DirectorySeparatorChar}minimal-settings.xml"));
+        settings.PasswordManagement = new PasswordManagementSettings { Enabled = true };
+        _credentialVerifierMock
+            .Setup(x => x.VerifyMembership(It.IsAny<string>()))
+            .ReturnsAsync(CredentialVerificationResult.CreateBuilder(true)
+                .SetUsername("jdoe@domain.local")
+                .SetUserMustChangePassword(true)
+                .Build());
+        var story = new KerberosSignInStory(
+            _idpApiMock.Object, settings, _loggerMock.Object, EmptyClaimsProvider, _credentialVerifierMock.Object);
+
+        var result = await story.ExecuteAsync(
+            MakePrincipal("jdoe@domain.local"),
+            new SingleSignOnDto("saml-session-id", string.Empty),
+            EmptyHeaders,
+            PostbackUrl);
+
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Login", redirect.ActionName);
+        Assert.Equal("saml-session-id", redirect.RouteValues!["samlSessionId"]);
+        _idpApiMock.Verify(
+            x => x.LoginAsync(It.IsAny<LoginRequestDto>(), It.IsAny<Dictionary<string, string>>()),
+            Times.Never);
+    }
     
     [Fact]
     public async Task ExecuteAsync_SendsKerberosAmrClaimInIdpRequest()

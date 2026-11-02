@@ -6,5 +6,6 @@ public enum LoginCompletedAction
     Authenticated,
     BypassSaml,
     BypassOidc,
-    ChangePassword
+    ChangePassword,
+    AccessDenied
 }

@@ -178,6 +178,7 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         }
         
         [HttpGet("account/login")]
+        [ConsumeSsoClaims]
         public IActionResult Login()
         {
             var sso = _safeHttpContextAccessor.SafeGetSsoClaims();

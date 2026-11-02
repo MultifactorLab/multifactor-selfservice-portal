@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
 using MultiFactor.SelfService.Linux.Portal.Core;
 using MultiFactor.SelfService.Linux.Portal.Core.Caching;
 using MultiFactor.SelfService.Linux.Portal.Core.Http;
 using MultiFactor.SelfService.Linux.Portal.Exceptions;
-using MultiFactor.SelfService.Linux.Portal.Extensions;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap;
 using MultiFactor.SelfService.Linux.Portal.Integrations.Ldap.CredentialVerification;
 using MultiFactor.SelfService.Linux.Portal.Settings;
@@ -58,46 +59,39 @@ public class AuthnStory
         var serviceUser = LdapIdentity.ParseUser(_settings.TechnicalAccountSettings.User!);
         if (userName.IsEquivalentTo(serviceUser)) return await WrongAsync();
 
+        if (string.IsNullOrWhiteSpace(model.AccessToken))
+        {
+            return new ViewResult
+            {
+                ViewName = "Login",
+                ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+                {
+                    Model = new LoginViewModel { UserName = model.UserName }
+                }
+            };
+        }
+
 
         // authn after 2fa
         // AD credential check
         var adValidationResult = await _credentialVerifier.VerifyCredentialAsync(model.UserName.Trim(), model.Password.Trim());
+
+        if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
+        {
+            var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
+            _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(adValidationResult.Username),
+                model.UserName.Trim());
+            _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(adValidationResult.Username),
+                encryptedPassword);
+
+            return await _authenticateSessionStory.ExecutePasswordChangeAsync(model.AccessToken);
+        }
 
         // credential is VALID
         if (adValidationResult.IsAuthenticated)
         {
             _logger.LogInformation("User '{user}' credential verified successfully in {domain:l}", userName,
                 _settings.CompanySettings.Domain);
-
-            await _authenticateSessionStory.Execute(model.AccessToken);
-
-            var sso = _contextAccessor.SafeGetSsoClaims();
-            if (sso.HasSamlSession())
-            {
-                if (adValidationResult.IsBypass)
-                {
-                    return new RedirectToActionResult("ByPassSamlSession", "account",
-                        new { username = model.UserName, samlSession = sso.SamlSessionId });
-                }
-
-                return new RedirectToActionResult("ByPassSamlSession", "Account", new { samlSession = sso.SamlSessionId });
-            }
-
-            if (sso.HasOidcSession())
-            {
-                return new RedirectToActionResult("ByPassOidcSession", "Account", new { oidcSession = sso.OidcSessionId });
-            }
-
-            return new RedirectToActionResult("Index", "Home", default);
-        }
-
-        if (adValidationResult.UserMustChangePassword && _settings.PasswordManagement.Enabled)
-        {
-            var encryptedPassword = _dataProtection.Protect(model.Password.Trim(), Constants.PWD_RENEWAL_PURPOSE);
-            _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdUserKey(model.UserName),
-                model.UserName.Trim());
-            _applicationCache.Set(ApplicationCacheKeyFactory.CreateExpiredPwdCipherKey(model.UserName),
-                encryptedPassword);
 
             return await _authenticateSessionStory.Execute(model.AccessToken);
         }
