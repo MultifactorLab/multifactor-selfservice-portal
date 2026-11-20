@@ -354,7 +354,12 @@ namespace MultiFactor.SelfService.Linux.Portal.Controllers
         [HttpGet]
         public async Task<IActionResult> ByPassSsoSession(string callbackUrl, string accessToken)
         {
-            var page = new BypassPageDto(callbackUrl, accessToken);
+            if (!UrlHelper.TryReadHttpsUrl(callbackUrl, out var uri))
+            {
+                return BadRequest("callbackUrl must be an absolute https:// URL");
+            }
+            
+            var page = new BypassPageDto(uri.AbsoluteUri, accessToken);
             return View(page);
         }
 
